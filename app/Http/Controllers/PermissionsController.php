@@ -16,6 +16,7 @@ class PermissionsController extends AppBaseController
 
     public function __construct(PermissionsRepository $permissionsRepo)
     {
+        $this->middleware('auth');
         $this->permissionsRepository = $permissionsRepo;
     }
 

@@ -1,21 +1,102 @@
-
+{{-- SETTINGS SIDE --}}
 <li class="nav-item">
-    <a href="{{ route('users.index') }}" class="nav-link {{ Request::is('users*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-users"></i>
-        <p>Users</p>
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-sign-in-alt"></i>
+        <p>
+            Enrollment
+            <i class="right fas fa-caret-left"></i>
+        </p>
     </a>
+    <ul class="nav nav-treeview">
+
+        <li class="nav-item">
+            <a href="{{ route('students.new-student') }}"
+               class="nav-link {{ Request::is('students.new-student*') ? 'active' : '' }}">
+               <i class="fas fa-folder-plus nav-icon"></i>
+                <p>New Student</p>
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a href="{{ route('barangays.index') }}"
+               class="nav-link {{ Request::is('barangays*') ? 'active' : '' }}">
+               <i class="fas fa-folder-open nav-icon"></i>
+                <p>Existing Student</p>
+            </a>
+        </li>
+    </ul>
 </li>
 
+{{-- @canany('god permission') --}}
+{{-- SETTINGS SIDE --}}
 <li class="nav-item">
-    <a href="{{ route('roles.index') }}" class="nav-link {{ Request::is('roles*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-lock"></i>
-        <p>Roles</p>
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-cogs"></i>
+        <p>
+            Settings
+            <i class="right fas fa-caret-left"></i>
+        </p>
     </a>
-</li>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('classesRepos.index') }}" class="nav-link {{ Request::is('classesRepos*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-puzzle-piece"></i>
+                <p>Classes & Sections</p>
+            </a>
+        </li>
 
-<li class="nav-item">
-    <a href="{{ route('permissions.index') }}" class="nav-link {{ Request::is('permissions*') ? 'active' : '' }}">
-        <i class="nav-icon fas fa-key"></i>
-        <p>Permissions</p>
-    </a>
+        <div class="divider"></div>
+
+        <li class="nav-item">
+            <a href="{{ route('towns.index') }}"
+               class="nav-link {{ Request::is('towns*') ? 'active' : '' }}">
+               <i class="fas fa-map-marker-alt nav-icon"></i>
+                <p>Towns</p>
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a href="{{ route('barangays.index') }}"
+               class="nav-link {{ Request::is('barangays*') ? 'active' : '' }}">
+               <i class="fas fa-map-marker-alt nav-icon"></i>
+                <p>Barangays</p>
+            </a>
+        </li>
+    </ul>
 </li>
+{{-- @endcanany --}}
+
+{{-- @canany('god permission') --}}
+{{-- ADMIN SIDE --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-shield-alt"></i>
+        <p>
+            Administrative
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('users.index') }}" class="nav-link {{ Request::is('users*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-users"></i>
+                <p>Users</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('roles.index') }}" class="nav-link {{ Request::is('roles*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-lock"></i>
+                <p>Roles</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('permissions.index') }}" class="nav-link {{ Request::is('permissions*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-key"></i>
+                <p>Permissions</p>
+            </a>
+        </li>
+    </ul>
+</li>
+{{-- @endcanany --}}
