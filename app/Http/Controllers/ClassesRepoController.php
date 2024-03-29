@@ -7,6 +7,9 @@ use App\Http\Requests\UpdateClassesRepoRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\ClassesRepoRepository;
 use Illuminate\Http\Request;
+use App\Models\ClassesRepo;
+use App\Models\Teachers;
+use Illuminate\Support\Facades\DB;
 use Flash;
 
 class ClassesRepoController extends AppBaseController
@@ -25,7 +28,11 @@ class ClassesRepoController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $classesRepos = $this->classesRepoRepository->paginate(10);
+        $classesRepos = DB::table('ClassesRepo')
+            ->leftJoin('Teachers', 'ClassesRepo.Adviser', '=', 'Teachers.id')
+            ->select('ClassesRepo.*', 'Teachers.FullName')
+            ->orderBy('ClassesRepo.Year')
+            ->paginate(10);
 
         return view('classes_repos.index')
             ->with('classesRepos', $classesRepos);
@@ -36,7 +43,9 @@ class ClassesRepoController extends AppBaseController
      */
     public function create()
     {
-        return view('classes_repos.create');
+        return view('classes_repos.create', [
+            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+        ]);
     }
 
     /**
@@ -82,7 +91,10 @@ class ClassesRepoController extends AppBaseController
             return redirect(route('classesRepos.index'));
         }
 
-        return view('classes_repos.edit')->with('classesRepo', $classesRepo);
+        return view('classes_repos.edit', [
+            'classesRepo' => $classesRepo,
+            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+        ]);
     }
 
     /**
@@ -125,5 +137,15 @@ class ClassesRepoController extends AppBaseController
         Flash::success('Classes Repo deleted successfully.');
 
         return redirect(route('classesRepos.index'));
+    }
+
+    public function getGradeLevels(Request $request) {
+        $data =  DB::table('ClassesRepo')
+            ->leftJoin('Teachers', 'ClassesRepo.Adviser', '=', 'Teachers.id')
+            ->select('ClassesRepo.*', 'Teachers.FullName')
+            ->orderBy('ClassesRepo.Year')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }

@@ -7,6 +7,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\StudentsController;
 use App\Http\Controllers\TownsController;
 use App\Http\Controllers\BarangaysController;
+use App\Http\Controllers\ClassesController;
+use App\Http\Controllers\ClassesRepoController;
+use App\Http\Controllers\SchoolYearController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +43,19 @@ Route::resource('barangays', BarangaysController::class);
 
 Route::get('/students/new-student', [StudentsController::class, 'newStudent'])->name('students.new-student');
 Route::post('/students/save-student', [StudentsController::class, 'saveStudent'])->name('students.save-student');
+Route::get('/students/get-student', [StudentsController::class, 'getStudent'])->name('students.get-student');
+Route::get('/students/search-students-paginated', [StudentsController::class, 'searchStudentsPaginated'])->name('students.search-students-paginated');
 Route::resource('students', StudentsController::class);
-Route::resource('classes', App\Http\Controllers\ClassesController::class);
+
+Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
+Route::get('/classes/existing-student', [ClassesController::class, 'existingStudent'])->name('classes.existing-student');
+Route::resource('classes', ClassesController::class);
+
 Route::resource('studentClasses', App\Http\Controllers\StudentClassesController::class);
-Route::resource('classesRepos', App\Http\Controllers\ClassesRepoController::class);
+
+Route::get('/classes_repos/get-grade-levels', [ClassesRepoController::class, 'getGradeLevels'])->name('classesRepos.get-grade-levels');
+Route::resource('classesRepos', ClassesRepoController::class);
+
+Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
+Route::resource('schoolYears', SchoolYearController::class);
+Route::resource('teachers', App\Http\Controllers\TeachersController::class);

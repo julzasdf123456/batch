@@ -108,7 +108,7 @@ import jquery from 'jquery';
 import Swal from 'sweetalert2';
 
 export default {
-    name : 'PersonalInfo.personal-info',
+    name : 'NewStudent.new-student',
     components : {
         FlatPickr,
         Swal,
@@ -238,9 +238,10 @@ export default {
                     text : 'Please supply all non-optional fields!'
                 })
             } else {
+                var studentId = this.generateId()
                 axios.post(`${ this.baseURL }/students/save-student`, {
                     _token : this.token,
-                    id : this.generateId(),
+                    id : studentId,
                     FirstName : this.firstname,
                     MiddleName : this.middlename,
                     LastName : this.lastname,
@@ -257,6 +258,7 @@ export default {
                         icon : 'success',
                         text : 'Student saved!'
                     })
+                    window.location.href = this.baseURL + '/classes/enroll/' + studentId
                 })
                 .catch(error => {
                     console.log(error.response)

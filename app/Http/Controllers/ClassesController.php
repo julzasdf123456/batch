@@ -126,4 +126,16 @@ class ClassesController extends AppBaseController
 
         return redirect(route('classes.index'));
     }
+
+    public function enroll($studentId) {
+        return view('/classes/enroll', [
+            'studentId' => $studentId
+        ]);
+    }
+
+    public function existingStudent(Request $request) {
+        return view('/classes/existing_student', [
+
+        ]);
+    }
 }

@@ -18,8 +18,8 @@
         </li>
         
         <li class="nav-item">
-            <a href="{{ route('barangays.index') }}"
-               class="nav-link {{ Request::is('barangays*') ? 'active' : '' }}">
+            <a href="{{ route('classes.existing-student') }}"
+               class="nav-link {{ Request::is('classes.existing-student*') ? 'active' : '' }}">
                <i class="fas fa-folder-open nav-icon"></i>
                 <p>Existing Student</p>
             </a>
@@ -33,15 +33,29 @@
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-cogs"></i>
         <p>
-            Settings
+            Management
             <i class="right fas fa-caret-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
+            <a href="{{ route('teachers.index') }}" class="nav-link {{ Request::is('teachers*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-user-circle"></i>
+                <p>Teachers</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a href="{{ route('classesRepos.index') }}" class="nav-link {{ Request::is('classesRepos*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-puzzle-piece"></i>
                 <p>Classes & Sections</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('schoolYears.index') }}" class="nav-link {{ Request::is('schoolYears*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-calendar-check"></i>
+                <p>School Years</p>
             </a>
         </li>
 
@@ -100,3 +114,5 @@
     </ul>
 </li>
 {{-- @endcanany --}}
+
+

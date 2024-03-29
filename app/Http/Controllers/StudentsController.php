@@ -7,6 +7,9 @@ use App\Http\Requests\UpdateStudentsRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\StudentsRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Students;
 use Flash;
 
 class StudentsController extends AppBaseController
@@ -144,5 +147,49 @@ class StudentsController extends AppBaseController
 
         // return redirect(route('students.index'));
         return response()->json($students, 200);
+    }
+
+    public function getStudent(Request $request) {
+        $id = $request['id'];
+
+        $student = DB::table('Students')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->whereRaw("Students.id='" . $id . "'")
+            ->select('Students.*',
+                'Towns.Town as TownSpelled',
+                'Barangays.Barangay as BarangaySpelled')
+            ->first();
+
+        return response()->json($student, 200);
+    }
+
+    public function searchStudentsPaginated(Request $request) {
+        $params = $request['SearchParams'];
+
+        if ($params != null) {
+            $data = DB::table('Students')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->whereRaw("Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
+                (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
+                (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%'")
+            ->select('Students.*',
+                'Towns.Town as TownSpelled',
+                'Barangays.Barangay as BarangaySpelled')
+            ->orderBy('Students.FirstName')
+            ->paginate(15);
+        } else {
+            $data = DB::table('Students')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->select('Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled')
+                ->orderBy('Students.FirstName')
+                ->paginate(15);
+        }
+
+        return response()->json($data, 200);
     }
 }

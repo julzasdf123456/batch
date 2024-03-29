@@ -12,14 +12,16 @@ class ClassesRepo extends Model
         'id',
         'Year',
         'ClassName',
-        'Section'
+        'Section',
+        'Adviser'
     ];
 
     protected $casts = [
         'id' => 'string',
         'Year' => 'string',
         'ClassName' => 'string',
-        'Section' => 'string'
+        'Section' => 'string',
+        'Adviser' => 'string',
     ];
 
     public static array $rules = [
@@ -27,7 +29,8 @@ class ClassesRepo extends Model
         'ClassName' => 'nullable|string|max:50',
         'Section' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Adviser' => 'nullable|string',
     ];
 
     

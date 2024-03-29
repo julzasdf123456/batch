@@ -50,7 +50,7 @@
                 <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item">
-                <p class="title-text" id="page-title"></p>
+                <p class="title-text mt-2 p-0" id="page-title"></p>
             </li>  
         </ul>
 

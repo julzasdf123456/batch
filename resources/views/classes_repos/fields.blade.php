@@ -15,3 +15,9 @@
     {!! Form::label('Section', 'Section Name:') !!}
     {!! Form::text('Section', null, ['class' => 'form-control', 'maxlength' => 50, 'maxlength' => 50, 'placeholder' => 'Section name...']) !!}
 </div>
+
+<!-- Section Field -->
+<div class="form-group col-lg-12">
+    {!! Form::label('Adviser', 'Teacher Adviser:') !!}
+    {!! Form::select('Adviser', $teachers, null, ['class' => 'form-control',]) !!}
+</div>

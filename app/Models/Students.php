@@ -19,7 +19,9 @@ class Students extends Model
         'Sitio',
         'Barangay',
         'Town',
-        'ContactNumber'
+        'ContactNumber',
+        'Status',
+        'CurrentGradeLevel',
     ];
 
     protected $casts = [
@@ -33,7 +35,9 @@ class Students extends Model
         'Sitio' => 'string',
         'Barangay' => 'string',
         'Town' => 'string',
-        'ContactNumber' => 'string'
+        'ContactNumber' => 'string',
+        'Status' => 'string',
+        'CurrentGradeLevel' => 'string',
     ];
 
     public static array $rules = [
@@ -48,7 +52,9 @@ class Students extends Model
         'Town' => 'nullable|string|max:50',
         'ContactNumber' => 'nullable|string|max:90',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Status' => 'nullable|string',
+        'CurrentGradeLevel' => 'nullable|string',
     ];
 
     
