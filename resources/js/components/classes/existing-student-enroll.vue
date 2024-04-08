@@ -33,6 +33,8 @@
                 </tr>
             </tbody>
         </table>
+
+        <pagination :data="students" :limit="10" @pagination-change-page="getSearch"></pagination>
     </div>
 </template>
 

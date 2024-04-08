@@ -42,16 +42,16 @@
                     <table class="table table-sm table-hover table-borderless">
                         <tbody>
                             <tr>
-                                <td class="text-muted v-align">School Year</td>
+                                <td class="text-muted v-align">School Year: </td>
                                 <td class="v-align">
                                     <select class="form-control" v-model="schoolYearSelected" @change="validateSY(schoolYearSelected)">
                                         <option value="Create New">-- Create New School Year --</option>
-                                        <option v-for="sy in schoolYears" :key="sy.id" :value="sy.SchoolYear">{{ sy.SchoolYear }}</option>
+                                        <option v-for="sy in schoolYears" :key="sy.id" :value="sy.id">{{ sy.SchoolYear }}</option>
                                     </select>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-muted v-align">Enroll In</td>
+                                <td class="text-muted v-align">Enroll In Class: </td>
                                 <td class="v-align">
                                     <select class="form-control" v-model="classSelected">
                                         <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ grade.Year + ' - ' + grade.Section }}</option>
@@ -241,6 +241,60 @@ export default {
                         }
                     }
                 })()
+            }
+            
+        },
+        saveEnrollment() {
+            if (this.isNull(this.classSelected)) {
+                this.toast.fire({
+                    icon : 'info',
+                    text : 'Please select a class to enroll in!'
+                })
+            } else {
+                if (this.isNull(this.schoolYearSelected)) {
+                    this.toast.fire({
+                        icon : 'info',
+                        text : 'Please select school year!'
+                    })
+                } else {
+                    Swal.fire({
+                        title: "Enrollment Confirmation",
+                        showCancelButton: true,
+                        html: `
+                            <p style='text-align: left;'>By proceeding, this enrollment application shall be forwarded to the cashier for the following payment: </p>
+                            <br>
+                            <ul>
+                                <li style='text-align: left;'>Enrollment Fees: <strong>P 500.00</strong></li>
+                                <li style='text-align: left;'>Miscellaneous Fees: <strong>P 230.00</strong></li>
+                            </ul>
+                        `,
+                        confirmButtonText: "Proceed Enrollment to Cashier",
+                        confirmButtonColor : '#3a9971'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            axios.post(`${ this.baseURL }/classes/save-enrollment`, {
+                                _token : this.token,
+                                StudentId : this.studentId,
+                                ClassRepoId : this.classSelected,
+                                SchoolYearId : this.schoolYearSelected,
+                            }) 
+                            .then(response => {
+                                this.toast.fire({
+                                    icon : 'success',
+                                    text : 'Enrollment forwarded to cashier!'
+                                })
+                                window.location.href = this.baseURL + '/classes/existing-student'
+                            })
+                            .catch(error => {
+                                console.log(error.response)
+                                Swal.fire({
+                                    icon : 'error',
+                                    text : error.response.data
+                                })
+                            })
+                        }
+                    })
+                }
             }
             
         }

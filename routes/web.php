@@ -10,6 +10,7 @@ use App\Http\Controllers\BarangaysController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\ClassesRepoController;
 use App\Http\Controllers\SchoolYearController;
+use App\Http\Controllers\TransactionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,7 @@ Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
 Route::get('/classes/existing-student', [ClassesController::class, 'existingStudent'])->name('classes.existing-student');
+Route::post('/classes/save-enrollment', [ClassesController::class, 'saveEnrollment'])->name('classes.save-enrollment');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', App\Http\Controllers\StudentClassesController::class);
@@ -59,3 +61,11 @@ Route::resource('classesRepos', ClassesRepoController::class);
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
 Route::resource('schoolYears', SchoolYearController::class);
 Route::resource('teachers', App\Http\Controllers\TeachersController::class);
+Route::resource('payables', App\Http\Controllers\PayablesController::class);
+
+Route::get('/transactions/enrollment', [TransactionsController::class, 'enrollment'])->name('transactions.enrollment');
+Route::get('/transactions/get-enrollment-queue', [TransactionsController::class, 'getEnrollmentQueue'])->name('transactions.get-enrollment-queue');
+Route::get('/transactions/get-enrollment-payables', [TransactionsController::class, 'getEnrollmentPayables'])->name('transactions.get-enrollment-payables');
+Route::resource('transactions', TransactionsController::class);
+
+Route::resource('transaction-details', App\Http\Controllers\TransactionDetailsController::class);

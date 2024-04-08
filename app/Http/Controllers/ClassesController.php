@@ -7,6 +7,15 @@ use App\Http\Requests\UpdateClassesRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\ClassesRepository;
 use Illuminate\Http\Request;
+use App\Models\Classes;
+use App\Models\ClassesRepo;
+use App\Models\Students;
+use App\Models\StudentClasses;
+use App\Models\SchoolYear;
+use App\Models\IDGenerator;
+use App\Models\Payables;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class ClassesController extends AppBaseController
@@ -137,5 +146,68 @@ class ClassesController extends AppBaseController
         return view('/classes/existing_student', [
 
         ]);
+    }
+
+    public function saveEnrollment(Request $request) {
+        $studentId = $request['StudentId'];
+        $classesRepoId = $request['ClassRepoId'];
+        $syId = $request['SchoolYearId'];
+
+        $sy = SchoolYear::find($syId);
+        $classesRepo = ClassesRepo::find($classesRepoId);
+        $student = Students::find($studentId);
+
+        if ($student != null) {
+            if ($classesRepo != null) {
+                // check if class exists in a particular school year
+                $class = Classes::where('SchoolYearId', $syId)
+                    ->where('Year', $classesRepo->Year)
+                    ->where('Section', $classesRepo->Section)
+                    ->first();
+
+                // save class if not yet created
+                if ($class == null) {
+                    $class = new Classes;
+                    $class->id = IDGenerator::generateID();
+                    $class->SchoolYearId = $syId;
+                    $class->Year = $classesRepo->Year;
+                    $class->Section = $classesRepo->Section;
+                    $class->Adviser = $classesRepo->Adviser;
+                    $class->save();
+                }
+
+                // create student inside the class
+                // check student first if enrolled already in class
+                $enrollee = StudentClasses::where('ClassId', $class->id)
+                    ->where('StudentId', $studentId)
+                    ->first();
+                
+                if ($enrollee != null) {
+                    return response()->json('Student already enrolled in this class!', 403);
+                } else {
+                    // create enrollee/student
+                    $enrollee = new StudentClasses;
+                    $enrollee->id = IDGenerator::generateID();
+                    $enrollee->ClassId = $class->id;
+                    $enrollee->StudentId = $studentId;
+                    $enrollee->Status = 'Pending Enrollment Payment';
+                    $enrollee->save();
+
+                    // create payables
+                    $payable = new Payables;
+                    $payable->id = IDGenerator::generateID();
+                    $payable->StudentId = $studentId;
+                    $payable->AmountPayable = 700.00;
+                    $payable->PaymentFor = 'Enrollment Fees for ' . $sy->SchoolYear;
+                    $payable->Category = 'Enrollment';
+                    $payable->Balance = 700.00;
+                    $payable->save();
+                }
+            } else {
+                return response()->json('Class repository not found!', 404);
+            }
+        } else {
+            return response()->json('Student not found!', 404);
+        }
     }
 }

@@ -1,4 +1,4 @@
-{{-- SETTINGS SIDE --}}
+{{-- ENROLLMENT SIDE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-sign-in-alt"></i>
@@ -22,6 +22,35 @@
                class="nav-link {{ Request::is('classes.existing-student*') ? 'active' : '' }}">
                <i class="fas fa-folder-open nav-icon"></i>
                 <p>Existing Student</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
+{{-- CASHIERING SIDE --}}
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-coins"></i>
+        <p>
+            Cashering
+            <i class="right fas fa-caret-left"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+
+        <li class="nav-item">
+            <a href="{{ route('transactions.enrollment') }}"
+               class="nav-link {{ Request::is('transactions.enrollment*') ? 'active' : '' }}">
+               <i class="fas fa-sign-in-alt nav-icon"></i>
+                <p>Enrollment</p>
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a href="{{ route('classes.existing-student') }}"
+               class="nav-link {{ Request::is('classes.existing-student*') ? 'active' : '' }}">
+               <i class="fas fa-file-invoice-dollar nav-icon"></i>
+                <p>School Tuitions</p>
             </a>
         </li>
     </ul>
@@ -114,5 +143,3 @@
     </ul>
 </li>
 {{-- @endcanany --}}
-
-

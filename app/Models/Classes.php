@@ -27,6 +27,7 @@ class Classes extends Model
     ];
 
     public static array $rules = [
+        'id' => 'string',
         'SchoolYearId' => 'nullable|string|max:50',
         'ClassName' => 'nullable|string|max:50',
         'Year' => 'nullable|string|max:50',
