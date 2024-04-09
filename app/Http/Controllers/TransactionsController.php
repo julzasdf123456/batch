@@ -9,6 +9,9 @@ use App\Repositories\TransactionsRepository;
 use Illuminate\Http\Request;
 use App\Models\Transactions;
 use App\Models\Payables;
+use App\Models\IDGenerator;
+use App\Models\TransactionDetails;
+use App\Models\StudentClasses;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -146,14 +149,14 @@ class TransactionsController extends AppBaseController
                 ->whereRaw("StudentClasses.Status='Pending Enrollment Payment' AND (Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
                     (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
                     (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%')")
-                ->select('Students.*')
+                ->select('Students.*', 'StudentClasses.ClassId')
                 ->orderBy('Students.FirstName')
                 ->paginate(18);
         } else {
             $data = DB::table('StudentClasses')
                 ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                 ->whereRaw("StudentClasses.Status='Pending Enrollment Payment'")
-                ->select('Students.*')
+                ->select('Students.*', 'StudentClasses.ClassId')
                 ->orderByDesc('StudentClasses.created_at')
                 ->paginate(18);
         }
@@ -170,5 +173,73 @@ class TransactionsController extends AppBaseController
             ->get();
 
         return response()->json($payables, 200);
+    }
+
+    public function transactEnrollment(Request $request) {
+        $studentId = $request['StudentId'];
+        $classId = $request['ClassId'];
+        $cashAmount = $request['cashAmount'];
+        $checkNumber = $request['checkNumber'];
+        $checkBank = $request['checkBank'];
+        $checkAmount = $request['checkAmount'];
+        $digitalNumber = $request['digitalNumber'];
+        $digitalBank = $request['digitalBank'];
+        $digitalAmount = $request['digitalAmount'];
+        $totalPayables = $request['totalPayables'];
+        $totalPayments = $request['totalPayments'];
+        $payables = $request['Payables'];
+        $orNumber = $request['ORNumber'];
+
+        // update payables
+        $payableIds = '';
+        foreach($payables as $item) {
+            $payableIds .= $item['id'];
+            Payables::where('id', $item['id'])
+                ->update(['AmountPaid' => $item['AmountPayable'], 'Balance' => 0]);
+        }
+
+        $modeOfPayment = '';
+        if ($cashAmount != null) {
+            $modeOfPayment .= 'Cash;';
+        }
+        if ($checkAmount != null) {
+            $modeOfPayment .= 'Check;';
+        }
+        if ($digitalAmount != null) {
+            $modeOfPayment .= 'Digital;';
+        }
+
+        // insert transactions
+        $id = IDGenerator::generateIDandRandString();
+        $transactions = new Transactions;
+        $transactions->id = $id;
+        $transactions->PayablesId = $payableIds;
+        $transactions->StudentId = $studentId;
+        $transactions->PaymentFor = 'Enrollment Fees';
+        $transactions->ModeOfPayment = $modeOfPayment;
+        $transactions->ORNumber = $orNumber;
+        $transactions->ORDate = date('Y-m-d');
+        $transactions->CashAmount = $cashAmount;
+        $transactions->CheckAmount = $checkAmount;
+        $transactions->DigitalPaymentAmount = $digitalAmount;
+        $transactions->TotalAmountPaid = $totalPayables;
+        $transactions->save();
+
+        // insert transaction details
+        foreach($payables as $item) {
+            $details = new TransactionDetails;
+            $details->id = IDGenerator::generateIDandRandString();
+            $details->TransactionsId = $id;
+            $details->Particulars = $item['PaymentFor'];
+            $details->Amount = $item['Balance'];
+            $details->save();
+        }
+
+        // update student classes
+        StudentClasses::where('ClassId', $classId)
+            ->where('StudentId', $studentId)
+            ->update(['Status' => 'Paid', 'EnrollmentORNumber' => $orNumber, 'EnrollmentORDate' => date('Y-m-d')]);
+
+        return response()->json('ok', 200);
     }
 }

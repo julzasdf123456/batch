@@ -66,6 +66,7 @@ Route::resource('payables', App\Http\Controllers\PayablesController::class);
 Route::get('/transactions/enrollment', [TransactionsController::class, 'enrollment'])->name('transactions.enrollment');
 Route::get('/transactions/get-enrollment-queue', [TransactionsController::class, 'getEnrollmentQueue'])->name('transactions.get-enrollment-queue');
 Route::get('/transactions/get-enrollment-payables', [TransactionsController::class, 'getEnrollmentPayables'])->name('transactions.get-enrollment-payables');
+Route::post('/transactions/transact-enrollment', [TransactionsController::class, 'transactEnrollment'])->name('transactions.transact-enrollment');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transaction-details', App\Http\Controllers\TransactionDetailsController::class);

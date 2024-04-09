@@ -1,7 +1,11 @@
 <template>
     <div class="row">
         <!-- SEARCH -->
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-4 col-md-12">
+            <!-- <div style="border-bottom: dotted 3px #aeaeae; margin-bottom: 18px; padding-bottom: 10px;">
+                <span class="text-muted">Search</span>
+                <span class="float-right"><i class="fas fa-search text-muted text-right"></i></span>
+            </div> -->
             <div class="card shadow-none">
                 <div class="card-header border-0">
                     <input type="text" placeholder="Search student name or ID..." :autofocus="true" class="form-control" v-model="search" @keyup="searchEnrollee">
@@ -23,26 +27,114 @@
             </div>
         </div>
 
+        <!-- PAYMENT DETAILS -->
+        <div class="col-lg-4">
+            <!-- <div style="border-bottom: dotted 3px #aeaeae; margin-bottom: 18px; padding-bottom: 10px;">
+                <span class="text-muted">View</span>
+                <span class="float-right"><i class="fas fa-mouse-pointer text-muted text-right"></i></span>
+            </div> -->
+            <span class="text-muted">{{ isNull(activeStudent) ? '' : activeStudent.id }}</span>
+            <h4>{{ isNull(activeStudent) ? '' : (activeStudent.FirstName + ' ' + (isNull(activeStudent.MiddleName) ? '' : activeStudent.MiddleName) + ' ' + activeStudent.LastName + ' ' + (isNull(activeStudent.Suffix) ? '' : activeStudent.Suffix)) }}</h4>
+            <br>
+            <span class="text-muted">Payment Details</span>
+            <table class="table table-hover table-sm table-borderless">
+                <tbody>
+                    <tr v-for="payable in payables" :key="payable.id">
+                        <td>{{ payable.PaymentFor }}</td>
+                        <td class="text-right"><strong>{{ toMoney(parseFloat(payable.Balance)) }}</strong></td>
+                    </tr>
+                    <tr style="border-top: 1px solid #aeaeae;">
+                        <td><strong>TOTAL PAYABLE AMOUNT</strong></td>
+                        <td class="text-right text-danger"><strong><h2>{{ toMoney(getTotalPayable(payables)) }}</h2></strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <!-- FORM -->
-        <div class="col-lg-8 col-md-6">
+        <div class="col-lg-4 col-md-12">
+            <!-- <div style="border-bottom: dotted 3px #aeaeae; margin-bottom: 18px; padding-bottom: 10px;">
+                <span class="text-muted">Transact</span>
+                <span class="float-right"><i class="fas fa-dollar-sign text-muted text-right"></i></span>
+            </div> -->
             <div class="card shadow-none">
-                <div class="card-header border-0">
-                    <span class="text-muted">{{ isNull(activeStudent) ? '' : activeStudent.id }}</span>
-                    <h4>{{ isNull(activeStudent) ? '' : (activeStudent.FirstName + ' ' + (isNull(activeStudent.MiddleName) ? '' : activeStudent.MiddleName) + ' ' + activeStudent.LastName + ' ' + (isNull(activeStudent.Suffix) ? '' : activeStudent.Suffix)) }}</h4>
-                </div>
                 <div class="card-body table-responsive">
-                    <span class="text-muted">Payment Details</span>
-                    <table class="table table-hover table-sm">
+                    <div>
+                        <div class="input-group-radio-sm">
+                            <label for="Cash" class="custom-radio-label-sm">OR Number</label>
+                        </div>
+                        <div class="ml-4">
+                            <input type="text" class="form-control" placeholder="OR Number..." autofocus v-model="orNumber">
+                        </div>
+                    </div>
+                    <!-- Cash -->
+                    <div class="mt-4">
+                        <div class="input-group-radio-sm">
+                            <!-- <input type="radio" id="Cash" value="Cash" v-model="paymentType" class="custom-radio-sm"> -->
+                            <label for="Cash" class="custom-radio-label-sm">Cash</label>
+                        </div>
+                        <div class="ml-4">
+                            <input type="number" class="form-control" ref="cashInput" placeholder="Cash amount..." autofocus v-model="cashAmount" @keyup="getTotalPayments" @keydown.enter="handleEnterKey">
+                        </div>
+                    </div>
+                    <!-- Check -->
+                    <div class="mt-4">
+                        <div class="input-group-radio-sm">
+                            <!-- <input type="radio" id="Check" value="Check" v-model="paymentType" class="custom-radio-sm"> -->
+                            <label for="Check" class="custom-radio-label-sm">Check</label>
+                        </div>
+                        <div class="ml-4 row">
+                            <div class="col-lg-7 col-md-12">
+                                <input title="Check number" type="text" class="form-control" placeholder="Check number..." autofocus v-model="checkNumber">
+                            </div>
+                            <div class="col-lg-5 col-md-12">
+                                <input title="Bank" type="text" class="form-control" placeholder="Bank..." autofocus v-model="checkBank">
+                            </div>
+                            <div class="col-lg-12 mt-1">
+                                <input title="Check amount" type="number" class="form-control" placeholder="Check amount..." autofocus v-model="checkAmount" @keyup="getTotalPayments" @keydown.enter="handleEnterKey">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Bank Transfers/Digital -->
+                    <div class="mt-4">
+                        <div class="input-group-radio-sm">
+                            <!-- <input type="radio" id="DigitalPaymens" value="DigitalPaymens" v-model="paymentType" class="custom-radio-sm"> -->
+                            <label for="DigitalPaymens" class="custom-radio-label-sm">Bank Transfers/Digital Payments</label>
+                        </div>
+                        <div class="ml-4 row">
+                            <div class="col-lg-7 col-md-12">
+                                <input title="Check number" type="text" class="form-control" placeholder="Transaction number..." autofocus v-model="digitalNumber">
+                            </div>
+                            <div class="col-lg-5 col-md-12">
+                                <input title="Bank/Digital Wallets/Source" type="text" class="form-control" placeholder="Bank/Digital Wallets/Source..." autofocus v-model="digitalBank">
+                            </div>
+                            <div class="col-lg-12 mt-1">
+                                <input title="Amount" type="number" class="form-control" placeholder="Amount..." autofocus v-model="digitalAmount" @keyup="getTotalPayments" @keydown.enter="handleEnterKey">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider mt-3"></div>
+
+                    <table class="table table-hover table-borderless table-sm">
                         <tbody>
-                            <tr v-for="payable in payables" :key="payable.id">
-                                <td>{{ payable.PaymentFor }}</td>
-                                <td class="text-right"><strong>{{ toMoney(parseFloat(payable.Balance)) }}</strong></td>
+                            <tr>
+                                <td class="text-muted v-align">TOTAL PAYMENT</td>
+                                <td class="v-align text-right text-success"><h1 class="no-pads">{{ toMoney(totalPayments) }}</h1></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted v-align">TOTAL PAYABLE</td>
+                                <td class="v-align text-right text-danger"><h4 class="no-pads">{{ toMoney(totalPayables) }}</h4></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted v-align">CHANGE</td>
+                                <td class="v-align text-right text-info"><h4 class="no-pads">{{ toMoney(change) }}</h4></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary float-right">Submit Payment <i class="fas fa-check-circle ico-tab-mini-left"></i></button>
+                    <button class="btn btn-primary float-right" @click="transact">Transact Payment <i class="fas fa-check-circle ico-tab-mini-left"></i></button>
                 </div>
             </div>
         </div>
@@ -88,6 +180,18 @@ export default {
             search : '',
             activeStudent : {},
             payables : [],
+            paymentType : 'Cash',
+            cashAmount : '',
+            checkNumber : '',
+            checkBank : '',
+            checkAmount : '',
+            digitalNumber : '',
+            digitalBank : '',
+            digitalAmount : '',
+            totalPayables : 0.0,
+            totalPayments : 0.0,
+            change : 0.0,
+            orNumber : '362256'
         }
     },
     methods : {
@@ -153,6 +257,8 @@ export default {
         fetchPayment(studentId) {
             this.activeStudent = this.students.data.filter(obj => obj.id === studentId)[0]
 
+            this.$refs.cashInput.focus()
+
             if (!this.isNull(this.activeStudent)) {
                 axios.get(`${ this.baseURL }/transactions/get-enrollment-payables`, {
                     params : {
@@ -170,6 +276,103 @@ export default {
                     })
                 })
             }
+        },
+        getTotalPayable() {
+            var total = 0
+            for (let i=0; i<this.payables.length; i++) {
+                var amnt = parseFloat(this.payables[i].Balance)
+                total += amnt
+            }
+            this.totalPayables = total
+            return total
+        },
+        getTotalPayments() {
+            var cash = (this.cashAmount.length < 1 ? 0 : parseFloat(this.cashAmount))
+            var check = (this.checkAmount < 1 ? 0 : parseFloat(this.checkAmount))
+            var digital = (this.digitalAmount < 1 ? 0 : parseFloat(this.digitalAmount))
+            
+            // total payments
+            this.totalPayments = cash + check + digital
+
+            // change
+            this.change = this.totalPayments - this.totalPayables
+        },
+        handleEnterKey(event) {
+            event.preventDefault()
+            if (event.key === 'Enter') {
+                this.transact()
+            }
+        },
+        transact() {
+            if (this.orNumber.length < 1) {
+                this.toast.fire({
+                    icon : 'info',
+                    text : 'OR Number should not be empty!'
+                })
+            } else {
+                if (this.totalPayments < this.totalPayables) {
+                    this.toast.fire({
+                        icon : 'info',
+                        text : 'Amount paid should be greater or equal to amount payable!'
+                    })
+                } else {
+                    if (this.isNull(this.activeStudent)) {
+                        this.toast.fire({
+                            icon : 'info',
+                            text : 'Select student first!'
+                        })
+                    } else {
+                        Swal.fire({
+                            title: "Confirm Transaction",
+                            showCancelButton: true,
+                            html: `
+                                <p style='text-align: left;'>Enrollment payment summary:</p>
+                                <ul>
+                                    <li style='text-align: left;'>Amount Paid: <strong>P ${ this.toMoney(this.totalPayments) }</strong></li>
+                                    <li style='text-align: left;'>Amount Payable: <strong>P ${ this.toMoney(this.totalPayables) }</strong></li>
+                                    <li style='text-align: left;'>Change: <strong>P ${ this.toMoney(this.change) }</strong></li>
+                                </ul>
+                                <p style='text-align: left;'>Proceed payment transaction?</p>
+                            `,
+                            confirmButtonText: "Yes",
+                            confirmButtonColor : '#3a9971'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                axios.post(`${ this.baseURL }/transactions/transact-enrollment`, {
+                                    _token : this.token,
+                                    StudentId : this.activeStudent.id,
+                                    ClassId : this.activeStudent.ClassId,
+                                    cashAmount : this.cashAmount,
+                                    checkNumber : this.checkNumber,
+                                    checkBank : this.checkBank,
+                                    checkAmount : this.checkAmount,
+                                    digitalNumber : this.digitalNumber,
+                                    digitalBank : this.digitalBank,
+                                    digitalAmount : this.digitalAmount,
+                                    totalPayables : this.totalPayables,
+                                    totalPayments : this.totalPayments,
+                                    Payables : this.payables,
+                                    ORNumber : this.orNumber
+                                }) 
+                                .then(response => {
+                                    this.toast.fire({
+                                        icon : 'success',
+                                        text : 'Enrollment paid!'
+                                    })
+                                    window.location.href = this.baseURL + '/classes/existing-student'
+                                })
+                                .catch(error => {
+                                    console.log(error.response)
+                                    Swal.fire({
+                                        icon : 'error',
+                                        text : error.response.data
+                                    })
+                                })
+                            }
+                        })
+                    }
+                }
+            }            
         }
     },
     created() {
