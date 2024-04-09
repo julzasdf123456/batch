@@ -8,6 +8,9 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\SchoolYearRepository;
 use Illuminate\Http\Request;
 use App\Models\SchoolYear;
+use App\Models\Classes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class SchoolYearController extends AppBaseController
@@ -26,7 +29,7 @@ class SchoolYearController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $schoolYears = $this->schoolYearRepository->paginate(10);
+        $schoolYears = SchoolYear::orderByDesc('created_at')->paginate(10);
 
         return view('school_years.index')
             ->with('schoolYears', $schoolYears);
@@ -65,7 +68,22 @@ class SchoolYearController extends AppBaseController
             return redirect(route('schoolYears.index'));
         }
 
-        return view('school_years.show')->with('schoolYear', $schoolYear);
+        $classes = DB::table('Classes')
+            ->leftJoin('Teachers', 'Classes.Adviser', '=', 'Teachers.id')
+            ->where('Classes.SchoolYearId', $id)
+            ->select(
+                'Classes.*',
+                'Teachers.FullName',
+                'Teachers.Designation',
+                'Teachers.SubjectExpertise',
+            )
+            ->orderBy('Classes.Year')
+            ->get();
+
+        return view('school_years.show', [
+            'schoolYear' => $schoolYear,
+            'classes' => $classes,
+        ]);
     }
 
     /**

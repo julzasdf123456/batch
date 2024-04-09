@@ -1,9 +1,12 @@
+<div class="card-header">
+    <span class="card-title"><i class="fas fa-info-circle ico-tab"></i>Select School Year</span>
+</div>
 <div class="card-body p-0">
     <div class="table-responsive">
-        <table class="table" id="school-years-table">
+        <table class="table table-hover" id="school-years-table">
             <thead>
             <tr>
-                <th>Schoolyear</th>
+                <th>School Year</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>

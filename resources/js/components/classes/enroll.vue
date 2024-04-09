@@ -34,6 +34,7 @@
         </div>
         <!-- Enrollment Form -->
         <div class="col-lg-8 col-md-12"> 
+            <!-- FORM -->
             <div class="card shadow-none">
                 <div class="card-header">
                     <span class="card-title text-muted"><i class="fas fa-info-circle ico-tab"></i>Enrollment Form</span>
@@ -53,7 +54,7 @@
                             <tr>
                                 <td class="text-muted v-align">Enroll In Class: </td>
                                 <td class="v-align">
-                                    <select class="form-control" v-model="classSelected">
+                                    <select class="form-control" v-model="classSelected" @change="getSubjectsInClass()">
                                         <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ grade.Year + ' - ' + grade.Section }}</option>
                                     </select>
                                 </td>
@@ -62,10 +63,34 @@
                     </table>
                 </div>
                 <div class="card-footer">
-                    <button @click="saveEnrollment()" class="btn btn-primary float-right">Submit Enrollee <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
+                    
+                </div>
+            </div>
+
+            <!-- SUBJECTS -->
+            <div class="card shadow-none">
+                <div class="card-header">
+                    <span class="card-title text-muted"><i class="fas fa-book ico-tab"></i>Subjects in this Class</span>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover table-sm">
+                        <tbody>
+                            <tr v-for="subject in subjects" :key="subject.id">
+                                <td @click="selectSubject(subject.SubjectClassId)" class="v-align" style="width: 30px; cursor: pointer;"><i class="fas fa-check-circle " :class="subject.Selected ? 'text-success' : 'text-gray'"></i></td>
+                                <td @click="selectSubject(subject.SubjectClassId)" class="v-align" style="cursor: pointer;">{{ subject.Subject }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="right-bottom">
+        <button @click="saveEnrollment()" class="btn-floating shadow btn-primary">Submit Enrollee <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
     </div>
 </template>
 
@@ -110,6 +135,7 @@ export default {
             schoolYears : [],
             classSelected : '',
             schoolYearSelected : '',
+            subjects : [],
         }
     },
     methods : {
@@ -277,6 +303,7 @@ export default {
                                 StudentId : this.studentId,
                                 ClassRepoId : this.classSelected,
                                 SchoolYearId : this.schoolYearSelected,
+                                Subjects : this.subjects,
                             }) 
                             .then(response => {
                                 this.toast.fire({
@@ -297,6 +324,32 @@ export default {
                 }
             }
             
+        },
+        getSubjectsInClass() {
+            axios.get(`${ this.baseURL }/classes_repos/get-subjects-in-class`, {
+                params : {
+                    ClassRepoId : this.classSelected
+                }
+            })
+            .then(response => {
+                this.subjects = response.data
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting subjects!'
+                })
+            })
+        },
+        selectSubject(subjectClassId) {
+            this.subjects = this.subjects.map(obj => {
+                if (obj.SubjectClassId === subjectClassId) {
+                    return { ...obj, Selected: !obj.Selected };
+                }
+                return obj; 
+            })
         }
     },
     created() {

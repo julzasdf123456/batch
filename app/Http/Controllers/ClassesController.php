@@ -14,6 +14,7 @@ use App\Models\StudentClasses;
 use App\Models\SchoolYear;
 use App\Models\IDGenerator;
 use App\Models\Payables;
+use App\Models\StudentSubjects;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -75,7 +76,9 @@ class ClassesController extends AppBaseController
             return redirect(route('classes.index'));
         }
 
-        return view('classes.show')->with('classes', $classes);
+        return view('classes.show', [
+            'class' => $classes,
+        ]);
     }
 
     /**
@@ -152,6 +155,7 @@ class ClassesController extends AppBaseController
         $studentId = $request['StudentId'];
         $classesRepoId = $request['ClassRepoId'];
         $syId = $request['SchoolYearId'];
+        $subjects = $request['Subjects'];
 
         $sy = SchoolYear::find($syId);
         $classesRepo = ClassesRepo::find($classesRepoId);
@@ -166,9 +170,10 @@ class ClassesController extends AppBaseController
                     ->first();
 
                 // save class if not yet created
+                $classId = IDGenerator::generateID();
                 if ($class == null) {
                     $class = new Classes;
-                    $class->id = IDGenerator::generateID();
+                    $class->id = $classId;
                     $class->SchoolYearId = $syId;
                     $class->Year = $classesRepo->Year;
                     $class->Section = $classesRepo->Section;
@@ -178,7 +183,7 @@ class ClassesController extends AppBaseController
 
                 // create student inside the class
                 // check student first if enrolled already in class
-                $enrollee = StudentClasses::where('ClassId', $class->id)
+                $enrollee = StudentClasses::where('ClassId', $classId)
                     ->where('StudentId', $studentId)
                     ->first();
                 
@@ -188,7 +193,7 @@ class ClassesController extends AppBaseController
                     // create enrollee/student
                     $enrollee = new StudentClasses;
                     $enrollee->id = IDGenerator::generateID();
-                    $enrollee->ClassId = $class->id;
+                    $enrollee->ClassId = $classId;
                     $enrollee->StudentId = $studentId;
                     $enrollee->Status = 'Pending Enrollment Payment';
                     $enrollee->save();
@@ -202,6 +207,19 @@ class ClassesController extends AppBaseController
                     $payable->Category = 'Enrollment';
                     $payable->Balance = 700.00;
                     $payable->save();
+
+                    // create subjects
+                    foreach($subjects as $item) {
+                        if ($item['Selected'] | $item['Selected']==='true') {
+                            $studentSubjects = new StudentSubjects;
+                            $studentSubjects->id = IDGenerator::generateIDandRandString();
+                            $studentSubjects->StudentId = $studentId;
+                            $studentSubjects->SubjectId = $item['id'];
+                            $studentSubjects->ClassId = $class->id;
+                            $studentSubjects->save();
+                        }
+                    }
+                    
                 }
             } else {
                 return response()->json('Class repository not found!', 404);

@@ -37,7 +37,6 @@
         </p>
     </a>
     <ul class="nav nav-treeview">
-
         <li class="nav-item">
             <a href="{{ route('transactions.enrollment') }}"
                class="nav-link {{ Request::is('transactions.enrollment*') ? 'active' : '' }}">
@@ -54,6 +53,15 @@
             </a>
         </li>
     </ul>
+</li>
+
+{{-- CLASSES --}}
+<li class="nav-item">
+    <a href="{{ route('schoolYears.index') }}"
+       class="nav-link {{ Request::is('schoolYears.index*') ? 'active' : '' }}">
+       <i class="fas fa-bookmark nav-icon"></i>
+        <p>Classes</p>
+    </a>
 </li>
 
 {{-- @canany('god permission') --}}
@@ -78,13 +86,6 @@
             <a href="{{ route('classesRepos.index') }}" class="nav-link {{ Request::is('classesRepos*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-puzzle-piece"></i>
                 <p>Classes & Sections</p>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="{{ route('schoolYears.index') }}" class="nav-link {{ Request::is('schoolYears*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-calendar-check"></i>
-                <p>School Years</p>
             </a>
         </li>
 

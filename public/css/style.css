@@ -843,6 +843,10 @@ body.dark-mode a:hover:not(.nav-link, .bottom-nav-pills, .dropdown-item) {
     color: #007bff !important;
 }
 
+.text-gray {
+    color: #bebebe !important;
+}
+
 body.dark-mode .text-primary {
     color: #66a0df !important;
 }

@@ -78,6 +78,7 @@ class ClassesRepoController extends AppBaseController
 
         $subjectClasses = DB::table('SubjectClasses')
             ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+            ->whereRaw("SubjectClasses.ClassRepoId='" . $id . "'")
             ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId')
             ->get();
 
@@ -157,5 +158,21 @@ class ClassesRepoController extends AppBaseController
             ->get();
 
         return response()->json($data, 200);
+    }
+
+    public function getSubjectsInClass(Request $request) {
+        $classesRepoId = $request['ClassRepoId'];
+
+        $subjectClasses = DB::table('SubjectClasses')
+            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+            ->whereRaw("SubjectClasses.ClassRepoId='" . $classesRepoId . "'")
+            ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId')
+            ->get();
+
+        foreach($subjectClasses as $item) {
+            $item->Selected = true;
+        }
+
+        return response()->json($subjectClasses, 200);
     }
 }

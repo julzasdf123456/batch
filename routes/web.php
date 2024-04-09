@@ -56,6 +56,7 @@ Route::resource('classes', ClassesController::class);
 Route::resource('studentClasses', App\Http\Controllers\StudentClassesController::class);
 
 Route::get('/classes_repos/get-grade-levels', [ClassesRepoController::class, 'getGradeLevels'])->name('classesRepos.get-grade-levels');
+Route::get('/classes_repos/get-subjects-in-class', [ClassesRepoController::class, 'getSubjectsInClass'])->name('classesRepos.get-subjects-in-class');
 Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
@@ -74,3 +75,4 @@ Route::resource('transactions', TransactionsController::class);
 Route::resource('transaction-details', App\Http\Controllers\TransactionDetailsController::class);
 Route::resource('subjects', App\Http\Controllers\SubjectsController::class);
 Route::resource('subjectClasses', App\Http\Controllers\SubjectClassesController::class);
+Route::resource('student-subjects', App\Http\Controllers\StudentSubjectsController::class);

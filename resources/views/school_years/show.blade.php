@@ -5,9 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>
-School Year Details
-                    </h1>
+                    <h4>{{ $schoolYear->SchoolYear }}</h4>
                 </div>
                 <div class="col-sm-6">
                     <a class="btn btn-default float-right"
@@ -20,11 +18,32 @@ School Year Details
     </section>
 
     <div class="content px-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    @include('school_years.show_fields')
-                </div>
+        <div class="card shadow-none">
+            <div class="card-header">
+                <span class="card-title"><i class="fas fa-bookmark ico-tab"></i>Classes in {{ $schoolYear->SchoolYear }}</span>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover">
+                    <thead>
+                        <th>Grades/Classes - Section</th>
+                        <th>Adviser</th>
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        @foreach ($classes as $item)
+                            <tr>
+                                <td class="v-align">{{ $item->Year . ' - ' . $item->Section }}</td>
+                                <td class="v-align">{{ $item->FullName }} <span class="text-muted">({{ $item->Designation }})</span></td>
+                                <td class="text-right">
+                                    <a class="btn btn-primary-skinny btn-sm" href="{{ route('classes.show', [$item->id]) }}">View <i class="fas fa-angle-right ico-tab-left-mini"></i></a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+
             </div>
         </div>
     </div>

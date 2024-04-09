@@ -5,14 +5,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h4>School Years</h4>
+                    <h1>Student Subjects</h1>
                 </div>
-                {{-- <div class="col-sm-6">
+                <div class="col-sm-6">
                     <a class="btn btn-primary float-right"
-                       href="{{ route('schoolYears.create') }}">
+                       href="{{ route('studentSubjects.create') }}">
                         Add New
                     </a>
-                </div> --}}
+                </div>
             </div>
         </div>
     </section>
@@ -23,8 +23,8 @@
 
         <div class="clearfix"></div>
 
-        <div class="card shadow-none">
-            @include('school_years.table')
+        <div class="card">
+            @include('student_subjects.table')
         </div>
     </div>
 
