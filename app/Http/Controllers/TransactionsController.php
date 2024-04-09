@@ -12,6 +12,7 @@ use App\Models\Payables;
 use App\Models\IDGenerator;
 use App\Models\TransactionDetails;
 use App\Models\StudentClasses;
+use App\Models\Students;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -140,6 +141,22 @@ class TransactionsController extends AppBaseController
         ]);
     }
 
+    public function getNextOR(Request $request) {
+        $userId = $request['UserId'];
+        
+        $transactions = Transactions::whereRaw("UserId IS NOT NULL AND UserId='" . $userId . "'")
+            ->orderByDesc('ORNumber')
+            ->first();
+
+        if ($transactions != null) {
+            $orNumber = intval($transactions->ORNumber) + 1;
+
+            return response()->json($orNumber, 200);
+        } else {
+            return response()->json(null, 200);
+        }
+    }
+
     public function getEnrollmentQueue(Request $request) {
         $params = $request['Search'];
 
@@ -223,6 +240,7 @@ class TransactionsController extends AppBaseController
         $transactions->CheckAmount = $checkAmount;
         $transactions->DigitalPaymentAmount = $digitalAmount;
         $transactions->TotalAmountPaid = $totalPayables;
+        $transactions->UserId = Auth::id();
         $transactions->save();
 
         // insert transaction details
@@ -240,6 +258,31 @@ class TransactionsController extends AppBaseController
             ->where('StudentId', $studentId)
             ->update(['Status' => 'Paid', 'EnrollmentORNumber' => $orNumber, 'EnrollmentORDate' => date('Y-m-d')]);
 
-        return response()->json('ok', 200);
+        return response()->json($id, 200);
+    }
+
+    public function printEnrollment($transactionId) {
+        $transaction = Transactions::find($transactionId);
+
+        if ($transaction != null) {
+            $student = DB::table('Students')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                ->select('Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled')
+                ->first();
+
+            $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
+
+            return view('/transactions/print_enrollment', [
+                'transaction' => $transaction,
+                'student' => $student,
+                'transactionDetails' => $transactionDetails,
+            ]);
+        } else {
+            return abort('No transaction found!', 404);
+        }
     }
 }

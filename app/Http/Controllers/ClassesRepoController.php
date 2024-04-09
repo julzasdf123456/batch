@@ -9,6 +9,7 @@ use App\Repositories\ClassesRepoRepository;
 use Illuminate\Http\Request;
 use App\Models\ClassesRepo;
 use App\Models\Teachers;
+use App\Models\Subjects;
 use Illuminate\Support\Facades\DB;
 use Flash;
 
@@ -75,7 +76,16 @@ class ClassesRepoController extends AppBaseController
             return redirect(route('classesRepos.index'));
         }
 
-        return view('classes_repos.show')->with('classesRepo', $classesRepo);
+        $subjectClasses = DB::table('SubjectClasses')
+            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+            ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId')
+            ->get();
+
+        return view('classes_repos.show', [
+            'classRepo' => $classesRepo,
+            'subjects' => Subjects::orderBy('Subject')->get(),
+            'subjectClasses' => $subjectClasses,
+        ]);
     }
 
     /**

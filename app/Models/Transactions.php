@@ -20,7 +20,8 @@ class Transactions extends Model
         'CheckAmount',
         'DigitalPaymentAmount',
         'TotalAmountPaid',
-        'Notes'
+        'Notes',
+        'UserId',
     ];
 
     protected $casts = [
@@ -35,7 +36,8 @@ class Transactions extends Model
         'CheckAmount' => 'decimal:2',
         'DigitalPaymentAmount' => 'decimal:2',
         'TotalAmountPaid' => 'decimal:2',
-        'Notes' => 'string'
+        'Notes' => 'string',
+        'UserId' => 'string',
     ];
 
     public static array $rules = [
@@ -52,7 +54,8 @@ class Transactions extends Model
         'TotalAmountPaid' => 'nullable|numeric',
         'Notes' => 'nullable|string|max:1050',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'UserId' => 'nullable|string',
     ];
 
     

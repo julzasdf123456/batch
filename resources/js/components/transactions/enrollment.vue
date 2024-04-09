@@ -64,7 +64,7 @@
                             <label for="Cash" class="custom-radio-label-sm">OR Number</label>
                         </div>
                         <div class="ml-4">
-                            <input type="text" class="form-control" placeholder="OR Number..." autofocus v-model="orNumber">
+                            <input type="number" class="form-control" placeholder="OR Number..." autofocus v-model="orNumber">
                         </div>
                     </div>
                     <!-- Cash -->
@@ -165,6 +165,7 @@ export default {
             filePath : axios.defaults.filePath,
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             token : document.querySelector("meta[name='token']").getAttribute('content'),
+            userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -191,7 +192,7 @@ export default {
             totalPayables : 0.0,
             totalPayments : 0.0,
             change : 0.0,
-            orNumber : '362256'
+            orNumber : null,
         }
     },
     methods : {
@@ -303,6 +304,23 @@ export default {
                 this.transact()
             }
         },
+        nextOR() {
+            axios.get(`${ this.baseURL }/transactions/get-next-or`, {
+                params : {
+                    UserId : this.userId,
+                }
+            })
+            .then(response => {
+                this.orNumber = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting OR Number'
+                })
+            })
+        },
         transact() {
             if (this.orNumber.length < 1) {
                 this.toast.fire({
@@ -359,7 +377,7 @@ export default {
                                         icon : 'success',
                                         text : 'Enrollment paid!'
                                     })
-                                    window.location.href = this.baseURL + '/classes/existing-student'
+                                    window.location.href = this.baseURL + '/transactions/print-enrollment/' + response.data
                                 })
                                 .catch(error => {
                                     console.log(error.response)
@@ -378,7 +396,8 @@ export default {
     created() {
     },
     mounted() {
-       this.searchEnrollee()
+        this.nextOR()
+        this.searchEnrollee()
     }
 }
 
