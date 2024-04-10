@@ -32,8 +32,8 @@
                     <tbody>
                         @foreach ($classes as $item)
                             <tr>
-                                <td class="v-align">{{ $item->Year . ' - ' . $item->Section }}</td>
-                                <td class="v-align">{{ $item->FullName }} <span class="text-muted">({{ $item->Designation }})</span></td>
+                                <td onclick="view(`{{ $item->id }}`)" class="v-align pointer">{{ $item->Year . ' - ' . $item->Section }}</td>
+                                <td onclick="view(`{{ $item->id }}`)" class="v-align pointer">{{ $item->FullName }} <span class="text-muted">({{ $item->Designation }})</span></td>
                                 <td class="text-right">
                                     <a class="btn btn-primary-skinny btn-sm" href="{{ route('classes.show', [$item->id]) }}">View <i class="fas fa-angle-right ico-tab-left-mini"></i></a>
                                 </td>
@@ -48,3 +48,11 @@
         </div>
     </div>
 @endsection
+
+@push('page_scripts')
+    <script>
+        function view(id) {
+            window.location.href = "{{ url('/classes') }}/" + id
+        }
+    </script>    
+@endpush

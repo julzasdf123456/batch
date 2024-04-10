@@ -9,3 +9,9 @@
     {!! Form::label('Description', 'Description:') !!}
     {!! Form::text('Description', null, ['class' => 'form-control', 'maxlength' => 500, 'maxlength' => 500]) !!}
 </div>
+
+<!-- Description Field -->
+<div class="form-group col-sm-6">
+    {!! Form::label('CourseFee', 'Course/Subject Fee:') !!}
+    {!! Form::number('CourseFee', null, ['class' => 'form-control', 'step' =>'any']) !!}
+</div>

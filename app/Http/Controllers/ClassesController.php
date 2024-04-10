@@ -68,7 +68,22 @@ class ClassesController extends AppBaseController
      */
     public function show($id)
     {
-        $classes = $this->classesRepository->find($id);
+        $classes = DB::table('Classes')
+            ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
+            ->whereRaw("Classes.id='" . $id . "'")
+            ->select('Classes.*', 'SchoolYear.SchoolYear')
+            ->first();
+
+        $subjects = DB::table('StudentSubjects')
+            ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->whereRaw("ClassId='" . $id . "'")
+            ->select(
+                'StudentSubjects.SubjectId', 
+                'Subjects.Subject'
+            )
+            ->groupBy('StudentSubjects.SubjectId', 'Subjects.Subject')
+            ->orderBy('Subjects.Subject')
+            ->get();
 
         if (empty($classes)) {
             Flash::error('Classes not found');
@@ -78,6 +93,7 @@ class ClassesController extends AppBaseController
 
         return view('classes.show', [
             'class' => $classes,
+            'subjects' => $subjects,
         ]);
     }
 
@@ -156,6 +172,7 @@ class ClassesController extends AppBaseController
         $classesRepoId = $request['ClassRepoId'];
         $syId = $request['SchoolYearId'];
         $subjects = $request['Subjects'];
+        $type = $request['Type'];
 
         $sy = SchoolYear::find($syId);
         $classesRepo = ClassesRepo::find($classesRepoId);
@@ -170,8 +187,8 @@ class ClassesController extends AppBaseController
                     ->first();
 
                 // save class if not yet created
-                $classId = IDGenerator::generateID();
                 if ($class == null) {
+                    $classId = IDGenerator::generateID();
                     $class = new Classes;
                     $class->id = $classId;
                     $class->SchoolYearId = $syId;
@@ -179,6 +196,8 @@ class ClassesController extends AppBaseController
                     $class->Section = $classesRepo->Section;
                     $class->Adviser = $classesRepo->Adviser;
                     $class->save();
+                } else { 
+                    $classId = $class->id;
                 }
 
                 // create student inside the class
@@ -196,6 +215,7 @@ class ClassesController extends AppBaseController
                     $enrollee->ClassId = $classId;
                     $enrollee->StudentId = $studentId;
                     $enrollee->Status = 'Pending Enrollment Payment';
+                    $enrollee->Type = $type;
                     $enrollee->save();
 
                     // create payables
@@ -215,11 +235,14 @@ class ClassesController extends AppBaseController
                             $studentSubjects->id = IDGenerator::generateIDandRandString();
                             $studentSubjects->StudentId = $studentId;
                             $studentSubjects->SubjectId = $item['id'];
-                            $studentSubjects->ClassId = $class->id;
+                            $studentSubjects->ClassId = $classId;
                             $studentSubjects->save();
                         }
                     }
                     
+                    // update student current grade level
+                    $student->CurrentGradeLevel = $classId;
+                    $student->save();
                 }
             } else {
                 return response()->json('Class repository not found!', 404);
@@ -227,5 +250,28 @@ class ClassesController extends AppBaseController
         } else {
             return response()->json('Student not found!', 404);
         }
+    }
+
+    public function getStudentsFromClass(Request $request) {
+        $classId = $request['ClassId'];
+
+        $students = DB::table('StudentClasses')
+            ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->select(
+                'Students.*',
+                'StudentClasses.Status',
+                'StudentClasses.Type',
+                'StudentClasses.created_at AS EnrollmentDate',
+                'StudentClasses.EnrollmentORDate',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        return response()->json($students, 200);
     }
 }

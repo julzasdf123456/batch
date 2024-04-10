@@ -59,6 +59,18 @@
                                     </select>
                                 </td>
                             </tr>
+                            <tr>
+                                <td class="text-muted v-align">Enrollment Type: </td>
+                                <td class="v-align">
+                                    <div class="input-group-radio-sm">
+                                        <input type="radio" id="Regular" value="Regular" v-model="type" class="custom-radio-sm">
+                                        <label for="Regular" class="custom-radio-label-sm">Regular</label>
+
+                                        <input type="radio" id="Transferee" value="Transferee" v-model="type" class="custom-radio-sm">
+                                        <label for="Transferee" class="custom-radio-label-sm">Transferee</label>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -136,6 +148,7 @@ export default {
             classSelected : '',
             schoolYearSelected : '',
             subjects : [],
+            type : 'Regular',
         }
     },
     methods : {
@@ -214,6 +227,10 @@ export default {
             axios.get(`${ this.baseURL }/school_years/get-school-years`) // IF PORT 80 DIRECT FROM APACHE
             .then(response => {
                 this.schoolYears = response.data
+
+                if (this.schoolYears.length > 0) {
+                    this.schoolYearSelected = this.schoolYears[0].id
+                }
             })
             .catch(error => {
                 console.log(error)
@@ -304,6 +321,7 @@ export default {
                                 ClassRepoId : this.classSelected,
                                 SchoolYearId : this.schoolYearSelected,
                                 Subjects : this.subjects,
+                                Type : this.type,
                             }) 
                             .then(response => {
                                 this.toast.fire({

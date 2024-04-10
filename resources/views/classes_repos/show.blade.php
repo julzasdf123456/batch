@@ -12,12 +12,16 @@
                     <h4>
                         {{ $classRepo->Year . ' - ' . $classRepo->Section }}
                     </h4>
+                    @if ($classRepo->BaseTuitionFee != null)
+                        <span><span class="text-muted">Tuition Fee: </span> <strong>{{ number_format($classRepo->BaseTuitionFee, 2) }}</strong> <span class="text-muted">(Fixed Tuition)</span></span>
+                    @else
+                        <span><span class="text-muted">Tuition Fee: </span> <strong>{{ $totalSubjectTuition != null ? number_format($totalSubjectTuition->Total, 2) : '0' }}</strong> <span class="text-muted">(Subject Based-Tuition)</span></span>
+                    @endif
                 </div>
                 <div class="col-sm-6">
-                    <a class="btn btn-default float-right"
-                       href="{{ route('classesRepos.index') }}">
-                                                    Back
-                                            </a>
+                    <a class="btn btn-default float-right ico-tab-left-mini" href="{{ route('classesRepos.index') }}">Back</a>
+                    
+                    <a class="btn btn-primary float-right" href="{{ route('classesRepos.edit', [$classRepo->id]) }}">Update</a>
                 </div>
             </div>
         </div>
@@ -34,10 +38,15 @@
             </div>
             <div class="card-body table-responsive p-0">
                 <table class="table table-hover">
+                    <thead>
+                        <th class="text-muted">Subject</th>
+                        <th class="text-muted text-right">Subject/Course Fees</th>
+                    </thead>
                     <tbody>
                         @foreach ($subjectClasses as $item)
                             <tr>
                                 <td class="v-align">{{ $item->Subject }}</td>
+                                <td class="v-align text-right">{{ number_format($item->CourseFee, 2) }}</td>
                                 <td class="text-right">
                                     <button onclick="remove(`{{ $item->SubjectClassId }}`)" class="btn btn-danger btn-sm"><i class="fas fa-trash ico-tab-mini"></i>Remove</button>
                                 </td>

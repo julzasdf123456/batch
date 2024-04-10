@@ -51,6 +51,7 @@ Route::resource('students', StudentsController::class);
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
 Route::get('/classes/existing-student', [ClassesController::class, 'existingStudent'])->name('classes.existing-student');
 Route::post('/classes/save-enrollment', [ClassesController::class, 'saveEnrollment'])->name('classes.save-enrollment');
+Route::get('/classes/get-students-from-class', [ClassesController::class, 'getStudentsFromClass'])->name('classes.get-students-from-class');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', App\Http\Controllers\StudentClassesController::class);
@@ -72,7 +73,7 @@ Route::post('/transactions/transact-enrollment', [TransactionsController::class,
 Route::get('/transactions/print-enrollment/{id}', [TransactionsController::class, 'printEnrollment'])->name('transactions.print-enrollment');
 Route::resource('transactions', TransactionsController::class);
 
-Route::resource('transaction-details', App\Http\Controllers\TransactionDetailsController::class);
+Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
 Route::resource('subjects', App\Http\Controllers\SubjectsController::class);
 Route::resource('subjectClasses', App\Http\Controllers\SubjectClassesController::class);
-Route::resource('student-subjects', App\Http\Controllers\StudentSubjectsController::class);
+Route::resource('studentSubjects', App\Http\Controllers\StudentSubjectsController::class);

@@ -18,6 +18,7 @@ import { createApp } from 'vue/dist/vue.esm-bundler.js';
 import NewStudent from "./components/students/new-student.vue"
 import Enroll from "./components/classes/enroll.vue"
 import ExistingStudentEnroll from "./components/classes/existing-student-enroll.vue"
+import ClassView from "./components/classes/class-view.vue"
 import EnrollmentTransactions from "./components/transactions/enrollment.vue"
 
 const app = createApp({
@@ -29,6 +30,7 @@ app.use(jQuery);
 app.component('new-student', NewStudent);
 app.component('enroll', Enroll);
 app.component('existing-student-enroll', ExistingStudentEnroll);
+app.component('class-view', ClassView);
 app.component('enrollment-transactions', EnrollmentTransactions);
 
 app.mount("#app");

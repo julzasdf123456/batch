@@ -14,7 +14,8 @@ class StudentClasses extends Model
         'StudentId',
         'Status',
         'EnrollmentORNumber',
-        'EnrollmentORDate'
+        'EnrollmentORDate',
+        'Type'
     ];
 
     protected $casts = [
@@ -23,17 +24,20 @@ class StudentClasses extends Model
         'StudentId' => 'string',
         'Status' => 'string',
         'EnrollmentORNumber' => 'string',
-        'EnrollmentORDate' => 'date'
+        'EnrollmentORDate' => 'string',
+        'Type' => 'string',
     ];
 
     public static array $rules = [
+        'id' => 'string',
         'ClassId' => 'nullable|string|max:80',
         'StudentId' => 'nullable|string|max:50',
         'Status' => 'nullable|string|max:50',
         'EnrollmentORNumber' => 'nullable|string|max:50',
         'EnrollmentORDate' => 'nullable',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Type' => 'nullable|string',
     ];
 
     

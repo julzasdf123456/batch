@@ -207,8 +207,8 @@
         /**
          * TOWN CHANGE
          */
-        fetchBarangayFromTown($('#TownCurrent').val(), $('#Def_Brgy').text());
-        fetchBarangayFromTownPermanent($('#TownPermanent').val(), $('#Def_Brgy_Permanent').text());
+        // fetchBarangayFromTown($('#TownCurrent').val(), $('#Def_Brgy').text());
+        // fetchBarangayFromTownPermanent($('#TownPermanent').val(), $('#Def_Brgy_Permanent').text());
 
         $('#TownCurrent').on('change', function() {
             fetchBarangayFromTown(this.value, $('#Def_Brgy').text());

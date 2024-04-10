@@ -82,10 +82,19 @@ class ClassesRepoController extends AppBaseController
             ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId')
             ->get();
 
+        $totalSubjectTuition = DB::table('SubjectClasses')
+            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+            ->whereRaw("SubjectClasses.ClassRepoId='" . $id . "'")
+            ->select(
+                DB::raw("SUM(Subjects.CourseFee) AS Total")
+            )
+            ->first();
+
         return view('classes_repos.show', [
             'classRepo' => $classesRepo,
             'subjects' => Subjects::orderBy('Subject')->get(),
             'subjectClasses' => $subjectClasses,
+            'totalSubjectTuition' => $totalSubjectTuition
         ]);
     }
 

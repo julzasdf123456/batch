@@ -985,3 +985,7 @@ ul.employee-tree ul.employee-tree {
     display: inline-block; 
     border-radius: 50%;
 }
+
+.pointer {
+    cursor: pointer;
+}

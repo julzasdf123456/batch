@@ -21,3 +21,9 @@
     {!! Form::label('Adviser', 'Teacher Adviser:') !!}
     {!! Form::select('Adviser', $teachers, null, ['class' => 'form-control',]) !!}
 </div>
+
+<!-- Tuition Field -->
+<div class="form-group col-lg-12">
+    {!! Form::label('BaseTuitionFee', 'Tuition Fee:') !!}
+    {!! Form::number('BaseTuitionFee', null, ['class' => 'form-control', 'step' => 'any']) !!}
+</div>

@@ -13,7 +13,7 @@
             <tbody>
             @foreach($schoolYears as $schoolYear)
                 <tr>
-                    <td>{{ $schoolYear->SchoolYear }}</td>
+                    <td onclick="view(`{{ $schoolYear->id }}`)" style="cursor: pointer;">{{ $schoolYear->SchoolYear }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['schoolYears.destroy', $schoolYear->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
@@ -41,3 +41,11 @@
         </div>
     </div>
 </div>
+
+@push('page_scripts')
+    <script>
+        function view(id) {
+            window.location.href = "{{ url('/schoolYears') }}/" + id
+        }
+    </script>    
+@endpush
