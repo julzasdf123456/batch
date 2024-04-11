@@ -521,6 +521,14 @@ a.btn-floating {
     border-end-start-radius: 18px !important;
 }
 
+.bg-semi-trans {
+    background-color: rgba(0, 0, 0, .05);
+}
+
+body.dark-mode .bg-semi-trans {
+    background-color: rgba(255, 255, 255, .06);
+}
+
 /**
  *  INPUTS
  */
@@ -988,4 +996,28 @@ ul.employee-tree ul.employee-tree {
 
 .pointer {
     cursor: pointer;
+}
+
+td .table-input {
+    padding: 0px !important;
+}
+
+.table-input {
+    margin: 0px;
+    background-color: transparent;
+    width: 100%;
+    border: 0px;
+    height: 26px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.table-input::-webkit-outer-spin-button,
+.table-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.table-input:focus  {
+    outline: none;
 }

@@ -11,6 +11,9 @@ use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\ClassesRepoController;
 use App\Http\Controllers\SchoolYearController;
 use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\TeachersController;
+use App\Http\Controllers\StudentClassesController;
+use App\Http\Controllers\StudentSubjectsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +49,7 @@ Route::get('/students/new-student', [StudentsController::class, 'newStudent'])->
 Route::post('/students/save-student', [StudentsController::class, 'saveStudent'])->name('students.save-student');
 Route::get('/students/get-student', [StudentsController::class, 'getStudent'])->name('students.get-student');
 Route::get('/students/search-students-paginated', [StudentsController::class, 'searchStudentsPaginated'])->name('students.search-students-paginated');
+Route::get('/students/get-student-details', [StudentsController::class, 'getStudentDetails'])->name('students.get-student-details');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -54,7 +58,7 @@ Route::post('/classes/save-enrollment', [ClassesController::class, 'saveEnrollme
 Route::get('/classes/get-students-from-class', [ClassesController::class, 'getStudentsFromClass'])->name('classes.get-students-from-class');
 Route::resource('classes', ClassesController::class);
 
-Route::resource('studentClasses', App\Http\Controllers\StudentClassesController::class);
+Route::resource('studentClasses', StudentClassesController::class);
 
 Route::get('/classes_repos/get-grade-levels', [ClassesRepoController::class, 'getGradeLevels'])->name('classesRepos.get-grade-levels');
 Route::get('/classes_repos/get-subjects-in-class', [ClassesRepoController::class, 'getSubjectsInClass'])->name('classesRepos.get-subjects-in-class');
@@ -62,7 +66,10 @@ Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
 Route::resource('schoolYears', SchoolYearController::class);
-Route::resource('teachers', App\Http\Controllers\TeachersController::class);
+
+Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');
+Route::get('/teachers/get-students-from-subject-class', [TeachersController::class, 'getStudentsFromSubjectClass'])->name('teachers.get-students-from-subject-class');
+Route::resource('teachers', TeachersController::class);
 Route::resource('payables', App\Http\Controllers\PayablesController::class);
 
 Route::get('/transactions/enrollment', [TransactionsController::class, 'enrollment'])->name('transactions.enrollment');
@@ -71,9 +78,17 @@ Route::get('/transactions/get-enrollment-queue', [TransactionsController::class,
 Route::get('/transactions/get-enrollment-payables', [TransactionsController::class, 'getEnrollmentPayables'])->name('transactions.get-enrollment-payables');
 Route::post('/transactions/transact-enrollment', [TransactionsController::class, 'transactEnrollment'])->name('transactions.transact-enrollment');
 Route::get('/transactions/print-enrollment/{id}', [TransactionsController::class, 'printEnrollment'])->name('transactions.print-enrollment');
+Route::get('/transactions/tuitions/{id}', [TransactionsController::class, 'tuitions'])->name('transactions.tuitions');
+Route::get('/transactions/tuitions-search', [TransactionsController::class, 'tuitionsSearch'])->name('transactions.tuitions-search');
+Route::get('/transactions/search-student', [TransactionsController::class, 'getSearchStudent'])->name('transactions.search-student');
+Route::post('/transactions/transact-tuition', [TransactionsController::class, 'transactTuition'])->name('transactions.transact-tuition');
+Route::get('/transactions/print-tuition/{id}', [TransactionsController::class, 'printTuition'])->name('transactions.print-tuition');
+Route::get('/transactions/get-transactions-from-payable', [TransactionsController::class, 'getTransactionsFromPayable'])->name('transactions.get-transactions-from-payable');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
 Route::resource('subjects', App\Http\Controllers\SubjectsController::class);
 Route::resource('subjectClasses', App\Http\Controllers\SubjectClassesController::class);
-Route::resource('studentSubjects', App\Http\Controllers\StudentSubjectsController::class);
+
+Route::post('/student_subjects/update-grade', [StudentSubjectsController::class, 'updateGrade'])->name('studentSubjects.update-grade');
+Route::resource('studentSubjects', StudentSubjectsController::class);

@@ -174,8 +174,9 @@ class ClassesRepoController extends AppBaseController
 
         $subjectClasses = DB::table('SubjectClasses')
             ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
             ->whereRaw("SubjectClasses.ClassRepoId='" . $classesRepoId . "'")
-            ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId')
+            ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId', 'Teachers.Fullname', 'Teachers.id AS TeacherId')
             ->get();
 
         foreach($subjectClasses as $item) {

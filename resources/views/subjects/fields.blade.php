@@ -15,3 +15,9 @@
     {!! Form::label('CourseFee', 'Course/Subject Fee:') !!}
     {!! Form::number('CourseFee', null, ['class' => 'form-control', 'step' =>'any']) !!}
 </div>
+
+<!-- Description Field -->
+<div class="form-group col-sm-6">
+    {!! Form::label('Teacher', 'Teacher/Instructor:') !!}
+    {!! Form::select('Teacher', $teachers, null, ['class' => 'form-control',]) !!}
+</div>

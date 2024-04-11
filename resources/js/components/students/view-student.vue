@@ -1,0 +1,393 @@
+<template>
+    <!-- HEADER -->
+    <section class="px-4">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-lg-8">
+                    <div style="display: flex; padding-bottom: 15px;">
+                        <div style="width: 88px; display: inline;">
+                            <img id="prof-img" style="width: 65px !important;" class="profile-user-img img-fluid img-circle" :src="imgPath + 'prof-img.png'" alt="User profile picture">
+                        </div>
+                        <div>
+                            <span>
+                                <p class="no-pads" style="font-size: 1.85em;"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></p>
+                                
+                                <span class="text-muted">
+                                    <i class="fas fa-id-badge ico-tab-mini"></i>{{ studentData.id }} | 
+                                    <i class="fas fa-lightbulb ico-tab-mini"></i>{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}
+                                    <span class="badge" :class="isNull(studentData.Status) ? 'bg-success' : 'bg-danger'">{{ isNull(studentData.Status) ? 'Studying' : studentData.Status }}</span>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="col-lg-4">  
+                    <div class="dropdown">
+                        <a class="btn btn-primary-skinny dropdown-toggle float-right {{ $colorProf != null ? 'text-white' : '' }}" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
+                          Actions
+                        </a>
+                      
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a>
+                            
+                            <div class="divider"></div>
+
+                            <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash ico-tab"></i>Delete Student</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BODY -->
+    <div class="content px-3">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card shadow-none">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <!-- BASIC DETAILS -->
+                            <div class="col-lg-4" style="padding: 25px 35px 15px 35px;">
+                                <h4><strong>Student Info</strong></h4>
+
+                                <table class="table table-sm table-borderless" style="margin-top: 18px;">
+                                    <tbody>
+                                        <tr title="Permanent Address">
+                                            <td><i class="fas text-muted fa-map-marker-alt"></i></td>
+                                            <td>{{ (isNull(studentData.Sitio) ? '' : studentData.Sitio) + ', ' + studentData.BarangaySpelled + ', ' + studentData.TownSpelled }}</td>
+                                        </tr>
+                                        <tr title="Birthday">
+                                            <td><i class="fas text-muted fa-birthday-cake"></i></td>
+                                            <td>{{ isNull(studentData.Birthdate) ? 'not recorded' : moment(studentData.Birthdate).format("MMMM DD, YYYY") }}</td>
+                                        </tr>
+                                        <tr title="Contact Numbers">
+                                            <td><i class="fas text-muted fa-hashtag"></i></td>
+                                            <td>{{ isNull(studentData.ContactNumber) ? '-' : studentData.ContactNumber }}</td>
+                                        </tr>
+                                        <tr title="Gender">
+                                            <td><i class="fas text-muted fa-venus-mars"></i></td>
+                                            <td>{{ studentData.Gender }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- TABS -->
+                            <div class="col-lg-8 {{ $colorProf != null ? 'bl-dark' : 'bl-light' }}" style="padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px;">
+                                <!-- TAB HEADS -->
+                                <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="subjects-tab" data-toggle="pill" href="#subjects-content" role="tab" aria-controls="subjects-content" aria-selected="false">Subjects</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="account-tab" data-toggle="pill" href="#account-content" role="tab" aria-controls="account-content" aria-selected="false">Account</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="scholarship-tab" data-toggle="pill" href="#scholarship-content" role="tab" aria-controls="scholarship-content" aria-selected="false">Scholarship Grants</a>
+                                    </li>
+                                </ul>
+                                <!-- TAB BODY -->
+                                <div class="tab-content" id="custom-tabs-three-tabContent">
+                                    <!-- 
+                                        ====================================================================================================================================
+                                        SUBJECTS 
+                                        ====================================================================================================================================
+                                    -->
+                                    <div class="tab-pane fade active show" id="subjects-content" role="tabpanel" aria-labelledby="subjects-tab">
+                                       <div class="p-2 table-responsive">
+                                            <p class="text-muted mt-3"><i class="fas fa-dot-circle ico-tab-mini"></i>Current/Latest Subjects Taken in this Class ({{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }})</p>
+                                            <table class="table table-hover table-sm table-bordered">
+                                                <thead>
+                                                    <th></th>
+                                                    <th class="text-muted">1st Grading</th>
+                                                    <th class="text-muted">2nd Grading</th>
+                                                    <th class="text-muted">3rd Grading</th>
+                                                    <th class="text-muted">4th Grading</th>
+                                                    <th class="text-muted">Final Grade</th>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="subject in subjects" :key="subject.StudentSubjectId">
+                                                        <td class="v-align">
+                                                            <strong>{{ subject.Subject }}</strong>
+                                                            <br>
+                                                            <span class="text-muted text-sm">{{ subject.TeacherName }}</span>
+                                                        </td>
+                                                        <td class="v-align text-right">{{ subject.FirstGradingGrade }}</td>
+                                                        <td class="v-align text-right">{{ subject.SecondGradingGrade }}</td>
+                                                        <td class="v-align text-right">{{ subject.ThirdGradingGrade }}</td>
+                                                        <td class="v-align text-right">{{ subject.FourthGradingGrade }}</td>
+                                                        <td class="v-align text-right">{{ subject.AverageGrade }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                       </div>
+                                    </div>
+
+                                    <!-- 
+                                        ====================================================================================================================================
+                                        ACCOUNT 
+                                        ====================================================================================================================================
+                                    -->
+                                    <div class="tab-pane fade" id="account-content" role="tabpanel" aria-labelledby="account-tab">
+                                        <div class="p-2 table-responsive">
+                                            <!-- Summary -->
+                                            <div class="row mt-3">
+                                                <div class="col-lg-6">
+                                                    <h4 class="no-pads">Account Balance</h4>
+                                                    <span class="text-muted">Unpaid tuition fees, enrollment fees, and other payments</span>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <p class="no-pads text-right" :class="getTotalBalance() > 0 ? 'text-danger' : 'text-success'" style="font-size: 2.8em;">₱ {{ toMoney(getTotalBalance()) }}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- History -->
+                                            <p class="text-muted mt-4"><i class="fas fa-dot-circle ico-tab-mini"></i>Payables history</p>
+                                            <table class="table table-sm table-hover">
+                                                <thead>
+                                                    <th class="text-muted">Description</th>
+                                                    <th class="text-muted text-center">Category</th>
+                                                    <th class="text-muted text-right">Amount Payable</th>
+                                                    <th class="text-muted text-right">Amount Paid</th>
+                                                    <th class="text-muted text-right">Balance</th>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="pointer" v-for="payable in payables" :key="payable.id">
+                                                        <td @click="transactionHistory(payable.id)" class="v-align">{{ payable.PaymentFor }}</td>
+                                                        <td @click="transactionHistory(payable.id)" class="v-align text-center"><span class="badge bg-info">{{ payable.Category }}</span></td>
+                                                        <td @click="transactionHistory(payable.id)" class="v-align text-right"><strong>{{ isNull(payable.AmountPayable) ? '0' : toMoney(parseFloat(payable.AmountPayable)) }}</strong></td>
+                                                        <td @click="transactionHistory(payable.id)" class="v-align text-right">{{ isNull(payable.AmountPaid) ? '0' : toMoney(parseFloat(payable.AmountPaid)) }}</td>
+                                                        <td @click="transactionHistory(payable.id)" class="v-align text-right" :class="parseFloat(payable.Balance) > 0 ? 'text-danger' : 'text-success'"><strong>{{ isNull(payable.Balance) ? '0' : toMoney(parseFloat(payable.Balance)) }}</strong></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 
+                                        ====================================================================================================================================
+                                        SCHOLARSHIP 
+                                        ====================================================================================================================================
+                                    -->
+                                    <div class="tab-pane fade" id="scholarship-content" role="tabpanel" aria-labelledby="scholarship-tab">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ref="modalTransactionHistory" class="modal fade" id="modal-transaction-history" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog" style="max-width: 90% !important; margin-top: 30px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h4 class="no-pads">
+                            {{ paymentFor }}
+                            <!-- <div id="loader" class="spinner-border text-success" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div> -->
+                        </h4>
+                        <span class="text-muted">Transaction History</span>
+                    </div>
+                </div>
+                <div class="modal-body table-responsive">
+                    <table class="table table-hover table-sm table-bordered">
+                        <thead>
+                            <th class="text-muted">Payment For</th>
+                            <th class="text-muted">Mode of Payment</th>
+                            <th class="text-muted">Period</th>
+                            <th class="text-muted">OR Number</th>
+                            <th class="text-muted">OR Date</th>
+                            <th class="text-muted">Cashier</th>
+                            <th class="text-muted text-right">Cash Amount</th>
+                            <th class="text-muted text-right">Check Amount</th>
+                            <th class="text-muted text-right">Transfer Amount</th>
+                            <th class="text-muted text-right">Total Amount Paid</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="hist in payableTransactionHistory" :key="hist.id">
+                                <td class="v-align">{{ hist.PaymentFor }}</td>
+                                <td class="v-align">{{ hist.ModeOfPayment }}</td>
+                                <td class="v-align">{{ hist.Period }}</td>
+                                <td class="v-align">{{ hist.ORNumber }}</td>
+                                <td class="v-align">{{ hist.ORDate.length < 1 ? '-' : moment(hist.ORDate).format('MMM DD, YYY') }}</td>
+                                <td class="v-align">{{ hist.name }}</td>
+                                <td class="v-align text-right">{{ isNull(hist.CashAmount) ? '-' : toMoney(parseFloat(hist.CashAmount)) }}</td>
+                                <td class="v-align text-right">{{ isNull(hist.CheckAmount) ? '-' : toMoney(parseFloat(hist.CheckAmount)) }}</td>
+                                <td class="v-align text-right">{{ isNull(hist.DigitalPaymentAmount) ? '-' : toMoney(parseFloat(hist.DigitalPaymentAmount)) }}</td>
+                                <td class="v-align text-right"><strong>{{ isNull(hist.TotalAmountPaid) ? '-' : toMoney(parseFloat(hist.TotalAmountPaid)) }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+     </div>
+</template>
+
+<script>
+import axios from 'axios';
+import moment from 'moment';
+import FlatPickr from 'vue-flatpickr-component';
+import { Bootstrap4Pagination } from 'laravel-vue-pagination'
+import 'flatpickr/dist/flatpickr.css';
+import jquery from 'jquery';
+import Swal from 'sweetalert2';
+
+export default {
+    name : 'ViewStudent.view-student',
+    components : {
+        FlatPickr,
+        Swal,
+        'pagination' : Bootstrap4Pagination,
+        jquery,
+    },
+    data() {
+        return {
+            moment : moment,
+            baseURL : axios.defaults.baseURL,
+            filePath : axios.defaults.filePath,
+            imgPath : axios.defaults.imgsPath,
+            colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
+            userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
+            studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
+            tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
+            toast : Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            }),
+            pickerOptions: {
+                enableTime: false,
+                dateFormat: 'Y-m-d', 
+            },
+            studentData : {},
+            subjects : [],
+            payables : [],
+            //payment history modal
+            activePayable : {},
+            paymentFor : '',
+            payableTransactionHistory : [],
+        }
+    },
+    methods : {
+        isNull (item) {
+            if (jquery.isEmptyObject(item)) {
+                return true;
+            } else {
+                if (item.length < 1) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        },
+        toMoney(value) {
+            if (this.isNumber(value)) {
+                return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
+            } else {
+                return '-'
+            }
+        },
+        isNumber(value) {
+            return typeof value === 'number';
+        },        
+        round(value) {
+            return Math.round((value + Number.EPSILON) * 100) / 100;
+        },
+        generateRandomString(length) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                result += characters.charAt(randomIndex);
+            }
+
+            return result;
+        },
+        generateUniqueId() {
+            return moment().valueOf() + "-" + this.generateRandomString(32);
+        },
+        generateId() {
+            return moment().valueOf()
+        },
+        getStudentDetails() {
+            axios.get(`${ this.baseURL }/students/get-student-details`, {
+                params : {
+                    StudentId : this.studentId,
+                }
+            })
+            .then(response => {
+                this.studentData = response.data.StudentDetails
+                this.subjects = response.data.Subjects
+                this.payables = response.data.TuitionPayables
+
+                // concat other payables
+                this.payables = this.payables.concat(response.data.OtherPayables)
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting student data!'
+                })
+            })
+        },
+        getTotalBalance() {
+            var total = 0
+            for (let i=0; i<this.payables.length; i++) {
+                var balance = this.payables[i].Balance.length < 1 ? 0 : parseFloat(this.payables[i].Balance)
+                total += balance
+            }
+
+            return total
+        },
+        getActivePayable(id) {
+            this.activePayable = this.payables.find(obj => obj.id === id)
+        },
+        transactionHistory(id) {
+            this.getActivePayable(id)
+            this.paymentFor = this.activePayable.PaymentFor
+            this.getTransactionHistory(id)
+
+            // init modal
+            let modalElement = this.$refs.modalTransactionHistory
+            $(modalElement).modal('show')
+        },
+        getTransactionHistory(payableId) {
+            axios.get(`${ this.baseURL }/transactions/get-transactions-from-payable`, {
+                params : {
+                    PayableId : payableId,
+                }
+            })
+            .then(response => {
+                this.payableTransactionHistory = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting transaction history data!'
+                })
+            })
+        }
+    }, 
+    created() {
+    },
+    mounted() {
+        this.getStudentDetails()
+    }
+}
+
+</script>

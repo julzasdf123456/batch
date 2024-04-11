@@ -86,10 +86,15 @@
                 </div>
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover table-sm">
+                        <thead>
+                            <th class="text-muted" colspan="2">Subject</th>
+                            <th class="text-muted" colspan="2">Teacher/Instructor</th>
+                        </thead>
                         <tbody>
                             <tr v-for="subject in subjects" :key="subject.id">
                                 <td @click="selectSubject(subject.SubjectClassId)" class="v-align" style="width: 30px; cursor: pointer;"><i class="fas fa-check-circle " :class="subject.Selected ? 'text-success' : 'text-gray'"></i></td>
                                 <td @click="selectSubject(subject.SubjectClassId)" class="v-align" style="cursor: pointer;">{{ subject.Subject }}</td>
+                                <td @click="selectSubject(subject.SubjectClassId)" class="v-align" style="cursor: pointer;">{{ subject.Fullname }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -351,7 +356,6 @@ export default {
             })
             .then(response => {
                 this.subjects = response.data
-                console.log(response.data)
             })
             .catch(error => {
                 console.log(error)

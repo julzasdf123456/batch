@@ -9,6 +9,7 @@
                 <th>Subject</th>
                 <th>Description</th>
                 <th class="text-right">Course/Subject Fee</th>
+                <th>Teacher/Instructor</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>
@@ -18,6 +19,7 @@
                     <td>{{ $subject->Subject }}</td>
                     <td>{{ $subject->Description }}</td>
                     <td class="text-right">{{ number_format($subject->CourseFee, 2) }}</td>
+                    <td>{{ $subject->Fullname }}</td>
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['subjects.destroy', $subject->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>

@@ -7,6 +7,9 @@ use App\Http\Requests\UpdateSubjectsRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\SubjectsRepository;
 use Illuminate\Http\Request;
+use App\Models\Teachers;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class SubjectsController extends AppBaseController
@@ -25,7 +28,13 @@ class SubjectsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $subjects = $this->subjectsRepository->paginate(10);
+        $subjects = DB::table('Subjects')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+            ->select(
+                'Subjects.*',
+                'Teachers.Fullname'
+            )
+            ->paginate(15);
 
         return view('subjects.index')
             ->with('subjects', $subjects);
@@ -36,7 +45,9 @@ class SubjectsController extends AppBaseController
      */
     public function create()
     {
-        return view('subjects.create');
+        return view('subjects.create', [
+            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+        ]);
     }
 
     /**
@@ -82,7 +93,10 @@ class SubjectsController extends AppBaseController
             return redirect(route('subjects.index'));
         }
 
-        return view('subjects.edit')->with('subjects', $subjects);
+        return view('subjects.edit', [
+            'subjects' => $subjects,
+            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+        ]);
     }
 
     /**

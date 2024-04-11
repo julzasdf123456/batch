@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Students;
+use App\Models\Classes;
+use App\Models\Payables;
 use Flash;
 
 class StudentsController extends AppBaseController
@@ -28,10 +30,7 @@ class StudentsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $students = $this->studentsRepository->paginate(10);
-
-        return view('students.index')
-            ->with('students', $students);
+        return view('students.index');
     }
 
     /**
@@ -62,15 +61,9 @@ class StudentsController extends AppBaseController
      */
     public function show($id)
     {
-        $students = $this->studentsRepository->find($id);
-
-        if (empty($students)) {
-            Flash::error('Students not found');
-
-            return redirect(route('students.index'));
-        }
-
-        return view('students.show')->with('students', $students);
+        return view('students.show', [
+            'id'  => $id,
+        ]);
     }
 
     /**
@@ -171,24 +164,89 @@ class StudentsController extends AppBaseController
             $data = DB::table('Students')
             ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
             ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
             ->whereRaw("Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
                 (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
                 (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%'")
             ->select('Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled',
+                'Classes.Year',
+                'Classes.Section',
+            )
             ->orderBy('Students.FirstName')
             ->paginate(15);
         } else {
             $data = DB::table('Students')
                 ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
                 ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
                 ->select('Students.*',
                     'Towns.Town as TownSpelled',
-                    'Barangays.Barangay as BarangaySpelled')
+                    'Barangays.Barangay as BarangaySpelled',
+                    'Classes.Year',
+                    'Classes.Section',
+                )
                 ->orderBy('Students.FirstName')
                 ->paginate(15);
         }
+
+        return response()->json($data, 200);
+    }
+
+    public function getStudentDetails(Request $request) {
+        $id = $request['StudentId'];
+        
+        $student = DB::table('Students')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
+            ->whereRaw("Students.id='" . $id . "'")
+            ->select('Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'Classes.Year',
+                'Classes.Section',
+            )
+            ->first();
+
+        if ($student->CurrentGradeLevel != null) {
+            $subjects = DB::table('StudentSubjects')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->whereRaw("StudentSubjects.ClassId='" . $student->CurrentGradeLevel . "' AND StudentSubjects.StudentId='" . $student->id . "'")
+                ->select(
+                    'Subjects.*',
+                    'StudentSubjects.id AS StudentSubjectId',
+                    'StudentSubjects.FirstGradingGrade',
+                    'StudentSubjects.SecondGradingGrade',
+                    'StudentSubjects.ThirdGradingGrade',
+                    'StudentSubjects.FourthGradingGrade',
+                    'StudentSubjects.AverageGrade',
+                    'Teachers.Fullname AS TeacherName'
+                )
+                ->orderBy('Subjects.Subject')
+                ->get();
+        } else {
+            $subjects = [];
+        }
+
+        $tuitionPayables = Payables::where('StudentId', $student->id)
+            ->where('Category', 'Tuition Fees')
+            ->orderBy('created_at')
+            ->get();
+
+        $otherPayables = DB::table('Payables')
+            ->whereRaw("Category NOT IN ('Tuition Fees') AND StudentId='" . $student->id ."'")
+            ->orderBy('Category')
+            ->get();
+
+        $data = [
+            'StudentDetails' => $student,
+            'Subjects' => $subjects,
+            'TuitionPayables' => $tuitionPayables,
+            'OtherPayables' => $otherPayables,
+        ];
 
         return response()->json($data, 200);
     }

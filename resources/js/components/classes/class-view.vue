@@ -15,7 +15,7 @@
                 <tbody>
                     <tr v-for="(student, index) in students" :key="student.id">
                         <td class="v-align text-muted">{{ index + 1 }}</td>
-                        <td class="v-align">
+                        <td class="v-align pointer" @click="viewStudent(student.id)">
                             <strong>{{ student.LastName + ', ' + student.FirstName +  (isNull(student.MiddleName) ? '' : (student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
                             <span class="badge bg-danger ico-tab-left" v-if="student.Status==='Paid' ? false : true">{{ student.Status }}</span>
                         </td>
@@ -128,6 +128,9 @@ export default {
                     text : 'Error getting students data!'
                 })
             })
+        },
+        viewStudent(id) {
+            window.location.href = this.baseURL + '/students/' + id
         }
     },
     created() {

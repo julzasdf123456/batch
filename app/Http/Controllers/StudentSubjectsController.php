@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateStudentSubjectsRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\StudentSubjectsRepository;
 use Illuminate\Http\Request;
+use App\Models\StudentSubjects;
 use Flash;
 
 class StudentSubjectsController extends AppBaseController
@@ -125,5 +126,33 @@ class StudentSubjectsController extends AppBaseController
         Flash::success('Student Subjects deleted successfully.');
 
         return redirect(route('studentSubjects.index'));
+    }
+
+    public function updateGrade(Request $request) {
+        $id = $request['id'];
+        $grade = $request['Grade'];
+        $finalGrade = $request['FinalGrade'];
+        $gradePos = $request['GradePosition'];
+
+        $subject = StudentSubjects::find($id);
+
+        if ($subject != null) {
+            if ($gradePos === '1' | $gradePos == 1) {
+                $subject->FirstGradingGrade = $grade;
+            } elseif ($gradePos === '2' | $gradePos == 2) {
+                $subject->SecondGradingGrade = $grade;
+            } elseif ($gradePos === '3' | $gradePos == 3) {
+                $subject->ThirdGradingGrade = $grade;
+            } elseif ($gradePos === '4' | $gradePos == 4) {
+                $subject->FourthGradingGrade = $grade;
+            } elseif ($gradePos === '0' | $gradePos == 0) {
+                $subject->AverageGrade = $finalGrade;
+            }
+
+            $subject->AverageGrade = $finalGrade;
+            $subject->save();
+        }
+
+        return response()->json($subject, 200);
     }
 }

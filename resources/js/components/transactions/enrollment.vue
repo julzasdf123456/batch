@@ -289,8 +289,8 @@ export default {
         },
         getTotalPayments() {
             var cash = (this.cashAmount.length < 1 ? 0 : parseFloat(this.cashAmount))
-            var check = (this.checkAmount < 1 ? 0 : parseFloat(this.checkAmount))
-            var digital = (this.digitalAmount < 1 ? 0 : parseFloat(this.digitalAmount))
+            var check = (this.checkAmount.length < 1 ? 0 : parseFloat(this.checkAmount))
+            var digital = (this.digitalAmount.length < 1 ? 0 : parseFloat(this.digitalAmount))
             
             // total payments
             this.totalPayments = cash + check + digital

@@ -1,3 +1,21 @@
+{{-- STUDENTS --}}
+<li class="nav-item">
+    <a href="{{ route('students.index') }}"
+       class="nav-link {{ Request::is('students.index*') ? 'active' : '' }}">
+       <i class="fas fa-user-circle nav-icon"></i>
+        <p>Students</p>
+    </a>
+</li>
+
+{{-- CLASSES --}}
+<li class="nav-item">
+    <a href="{{ route('schoolYears.index') }}"
+       class="nav-link {{ Request::is('schoolYears.index*') ? 'active' : '' }}">
+       <i class="fas fa-bookmark nav-icon"></i>
+        <p>Classes</p>
+    </a>
+</li>
+
 {{-- ENROLLMENT SIDE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -46,22 +64,13 @@
         </li>
         
         <li class="nav-item">
-            <a href="{{ route('classes.existing-student') }}"
-               class="nav-link {{ Request::is('classes.existing-student*') ? 'active' : '' }}">
+            <a href="{{ route('transactions.tuitions-search') }}"
+               class="nav-link {{ Request::is('transactions.tuitions-search*') ? 'active' : '' }}">
                <i class="fas fa-file-invoice-dollar nav-icon"></i>
                 <p>School Tuitions</p>
             </a>
         </li>
     </ul>
-</li>
-
-{{-- CLASSES --}}
-<li class="nav-item">
-    <a href="{{ route('schoolYears.index') }}"
-       class="nav-link {{ Request::is('schoolYears.index*') ? 'active' : '' }}">
-       <i class="fas fa-bookmark nav-icon"></i>
-        <p>Classes</p>
-    </a>
 </li>
 
 {{-- @canany('god permission') --}}

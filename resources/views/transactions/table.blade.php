@@ -18,27 +18,27 @@
             </tr>
             </thead>
             <tbody>
-            @foreach($transactions as $transactions)
+            @foreach($transactions as $transaction)
                 <tr>
-                    <td>{{ $transactions->PayablesId }}</td>
-                    <td>{{ $transactions->StudentId }}</td>
-                    <td>{{ $transactions->PaymentFor }}</td>
-                    <td>{{ $transactions->ModeOfPayment }}</td>
-                    <td>{{ $transactions->ORNumber }}</td>
-                    <td>{{ $transactions->ORDate }}</td>
-                    <td>{{ $transactions->CashAmount }}</td>
-                    <td>{{ $transactions->CheckAmount }}</td>
-                    <td>{{ $transactions->DigitalPaymentAmount }}</td>
-                    <td>{{ $transactions->TotalAmountPaid }}</td>
-                    <td>{{ $transactions->Notes }}</td>
+                    <td>{{ $transaction->PayablesId }}</td>
+                    <td>{{ $transaction->StudentId }}</td>
+                    <td>{{ $transaction->PaymentFor }}</td>
+                    <td>{{ $transaction->ModeOfPayment }}</td>
+                    <td>{{ $transaction->ORNumber }}</td>
+                    <td>{{ $transaction->ORDate }}</td>
+                    <td>{{ $transaction->CashAmount }}</td>
+                    <td>{{ $transaction->CheckAmount }}</td>
+                    <td>{{ $transaction->DigitalPaymentAmount }}</td>
+                    <td>{{ $transaction->TotalAmountPaid }}</td>
+                    <td>{{ $transaction->Notes }}</td>
                     <td  style="width: 120px">
-                        {!! Form::open(['route' => ['transactions.destroy', $transactions->id], 'method' => 'delete']) !!}
+                        {!! Form::open(['route' => ['transactions.destroy', $transaction->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
-                            <a href="{{ route('transactions.show', [$transactions->id]) }}"
+                            <a href="{{ route('transactions.show', [$transaction->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-eye"></i>
                             </a>
-                            <a href="{{ route('transactions.edit', [$transactions->id]) }}"
+                            <a href="{{ route('transactions.edit', [$transaction->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-edit"></i>
                             </a>

@@ -236,6 +236,7 @@ class ClassesController extends AppBaseController
                             $studentSubjects->StudentId = $studentId;
                             $studentSubjects->SubjectId = $item['id'];
                             $studentSubjects->ClassId = $classId;
+                            $studentSubjects->TeacherId = $item['TeacherId'];
                             $studentSubjects->save();
                         }
                     }

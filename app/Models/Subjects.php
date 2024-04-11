@@ -12,14 +12,16 @@ class Subjects extends Model
         'id',
         'Subject',
         'Description',
-        'CourseFee'
+        'CourseFee',
+        'Teacher',
     ];
 
     protected $casts = [
         'id' => 'string',
         'Subject' => 'string',
         'Description' => 'string',
-        'CourseFee' => 'string'
+        'CourseFee' => 'string',
+        'Teacher' => 'string',
     ];
 
     public static array $rules = [
@@ -28,7 +30,8 @@ class Subjects extends Model
         'Description' => 'nullable|string|max:500',
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
-        'CourseFee' => 'nullable|string'
+        'CourseFee' => 'nullable|string',
+        'Teacher' => 'nullable|string',
     ];
 
     

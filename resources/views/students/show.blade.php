@@ -1,31 +1,18 @@
 @extends('layouts.app')
 
+<meta name="student-id" content="{{ $id }}">
 @section('content')
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>
-Students Details
-                    </h1>
-                </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-default float-right"
-                       href="{{ route('students.index') }}">
-                                                    Back
-                                            </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="content px-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    @include('students.show_fields')
-                </div>
-            </div>
-        </div>
-    </div>
+<div id="app">
+    <view-student></view-student>
+</div>
+@vite('resources/js/app.js')
 @endsection
+
+@push('page_scripts')
+    <script>
+        $(document).ready(function() {
+            $('body').addClass('sidebar-collapse')
+            $('#page-title').html("<span class='text-muted'></span> <strong>Student View</strong>")
+        })
+    </script>
+@endpush

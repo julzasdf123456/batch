@@ -7,6 +7,9 @@ use App\Http\Requests\UpdateTeachersRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\TeachersRepository;
 use Illuminate\Http\Request;
+use App\Models\Teachers;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class TeachersController extends AppBaseController
@@ -58,15 +61,9 @@ class TeachersController extends AppBaseController
      */
     public function show($id)
     {
-        $teachers = $this->teachersRepository->find($id);
-
-        if (empty($teachers)) {
-            Flash::error('Teachers not found');
-
-            return redirect(route('teachers.index'));
-        }
-
-        return view('teachers.show')->with('teachers', $teachers);
+        return view('teachers.show', [
+            'id' => $id,
+        ]);
     }
 
     /**
@@ -125,5 +122,76 @@ class TeachersController extends AppBaseController
         Flash::success('Teachers deleted successfully.');
 
         return redirect(route('teachers.index'));
+    }
+
+    public function getTeacherData(Request $request) {
+        $id = $request['id'];
+
+        $teacher = Teachers::find($id);
+
+        $schoolYears = DB::table('StudentSubjects')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
+            ->whereRaw("StudentSubjects.TeacherId='" . $id . "'")
+            ->select(
+                'SchoolYear.SchoolYear',
+                'SchoolYear.id',
+            )
+            ->groupBy('SchoolYear.SchoolYear', 'SchoolYear.id')
+            ->orderByDesc('id')
+            ->get();
+
+        foreach ($schoolYears as $item) {
+            $item->SubjectClasses = DB::table('StudentSubjects')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                ->whereRaw("StudentSubjects.TeacherId='" . $id . "' AND Classes.SchoolYearId='" . $item->id . "'")
+                ->select(
+                    'StudentSubjects.ClassId',
+                    'Classes.Year',
+                    'Classes.Section',
+                    'Subjects.id',
+                    'Subjects.Subject',
+                    DB::raw("'false' AS Selected")
+                )
+                ->groupBy(
+                    'StudentSubjects.ClassId',
+                    'Classes.Year',
+                    'Classes.Section',
+                    'Subjects.id',
+                    'Subjects.Subject',
+                )
+                ->orderBy('Subjects.Subject')
+                ->get();
+        }
+
+        $data = [
+            'teacher' => $teacher,
+            'schoolYears' => $schoolYears,
+        ];
+
+        return response()->json($data, 200);
+    }
+
+    public function getStudentsFromSubjectClass(Request $request) {
+        $classId = $request['ClassId'];
+        $teacherId = $request['TeacherId'];
+        $subjectId = $request['SubjectId'];
+
+        $data = DB::table('StudentSubjects')
+            ->leftJoin('Students', 'StudentSubjects.StudentId', '=', 'Students.id')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "'")
+            ->select(
+                'StudentSubjects.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.MiddleName',
+                'Students.Suffix',
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }

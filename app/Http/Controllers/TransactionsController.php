@@ -13,6 +13,9 @@ use App\Models\IDGenerator;
 use App\Models\TransactionDetails;
 use App\Models\StudentClasses;
 use App\Models\Students;
+use App\Models\ClassesRepo;
+use App\Models\Classes;
+use App\Models\SchoolYear;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -253,6 +256,51 @@ class TransactionsController extends AppBaseController
             $details->save();
         }
 
+        // add tuition fee payables
+        $class = Classes::find($classId);
+        if ($class != null) {
+            $classRepo = ClassesRepo::where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->first();
+            
+            $sy = SchoolYear::find($class->SchoolYearId);
+
+            if ($classRepo != null) {
+                $baseTuition = $classRepo->BaseTuitionFee;
+
+                $tuitionPayable = new Payables;
+                $tuitionPayable->id = IDGenerator::generateIDandRandString();
+                $tuitionPayable->StudentId = $studentId;
+                $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
+                $tuitionPayable->Category = 'Tuition Fees';
+
+                if ($baseTuition != null) {
+                    // copy base tuition fee if declared in classes
+                    $tuitionPayable->AmountPayable = $baseTuition;
+                    $tuitionPayable->Balance = $baseTuition;
+                } else {
+                    // get tuition per subject if not declared in classes
+                    $totalSubjectTuition = DB::table('SubjectClasses')
+                        ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                        ->whereRaw("SubjectClasses.ClassRepoId='" . $classRepo->id . "'")
+                        ->select(
+                            DB::raw("SUM(Subjects.CourseFee) AS Total")
+                        )
+                        ->first();
+
+                    if ($totalSubjectTuition != null) {
+                        $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
+                        $tuitionPayable->Balance = $totalSubjectTuition->Total;
+                    } else {
+                        $tuitionPayable->AmountPayable = 0.0;
+                        $tuitionPayable->Balance = 0.0;
+                    }
+                }
+
+                $tuitionPayable->save();
+            }
+        }
+
         // update student classes
         StudentClasses::where('ClassId', $classId)
             ->where('StudentId', $studentId)
@@ -284,5 +332,159 @@ class TransactionsController extends AppBaseController
         } else {
             return abort('No transaction found!', 404);
         }
+    }
+
+    public function tuitions($studentId) {
+        return view('/transactions/tuitions', [
+            'studentId' => $studentId,
+        ]);
+    }
+
+    public function tuitionsSearch(Request $request) {
+        return view('/transactions/tuitions_search');
+    }
+    
+    public function getSearchStudent(Request $request) {
+        $params = $request['Search'];
+
+        if (isset($params)) {
+            $data = DB::table('Students')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
+                ->whereRaw("(Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
+                    (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
+                    (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%')")
+                ->select('Students.*',
+                    'Towns.Town AS TownSpelled',
+                    'Barangays.Barangay AS BarangaySpelled',
+                    'Classes.Year',
+                    'Classes.Section',
+                )
+                ->orderBy('Students.LastName')
+                ->paginate(13);
+        } else {
+            $data = DB::table('Students')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
+                ->select('Students.*',
+                    'Towns.Town AS TownSpelled',
+                    'Barangays.Barangay AS BarangaySpelled',
+                    'Classes.Year',
+                    'Classes.Section',
+                )
+                ->orderBy('Students.LastName')
+                ->paginate(13);
+        }
+
+        return response()->json($data, 200);
+    }
+
+    public function transactTuition(Request $request) {
+        $payableId = $request['PayableId'];
+        $studentId = $request['StudentId'];
+        $cashAmount = $request['cashAmount'];
+        $checkNumber = $request['checkNumber'];
+        $checkBank = $request['checkBank'];
+        $checkAmount = $request['checkAmount'];
+        $digitalNumber = $request['digitalNumber'];
+        $digitalBank = $request['digitalBank'];
+        $digitalAmount = $request['digitalAmount'];
+        $totalPayables = $request['totalPayables'];
+        $totalPayments = $request['totalPayments'];
+        $orNumber = $request['ORNumber'];
+        $details = $request['Details'];
+        $period = $request['Period'];
+        $paidAmount = $request['PaidAmount'];
+        $balance = $request['Balance'];
+
+        // update tuition payable
+        $payable = Payables::find($payableId);
+        if ($payable != null) {
+            $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+            $newAmntPaid = $payableAmntPaid + floatval($paidAmount);
+
+            $payable->AmountPaid = $newAmntPaid;
+            $payable->Balance = $balance;
+            $payable->save();
+        }
+
+        // determine mode of payment
+        $modeOfPayment = '';
+        if ($cashAmount != null) {
+            $modeOfPayment .= 'Cash;';
+        }
+        if ($checkAmount != null) {
+            $modeOfPayment .= 'Check;';
+        }
+        if ($digitalAmount != null) {
+            $modeOfPayment .= 'Digital;';
+        }
+
+        // insert transaction
+        $id = IDGenerator::generateIDandRandString();
+        $transactions = new Transactions;
+        $transactions->id = $id;
+        $transactions->PayablesId = $payableId;
+        $transactions->StudentId = $studentId;
+        $transactions->PaymentFor = $details;
+        $transactions->ModeOfPayment = $modeOfPayment;
+        $transactions->ORNumber = $orNumber;
+        $transactions->ORDate = date('Y-m-d');
+        $transactions->CashAmount = $cashAmount;
+        $transactions->CheckAmount = $checkAmount;
+        $transactions->DigitalPaymentAmount = $digitalAmount;
+        $transactions->TotalAmountPaid = $paidAmount;
+        $transactions->UserId = Auth::id();
+        $transactions->Period = $period;
+        $transactions->save();
+
+        // insert transaction details
+        $transactionDetails = new TransactionDetails;
+        $transactionDetails->id = IDGenerator::generateIDandRandString();
+        $transactionDetails->TransactionsId = $id;
+        $transactionDetails->Particulars = $details;
+        $transactionDetails->Amount = $paidAmount;
+        $transactionDetails->save();
+
+        return response()->json($id, 200);
+    }
+
+    public function printTuition($transactionId) {
+        $transaction = Transactions::find($transactionId);
+        
+        if ($transaction != null) {
+            $transactionDetails = TransactionDetails::where('TransactionsId', $transactionId)->get();
+            $student = DB::table('Students')
+                    ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                    ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                    ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                    ->select('Students.*',
+                        'Towns.Town as TownSpelled',
+                        'Barangays.Barangay as BarangaySpelled')
+                    ->first();
+
+            return view('/transactions/print_tuition', [
+                'transaction' => $transaction,
+                'student' => $student,
+                'transactionDetails' => $transactionDetails,
+            ]);
+        } else {
+            return abort('No transaction found!', 404);
+        }
+    }
+
+    public function getTransactionsFromPayable(Request $request) {
+        $payableId = $request['PayableId'];
+
+        $data = DB::table('Transactions')
+            ->leftJoin('users', 'Transactions.UserId', '=', 'users.id')
+            ->where('PayablesId', $payableId)
+            ->select('Transactions.*', 'users.name')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }

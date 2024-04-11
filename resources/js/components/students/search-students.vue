@@ -1,40 +1,42 @@
 <template>
-    <section class="content-header">
-        <div class="container-fluid">
-            <form class="row mb-2" @submit.prevent="getSearch()">
-                <div class="col-lg-6 offset-lg-2 col-md-12">
-                    <input type="text" v-model="search" @keyup="getSearch()" class="form-control" placeholder="Search student name or ID..." name="params" autofocus>
-                </div>
-                <div class="col-lg-3 col-md-12">
-                    <button @click="getSearch()" class="btn btn-primary">Search <i class="fas fa-search ico-tab-left-mini"></i></button>
-                </div>
-            </form>
+    <div class="row">
+        <!-- SEARCH -->
+        <div class="col-lg-8 offset-lg-2 col-md-12">
+            <input type="text" placeholder="Search student name or ID..." :autofocus="true" class="form-control" v-model="search" @keyup="searchStudent">
         </div>
-    </section>
+        <div class="col-lg-12 mt-3">
+            <div class="table-responsive px-3">
+                <table class="table table-hover table-sm">
+                    <thead>
+                        <th class="text-muted">Student</th>
+                        <th class="text-muted">Address</th>
+                        <th class="text-muted">Current Grade/Level</th>
+                        <th></th>
+                    </thead>
+                    <tbody>
+                        <tr v-for="student in students.data" :key="student.id" style="cursor: pointer;">
+                            <td @click="viewStudent(student.id)" class="v-align">
+                                <div style="display: inline-block; vertical-align: middle;">
+                                    <img :src="imgPath + 'prof-img.png'" style="width: 40px; margin-right: 25px;" class="img-circle" alt="profile">
+                                </div>
+                                <div style="display: inline-block; height: inherit; vertical-align: middle;">
+                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                    <br>
+                                    <span class="text-muted text-sm">{{ student.id }}</span>
+                                </div>
+                            </td>
+                            <td @click="viewStudent(student.id)" class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
+                            <td @click="viewStudent(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + student.Section) }}</td>
+                            <td class="v-align text-right">
+                                <a class="btn btn-primary-skinny btn-sm" :href="baseURL + '/transactions/tuitions/' + student.id">More <i class="fas fa-angle-down ico-tab-left-mini"></i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-    <div class="content table-responsive px-3">
-        <table class="table table-hover table-sm">
-            <thead>
-                <th>Student ID</th>
-                <th>Student</th>
-                <th>Address</th>
-                <th>Latest Grade Level</th>
-                <th></th>
-            </thead>
-            <tbody>
-                <tr v-for="student in students.data" :key="student.id" style="cursor: pointer;">
-                    <td @click="enroll(student.id)" class="v-align">{{ student.id }}</td>
-                    <td @click="enroll(student.id)" class="v-align"><strong>{{ student.FirstName + ' ' + (isNull(student.MiddleName) ? '' : student.MiddleName) + ' ' + student.LastName + ' ' + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong></td>
-                    <td @click="enroll(student.id)" class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
-                    <td @click="enroll(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + student.Section) }}</td>
-                    <td class="v-align text-right">
-                        <a class="btn btn-primary" :href="baseURL + '/classes/enroll/' + student.id">Enroll <i class="fas fa-arrow-right ico-tab-left-mini"></i></a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <pagination :data="students" :limit="10" @pagination-change-page="getSearch"></pagination>
+                <pagination :data="students" :limit="10" @pagination-change-page="searchStudent"></pagination>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -48,7 +50,7 @@ import jquery from 'jquery';
 import Swal from 'sweetalert2';
 
 export default {
-    name : 'ExistingStudentEnroll.existing-student-enroll',
+    name : 'SearchStudents.search-students',
     components : {
         FlatPickr,
         Swal,
@@ -60,8 +62,9 @@ export default {
             moment : moment,
             baseURL : axios.defaults.baseURL,
             filePath : axios.defaults.filePath,
+            imgPath : axios.defaults.imgsPath,
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
-            token : document.querySelector("meta[name='token']").getAttribute('content'),
+            userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -73,8 +76,8 @@ export default {
                 enableTime: false,
                 dateFormat: 'Y-m-d', 
             },
-            search : '',
             students : {},
+            search : '',
         }
     },
     methods : {
@@ -119,7 +122,10 @@ export default {
         generateId() {
             return moment().valueOf()
         },
-        getSearch(page = 1) {
+        viewStudent(studentId) {
+            window.location.href = this.baseURL + '/students/' + studentId
+        },
+        searchStudent(page = 1) {
             axios.get(`${ this.baseURL }/students/search-students-paginated`, {
                 params : {
                     page : page,
@@ -137,14 +143,11 @@ export default {
                 // })
             })
         },
-        enroll(id) {
-            window.location.href = this.baseURL + '/classes/enroll/' + id
-        }
     },
     created() {
     },
     mounted() {
-       this.getSearch()
+        this.searchStudent()
     }
 }
 
