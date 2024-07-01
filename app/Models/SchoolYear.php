@@ -10,18 +10,21 @@ class SchoolYear extends Model
 
     public $fillable = [
         'id',
-        'SchoolYear'
+        'SchoolYear',
+        'MonthStart'
     ];
 
     protected $casts = [
         'id' => 'string',
-        'SchoolYear' => 'string'
+        'SchoolYear' => 'string',
+        'MonthStart' => 'string',
     ];
 
     public static array $rules = [
         'SchoolYear' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'MonthStart' => 'nullable|string',
     ];
 
     

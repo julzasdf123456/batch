@@ -24,7 +24,10 @@ import ClassView from "./components/classes/class-view.vue"
 import EnrollmentTransactions from "./components/transactions/enrollment.vue"
 import TuitionsSearch from "./components/transactions/tuitions-search.vue"
 import Tuitions from "./components/transactions/tuitions.vue"
+import Miscellaneous from "./components/transactions/miscellaneous.vue"
+import MiscellaneousSearch from "./components/transactions/miscellaneous-search.vue"
 import ViewTeacher from "./components/teachers/view-teacher.vue"
+import ScholarshipWizzard from "./components/students/scholarship-wizzard.vue"
 
 const app = createApp({
     
@@ -41,6 +44,9 @@ app.component('class-view', ClassView);
 app.component('enrollment-transactions', EnrollmentTransactions);
 app.component('tuitions-search', TuitionsSearch);
 app.component('tuitions', Tuitions);
+app.component('miscellaneous', Miscellaneous);
+app.component('miscellaneous-search', MiscellaneousSearch);
 app.component('view-teacher', ViewTeacher);
+app.component('scholarship-wizzard', ScholarshipWizzard);
 
 app.mount("#app");

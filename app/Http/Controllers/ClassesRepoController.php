@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Models\ClassesRepo;
 use App\Models\Teachers;
 use App\Models\Subjects;
+use App\Models\TuitionInclusions;
 use Illuminate\Support\Facades\DB;
 use Flash;
 
@@ -90,11 +91,14 @@ class ClassesRepoController extends AppBaseController
             )
             ->first();
 
+        $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $id)->orderBy('ItemName')->get();
+
         return view('classes_repos.show', [
             'classRepo' => $classesRepo,
             'subjects' => Subjects::orderBy('Subject')->get(),
             'subjectClasses' => $subjectClasses,
-            'totalSubjectTuition' => $totalSubjectTuition
+            'totalSubjectTuition' => $totalSubjectTuition,
+            'tuitionInclusions' => $tuitionInclusions,
         ]);
     }
 

@@ -1021,3 +1021,11 @@ td .table-input {
 .table-input:focus  {
     outline: none;
 }
+
+.tbl-divider {
+    border-bottom: 1px solid #e6e5e5 !important;
+}
+
+body.dark-mode .tbl-divider {
+    border-bottom: 1px solid #747780 !important;
+}

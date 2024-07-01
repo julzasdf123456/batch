@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Students;
 use App\Models\Classes;
 use App\Models\Payables;
+use App\Models\PayableInclusions;
 use Flash;
 
 class StudentsController extends AppBaseController

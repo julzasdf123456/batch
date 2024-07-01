@@ -15,7 +15,10 @@ class Payables extends Model
         'AmountPayable',
         'AmountPaid',
         'Balance',
-        'Category'
+        'Category',
+        'SchoolYear',
+        'Payable',
+        'DiscountAmount',
     ];
 
     protected $casts = [
@@ -26,6 +29,9 @@ class Payables extends Model
         'AmountPaid' => 'decimal:2',
         'Balance' => 'decimal:2',
         'Category' => 'string',
+        'SchoolYear' => 'string',
+        'Payable' => 'string',
+        'DiscountAmount' => 'string',
     ];
 
     public static array $rules = [
@@ -38,6 +44,9 @@ class Payables extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'Category' => 'nullable|string',
+        'SchoolYear' => 'nullable|string',
+        'Payable' => 'nullable|string',
+        'DiscountAmount' => 'nullable|string',
     ];
 
     

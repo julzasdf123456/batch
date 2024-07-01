@@ -7,6 +7,7 @@
     <meta name="color-profile" content="{{ Auth::user()->ColorProfile }}">
     <meta name="employee-id" content="{{ Auth::user()->employee_id }}">
     <meta name="user-id" content="{{ Auth::id() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
 

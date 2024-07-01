@@ -14,7 +14,7 @@
                             </tr>
                             <tr title="Student ID">
                                 <td class="text-muted v-align"><i class="fas fa-hashtag"></i></td>
-                                <td class="v-align">{{ studentData.id }}</td>
+                                <td class="v-align">LRN-{{ studentData.LRN }}</td>
                             </tr>
                             <tr title="Address">
                                 <td class="text-muted v-align"><i class="fas fa-map-marker-alt"></i></td>
@@ -247,48 +247,114 @@ export default {
         },
         validateSY(sy) {
             if (sy === 'Create New') {
-                (async () => {
-                    const { value: text } = await Swal.fire({
-                        input: 'text',
-                        inputPlaceholder: 'e.g.: S.Y. ' + moment().format('YYYY') + ' - ' + moment().add(1, 'Y').format('YYYY'),
-                        inputAttributes: {
-                            'aria-label': 'Type your remarks here'
-                        },
-                        title: 'Add New School Year',
-                        showCancelButton: true
-                    })
+                Swal.fire({
+                    title: 'Add New School Year',
+                    html:
+                        `
+                        <span class='text-muted float-left'>School Year</span>
+                        <input id="schoolYear" class="form-control" type="text" placeholder="e.g.: S.Y. ${moment().format('YYYY')} - ${moment().add(1, 'Y').format('YYYY')}">
+                        <span class='text-muted float-left mt-3'>Start of Classes Date</span>
+                        <input id="schoolYearStart" class="form-control mt-2" type="date" placeholder="Start of Class Date">
+                        `,
+                    focusConfirm: false,
+                    confirmButtonText: 'Save',
+                    preConfirm: () => {
+                        const schoolYear = document.getElementById('schoolYear').value;
+                        const schoolYearStart = document.getElementById('schoolYearStart').value;
+                        const syId = this.generateId()
 
-                    if (text) {
-                        if (text.length < 1) {
-                            this.toast.fire({
-                                icon : 'info',
-                                text : 'Please provide school year!',
-                            })
-                        } else { 
-                            var syId = this.generateId()
-                            axios.post(`${ this.baseURL }/schoolYears`, {
-                                _token : this.token,
-                                id : syId,
-                                SchoolYear : text,
-                            }) // IF PORT 80 DIRECT FROM APACHE
-                            .then(response => {
-                                this.toast.fire({
-                                    icon : 'success',
-                                    text : 'School year added!'
-                                })
-                                this.schoolYears.push(response.data)
-                                this.schoolYearSelected = response.data.SchoolYear
-                            })
-                            .catch(error => {
-                                console.log(error.response)
-                                Swal.fire({
-                                    icon : 'error',
-                                    text : 'Error adding school year!'
-                                })
-                            })
+                        if (!schoolYear || !schoolYearStart) {
+                            Swal.showValidationMessage('Both fieldss are required.');
+                            return false;
                         }
+
+                        return fetch(this.baseURL + '/schoolYears', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                id : syId,
+                                SchoolYear : schoolYear,
+                                MonthStart : schoolYearStart
+                            })
+                        })
+                        .then(response => response.json().then(data => ({
+                            status: response.status,
+                            body: data
+                        })))
+                        .then(({ status, body }) => {
+                            if (status !== 200) {
+                                console.log('Server response:', body);
+                                Swal.showValidationMessage(`Request failed: ${body.message || 'Unknown error'}`);
+                                return false;
+                            }
+                            return body
+                        })
+                        .catch(error => {
+                            Swal.showValidationMessage(`Request failed: ${error}`);
+                            console.log(error.message)
+                        })
                     }
-                })()
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.schoolYears.push(result.value)
+                        this.schoolYearSelected = result.value.SchoolYear
+
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'School Year Added!'
+                        })
+
+                        location.reload()
+                    }
+                })
+
+                // =============================================
+                // OLD
+                // (async () => {
+                //     const { value: text } = await Swal.fire({
+                //         input: 'text',
+                //         inputPlaceholder: 'e.g.: S.Y. ' + moment().format('YYYY') + ' - ' + moment().add(1, 'Y').format('YYYY'),
+                //         inputAttributes: {
+                //             'aria-label': 'Type your remarks here'
+                //         },
+                //         title: 'Add New School Year',
+                //         showCancelButton: true
+                //     })
+
+                //     if (text) {
+                //         if (text.length < 1) {
+                //             this.toast.fire({
+                //                 icon : 'info',
+                //                 text : 'Please provide school year!',
+                //             })
+                //         } else { 
+                //             var syId = this.generateId()
+                //             axios.post(`${ this.baseURL }/schoolYears`, {
+                //                 _token : this.token,
+                //                 id : syId,
+                //                 SchoolYear : text,
+                //             }) // IF PORT 80 DIRECT FROM APACHE
+                //             .then(response => {
+                //                 this.toast.fire({
+                //                     icon : 'success',
+                //                     text : 'School year added!'
+                //                 })
+                //                 this.schoolYears.push(response.data)
+                //                 this.schoolYearSelected = response.data.SchoolYear
+                //             })
+                //             .catch(error => {
+                //                 console.log(error.response)
+                //                 Swal.fire({
+                //                     icon : 'error',
+                //                     text : 'Error adding school year!'
+                //                 })
+                //             })
+                //         }
+                //     }
+                // })()
             }
             
         },

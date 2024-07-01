@@ -14,6 +14,7 @@ use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\TeachersController;
 use App\Http\Controllers\StudentClassesController;
 use App\Http\Controllers\StudentSubjectsController;
+use App\Http\Controllers\StudentScholarshipsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,7 @@ Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])-
 Route::get('/classes/existing-student', [ClassesController::class, 'existingStudent'])->name('classes.existing-student');
 Route::post('/classes/save-enrollment', [ClassesController::class, 'saveEnrollment'])->name('classes.save-enrollment');
 Route::get('/classes/get-students-from-class', [ClassesController::class, 'getStudentsFromClass'])->name('classes.get-students-from-class');
+Route::get('/classes/get-tuitions-breakdown', [ClassesController::class, 'getTuitionBreakdown'])->name('classes.get-tuitions-breakdown');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -65,6 +67,7 @@ Route::get('/classes_repos/get-subjects-in-class', [ClassesRepoController::class
 Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
+Route::get('/school_years/get-school-year', [SchoolYearController::class, 'getSchoolYear'])->name('schoolYears.get-school-year');
 Route::resource('schoolYears', SchoolYearController::class);
 
 Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');
@@ -84,6 +87,12 @@ Route::get('/transactions/search-student', [TransactionsController::class, 'getS
 Route::post('/transactions/transact-tuition', [TransactionsController::class, 'transactTuition'])->name('transactions.transact-tuition');
 Route::get('/transactions/print-tuition/{id}', [TransactionsController::class, 'printTuition'])->name('transactions.print-tuition');
 Route::get('/transactions/get-transactions-from-payable', [TransactionsController::class, 'getTransactionsFromPayable'])->name('transactions.get-transactions-from-payable');
+Route::get('/transactions/miscellaneous-search', [TransactionsController::class, 'miscellaneousSearch'])->name('transactions.miscellaneous-search');
+Route::get('/transactions/miscellaneous/{id}', [TransactionsController::class, 'miscellaneous'])->name('transactions.miscellaneous');
+Route::get('/transactions/get-misc-payables', [TransactionsController::class, 'getMiscPayables'])->name('transactions.get-misc-payables');
+Route::post('/transactions/transact-miscellaneous', [TransactionsController::class, 'transactMiscellaneous'])->name('transactions.transact-miscellaneous');
+Route::get('/transactions/print-miscellaneous/{id}', [TransactionsController::class, 'printMiscellaneous'])->name('transactions.print-miscellaneous');
+Route::get('/transactions/get-transaction-history', [TransactionsController::class, 'getTransactionHistory'])->name('transactions.get-transaction-history');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
@@ -92,3 +101,13 @@ Route::resource('subjectClasses', App\Http\Controllers\SubjectClassesController:
 
 Route::post('/student_subjects/update-grade', [StudentSubjectsController::class, 'updateGrade'])->name('studentSubjects.update-grade');
 Route::resource('studentSubjects', StudentSubjectsController::class);
+Route::resource('tuitions-breakdowns', App\Http\Controllers\TuitionsBreakdownController::class);
+Route::resource('miscellaneousPayables', App\Http\Controllers\MiscellaneousPayablesController::class);
+Route::resource('tuitionInclusions', App\Http\Controllers\TuitionInclusionsController::class);
+Route::resource('payableInclusions', App\Http\Controllers\PayableInclusionsController::class);
+Route::resource('scholarships', App\Http\Controllers\ScholarshipsController::class);
+
+Route::get('/student_scholarships/scholarship-wizzard/{id}/{from}', [StudentScholarshipsController::class, 'scholarshipWizzard'])->name('studentScholarships.scholarship-wizzard');
+Route::get('/student_scholarships/get-available-sy-payables', [StudentScholarshipsController::class, 'getAvailableSYPayables'])->name('studentScholarships.get-available-sy-payables');
+Route::get('/student_scholarships/get-grants', [StudentScholarshipsController::class, 'getGrants'])->name('studentScholarships.get-grants');
+Route::resource('studentScholarships', StudentScholarshipsController::class);

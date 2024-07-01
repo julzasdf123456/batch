@@ -13,7 +13,7 @@
                                 <p class="no-pads" style="font-size: 1.85em;"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></p>
                                 
                                 <span class="text-muted">
-                                    <i class="fas fa-id-badge ico-tab-mini"></i>{{ studentData.id }} | 
+                                    <i class="fas fa-id-badge ico-tab-mini"></i>LRN-{{ studentData.LRN }} | 
                                     <i class="fas fa-lightbulb ico-tab-mini"></i>{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}
                                     <span class="badge" :class="isNull(studentData.Status) ? 'bg-success' : 'bg-danger'">{{ isNull(studentData.Status) ? 'Studying' : studentData.Status }}</span>
                                 </span>
@@ -81,23 +81,106 @@
                                 <!-- TAB HEADS -->
                                 <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
                                     <li class="nav-item">
-                                        <a class="nav-link active" id="subjects-tab" data-toggle="pill" href="#subjects-content" role="tab" aria-controls="subjects-content" aria-selected="false">Subjects</a>
+                                        <a class="nav-link active   " id="account-tab" data-toggle="pill" href="#account-content" role="tab" aria-controls="account-content" aria-selected="false">Account</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="account-tab" data-toggle="pill" href="#account-content" role="tab" aria-controls="account-content" aria-selected="false">Account</a>
+                                        <a class="nav-link" id="subjects-tab" data-toggle="pill" href="#subjects-content" role="tab" aria-controls="subjects-content" aria-selected="false">Subjects</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="scholarship-tab" data-toggle="pill" href="#scholarship-content" role="tab" aria-controls="scholarship-content" aria-selected="false">Scholarship Grants</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="attendance-tab" data-toggle="pill" href="#attendance" role="tab" aria-controls="attendance" aria-selected="false">Attendance Logs</a>
+                                    </li>
                                 </ul>
                                 <!-- TAB BODY -->
                                 <div class="tab-content" id="custom-tabs-three-tabContent">
+
+                                    <!-- 
+                                        ====================================================================================================================================
+                                        ACCOUNT 
+                                        ====================================================================================================================================
+                                    -->
+                                    <div class="tab-pane fade active show" id="account-content" role="tabpanel" aria-labelledby="account-tab">
+                                        <div class="p-2 table-responsive">
+                                            <!-- Summary -->
+                                            <div class="row mt-3">
+                                                <div class="col-lg-6">
+                                                    <h4 class="no-pads">Account Balance</h4>
+                                                    <span class="text-muted">Unpaid tuition fees, enrollment fees, and other payments</span>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <p class="no-pads text-right" :class="getTotalBalance() > 0 ? 'text-danger' : 'text-success'" style="font-size: 2.8em;">₱ {{ toMoney(getTotalBalance()) }}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- History -->
+                                            <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                                                <li class="nav-item">
+                                                    <a class="nav-link active" id="payable-history-tab" data-toggle="pill" href="#payable-history-content" role="tab" aria-controls="payable-history-content" aria-selected="false">Payable History</a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="transaction-history-tab" data-toggle="pill" href="#transaction-history-content" role="tab" aria-controls="transaction-history-content" aria-selected="false">Transaction History</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content" id="custom-tabs-three-tabContent">
+                                                <!-- payable history -->
+                                                <div class="tab-pane fade active show" id="payable-history-content" role="tabpanel" aria-labelledby="payable-history-tab">
+                                                    <table class="table table-sm table-hover">
+                                                        <thead>
+                                                            <th class="text-muted">Description</th>
+                                                            <th class="text-muted text-center">Category</th>
+                                                            <th class="text-muted text-right">Amount Payable</th>
+                                                            <th class="text-muted text-right">Amount Paid</th>
+                                                            <th class="text-muted text-right">Balance</th>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr class="pointer" v-for="payable in payables" :key="payable.id">
+                                                                <td @click="transactionHistory(payable.id)" class="v-align">{{ payable.PaymentFor }}</td>
+                                                                <td @click="transactionHistory(payable.id)" class="v-align text-center"><span class="badge bg-info">{{ payable.Category }}</span></td>
+                                                                <td @click="transactionHistory(payable.id)" class="v-align text-right"><strong>{{ isNull(payable.AmountPayable) ? '0' : toMoney(parseFloat(payable.AmountPayable)) }}</strong></td>
+                                                                <td @click="transactionHistory(payable.id)" class="v-align text-right">{{ isNull(payable.AmountPaid) ? '0' : toMoney(parseFloat(payable.AmountPaid)) }}</td>
+                                                                <td @click="transactionHistory(payable.id)" class="v-align text-right" :class="parseFloat(payable.Balance) > 0 ? 'text-danger' : 'text-success'"><strong>{{ isNull(payable.Balance) ? '0' : toMoney(parseFloat(payable.Balance)) }}</strong></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <!-- transaction history -->
+                                                <div class="tab-pane fade" id="transaction-history-content" role="tabpanel" aria-labelledby="transaction-history-tab">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover table-sm table-bordered">
+                                                            <thead>
+                                                                <th>Date</th>
+                                                                <th>Transaction</th>
+                                                                <th>OR Number</th>
+                                                                <th>Payment Medium</th>
+                                                                <th>Amount Paid</th>
+                                                                <th>Cashier</th>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="item in allTransactions" :key="item.id" style="cursor: pointer;">
+                                                                    <td>{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
+                                                                    <td>{{ item.PaymentFor }}</td>
+                                                                    <td>{{ item.ORNumber }}</td>
+                                                                    <td>{{ item.ModeOfPayment }}</td>
+                                                                    <td class='text-success text-right'><strong>{{ toMoney(parseFloat(item.TotalAmountPaid)) }}</strong></td>
+                                                                    <td>{{ item.name }}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>                                            
+                                        </div>
+                                    </div>
+
                                     <!-- 
                                         ====================================================================================================================================
                                         SUBJECTS 
                                         ====================================================================================================================================
                                     -->
-                                    <div class="tab-pane fade active show" id="subjects-content" role="tabpanel" aria-labelledby="subjects-tab">
+                                    <div class="tab-pane fade" id="subjects-content" role="tabpanel" aria-labelledby="subjects-tab">
                                        <div class="p-2 table-responsive">
                                             <p class="text-muted mt-3"><i class="fas fa-dot-circle ico-tab-mini"></i>Current/Latest Subjects Taken in this Class ({{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }})</p>
                                             <table class="table table-hover table-sm table-bordered">
@@ -126,47 +209,6 @@
                                             </table>
                                        </div>
                                     </div>
-
-                                    <!-- 
-                                        ====================================================================================================================================
-                                        ACCOUNT 
-                                        ====================================================================================================================================
-                                    -->
-                                    <div class="tab-pane fade" id="account-content" role="tabpanel" aria-labelledby="account-tab">
-                                        <div class="p-2 table-responsive">
-                                            <!-- Summary -->
-                                            <div class="row mt-3">
-                                                <div class="col-lg-6">
-                                                    <h4 class="no-pads">Account Balance</h4>
-                                                    <span class="text-muted">Unpaid tuition fees, enrollment fees, and other payments</span>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <p class="no-pads text-right" :class="getTotalBalance() > 0 ? 'text-danger' : 'text-success'" style="font-size: 2.8em;">₱ {{ toMoney(getTotalBalance()) }}</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- History -->
-                                            <p class="text-muted mt-4"><i class="fas fa-dot-circle ico-tab-mini"></i>Payables history</p>
-                                            <table class="table table-sm table-hover">
-                                                <thead>
-                                                    <th class="text-muted">Description</th>
-                                                    <th class="text-muted text-center">Category</th>
-                                                    <th class="text-muted text-right">Amount Payable</th>
-                                                    <th class="text-muted text-right">Amount Paid</th>
-                                                    <th class="text-muted text-right">Balance</th>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="pointer" v-for="payable in payables" :key="payable.id">
-                                                        <td @click="transactionHistory(payable.id)" class="v-align">{{ payable.PaymentFor }}</td>
-                                                        <td @click="transactionHistory(payable.id)" class="v-align text-center"><span class="badge bg-info">{{ payable.Category }}</span></td>
-                                                        <td @click="transactionHistory(payable.id)" class="v-align text-right"><strong>{{ isNull(payable.AmountPayable) ? '0' : toMoney(parseFloat(payable.AmountPayable)) }}</strong></td>
-                                                        <td @click="transactionHistory(payable.id)" class="v-align text-right">{{ isNull(payable.AmountPaid) ? '0' : toMoney(parseFloat(payable.AmountPaid)) }}</td>
-                                                        <td @click="transactionHistory(payable.id)" class="v-align text-right" :class="parseFloat(payable.Balance) > 0 ? 'text-danger' : 'text-success'"><strong>{{ isNull(payable.Balance) ? '0' : toMoney(parseFloat(payable.Balance)) }}</strong></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
                                     
                                     <!-- 
                                         ====================================================================================================================================
@@ -174,7 +216,16 @@
                                         ====================================================================================================================================
                                     -->
                                     <div class="tab-pane fade" id="scholarship-content" role="tabpanel" aria-labelledby="scholarship-tab">
-                                        
+                                        <button @click="scholarshipWizzard()" class="btn btn-primary float-right m-2">Add Scholarship Grant</button>
+                                    </div>
+                                    
+                                    <!-- 
+                                        ====================================================================================================================================
+                                        ATTENDANCE 
+                                        ====================================================================================================================================
+                                    -->
+                                    <div class="tab-pane fade" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
+                                        <p class="text-muted mt-4 text-center">ID System Data Not Configured</p>
                                     </div>
                                 </div>
                             </div>
@@ -185,6 +236,7 @@
         </div>
     </div>
 
+    <!-- TRANSACTION HISTORY MODAL -->
     <div ref="modalTransactionHistory" class="modal fade" id="modal-transaction-history" aria-hidden="true" style="display: none;">
         <div class="modal-dialog" style="max-width: 90% !important; margin-top: 30px;">
             <div class="modal-content">
@@ -196,38 +248,125 @@
                                 <span class="sr-only">Loading...</span>
                             </div> -->
                         </h4>
-                        <span class="text-muted">Transaction History</span>
                     </div>
                 </div>
                 <div class="modal-body table-responsive">
-                    <table class="table table-hover table-sm table-bordered">
-                        <thead>
-                            <th class="text-muted">Payment For</th>
-                            <th class="text-muted">Mode of Payment</th>
-                            <th class="text-muted">Period</th>
-                            <th class="text-muted">OR Number</th>
-                            <th class="text-muted">OR Date</th>
-                            <th class="text-muted">Cashier</th>
-                            <th class="text-muted text-right">Cash Amount</th>
-                            <th class="text-muted text-right">Check Amount</th>
-                            <th class="text-muted text-right">Transfer Amount</th>
-                            <th class="text-muted text-right">Total Amount Paid</th>
-                        </thead>
-                        <tbody>
-                            <tr v-for="hist in payableTransactionHistory" :key="hist.id">
-                                <td class="v-align">{{ hist.PaymentFor }}</td>
-                                <td class="v-align">{{ hist.ModeOfPayment }}</td>
-                                <td class="v-align">{{ hist.Period }}</td>
-                                <td class="v-align">{{ hist.ORNumber }}</td>
-                                <td class="v-align">{{ hist.ORDate.length < 1 ? '-' : moment(hist.ORDate).format('MMM DD, YYY') }}</td>
-                                <td class="v-align">{{ hist.name }}</td>
-                                <td class="v-align text-right">{{ isNull(hist.CashAmount) ? '-' : toMoney(parseFloat(hist.CashAmount)) }}</td>
-                                <td class="v-align text-right">{{ isNull(hist.CheckAmount) ? '-' : toMoney(parseFloat(hist.CheckAmount)) }}</td>
-                                <td class="v-align text-right">{{ isNull(hist.DigitalPaymentAmount) ? '-' : toMoney(parseFloat(hist.DigitalPaymentAmount)) }}</td>
-                                <td class="v-align text-right"><strong>{{ isNull(hist.TotalAmountPaid) ? '-' : toMoney(parseFloat(hist.TotalAmountPaid)) }}</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <!-- TUITION FEES -->
+                    <div>
+                        <div class="row">
+                            <!-- Total -->
+                            <div class="col-lg-12 mb-4">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <p class="text-muted text-sm no-pads">Net Amount Payable <i class="fas fa-eye"></i></p>
+                                        <h1 class="text-primary">₱ {{ isNull(activePayable.AmountPayable) ? '-' : toMoney(parseFloat(activePayable.AmountPayable)) }}</h1>
+
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <p class="text-muted text-sm no-pads">Payable <i class="fas fa-plus-circle"></i></p>
+                                                <h4 class="text-muted">₱ {{ isNull(activePayable.Payable) ? '-' : toMoney(parseFloat(activePayable.Payable)) }}</h4>
+                                            </div>
+                                            
+                                            <div class="col-lg-6">
+                                                <p class="text-muted text-sm no-pads">Discount <i class="fas fa-minus-circle"></i></p>
+                                                <h4 class="text-muted">₱ {{ isNull(activePayable.Discount) ? '-' : toMoney(parseFloat(activePayable.Discount)) }}</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    
+                                    <div class="col-lg-6">
+                                        <p class="text-muted text-right text-sm no-pads">Balance <i class="fas fa-dollar-sign"></i></p>
+                                        <h1 class="text-right" :class="isNull(activePayable.Balance) ? 'text-success' : (activePayable.Balance <= 0 ? 'text-success' : 'text-danger')">₱ {{ isNull(activePayable.Balance) ? '0.00' : toMoney(parseFloat(activePayable.Balance)) }}</h1>
+
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <p class="text-muted text-right text-sm no-pads">Total Amount Paid <i class="fas fa-check-circle"></i></p>
+                                                <h4 class="text-muted text-right">₱ {{ isNull(activePayable.AmountPaid) ? '-' : toMoney(parseFloat(activePayable.AmountPaid)) }}</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tuition/Payable Inclusions -->
+                            <div class="col-lg-4 table-responsive">
+                                <span class="text-muted">Payable Breakdown</span>
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <th class="text-muted">Item</th>
+                                        <th class="text-muted text-right">Amount</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="inc in payableInclusions" :key="inc.id">
+                                            <td class="v-align"><i class="fas fa-check text-success ico-tab-mini"></i>{{ inc.ItemName }}</td>
+                                            <td class="v-align text-right">{{ toMoney(parseFloat(inc.Amount)) }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Monthly Breakdown -->
+                            <div class="col-lg-8 table-responsive" v-if="isModalTuition">
+                                <span class="text-muted">Tuition Fee Monthly Balance Breakdown</span>
+                                <table class="table table-hover table-sm table-bordered">
+                                    <thead>
+                                        <th class="text-muted">Month</th>
+                                        <th class="text-muted text-right">Payable Amount</th>
+                                        <th class="text-muted text-right">Amount Paid</th>
+                                        <th class="text-muted text-right">Balance</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in tuitionsBreakdown" :key="item.id">
+                                            <td>
+                                                <i v-if="parseFloat(item.Balance) <= 0" class="fas fa-check-circle text-success ico-tab-mini"></i>
+                                                <i v-if="parseFloat(item.Balance) > 0" class="fas fa-info-circle text-muted ico-tab-mini"></i>
+                                                {{ moment(item.ForMonth).format('MMMM YYYY') }}
+                                            </td>
+                                            <td class='text-right'>{{ toMoney(parseFloat(item.AmountPayable)) }}</td>
+                                            <td class='text-right'>{{ isNull(item.AmountPaid) ? '-' : toMoney(parseFloat(item.AmountPaid)) }}</td>
+                                            <td class='text-right' :class="parseFloat(item.Balance) > 0 ? 'text-danger' : 'text-success'"><strong>{{ toMoney(parseFloat(item.Balance)) }}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>                      
+                                <br>
+                            </div>
+                        </div>  
+                    </div>
+
+                    <!-- TRANSACTION HISTORY LOGS -->
+                     
+                    <div class="table-responsive">
+                        <span class="text-muted">Transaction Logs</span>
+                        <table class="table table-hover table-sm table-bordered">
+                            <thead>
+                                <th class="text-muted">Payment For</th>
+                                <th class="text-muted">Mode of Payment</th>
+                                <th class="text-muted">Period</th>
+                                <th class="text-muted">OR Number</th>
+                                <th class="text-muted">OR Date</th>
+                                <th class="text-muted">Cashier</th>
+                                <th class="text-muted text-right">Cash Amount</th>
+                                <th class="text-muted text-right">Check Amount</th>
+                                <th class="text-muted text-right">Transfer Amount</th>
+                                <th class="text-muted text-right">Total Amount Paid</th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="hist in payableTransactionHistory" :key="hist.id">
+                                    <td class="v-align">{{ hist.PaymentFor }}</td>
+                                    <td class="v-align">{{ hist.ModeOfPayment }}</td>
+                                    <td class="v-align">{{ hist.Period }}</td>
+                                    <td class="v-align">{{ hist.ORNumber }}</td>
+                                    <td class="v-align">{{ hist.ORDate.length < 1 ? '-' : moment(hist.ORDate).format('MMM DD, YYY') }}</td>
+                                    <td class="v-align">{{ hist.name }}</td>
+                                    <td class="v-align text-right">{{ isNull(hist.CashAmount) ? '-' : toMoney(parseFloat(hist.CashAmount)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(hist.CheckAmount) ? '-' : toMoney(parseFloat(hist.CheckAmount)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(hist.DigitalPaymentAmount) ? '-' : toMoney(parseFloat(hist.DigitalPaymentAmount)) }}</td>
+                                    <td class="v-align text-right"><strong>{{ isNull(hist.TotalAmountPaid) ? '-' : toMoney(parseFloat(hist.TotalAmountPaid)) }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -278,6 +417,10 @@ export default {
             activePayable : {},
             paymentFor : '',
             payableTransactionHistory : [],
+            tuitionsBreakdown : [],
+            isModalTuition : false,
+            allTransactions : [],
+            payableInclusions : [],
         }
     },
     methods : {
@@ -359,6 +502,7 @@ export default {
         transactionHistory(id) {
             this.getActivePayable(id)
             this.paymentFor = this.activePayable.PaymentFor
+            this.isModalTuition = this.activePayable.Category === 'Tuition Fees' ? true : false
             this.getTransactionHistory(id)
 
             // init modal
@@ -372,7 +516,9 @@ export default {
                 }
             })
             .then(response => {
-                this.payableTransactionHistory = response.data
+                this.tuitionsBreakdown = response.data.TuitionLogs
+                this.payableTransactionHistory = response.data.Transactions
+                this.payableInclusions = response.data.PayableInclusions
             })
             .catch(error => {
                 console.log(error)
@@ -381,12 +527,33 @@ export default {
                     text : 'Error getting transaction history data!'
                 })
             })
+        },
+        getAllTransactions() {
+            axios.get(`${ this.baseURL }/transactions/get-transaction-history`, {
+                params : {
+                    StudentId : this.studentId,
+                }
+            })
+            .then(response => {
+                this.allTransactions = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting all transaction history data!'
+                })
+            })
+        },
+        scholarshipWizzard() {
+            window.location.href = this.baseURL + '/student_scholarships/scholarship-wizzard/' + this.studentId + '/student-view'
         }
     }, 
     created() {
     },
     mounted() {
         this.getStudentDetails()
+        this.getAllTransactions()
     }
 }
 

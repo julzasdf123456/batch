@@ -13,7 +13,8 @@ class TransactionDetails extends Model
         'TransactionsId',
         'Particulars',
         'AccountNumber',
-        'Amount'
+        'Amount',
+        'ForMonth'
     ];
 
     protected $casts = [
@@ -21,7 +22,8 @@ class TransactionDetails extends Model
         'TransactionsId' => 'string',
         'Particulars' => 'string',
         'AccountNumber' => 'string',
-        'Amount' => 'decimal:2'
+        'Amount' => 'string',
+        'ForMonth' => 'string'
     ];
 
     public static array $rules = [
@@ -31,7 +33,8 @@ class TransactionDetails extends Model
         'AccountNumber' => 'nullable|string|max:50',
         'Amount' => 'nullable|numeric',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'ForMonth' => 'nullable|string'
     ];
 
     

@@ -70,6 +70,14 @@
                 <p>School Tuitions</p>
             </a>
         </li>
+        
+        <li class="nav-item">
+            <a href="{{ route('transactions.miscellaneous-search') }}"
+               class="nav-link {{ Request::is('transactions.miscellaneous-search*') ? 'active' : '' }}">
+               <i class="fas fa-coins nav-icon"></i>
+                <p>Miscellaneous Payments</p>
+            </a>
+        </li>
     </ul>
 </li>
 
@@ -102,6 +110,20 @@
             <a href="{{ route('subjects.index') }}" class="nav-link {{ Request::is('subjects*') ? 'active' : '' }}">
                 <i class="nav-icon fas fa-book"></i>
                 <p>Subjects</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('miscellaneousPayables.index') }}" class="nav-link {{ Request::is('miscellaneousPayables*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-coins"></i>
+                <p>Miscellaneous Payables</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('scholarships.index') }}" class="nav-link {{ Request::is('scholarships*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-gift"></i>
+                <p>Scholarship Grants</p>
             </a>
         </li>
 

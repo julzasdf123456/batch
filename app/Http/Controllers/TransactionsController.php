@@ -16,6 +16,10 @@ use App\Models\Students;
 use App\Models\ClassesRepo;
 use App\Models\Classes;
 use App\Models\SchoolYear;
+use App\Models\TuitionsBreakdown;
+use App\Models\MiscellaneousPayables;
+use App\Models\PayableInclusions;
+use App\Models\TuitionInclusions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -268,14 +272,17 @@ class TransactionsController extends AppBaseController
             if ($classRepo != null) {
                 $baseTuition = $classRepo->BaseTuitionFee;
 
+                $payableId = IDGenerator::generateIDandRandString();
                 $tuitionPayable = new Payables;
-                $tuitionPayable->id = IDGenerator::generateIDandRandString();
+                $tuitionPayable->id = $payableId;
                 $tuitionPayable->StudentId = $studentId;
                 $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
                 $tuitionPayable->Category = 'Tuition Fees';
+                $tuitionPayable->SchoolYear = $sy->SchoolYear;
 
                 if ($baseTuition != null) {
                     // copy base tuition fee if declared in classes
+                    $tuitionPayable->Payable = $baseTuition;
                     $tuitionPayable->AmountPayable = $baseTuition;
                     $tuitionPayable->Balance = $baseTuition;
                 } else {
@@ -289,12 +296,43 @@ class TransactionsController extends AppBaseController
                         ->first();
 
                     if ($totalSubjectTuition != null) {
+                        $tuitionPayable->Payable = $totalSubjectTuition->Total;
                         $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
                         $tuitionPayable->Balance = $totalSubjectTuition->Total;
                     } else {
+                        $tuitionPayable->Payable = 0.0;
                         $tuitionPayable->AmountPayable = 0.0;
                         $tuitionPayable->Balance = 0.0;
                     }
+                }
+
+                // create payable tuition inclusion
+                $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)->get();
+                if ($tuitionInclusions != null) {
+                    foreach($tuitionInclusions as $item) {
+                        $payableInclusions = new PayableInclusions;
+                        $payableInclusions->id = IDGenerator::generateIDandRandString();
+                        $payableInclusions->PayableId = $payableId;
+                        $payableInclusions->ItemName = $item->ItemName;
+                        $payableInclusions->Amount = $item->Amount;
+                        $payableInclusions->save();
+                    }
+                }
+
+                // create tuitions breakdown
+                $monthsToPay = 10;
+                for ($i=0; $i<$monthsToPay; $i++) {
+                    $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                    $tuitionBreakdown = new TuitionsBreakdown;
+                    $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+1) . ' months'));
+                    $tuitionBreakdown->PayableId = $payableId;
+
+                    $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
+
+                    $tuitionBreakdown->AmountPayable = $amntPayable;
+                    $tuitionBreakdown->Balance = $amntPayable;
+                    $tuitionBreakdown->save();
                 }
 
                 $tuitionPayable->save();
@@ -398,6 +436,7 @@ class TransactionsController extends AppBaseController
         $period = $request['Period'];
         $paidAmount = $request['PaidAmount'];
         $balance = $request['Balance'];
+        $tuitionBreakdown = $request['TuitionBreakdowns'];
 
         // update tuition payable
         $payable = Payables::find($payableId);
@@ -448,6 +487,29 @@ class TransactionsController extends AppBaseController
         $transactionDetails->Amount = $paidAmount;
         $transactionDetails->save();
 
+        // update tuitions breakdown
+        $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
+        $payment = $paidAmount;
+        foreach($tBreakdown as $item) {
+            $currentPayable = floatval($item->Balance);
+            if ($payment > 0) {
+                if ($payment >= $currentPayable) {
+                    $item->Balance = 0;
+                    $item->AmountPaid = $item->AmountPayable;
+                    
+                    $payment = $payment - $currentPayable;
+                } else {
+                    $item->Balance = $currentPayable - $payment;
+                    $item->AmountPaid = floatval($item->AmountPaid) + $payment;
+
+                    $payment = 0;
+                }
+
+                $item->TransactionId = $id;
+                $item->save();
+            }
+        }
+
         return response()->json($id, 200);
     }
 
@@ -478,11 +540,131 @@ class TransactionsController extends AppBaseController
     public function getTransactionsFromPayable(Request $request) {
         $payableId = $request['PayableId'];
 
-        $data = DB::table('Transactions')
+        $data = [];
+
+        $data['Transactions'] = DB::table('Transactions')
             ->leftJoin('users', 'Transactions.UserId', '=', 'users.id')
             ->where('PayablesId', $payableId)
             ->select('Transactions.*', 'users.name')
             ->orderByDesc('created_at')
+            ->get();
+
+        $data['TuitionLogs'] = DB::table('TuitionsBreakdown')
+            ->where('PayableId', $payableId)
+            ->orderBy('ForMonth')
+            ->get();
+
+        $data['PayableInclusions'] = DB::table('PayableInclusions')
+            ->where('PayableId', $payableId)
+            ->orderBy('ItemName')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function miscellaneousSearch(Request $request) {
+        return view('/transactions/miscellaneous_search');
+    }
+
+    public function miscellaneous($studentId) {
+        return view('/transactions/miscellaneous', [
+            'studentId' => $studentId,
+        ]);
+    }
+
+    public function getMiscPayables(Request $request) {
+        return response()->json(MiscellaneousPayables::orderBy('Payable')->get());
+    }
+
+    public function transactMiscellaneous(Request $request) {
+        $studentId = $request['StudentId'];
+        $cashAmount = $request['cashAmount'];
+        $checkNumber = $request['checkNumber'];
+        $checkBank = $request['checkBank'];
+        $checkAmount = $request['checkAmount'];
+        $digitalNumber = $request['digitalNumber'];
+        $digitalBank = $request['digitalBank'];
+        $digitalAmount = $request['digitalAmount'];
+        $totalPayables = $request['totalPayables'];
+        $totalPayments = $request['totalPayments'];
+        $orNumber = $request['ORNumber'];
+        $details = $request['Details'];
+        $transactionDetails = $request['TransactionDetails'];
+
+        // determine mode of payment
+        $modeOfPayment = '';
+        if ($cashAmount != null) {
+            $modeOfPayment .= 'Cash;';
+        }
+        if ($checkAmount != null) {
+            $modeOfPayment .= 'Check;';
+        }
+        if ($digitalAmount != null) {
+            $modeOfPayment .= 'Digital;';
+        }
+
+        // insert transaction
+        $id = IDGenerator::generateIDandRandString();
+        $transactions = new Transactions;
+        $transactions->id = $id;
+        $transactions->StudentId = $studentId;
+        $transactions->PaymentFor = $details;
+        $transactions->ModeOfPayment = $modeOfPayment;
+        $transactions->ORNumber = $orNumber;
+        $transactions->ORDate = date('Y-m-d');
+        $transactions->CashAmount = $cashAmount;
+        $transactions->CheckAmount = $checkAmount;
+        $transactions->DigitalPaymentAmount = $digitalAmount;
+        $transactions->TotalAmountPaid = $totalPayments;
+        $transactions->UserId = Auth::id();
+        $transactions->save();
+
+        // insert transaction details
+        foreach($transactionDetails as $item) {
+            $transactionDetails = new TransactionDetails;
+            $transactionDetails->id = IDGenerator::generateIDandRandString();
+            $transactionDetails->TransactionsId = $id;
+            $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+            $transactionDetails->Amount = $item['TotalAmount'];
+            $transactionDetails->save();
+        }
+
+        return response()->json($id, 200);
+    }
+
+    public function printMiscellaneous($transactionId) {
+        $transaction = Transactions::find($transactionId);
+
+        if ($transaction != null) {
+            $student = DB::table('Students')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                ->select('Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled')
+                ->first();
+
+            $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
+
+            return view('/transactions/print_miscellaneous', [
+                'transaction' => $transaction,
+                'student' => $student,
+                'transactionDetails' => $transactionDetails,
+            ]);
+        } else {
+            return abort('No transaction found!', 404);
+        }
+    }
+
+    public function getTransactionHistory(Request $request) {
+        $studentId = $request['StudentId'];
+
+        $data = DB::table('Transactions')
+            ->leftJoin('users', 'Transactions.UserId', '=', 'users.id')
+            ->where('StudentId', $studentId)
+            ->select('Transactions.*', 'users.name')
+            ->orderByDesc('ORDate')
             ->get();
 
         return response()->json($data, 200);

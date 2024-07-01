@@ -147,4 +147,8 @@ class SchoolYearController extends AppBaseController
     public function getSchoolYears(Request $request) {
         return response()->json(SchoolYear::orderByDesc('created_at')->get(), 200);
     }
+
+    public function getSchoolYear(Request $request) {
+        return response()->json(SchoolYear::where('SchoolYear', $request['SchoolYear'])->orderByDesc('created_at')->first(), 200);
+    }
 }

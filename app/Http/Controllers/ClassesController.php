@@ -15,6 +15,7 @@ use App\Models\SchoolYear;
 use App\Models\IDGenerator;
 use App\Models\Payables;
 use App\Models\StudentSubjects;
+use App\Models\TuitionsBreakdown;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -219,13 +220,15 @@ class ClassesController extends AppBaseController
                     $enrollee->save();
 
                     // create payables
+                    $payableId = IDGenerator::generateIDandRandString();
                     $payable = new Payables;
-                    $payable->id = IDGenerator::generateID();
+                    $payable->id = $payableId;
                     $payable->StudentId = $studentId;
                     $payable->AmountPayable = 700.00;
                     $payable->PaymentFor = 'Enrollment Fees for ' . $sy->SchoolYear;
                     $payable->Category = 'Enrollment';
                     $payable->Balance = 700.00;
+                    $payable->SchoolYear = $sy->SchoolYear;
                     $payable->save();
 
                     // create subjects
@@ -274,5 +277,16 @@ class ClassesController extends AppBaseController
             ->get();
 
         return response()->json($students, 200);
+    }
+
+    public function getTuitionBreakdown(Request $request) {
+        $payableId = $request['PayableId'];
+
+        $data = DB::table('TuitionsBreakdown')
+            ->whereRaw("PayableId='" . $payableId . "' AND Balance > 0")
+            ->orderBy('ForMonth')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }
