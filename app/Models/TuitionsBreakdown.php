@@ -15,7 +15,9 @@ class TuitionsBreakdown extends Model
         'AmountPayable',
         'AmountPaid',
         'Balance',
-        'TransactionId'
+        'TransactionId',
+        'Payable',
+        'Discount',
     ];
 
     protected $casts = [
@@ -26,6 +28,8 @@ class TuitionsBreakdown extends Model
         'AmountPaid' => 'string',
         'Balance' => 'string',
         'TransactionId' => 'string',
+        'Payable' => 'string',
+        'Discount' => 'string',
     ];
 
     public static array $rules = [
@@ -37,6 +41,8 @@ class TuitionsBreakdown extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'TransactionId' => 'nullable|string',
+        'Payable' => 'nullable|string',
+        'Discount' => 'nullable|string',
     ];
 
     

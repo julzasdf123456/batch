@@ -30,8 +30,8 @@
                         </a>
                       
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
-                            <a class="dropdown-item" href="#"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a>
+                            <a class="dropdown-item" :href="baseURL + '/students/' + studentId + '/edit'"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
+                            <!-- <a class="dropdown-item" href="#"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a> -->
                             
                             <div class="divider"></div>
 
@@ -217,6 +217,29 @@
                                     -->
                                     <div class="tab-pane fade" id="scholarship-content" role="tabpanel" aria-labelledby="scholarship-tab">
                                         <button @click="scholarshipWizzard()" class="btn btn-primary float-right m-2">Add Scholarship Grant</button>
+
+                                        <div class="table-responsive px-2 pt-2">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <th class="text-muted">School Year</th>
+                                                    <th class="text-muted">Scholarship Grant</th>
+                                                    <th class="text-muted text-right">Amount Granted</th>
+                                                    <th class="text-muted">Credited<br>Monthly</th>
+                                                    <th class="text-muted"></th>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="scholarship in scholarships" :key="scholarship.id">
+                                                        <td class="v-align">{{ scholarship.SchoolYear }}</td>
+                                                        <td class="v-align">{{ scholarship.Scholarship }}</td>
+                                                        <td class="text-right v-align">{{ toMoney(parseFloat(scholarship.Amount)) }}</td>
+                                                        <td class="v-align">{{ scholarship.DeductMonthly }}</td>
+                                                        <td class="text-right v-align">
+                                                            <button @click="removeScholarship(scholarship.id)" class="btn btn-sm btn-danger"><i class="fas fa-times ico-tab-mini"></i>Remove</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                     
                                     <!-- 
@@ -225,7 +248,9 @@
                                         ====================================================================================================================================
                                     -->
                                     <div class="tab-pane fade" id="attendance" role="tabpanel" aria-labelledby="attendance-tab">
-                                        <p class="text-muted mt-4 text-center">ID System Data Not Configured</p>
+                                        <div style="min-height: 50vh;">
+                                            <FullCalendar :options='calendarOptions' ref="calendar" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -269,7 +294,7 @@
                                             
                                             <div class="col-lg-6">
                                                 <p class="text-muted text-sm no-pads">Discount <i class="fas fa-minus-circle"></i></p>
-                                                <h4 class="text-muted">₱ {{ isNull(activePayable.Discount) ? '-' : toMoney(parseFloat(activePayable.Discount)) }}</h4>
+                                                <h4 class="text-muted">₱ {{ isNull(activePayable.DiscountAmount) ? '-' : toMoney(parseFloat(activePayable.DiscountAmount)) }}</h4>
                                             </div>
                                         </div>
                                     </div>
@@ -312,7 +337,9 @@
                                 <table class="table table-hover table-sm table-bordered">
                                     <thead>
                                         <th class="text-muted">Month</th>
-                                        <th class="text-muted text-right">Payable Amount</th>
+                                        <th class="text-muted text-right">Tuition Fee</th>
+                                        <th class="text-muted text-right">Discount</th>
+                                        <th class="text-muted text-right">Amount Payable</th>
                                         <th class="text-muted text-right">Amount Paid</th>
                                         <th class="text-muted text-right">Balance</th>
                                     </thead>
@@ -323,7 +350,9 @@
                                                 <i v-if="parseFloat(item.Balance) > 0" class="fas fa-info-circle text-muted ico-tab-mini"></i>
                                                 {{ moment(item.ForMonth).format('MMMM YYYY') }}
                                             </td>
-                                            <td class='text-right'>{{ toMoney(parseFloat(item.AmountPayable)) }}</td>
+                                            <td class='text-right'>{{ toMoney(parseFloat(item.Payable)) }}</td>
+                                            <td class='text-right'>{{ isNull(item.Discount) ? '-' : toMoney(parseFloat(item.Discount)) }}</td>
+                                            <td class='text-right'>{{ isNull(item.AmountPayable) ? '-' : toMoney(parseFloat(item.AmountPayable)) }}</td>
                                             <td class='text-right'>{{ isNull(item.AmountPaid) ? '-' : toMoney(parseFloat(item.AmountPaid)) }}</td>
                                             <td class='text-right' :class="parseFloat(item.Balance) > 0 ? 'text-danger' : 'text-success'"><strong>{{ toMoney(parseFloat(item.Balance)) }}</strong></td>
                                         </tr>
@@ -370,7 +399,7 @@
                 </div>
             </div>
         </div>
-     </div>
+    </div>
 </template>
 
 <script>
@@ -382,6 +411,9 @@ import 'flatpickr/dist/flatpickr.css';
 import jquery from 'jquery';
 import Swal from 'sweetalert2';
 
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+
 export default {
     name : 'ViewStudent.view-student',
     components : {
@@ -389,6 +421,7 @@ export default {
         Swal,
         'pagination' : Bootstrap4Pagination,
         jquery,
+        FullCalendar,
     },
     data() {
         return {
@@ -421,6 +454,23 @@ export default {
             isModalTuition : false,
             allTransactions : [],
             payableInclusions : [],
+            calendarOptions: {
+                plugins: [dayGridPlugin],
+                initialView: 'dayGridMonth',
+                selectable: true,
+                height: 650,
+                width: 700,
+                eventOrderStrict : false,
+                themeSystem: 'bootstrap',
+                headerToolbar: {
+                    left  : 'prev,next today',
+                    center: 'title',
+                    right : 'dayGridMonth'
+                },
+                events: []
+            },
+            attendanceData : [],
+            scholarships : [],
         }
     },
     methods : {
@@ -475,7 +525,7 @@ export default {
                 this.studentData = response.data.StudentDetails
                 this.subjects = response.data.Subjects
                 this.payables = response.data.TuitionPayables
-
+                this.scholarships = response.data.Scholarships
                 // concat other payables
                 this.payables = this.payables.concat(response.data.OtherPayables)
             })
@@ -547,6 +597,64 @@ export default {
         },
         scholarshipWizzard() {
             window.location.href = this.baseURL + '/student_scholarships/scholarship-wizzard/' + this.studentId + '/student-view'
+        },
+        getBarcodeAttendace() {
+            axios.get(`${ this.baseURL }/barcode_attendances/get-student-logs`, {
+                params : {
+                    StudentId : this.studentId,
+                }
+            })
+            .then(response => {
+                this.attendanceData = response.data
+
+                var event = []
+                for(let i=0; i<this.attendanceData.length; i++) {
+                    event.push({
+                        title : this.attendanceData[i].PunchType,
+                        start : moment(this.attendanceData[i].created_at).format("YYYY-MM-DD HH:mm:ss")
+                    })
+                }
+
+                this.calendarOptions.events = event
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting student data!'
+                })
+            })
+        },
+        removeScholarship(id) {
+            Swal.fire({
+                title: "Remove Scholarship?",
+                showCancelButton: true,
+                text : 'You can always re-add a scholarship in the scholarship wizzard.',
+                confirmButtonText: "Proceed Removal",
+                confirmButtonColor : '#3a9971'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/student_scholarships/remove-scholarship`, {
+                        _token : this.token,
+                        id : id,
+                    }) 
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Scholarship removed!'
+                        })
+                        this.scholarships = this.scholarships.filter(obj => obj.id !== id)
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        Swal.fire({
+                            icon : 'error',
+                            text : error.response.data
+                        })
+                    })
+                }
+            })
         }
     }, 
     created() {
@@ -554,6 +662,8 @@ export default {
     mounted() {
         this.getStudentDetails()
         this.getAllTransactions()
+
+        this.getBarcodeAttendace()
     }
 }
 

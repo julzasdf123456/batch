@@ -19,6 +19,9 @@
         "sass-loader": "^11.0.1"
     },
     "dependencies": {
+        "@fullcalendar/core": "^6.1.14",
+        "@fullcalendar/daygrid": "^6.1.14",
+        "@fullcalendar/vue3": "^6.1.14",
         "@vitejs/plugin-vue": "^4.3.4",
         "daterangepicker": "^3.1.0",
         "flatpickr": "^4.6.13",

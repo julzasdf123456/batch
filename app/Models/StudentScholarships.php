@@ -15,7 +15,8 @@ class StudentScholarships extends Model
         'ScholarshipId',
         'Amount',
         'StudentId',
-        'Notes'
+        'Notes',
+        'DeductMonthly'
     ];
 
     protected $casts = [
@@ -25,7 +26,8 @@ class StudentScholarships extends Model
         'ScholarshipId' => 'string',
         'Amount' => 'string',
         'StudentId' => 'string',
-        'Notes' => 'string'
+        'Notes' => 'string',
+        'DeductMonthly' => 'string',
     ];
 
     public static array $rules = [
@@ -36,7 +38,8 @@ class StudentScholarships extends Model
         'StudentId' => 'nullable|string|max:80',
         'Notes' => 'nullable|string|max:1000',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'DeductMonthly' => 'nullable|string',
     ];
 
     

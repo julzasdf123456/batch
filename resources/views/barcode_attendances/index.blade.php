@@ -2,8 +2,9 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ config('app.name') }} | Login</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+    <meta name="token" content="{{ csrf_token() }}">
+    <title>batch.ID</title>
 
     <!-- Tell the browser to be responsive to screen width -->
     <link rel="stylesheet" href="{{ URL::asset('css/source_sans_pro.css'); }} ">
@@ -38,81 +39,22 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-
+    <style>
+        body {
+            background-image: url("{{ URL::asset('imgs/scan-bg.png') }}");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }
+    </style>
 </head>
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <a href="{{ url('/home') }}" style="width: 100%; text-align: center; font-size: 1.4em;"><strong>{{ config('app.name') }}</strong></a>
-        </div>
+<body>
     
-        <!-- /.login-logo -->
-    
-        <!-- /.login-box-body -->
-        <div class="card shadow-none shadow-soft">
-            <div class="card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
-    
-                <form method="post" action="{{ url('/login') }}">
-                    @csrf
-    
-                    <div class="input-group mb-3">
-                        <input type="text"
-                               name="username"
-                               value="{{ old('username') }}"
-                               placeholder="Username"
-                               class="form-control @error('username') is-invalid @enderror" autofocus>
-                        @error('username')
-                        <span class="error invalid-feedback">{{ $message }}</span>
-                        @enderror
-                    </div>
-    
-                    <div class="input-group mb-3">
-                        <input type="password"
-                               name="password"
-                               placeholder="Password"
-                               class="form-control @error('password') is-invalid @enderror">
-                        @error('password')
-                        <span class="error invalid-feedback">{{ $message }}</span>
-                        @enderror
-    
-                    </div>
-    
-                    <div class="row">
-                        {{-- <div class="col-8">
-                            <div class="icheck-primary">
-                                <input type="checkbox" id="remember">
-                                <label for="remember">Remember Me</label>
-                            </div>
-                        </div> --}}
-    
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-unlock"></i> Sign In</button>
-                        </div>
-    
-                    </div>
-                </form>
-                <p class="text-center text-muted" style="margin-top: 12px;">or</p>
-                <p class="text-center">
-                    <a href="{{ route('register') }}">Create a New Account</a>
-                </p>
-                <p class="mb-3 text-center" style="margin-top: 18px;">
-                    <a class="text-muted" href="{{ route('password.request') }}" style="font-size: .85em;">I forgot my password</a>
-                </p>
-                <div class="divider"></div>
-                <p class="mb-1 mt-2 text-center">
-                    <a class="text-muted" href="{{ route('barcodeAttendances.index') }}" style="font-size: .85em;">ID System <i class="fas fa-share ico-tab-left-mini"></i></a>
-                </p>
-            </div>
-            <!-- /.login-card-body -->
-        </div>
-    
+    <div id="app">
+        <scan-id></scan-id>
     </div>
-    
-    
-    <p class="text-center text-muted" style="font-size: .9em; position: fixed; bottom: 10px;">{{ env('APP_FULLNAME') }} <br> All Rights Reserved @ {{ date('Y') }} </p>
-<!-- /.login-box -->
-
+    @vite('resources/js/app.js')
+</body>
 <script src="{{ URL::asset('js/jquery.min.css'); }}"></script>
 
 {{-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> --}}
@@ -177,5 +119,4 @@
 <script src="{{ URL::asset('js/daterangepicker.min.js'); }}"></script>
 <script src="{{ URL::asset('js/bstreeview.js'); }}"></script>
 
-</body>
 </html>

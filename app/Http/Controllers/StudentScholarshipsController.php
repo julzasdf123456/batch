@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Payables;
 use App\Models\Scholarships;
+use App\Models\StudentScholarships;
+use App\Models\IDGenerator;
+use App\Models\TuitionsBreakdown;
 use Flash;
 
 class StudentScholarshipsController extends AppBaseController
@@ -152,5 +155,93 @@ class StudentScholarshipsController extends AppBaseController
 
     public function getGrants(Request $request) {
         return response()->json(Scholarships::orderBy('Scholarship')->get(), 200);
+    }
+
+    public function applyScholarship(Request $request) {
+        $payableId = $request['PayableId'];
+        $studentId = $request['StudentId'];
+        $schoolYear = $request['SchoolYear'];
+        $scholarshipId = $request['ScholarshipId'];
+        $amount = $request['Amount'];
+        $deductMonthly = $request['DeductMonthly'];
+
+        // save scholarship profile
+        $scholarship = new StudentScholarships;
+        $scholarship->id = IDGenerator::generateIDandRandString();
+        $scholarship->PayableId = $payableId;
+        $scholarship->SchoolYear = $schoolYear;
+        $scholarship->ScholarshipId = $scholarshipId;
+        $scholarship->Amount = $amount;
+        $scholarship->StudentId = $studentId;
+        $scholarship->DeductMonthly = $deductMonthly;
+        $scholarship->save();
+
+        // update payable
+        if ($deductMonthly === 'Yes') {
+            $payable = Payables::find($payableId);
+
+            if ($payable != null) {
+                $payable->DiscountAmount = $amount;
+                $payable->AmountPayable = floatval($payable->AmountPayable) - floatval($amount);
+                $payable->Balance = floatval($payable->Balance) - floatval($amount);
+                $payable->save();
+            }
+            
+            // update payable tuitions breakdown
+            $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
+            if ($tuitionsBreakdown != null) {
+                $count = count($tuitionsBreakdown);
+
+                if ($count > 0) {
+                    $amountDistributable = round((floatval($amount) / $count), 2);
+                
+                    foreach($tuitionsBreakdown as $item) {
+                        $item->Discount = $amountDistributable;
+                        $item->AmountPayable = floatval($item->AmountPayable) - floatval($amountDistributable);
+                        $item->Balance = floatval($item->Balance) - floatval($amountDistributable);
+                        $item->save();
+                    }
+                }
+            }
+        }
+
+        return response()->json($scholarship, 200);
+    }
+
+    public function removeScholarship(Request $request) {
+        $id = $request['id'];
+
+        $scholarship = StudentScholarships::find($id);
+
+        if ($scholarship != null) {
+            if ($scholarship->DeductMonthly === 'Yes') {
+                $grantAmount = floatval($scholarship->Amount);
+
+                // update payable
+                $payable = Payables::find($scholarship->PayableId);
+
+                if ($payable != null) {
+                    $payable->DiscountAmount = null;
+                    $payable->Balance = floatval($payable->Balance) + floatval($grantAmount);
+                    $payable->AmountPayable = floatval($payable->Payable);
+                    $payable->save();
+                }
+
+                // update payable tuitions breakdown
+                $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $scholarship->PayableId)->whereRaw("Discount IS NOT NULL AND (AmountPaid IS NULL OR AmountPaid = 0)")->get();
+                if ($tuitionsBreakdown != null) {
+                    foreach($tuitionsBreakdown as $item) {
+                        $item->Discount = null;
+                        $item->AmountPayable = $item->Payable;
+                        $item->Balance = $item->Payable;
+                        $item->save();
+                    }
+                }
+            }
+
+            $scholarship->delete();
+        }
+
+        return response()->json($scholarship, 200);
     }
 }

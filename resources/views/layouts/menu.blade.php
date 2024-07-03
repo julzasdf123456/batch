@@ -16,6 +16,14 @@
     </a>
 </li>
 
+{{-- ID BARCODE SYSTEM --}}
+<li class="nav-item">
+    <a href="{{ route('barcodeAttendances.index') }}" class="nav-link {{ Request::is('barcodeAttendances*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-home"></i>
+        <p>ID System</p>
+    </a>
+</li>
+
 {{-- ENROLLMENT SIDE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -182,3 +190,5 @@
     </ul>
 </li>
 {{-- @endcanany --}}
+
+

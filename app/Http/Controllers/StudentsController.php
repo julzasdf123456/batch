@@ -13,6 +13,7 @@ use App\Models\Students;
 use App\Models\Classes;
 use App\Models\Payables;
 use App\Models\PayableInclusions;
+use App\Models\StudentScholarships;
 use Flash;
 
 class StudentsController extends AppBaseController
@@ -242,11 +243,20 @@ class StudentsController extends AppBaseController
             ->orderBy('Category')
             ->get();
 
+        $scholarships = DB::table('StudentScholarships')
+            ->leftJoin('Scholarships', 'StudentScholarships.ScholarshipId', '=', 'Scholarships.id')
+            ->where('StudentScholarships.StudentId', $student->id)
+            ->select('StudentScholarships.*', 'Scholarships.Scholarship')
+            ->orderBy('StudentScholarships.SchoolYear')
+            ->orderByDesc('StudentScholarships.created_at')
+            ->get();
+
         $data = [
             'StudentDetails' => $student,
             'Subjects' => $subjects,
             'TuitionPayables' => $tuitionPayables,
             'OtherPayables' => $otherPayables,
+            'Scholarships' => $scholarships,
         ];
 
         return response()->json($data, 200);

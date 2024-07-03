@@ -28,6 +28,7 @@ import Miscellaneous from "./components/transactions/miscellaneous.vue"
 import MiscellaneousSearch from "./components/transactions/miscellaneous-search.vue"
 import ViewTeacher from "./components/teachers/view-teacher.vue"
 import ScholarshipWizzard from "./components/students/scholarship-wizzard.vue"
+import ScanId from "./components/scanning/scan-id.vue"
 
 const app = createApp({
     
@@ -48,5 +49,6 @@ app.component('miscellaneous', Miscellaneous);
 app.component('miscellaneous-search', MiscellaneousSearch);
 app.component('view-teacher', ViewTeacher);
 app.component('scholarship-wizzard', ScholarshipWizzard);
+app.component('scan-id', ScanId);
 
 app.mount("#app");

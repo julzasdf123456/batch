@@ -331,6 +331,7 @@ class TransactionsController extends AppBaseController
                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
 
                     $tuitionBreakdown->AmountPayable = $amntPayable;
+                    $tuitionBreakdown->Payable = $amntPayable;
                     $tuitionBreakdown->Balance = $amntPayable;
                     $tuitionBreakdown->save();
                 }

@@ -15,6 +15,7 @@ use App\Http\Controllers\TeachersController;
 use App\Http\Controllers\StudentClassesController;
 use App\Http\Controllers\StudentSubjectsController;
 use App\Http\Controllers\StudentScholarshipsController;
+use App\Http\Controllers\BarcodeAttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,4 +111,12 @@ Route::resource('scholarships', App\Http\Controllers\ScholarshipsController::cla
 Route::get('/student_scholarships/scholarship-wizzard/{id}/{from}', [StudentScholarshipsController::class, 'scholarshipWizzard'])->name('studentScholarships.scholarship-wizzard');
 Route::get('/student_scholarships/get-available-sy-payables', [StudentScholarshipsController::class, 'getAvailableSYPayables'])->name('studentScholarships.get-available-sy-payables');
 Route::get('/student_scholarships/get-grants', [StudentScholarshipsController::class, 'getGrants'])->name('studentScholarships.get-grants');
+Route::post('/student_scholarships/apply-scholarship', [StudentScholarshipsController::class, 'applyScholarship'])->name('studentScholarships.apply-scholarship');
+Route::post('/student_scholarships/remove-scholarship', [StudentScholarshipsController::class, 'removeScholarship'])->name('studentScholarships.remove-scholarship');
 Route::resource('studentScholarships', StudentScholarshipsController::class);
+
+Route::get('/barcode_attendances/punch-student', [BarcodeAttendanceController::class, 'punchStudent'])->name('barcodeAttendances.punch-student');
+Route::get('/barcode_attendances/get-sms-queue', [BarcodeAttendanceController::class, 'getSMSQueue'])->name('barcodeAttendances.get-sms-queue');
+Route::get('/barcode_attendances/update-sms', [BarcodeAttendanceController::class, 'updateSMS'])->name('barcodeAttendances.update-sms');
+Route::get('/barcode_attendances/get-student-logs', [BarcodeAttendanceController::class, 'getStudentLogs'])->name('barcodeAttendances.get-student-logs');
+Route::resource('barcodeAttendances', BarcodeAttendanceController::class);

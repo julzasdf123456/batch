@@ -89,10 +89,18 @@
                             <p class="text-muted no-pads">Discount Amount</p>
                             <input type="number" step="any" class="form-control" v-model="amount" style="font-weight: bold;">
                         </div>
+                        
+                        <div class="col-lg-12 mt-3">
+                            <p class="text-muted no-pads">Deduction Configuration</p>
+                            <div class="custom-control custom-switch" style="margin-left: 10px; margin-top: 6px; margin-bottom: 6px;">
+                                <input type="checkbox" class="custom-control-input" id="deduct-to-tuition" v-model="deductToTuition">
+                                <label style="font-weight: normal;" class="custom-control-label" for="deduct-to-tuition" id="deduct-to-tuitionLabel">{{ deductToTuition ? deductToTuitionOnLabel : deductToTuitionOffLabel }}</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button @click="saveScholarshipGrant()" class="btn btn-primary float-right">Create Scholarship Grant <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
+                    <button @click="saveScholarshipGrant()" class="btn btn-primary float-right">Apply Scholarship and Save <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
                 </div>
             </div>
         </div>
@@ -126,6 +134,7 @@ export default {
             userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
             from : document.querySelector("meta[name='from']").getAttribute('content'),
+            token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -146,6 +155,9 @@ export default {
             percentage : 0,
             amount : 0,
             selectedScholarship : {},
+            deductToTuition : true,
+            deductToTuitionOffLabel : "[OFF] The student/parent will still pay the tuition fees monthly, but will be refunded with the corresponding amount at the end of the school year or depending on the availabilitty of the scholarship amount. This is applicable for LGU scholars, etc.",
+            deductToTuitionOnLabel : "[ON] The scholarship amount/percentage is deducted directly to the total tuition fee payable of the student, and is also distributed monthly."
         }
     },
     methods : {
@@ -230,7 +242,7 @@ export default {
                 this.grants = response.data
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error getting scholarship grants!'
@@ -268,8 +280,33 @@ export default {
             }
         },
         saveScholarshipGrant() {
-            console.log(this.selectedPayable)
-        }
+            axios.post(`${ this.baseURL }/student_scholarships/apply-scholarship`, {
+                _token : this.token,
+                PayableId : this.selectedPayable,
+                StudentId : this.studentId,
+                SchoolYear : this.selectedPayableData.SchoolYear,
+                ScholarshipId : this.selectedScholarship.id,
+                Amount : this.amount,
+                DeductMonthly : this.deductToTuition ? 'Yes' : 'No',
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Scholarship grant applied and saved!'
+                })
+
+                if (this.from === 'student-view') {
+                    window.location.href = this.baseURL + '/students/' + this.studentId
+                }
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error saving scholarship grant!'
+                })
+            })
+        },
     }, 
     created() {
     },
