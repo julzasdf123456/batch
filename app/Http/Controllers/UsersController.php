@@ -9,6 +9,9 @@ use App\Repositories\UsersRepository;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Users;
+use App\Models\Teachers;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class UsersController extends AppBaseController
@@ -68,7 +71,15 @@ class UsersController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        return view('users.show')->with('users', $users);
+        $user = User::find($id);
+        $roles = $user->roles;
+        $permissions = $user->getAllPermissions();
+
+        return view('users.show', [
+            'users' => $users, 
+            'roles' => $roles,
+            'permissions' => $permissions,
+        ]);
     }
 
     /**
@@ -84,7 +95,10 @@ class UsersController extends AppBaseController
             return redirect(route('users.index'));
         }
 
-        return view('users.edit')->with('users', $users);
+        return view('users.edit', [
+            'users' => $users,
+            'teachers' => Teachers::where('Status', 'ACTIVE')->orderBy('FullName')->get()
+        ]);
     }
 
     /**
@@ -141,5 +155,80 @@ class UsersController extends AppBaseController
         }
 
         return response()->json($user, 200);
+    }
+
+    public function addRoles($id) {
+        $users = User::find($id);
+
+        $roles = Role::all();
+
+        if (empty($users)) {
+            Flash::error('Users not found');
+
+            return redirect(route('users.index'));
+        }
+
+        return view('/users/add_roles', ['users' => $users, 'roles' => $roles]);
+    }
+
+    
+    public function createRoles(Request $request) {
+        $user = User::find($request->userId);
+
+        $user->syncPermissions($request->input('permissions', []));
+
+        return redirect('users/' . $request->userId);
+    }
+
+    
+    public function createUserRoles(Request $request) {
+        $user = User::find($request->userId);
+
+        $user->syncRoles($request->input('roles', []));
+
+        // return redirect(route('users.add_user_permissions', ['id' => $user->id, 'roles' => $request->input('roles', [])]));
+        return redirect('users/' . $request->userId);
+    }
+
+    public function myAccountIndex(Request $request) {
+        if (Auth::user()->TeacherId != null) {
+            return view('/my_account/index', [
+
+            ]);
+        } else {
+            return view('/error_messages/not-allowed');
+        }
+    }
+
+    public function myClasses(Request $request) {
+        if (Auth::user()->TeacherId != null) {
+            return view('/my_account/my_classes', [
+
+            ]);
+        } else {
+            return view('/error_messages/not-allowed');
+        }
+    }
+
+    public function myAdvisory(Request $request) {
+        if (Auth::user()->TeacherId != null) {
+            return view('/my_account/my_advisory', [
+
+            ]);
+        } else {
+            return view('/error_messages/not-allowed');
+        }
+    }
+
+    public function viewClass($classId, $syId, $subjectId) {
+        if (Auth::user()->TeacherId != null) {
+            return view('/my_account/view_class', [
+                'classId' => $classId,
+                'syId' => $syId,
+                'subjectId' => $subjectId,
+            ]);
+        } else {
+            return view('/error_messages/not-allowed');
+        }
     }
 }

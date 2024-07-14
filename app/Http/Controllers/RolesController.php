@@ -8,6 +8,8 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\RolesRepository;
 use Illuminate\Http\Request;
 use Flash;
+use App\Models\Permissions;
+use Spatie\Permission\Models\Role;
 
 class RolesController extends AppBaseController
 {
@@ -58,7 +60,7 @@ class RolesController extends AppBaseController
      */
     public function show($id)
     {
-        $roles = $this->rolesRepository->find($id);
+        $roles = Role::find($id);
 
         if (empty($roles)) {
             Flash::error('Roles not found');
@@ -125,5 +127,24 @@ class RolesController extends AppBaseController
         Flash::success('Roles deleted successfully.');
 
         return redirect(route('roles.index'));
+    }
+
+    public function addPermissions($id) {
+        $roles = Role::find($id);
+
+        $permissions = Permissions::all();
+
+        return view('/roles/add_permissions', [
+            'role' => $roles, 
+            'permissions' => $permissions
+        ]);
+    }
+
+    public function createRolePermissions(Request $request) {
+        $role = Role::find($request->roleId);
+
+        $role->syncPermissions($request->input('item', []));
+
+        return redirect(route('roles.show', ['role' => $role]));
     }
 }

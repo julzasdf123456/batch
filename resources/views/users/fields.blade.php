@@ -10,38 +10,18 @@
     {!! Form::email('email', null, ['class' => 'form-control', 'required', 'maxlength' => 255, 'maxlength' => 255]) !!}
 </div>
 
-<!-- Email Verified At Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('email_verified_at', 'Email Verified At:') !!}
-    {!! Form::text('email_verified_at', null, ['class' => 'form-control','id'=>'email_verified_at']) !!}
-</div>
-
-@push('page_scripts')
-    <script type="text/javascript">
-        $('#email_verified_at').datepicker()
-    </script>
-@endpush
-
-<!-- password Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('password', 'Password:') !!}
-    {!! Form::password('password', ['class' => 'form-control', 'required', 'maxlength' => 255, 'maxlength' => 255]) !!}
-</div>
-
-<!-- Remember Token Field -->
-<div class="form-group col-sm-6">
-    {!! Form::label('remember_token', 'Remember Token:') !!}
-    {!! Form::text('remember_token', null, ['class' => 'form-control', 'maxlength' => 100, 'maxlength' => 100]) !!}
-</div>
-
 <!-- Username Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('username', 'Username:') !!}
     {!! Form::text('username', null, ['class' => 'form-control', 'maxlength' => 50, 'maxlength' => 50]) !!}
 </div>
 
-<!-- Colorprofile Field -->
 <div class="form-group col-sm-6">
-    {!! Form::label('ColorProfile', 'Colorprofile:') !!}
-    {!! Form::text('ColorProfile', null, ['class' => 'form-control', 'maxlength' => 50, 'maxlength' => 50]) !!}
+    <label for="TeacherId">Parse User to Teacher</label>
+    <select name="TeacherId" id="TeacherId" class="custom-select select2">
+        <option value="">-- Select --</option>
+        @foreach ($teachers as $item)
+            <option value="{{ $item->id }}">{{ $item->FullName }}</option>
+        @endforeach
+    </select>
 </div>

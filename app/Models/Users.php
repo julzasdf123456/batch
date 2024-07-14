@@ -15,7 +15,8 @@ class Users extends Model
         'password',
         'remember_token',
         'username',
-        'ColorProfile'
+        'ColorProfile',
+        'TeacherId'
     ];
 
     protected $casts = [
@@ -25,7 +26,8 @@ class Users extends Model
         'password' => 'string',
         'remember_token' => 'string',
         'username' => 'string',
-        'ColorProfile' => 'string'
+        'ColorProfile' => 'string',
+        'TeacherId' => 'string',
     ];
 
     public static array $rules = [
@@ -37,7 +39,8 @@ class Users extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'username' => 'nullable|string|max:50',
-        'ColorProfile' => 'nullable|string|max:50'
+        'ColorProfile' => 'nullable|string|max:50',
+        'TeacherId' => 'nullable|string',
     ];
 
     

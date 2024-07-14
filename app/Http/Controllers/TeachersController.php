@@ -8,6 +8,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\TeachersRepository;
 use Illuminate\Http\Request;
 use App\Models\Teachers;
+use App\Models\StudentSubjects;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -193,5 +194,137 @@ class TeachersController extends AppBaseController
             ->get();
 
         return response()->json($data, 200);
+    }
+
+    public function getClassDetails(Request $request) {
+        $classId = $request['ClassId'];
+        $teacherId = $request['TeacherId'];
+        $subjectId = $request['SubjectId'];
+        $syId = $request['SchoolYearId'];
+
+        $data = [];
+
+        $data['SchoolYear'] = DB::table('SchoolYear')
+            ->where('id', $syId)
+            ->first();
+
+        $data['Class'] = DB::table('StudentSubjects')
+            ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.SubjectId='" . $subjectId . "'")
+            ->select(
+                'StudentSubjects.ClassId',
+                'Classes.Year',
+                'Classes.Section',
+                'Subjects.id',
+                'Subjects.Subject',
+            )
+            ->groupBy(
+                'StudentSubjects.ClassId',
+                'Classes.Year',
+                'Classes.Section',
+                'Subjects.id',
+                'Subjects.Subject',
+            )
+            ->first();
+
+        $data['MaleStudents'] = DB::table('StudentSubjects')
+            ->leftJoin('Students', 'StudentSubjects.StudentId', '=', 'Students.id')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->leftJoin('StudentClasses', function($join) {
+                $join->on('StudentClasses.ClassId', '=', 'StudentSubjects.ClassId')
+                    ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
+            })
+            ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Male'")
+            ->select(
+                'StudentSubjects.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.MiddleName',
+                'Students.Suffix',
+                'StudentClasses.Status',
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $data['FemaleStudents'] = DB::table('StudentSubjects')
+            ->leftJoin('Students', 'StudentSubjects.StudentId', '=', 'Students.id')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->leftJoin('StudentClasses', function($join) {
+                $join->on('StudentClasses.ClassId', '=', 'StudentSubjects.ClassId')
+                    ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
+            })
+            ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Female'")
+            ->select(
+                'StudentSubjects.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.MiddleName',
+                'Students.Suffix',
+                'StudentClasses.Status',
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function updateGradeVisibility(Request $request) {
+        $classId = $request['ClassId'];
+        $teacherId = $request['TeacherId'];
+        $subjectId = $request['SubjectId'];
+        $visibility = $request['Visibility'];
+
+        StudentSubjects::where('ClassId', $classId)
+            ->where('TeacherId', $teacherId)
+            ->where('SubjectId', $subjectId)
+            ->update(['Visibility' => $visibility]);
+
+        return response()->json('ok', 200);
+    }
+
+    public function getClassPaymentDetails(Request $request) {
+        $classId = $request['ClassId'];
+        $schoolYear = $request['SchoolYear'];
+        
+        $data = [];
+        $data['Months'] = DB::table('TuitionsBreakdown')
+            ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+            ->select(
+                'ForMonth'
+            )
+            ->groupBy('ForMonth')
+            ->orderBy('ForMonth')
+            ->get();
+
+        $data['PaymentData'] = DB::table('TuitionsBreakdown')
+            ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+            ->select(
+                'ForMonth',
+                'Payables.StudentId',
+                DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPayable AS DECIMAL(12,3))) AS AmountPayable"),
+                DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPaid AS DECIMAL(12,3))) AS AmountPaid"),
+                DB::raw("SUM(TRY_CAST(TuitionsBreakdown.Balance AS DECIMAL(12,3))) AS Balance"),
+            )
+            ->groupBy('ForMonth', 'Payables.StudentId')
+            ->orderBy('Payables.StudentId')
+            ->orderBy('ForMonth')
+            ->get();
+
+        $data['PayableProfile'] = DB::table('Payables')
+                ->whereRaw("SchoolYear='" . $schoolYear . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+                ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function printClassPaymentDetails($classId, $schoolYearId, $subjectId) {
+        return view('/my_account/print_class_payment_details', [
+            'classId' => $classId,
+            'schoolYearId' => $schoolYearId,
+            'subjectId' => $subjectId,
+        ]);
     }
 }

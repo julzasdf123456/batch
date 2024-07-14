@@ -1,13 +1,10 @@
 <div class="card-body p-0">
     <div class="table-responsive">
-        <table class="table" id="users-table">
+        <table class="table table-hover" id="users-table">
             <thead>
             <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Email Verified At</th>
-                <th>Password</th>
-                <th>Remember Token</th>
                 <th>Username</th>
                 <th>Colorprofile</th>
                 <th colspan="3">Action</th>
@@ -18,9 +15,6 @@
                 <tr>
                     <td>{{ $user->name }}</td>
                     <td>{{ $user->email }}</td>
-                    <td>{{ $user->email_verified_at }}</td>
-                    <td>{{ $user->password }}</td>
-                    <td>{{ $user->remember_token }}</td>
                     <td>{{ $user->username }}</td>
                     <td>{{ $user->ColorProfile }}</td>
                     <td  style="width: 120px">

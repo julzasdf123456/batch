@@ -16,6 +16,8 @@ use App\Http\Controllers\StudentClassesController;
 use App\Http\Controllers\StudentSubjectsController;
 use App\Http\Controllers\StudentScholarshipsController;
 use App\Http\Controllers\BarcodeAttendanceController;
+use App\Http\Controllers\RolesController;
+use App\Http\Controllers\CatchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,9 +38,20 @@ Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
+Route::get('/users/add-roles/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
+Route::post('/users/create-roles', [UsersController::class, 'createRoles'])->name('users.create-roles');
+Route::post('/users/create-user-roles', [UsersController::class, 'createUserRoles'])->name('users.create-user-roles');
 Route::get('/users/switch-color-modes', [UsersController::class, 'switchColorModes'])->name('users.switch-color-modes');
+
+Route::get('/users/my-account-index/', [UsersController::class, 'myAccountIndex'])->name('users.my-account-index');
+Route::get('/users/my-classes/', [UsersController::class, 'myClasses'])->name('users.my-classes');
+Route::get('/users/my-advisory/', [UsersController::class, 'myAdvisory'])->name('users.my-advisory');
+Route::get('/users/view-class/{classId}/{syId}/{subjectId}', [UsersController::class, 'viewClass'])->name('users.view-class');
 Route::resource('users', UsersController::class);
-Route::resource('roles', App\Http\Controllers\RolesController::class);
+
+Route::get('/roles/add-permissions/{id}', [RolesController::class, 'addPermissions'])->name('roles.add-permissions');
+Route::post('/roles/create-role-permissions', [RolesController::class, 'createRolePermissions'])->name('roles.create-role-permissions');
+Route::resource('roles', RolesController::class);
 Route::resource('permissions', App\Http\Controllers\PermissionsController::class);
 
 Route::get('/towns/get-towns', [TownsController::class, 'getTowns'])->name('towns.get-towns');
@@ -72,7 +85,11 @@ Route::get('/school_years/get-school-year', [SchoolYearController::class, 'getSc
 Route::resource('schoolYears', SchoolYearController::class);
 
 Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');
+Route::get('/teachers/get-class-details', [TeachersController::class, 'getClassDetails'])->name('teachers.get-class-details');
 Route::get('/teachers/get-students-from-subject-class', [TeachersController::class, 'getStudentsFromSubjectClass'])->name('teachers.get-students-from-subject-class');
+Route::post('/teachers/update-grade-visibility', [TeachersController::class, 'updateGradeVisibility'])->name('teachers.update-grade-visibility');
+Route::get('/teachers/get-class-payment-details', [TeachersController::class, 'getClassPaymentDetails'])->name('teachers.get-class-payment-details');
+Route::get('/teachers/print-class-payment-details/{classId}/{schoolYearId}/{subjectId}', [TeachersController::class, 'printClassPaymentDetails'])->name('teachers.print-class-payment-details');
 Route::resource('teachers', TeachersController::class);
 Route::resource('payables', App\Http\Controllers\PayablesController::class);
 
@@ -120,3 +137,5 @@ Route::get('/barcode_attendances/get-sms-queue', [BarcodeAttendanceController::c
 Route::get('/barcode_attendances/update-sms', [BarcodeAttendanceController::class, 'updateSMS'])->name('barcodeAttendances.update-sms');
 Route::get('/barcode_attendances/get-student-logs', [BarcodeAttendanceController::class, 'getStudentLogs'])->name('barcodeAttendances.get-student-logs');
 Route::resource('barcodeAttendances', BarcodeAttendanceController::class);
+
+Route::get('/error_messages/not-allowed', [CatchController::class, 'notAllowed'])->name('errorMessages.not-allowed');

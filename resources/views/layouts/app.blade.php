@@ -73,18 +73,19 @@
                         <h4 style="margin-top: 10px;"> {{ Auth::check() ? Auth::user()->name : '' }} </h4>
                     </li>
                     <table class="table table-borderless table-hover table-sm">
-                        <tr>
-                            <td>
-                                <a href="#" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-circle ico-tab"></i>My Account</a>
-                            </td>
-                        </tr>
+                        @if (Auth::user()->TeacherId != null)
+                            <tr>
+                                <td>
+                                    <a href="{{ route('users.my-account-index') }}" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-circle ico-tab"></i>My Profile</a>
+                                </td>
+                            </tr>
+                        @endif
                         <tr>
                             <td>
                                 <div class="custom-control custom-switch" style="margin-left: 10px; margin-top: 6px; margin-bottom: 6px;">
                                     <input type="checkbox" {{ $userCache->ColorProfile != null ? 'checked' : '' }} class="custom-control-input" id="color-switch">
                                     <label style="font-weight: normal;" class="custom-control-label" for="color-switch" id="color-switchLabel">Dark Mode</label>
-                                </div>
-                                
+                                </div>                                
                             </td>
                         </tr>
                         <tr>

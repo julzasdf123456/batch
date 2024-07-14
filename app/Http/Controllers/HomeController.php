@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -23,6 +24,14 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        if (Auth::user()->hasPermissionTo('admin ui')) {
+            return view('home');
+        } else {
+            if (Auth::user()->TeacherId != null) {
+                return redirect(route('users.my-account-index'));
+            } else {
+                return redirect(route('errorMessages.not-allowed'));
+            }
+        }
     }
 }

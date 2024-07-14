@@ -5,13 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Users</h1>
-                </div>
-                <div class="col-sm-6">
-                    <a class="btn btn-primary float-right"
-                       href="{{ route('users.create') }}">
-                        Add New
-                    </a>
+                    <h4>All Users</h4>
                 </div>
             </div>
         </div>
@@ -23,7 +17,10 @@
 
         <div class="clearfix"></div>
 
-        <div class="card">
+        <div class="card shadow-none">
+            <div class="card-header">
+                <span class="card-title">All Users Registered in Batch.edu</span>
+            </div>
             @include('users.table')
         </div>
     </div>

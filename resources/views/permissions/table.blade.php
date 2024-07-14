@@ -1,6 +1,6 @@
 <div class="card-body p-0">
     <div class="table-responsive">
-        <table class="table" id="permissions-table">
+        <table class="table table-hover" id="permissions-table">
             <thead>
             <tr>
                 <th>Name</th>

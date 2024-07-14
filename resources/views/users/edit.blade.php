@@ -5,9 +5,9 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-12">
-                    <h1>
-                        Edit Users
-                    </h1>
+                    <h4>
+                        Edit User
+                    </h4>
                 </div>
             </div>
         </div>
@@ -23,6 +23,7 @@
 
             <div class="card-body">
                 <div class="row">
+                    <input type="hidden" name="password" value="{{ $users->password }}">
                     @include('users.fields')
                 </div>
             </div>

@@ -30,6 +30,10 @@ import ViewTeacher from "./components/teachers/view-teacher.vue"
 import ScholarshipWizzard from "./components/students/scholarship-wizzard.vue"
 import ScanId from "./components/scanning/scan-id.vue"
 
+import MyClasses from "./components/my-acount/my-classes.vue"
+import ViewClass from "./components/my-acount/view-class.vue"
+import PrintClassPaymentDetails from "./components/my-acount/print-class-payment-details.vue"
+
 const app = createApp({
     
 });
@@ -50,5 +54,9 @@ app.component('miscellaneous-search', MiscellaneousSearch);
 app.component('view-teacher', ViewTeacher);
 app.component('scholarship-wizzard', ScholarshipWizzard);
 app.component('scan-id', ScanId);
+
+app.component('my-classes', MyClasses);
+app.component('view-class', ViewClass);
+app.component('print-class-payment-details', PrintClassPaymentDetails);
 
 app.mount("#app");

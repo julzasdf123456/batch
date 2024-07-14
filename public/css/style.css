@@ -1029,3 +1029,24 @@ td .table-input {
 body.dark-mode .tbl-divider {
     border-bottom: 1px solid #747780 !important;
 }
+
+.error-messages {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/**
+ * PRINTS
+ */
+.print-table-bordered {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.print-table-bordered td,
+.print-table-bordered th {
+    border: 1px solid #343a40;
+}

@@ -18,7 +18,15 @@
         </div>
         <nav class="mt-4">
             <ul class="nav nav-pills nav-sidebar flex-column text-sm nav-child-indent nav-flat" data-widget="treeview" role="menu" data-accordion="false">
-                @include('layouts.menu')
+                @if (in_array(Route::currentRouteName(), [
+                            'users.my-account-index', 'users.my-classes', 'users.my-advisory', 'users.view-class'
+                        ]))
+                    {{-- MY ACCOUNTS --}}
+                    @include('layouts.my_account_menu')
+                @else
+                    {{-- ADMIN --}}
+                    @include('layouts.menu')
+                @endif
             </ul>
         </nav>
     </div>
