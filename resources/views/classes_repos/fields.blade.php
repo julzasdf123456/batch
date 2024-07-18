@@ -16,6 +16,12 @@
     {!! Form::text('Section', null, ['class' => 'form-control', 'maxlength' => 50, 'maxlength' => 50, 'placeholder' => 'Section name...']) !!}
 </div>
 
+<!-- Section Strand -->
+<div class="form-group col-lg-12">
+    {!! Form::label('Strand', 'Track & Strand:') !!}
+    {!! Form::text('Strand', null, ['class' => 'form-control', 'maxlength' => 500, 'maxlength' => 500, 'placeholder' => 'Strand name...']) !!}
+</div>
+
 <!-- Section Field -->
 <div class="form-group col-lg-12">
     {!! Form::label('Adviser', 'Teacher Adviser:') !!}

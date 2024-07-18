@@ -46,13 +46,14 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
+                        <!-- school year selection -->
                         <div class="col-lg-12">
                             <p class="text-muted no-pads">Select School Year Tuition to Charge Scholarship</p>
 
                             <div class="card shadow-none mt-1" v-for="payable in availablePayables" :key="payable.id">
                                 <div class="card-body py-1 px-4">
                                     <div class="input-group-radio-sm">
-                                        <input type="radio" :id="payable.id" :value="payable.id" class="custom-radio-sm" v-model="selectedPayable">
+                                        <input type="radio" :id="payable.id" :value="payable.id" class="custom-radio-sm" v-model="selectedPayable" @change="onPayableSelection()">
                                         <label :for="payable.id" class="custom-radio-label-sm">{{ payable.SchoolYear }}</label>
                                     </div>
                                     <div class="row">
@@ -73,6 +74,25 @@
                             </div>
                         </div>
 
+                        <!-- tuition payable selection, only visible if SCHOLARSHIP_DEDUCTION=TUITION_ONLY -->
+                        <div class="col-lg-12 mt-2 mb-3" v-if="scholarshipOptions === 'TUITION_ONLY' ? true : false">
+                            <div class="mx-4 px-4" style="border-left: 4px solid #a9a9a9;" v-if="tuitionInclusions.length > 0 ? true : false">
+                                <p class="text-muted">Select Tuition Item to Deduct the Scholarship With</p>
+                                <div class="input-group-radio-sm" v-for="ti in tuitionInclusions">
+                                    <input type="radio" :id="ti.id" :value="ti.id" class="custom-radio-sm" v-model="selectedTuitionInclusionId" @change="onTuitionInclusionSelection()">
+                                    <label :for="ti.id" class="custom-radio-label-sm">{{ ti.ItemName }}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-12 mb-3">
+                            <div class="divider my-2"></div>
+
+                            <p class="text-muted no-pads">Amount Deductible:</p>
+                            <h4 class="no-pads text-primary">P {{ isNull(amountDeductible) ? '-' : (toMoney(parseFloat(amountDeductible))) }}</h4>
+                        </div>
+
+                        <!-- scholarship form -->
                         <div class="col-lg-12">
                             <p class="text-muted no-pads">Select Scholaship Grant</p>
                             <select v-model="selectedGrant" class="form-control" @change="selectScholarship()">
@@ -135,6 +155,7 @@ export default {
             studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
             from : document.querySelector("meta[name='from']").getAttribute('content'),
             token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
+            scholarshipOptions : document.querySelector("meta[name='scholarship-options']").getAttribute('content'),            
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -148,11 +169,15 @@ export default {
             },
             studentData : {},
             availablePayables : [],
+            tuitionInclusions : [],
+            selectedTuitionInclusionId : '',
+            selectedTuitionInclusion : {},
             selectedPayable : '',
             selectedPayableData : {},
             grants : [],
             selectedGrant : '',
             percentage : 0,
+            amountDeductible : 0,
             amount : 0,
             selectedScholarship : {},
             deductToTuition : true,
@@ -268,8 +293,8 @@ export default {
                     this.percentage = parseFloat(this.selectedScholarship.Percentage)
 
                     // calculate payable for discount
-                    if(!this.isNull(this.selectedPayableData.Payable)) {
-                        this.amount = parseFloat(this.selectedPayableData.Payable) * this.percentage
+                    if(!this.isNull(this.amountDeductible)) {
+                        this.amount = parseFloat(this.amountDeductible) * this.percentage
                     } else {
                         this.amount = 0
                     }
@@ -307,6 +332,35 @@ export default {
                 })
             })
         },
+        onPayableSelection() {
+            let selected = this.availablePayables.find(obj => obj.id === this.selectedPayable)
+
+            if (this.scholarshipOptions === 'TUITION_ONLY') {
+                if (!this.isNull(selected)) {
+                    this.tuitionInclusions = selected.TuitionInclusions
+                    console.log(this.tuitionInclusions)
+                }
+                this.amountDeductible = 0
+            } else {
+                this.amountDeductible = selected.Payable
+            }
+        },
+        onTuitionInclusionSelection() {
+            if (this.isNull(this.tuitionInclusions) && this.tuitionInclusions.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'No tuition inclusion data found!'
+                })
+            } else {
+                this.selectedTuitionInclusion = this.tuitionInclusions.find(obj => obj.id === this.selectedTuitionInclusionId)
+
+                if (!this.isNull(this.selectedTuitionInclusion)) {
+                    this.amountDeductible = this.selectedTuitionInclusion.Amount
+                } else {
+                    this.amountDeductible = 0
+                }
+            }
+        }
     }, 
     created() {
     },

@@ -86,6 +86,14 @@
                 <p>Miscellaneous Payments</p>
             </a>
         </li>
+        
+        <li class="nav-item" title="My Daily Collection Report">
+            <a href="{{ route('transactions.my-dcr') }}"
+               class="nav-link {{ Request::is('transactions.my-dcr*') ? 'active' : '' }}">
+               <i class="fas fa-file nav-icon"></i>
+                <p>My DCR</p>
+            </a>
+        </li>
     </ul>
 </li>
 
@@ -190,5 +198,4 @@
     </ul>
 </li>
 {{-- @endcanany --}}
-
 

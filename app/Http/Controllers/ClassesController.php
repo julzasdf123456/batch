@@ -196,6 +196,7 @@ class ClassesController extends AppBaseController
                     $class->Year = $classesRepo->Year;
                     $class->Section = $classesRepo->Section;
                     $class->Adviser = $classesRepo->Adviser;
+                    $class->Strand = $classesRepo->Strand;
                     $class->save();
                 } else { 
                     $classId = $class->id;

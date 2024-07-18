@@ -12,6 +12,7 @@ use App\Models\Users;
 use App\Models\Teachers;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Flash;
 
 class UsersController extends AppBaseController
@@ -170,7 +171,6 @@ class UsersController extends AppBaseController
 
         return view('/users/add_roles', ['users' => $users, 'roles' => $roles]);
     }
-
     
     public function createRoles(Request $request) {
         $user = User::find($request->userId);
@@ -179,7 +179,6 @@ class UsersController extends AppBaseController
 
         return redirect('users/' . $request->userId);
     }
-
     
     public function createUserRoles(Request $request) {
         $user = User::find($request->userId);
@@ -230,5 +229,115 @@ class UsersController extends AppBaseController
         } else {
             return view('/error_messages/not-allowed');
         }
+    }
+
+    public function getAdvisoryData(Request $request) {
+        $id = $request['TeacherId'];
+
+        $schoolYears = DB::table('Classes')
+            ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
+            ->whereRaw("Classes.Adviser='" . $id . "' AND SchoolYear.id IS NOT NULL")
+            ->select(
+                'SchoolYear.id',
+                'SchoolYear.SchoolYear',
+            )
+            ->groupBy(
+                'SchoolYear.id',
+                'SchoolYear.SchoolYear',
+            )
+            ->orderByDesc('SchoolYear.SchoolYear')
+            ->get();
+
+        foreach($schoolYears as $item) {
+            $item->Advisories = DB::table('Classes')
+                ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
+                ->whereRaw("Classes.Adviser='" . $id . "' AND SchoolYear.id='" . $item->id .  "'")
+                ->select('Classes.*')
+                ->get();
+        }
+
+        return response()->json($schoolYears, 200);
+    }
+
+    public function viewAdvisory($adviser, $schoolYearId, $classId) {
+        return view('/my_account/view_advisory', [
+            'adviser' => $adviser,
+            'schoolYearId' => $schoolYearId,
+            'classId' => $classId,
+        ]);
+    }
+
+    public function getAdvisoryDetaills(Request $request) {
+        $teacherId = $request['TeacherId'];
+        $schoolYearId = $request['SchoolYearId'];
+        $classId = $request['ClassId'];
+
+        $data = [];
+
+        $class = DB::table('Classes')
+            ->whereRaw("id='" . $classId . "'")
+            ->first();
+
+        $data['Class'] = $class;
+
+        $data['SchoolYear'] = DB::table('SchoolYear')->where('id', $schoolYearId)->first();
+        
+        if ($class != null) {
+            $data['Male'] =  DB::table('StudentClasses')
+                ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Male'")
+                ->select(
+                    'Students.*',
+                    'Towns.Town AS TownSpelled',
+                    'Barangays.Barangay AS BarangaySpelled',
+                )
+                ->orderBy('Students.LastName')
+                ->get();
+
+            $data['Female'] =  DB::table('StudentClasses')
+                ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Female'")
+                ->select(
+                    'Students.*',
+                    'Towns.Town AS TownSpelled',
+                    'Barangays.Barangay AS BarangaySpelled',
+                )
+                ->orderBy('Students.LastName')
+                ->get();
+        } else {
+            $data['Male'] = [];
+            $data['Female'] = [];
+        }
+
+        return response()->json($data, 200);
+    }
+
+    public function getSubjectsFromClass(Request $request) {
+        $classId = $request['ClassId'];
+
+        $data = DB::table('StudentSubjects')
+            ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select('Subjects.Subject', 'Subjects.id')
+            ->groupBy('Subjects.Subject', 'Subjects.id')
+            ->orderBy('Subjects.Subject')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function getStudentSubjectsDataFromClass(Request $request) {
+        $classId = $request['ClassId'];
+
+        $data = DB::table('StudentSubjects')
+            ->whereRaw("ClassId='" . $classId . "'")
+            ->select('*')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }

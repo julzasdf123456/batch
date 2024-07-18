@@ -1,32 +1,34 @@
 <div class="card-body p-0">
     <div class="table-responsive">
-        <table class="table table-hover" id="classes-repos-table">
+        <table class="table" id="sms-messages-table">
             <thead>
             <tr>
-                <th>Year</th>
-                <th>Section</th>
-                <th>Strand</th>
-                <th>Adviser</th>
-                <th class="text-right">Tuition Fees</th>
+                <th>Contactnumber</th>
+                <th>Message</th>
+                <th>Aifacilitator</th>
+                <th>Source</th>
+                <th>Priority</th>
+                <th>Smssent</th>
                 <th colspan="3">Action</th>
             </tr>
             </thead>
             <tbody>
-            @foreach($classesRepos as $classesRepo)
+            @foreach($smsMessages as $smsMessages)
                 <tr>
-                    <td>{{ $classesRepo->Year }}</td>
-                    <td>{{ $classesRepo->Section }}</td>
-                    <td>{{ $classesRepo->Strand }}</td>
-                    <td>{{ $classesRepo->FullName }}</td>
-                    <td class="text-right">{{ number_format($classesRepo->BaseTuitionFee, 2) }}</td>
+                    <td>{{ $smsMessages->ContactNumber }}</td>
+                    <td>{{ $smsMessages->Message }}</td>
+                    <td>{{ $smsMessages->AIFacilitator }}</td>
+                    <td>{{ $smsMessages->Source }}</td>
+                    <td>{{ $smsMessages->Priority }}</td>
+                    <td>{{ $smsMessages->SmsSent }}</td>
                     <td  style="width: 120px">
-                        {!! Form::open(['route' => ['classesRepos.destroy', $classesRepo->id], 'method' => 'delete']) !!}
+                        {!! Form::open(['route' => ['smsMessages.destroy', $smsMessages->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
-                            <a href="{{ route('classesRepos.show', [$classesRepo->id]) }}"
+                            <a href="{{ route('smsMessages.show', [$smsMessages->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-eye"></i>
                             </a>
-                            <a href="{{ route('classesRepos.edit', [$classesRepo->id]) }}"
+                            <a href="{{ route('smsMessages.edit', [$smsMessages->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-edit"></i>
                             </a>
@@ -42,7 +44,7 @@
 
     <div class="card-footer clearfix">
         <div class="float-right">
-            @include('adminlte-templates::common.paginate', ['records' => $classesRepos])
+            @include('adminlte-templates::common.paginate', ['records' => $smsMessages])
         </div>
     </div>
 </div>

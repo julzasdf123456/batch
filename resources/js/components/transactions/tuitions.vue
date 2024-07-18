@@ -235,6 +235,10 @@
             </div>
         </div>
     </div>
+
+    <div class="right-bottom" style="bottom: 0px !important;">
+        <p id="msg-display" class="msg-display shadow" style="font-size: .8em; z-index: 99999999;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>Amount tendered should not be less than the total amount payable!</p>
+    </div>
 </template>
 
 <script>
@@ -497,14 +501,43 @@ export default {
                             html: `
                                 <p style='text-align: left;'>Tuition payment summary:</p>
                                 <ul>
-                                    <li style='text-align: left;'>Amount Paid: <strong>P ${ this.toMoney(this.totalPayments) }</strong></li>
+                                    <li style='text-align: left;'>Amount Paid: <h4 class='text-primary'>P ${ this.toMoney(this.totalPayments) }</h4></li>
                                     <li style='text-align: left;'>Amount Payable: <strong>P ${ this.toMoney(this.totalPayables) }</strong></li>
                                     <li style='text-align: left;'>Account Balance: <strong>P ${ this.toMoney(this.remainingBalance) }</strong></li>
                                 </ul>
+                                <p class='text-sm text-muted text-left no-pads mt-2'>Input Amount Paid</p>
+                                <input type="number" id="numberInput" class="form-control form-control-lg" aria-label="Amount Paid...">
+                                <p class='text-left mb-3'>CHANGE : <strong class='text-danger' id="change"></strong></p>
                                 <p style='text-align: left;'>Proceed payment transaction?</p>
                             `,
                             confirmButtonText: "Yes",
-                            confirmButtonColor : '#3a9971'
+                            confirmButtonColor : '#3a9971',
+                            didOpen: () => {
+                                const numberInput = Swal.getPopup().querySelector('#numberInput')
+                                const outputParagraph = Swal.getPopup().querySelector('#change')
+
+                                numberInput.focus();
+
+                                numberInput.addEventListener('input', () => {
+                                    let subtractedValue = Number(numberInput.value) - this.totalPayments
+                                    outputParagraph.innerText = `${subtractedValue}`;
+                                });
+
+                                numberInput.addEventListener('keydown', (event) => {
+                                    if (event.key === 'Enter') {
+                                        let subtractedValue = Number(numberInput.value) - this.totalPayments
+
+                                        if (subtractedValue < 0) {
+                                            event.preventDefault()
+                                            this.showSaveFader()
+                                            alert('Amount tendered should not be less than the total amount payable!')
+                                        } else {
+                                            // Trigger the confirm button
+                                            Swal.clickConfirm();
+                                        }
+                                    }
+                                })
+                            },
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 axios.post(`${ this.baseURL }/transactions/transact-tuition`, {
@@ -546,7 +579,19 @@ export default {
                     }
                 }
             } 
-        }
+        },
+        showSaveFader() {
+            var message = document.getElementById('msg-display');
+
+            // Show the message
+            message.style.opacity = 1;
+
+            // Wait for 3 seconds
+            setTimeout(function() {
+                // Fade out the message
+                message.style.opacity = 0;
+            }, 1500);
+        },
     },
     created() {
     },

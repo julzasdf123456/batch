@@ -14,6 +14,7 @@ use App\Models\Scholarships;
 use App\Models\StudentScholarships;
 use App\Models\IDGenerator;
 use App\Models\TuitionsBreakdown;
+use App\Models\PayableInclusions;
 use Flash;
 
 class StudentScholarshipsController extends AppBaseController
@@ -149,6 +150,10 @@ class StudentScholarshipsController extends AppBaseController
             ->select('*')
             ->orderByDesc('created_at')
             ->get();
+
+        foreach($data as $item) {
+            $item->TuitionInclusions = PayableInclusions::where('PayableId', $item->id)->orderBy('ItemName')->get();
+        }
 
         return response()->json($data, 200);
     }

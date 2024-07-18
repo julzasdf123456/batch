@@ -15,6 +15,7 @@ class ClassesRepo extends Model
         'Section',
         'Adviser',
         'BaseTuitionFee',
+        'Strand',
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class ClassesRepo extends Model
         'Section' => 'string',
         'Adviser' => 'string',
         'BaseTuitionFee' => 'string',
+        'Strand' => 'string',
     ];
 
     public static array $rules = [
@@ -34,6 +36,7 @@ class ClassesRepo extends Model
         'updated_at' => 'nullable',
         'Adviser' => 'nullable|string',
         'BaseTuitionFee' => 'nullable|string',
+        'Strand' => 'nullable|string',
     ];
 
     

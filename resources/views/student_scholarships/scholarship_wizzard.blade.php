@@ -2,6 +2,7 @@
 
 <meta name="student-id" content="{{ $id }}">
 <meta name="from" content="{{ $from }}">
+<meta name="scholarship-options" content="{{ env('SCHOLARSHIP_DEDUCTION') }}">
 @section('content')
 <div id="app">
     <scholarship-wizzard></scholarship-wizzard>

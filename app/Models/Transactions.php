@@ -22,7 +22,8 @@ class Transactions extends Model
         'TotalAmountPaid',
         'Notes',
         'UserId',
-        'Period'
+        'Period',
+        'Status'
     ];
 
     protected $casts = [
@@ -40,6 +41,7 @@ class Transactions extends Model
         'Notes' => 'string',
         'UserId' => 'string',
         'Period' => 'string',
+        'Status' => 'string',
     ];
 
     public static array $rules = [
@@ -59,6 +61,7 @@ class Transactions extends Model
         'updated_at' => 'nullable',
         'UserId' => 'nullable|string',
         'Period' => 'nullable|string',
+        'Status' => 'nullable|string',
     ];
 
     

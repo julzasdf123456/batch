@@ -47,6 +47,11 @@ Route::get('/users/my-account-index/', [UsersController::class, 'myAccountIndex'
 Route::get('/users/my-classes/', [UsersController::class, 'myClasses'])->name('users.my-classes');
 Route::get('/users/my-advisory/', [UsersController::class, 'myAdvisory'])->name('users.my-advisory');
 Route::get('/users/view-class/{classId}/{syId}/{subjectId}', [UsersController::class, 'viewClass'])->name('users.view-class');
+Route::get('/users/get-advisory-data', [UsersController::class, 'getAdvisoryData'])->name('users.get-advisory-data');
+Route::get('/users/view-advisory/{adviserId}/{schoolyearid}/{classId}', [UsersController::class, 'viewAdvisory'])->name('users.view-advisory');
+Route::get('/users/get-advisory-details', [UsersController::class, 'getAdvisoryDetaills'])->name('users.get-advisory-details');
+Route::get('/users/get-subjects-from-class', [UsersController::class, 'getSubjectsFromClass'])->name('users.get-subjects-from-class');
+Route::get('/users/get-student-subjects-data-from-class', [UsersController::class, 'getStudentSubjectsDataFromClass'])->name('users.get-student-subjects-data-from-class');
 Route::resource('users', UsersController::class);
 
 Route::get('/roles/add-permissions/{id}', [RolesController::class, 'addPermissions'])->name('roles.add-permissions');
@@ -111,6 +116,11 @@ Route::get('/transactions/get-misc-payables', [TransactionsController::class, 'g
 Route::post('/transactions/transact-miscellaneous', [TransactionsController::class, 'transactMiscellaneous'])->name('transactions.transact-miscellaneous');
 Route::get('/transactions/print-miscellaneous/{id}', [TransactionsController::class, 'printMiscellaneous'])->name('transactions.print-miscellaneous');
 Route::get('/transactions/get-transaction-history', [TransactionsController::class, 'getTransactionHistory'])->name('transactions.get-transaction-history');
+Route::get('/transactions/my-dcr', [TransactionsController::class, 'myDcr'])->name('transactions.my-dcr');
+Route::get('/transactions/fetch-payments', [TransactionsController::class, 'fetchPayments'])->name('transactions.fetch-payments');
+Route::get('/transactions/fetch-transaction-details', [TransactionsController::class, 'fetchTransactionDetails'])->name('transactions.fetch-transaction-details');
+Route::get('/transactions/fetch-all-transaction-details', [TransactionsController::class, 'fetchAllTransactionDetails'])->name('transactions.fetch-all-transaction-details');
+Route::get('/transactions/print-my-dcr/{date}', [TransactionsController::class, 'printMyDcr'])->name('transactions.print-my-dcr');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
@@ -136,6 +146,10 @@ Route::get('/barcode_attendances/punch-student', [BarcodeAttendanceController::c
 Route::get('/barcode_attendances/get-sms-queue', [BarcodeAttendanceController::class, 'getSMSQueue'])->name('barcodeAttendances.get-sms-queue');
 Route::get('/barcode_attendances/update-sms', [BarcodeAttendanceController::class, 'updateSMS'])->name('barcodeAttendances.update-sms');
 Route::get('/barcode_attendances/get-student-logs', [BarcodeAttendanceController::class, 'getStudentLogs'])->name('barcodeAttendances.get-student-logs');
+Route::get('/barcode_attendances/get-barcode-attendance-per-class', [BarcodeAttendanceController::class, 'getBarcodeAttendancePerClass'])->name('barcodeAttendances.get-barcode-attendance-per-class');
+Route::get('/barcode_attendances/download-sf2-junior/{classId}/{month}/{year}', [BarcodeAttendanceController::class, 'downloadSF2Junior'])->name('barcodeAttendances.download-sf2-junior');
+Route::get('/barcode_attendances/download-sf2-senior/{classId}/{month}/{year}', [BarcodeAttendanceController::class, 'downloadSF2Senior'])->name('barcodeAttendances.download-sf2-senior');
 Route::resource('barcodeAttendances', BarcodeAttendanceController::class);
 
 Route::get('/error_messages/not-allowed', [CatchController::class, 'notAllowed'])->name('errorMessages.not-allowed');
+Route::resource('sms-messages', App\Http\Controllers\SmsMessagesController::class);

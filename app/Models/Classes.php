@@ -14,7 +14,8 @@ class Classes extends Model
         'ClassName',
         'Year',
         'Section',
-        'Adviser'
+        'Adviser',
+        'Strand'
     ];
 
     protected $casts = [
@@ -23,7 +24,8 @@ class Classes extends Model
         'ClassName' => 'string',
         'Year' => 'string',
         'Section' => 'string',
-        'Adviser' => 'string'
+        'Adviser' => 'string',
+        'Strand' => 'string',
     ];
 
     public static array $rules = [
@@ -34,7 +36,8 @@ class Classes extends Model
         'Section' => 'nullable|string|max:50',
         'Adviser' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Strand' => 'nullable|string',
     ];
 
     

@@ -20,6 +20,7 @@ use App\Models\TuitionsBreakdown;
 use App\Models\MiscellaneousPayables;
 use App\Models\PayableInclusions;
 use App\Models\TuitionInclusions;
+use App\Models\SmsMessages;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -345,6 +346,15 @@ class TransactionsController extends AppBaseController
             ->where('StudentId', $studentId)
             ->update(['Status' => 'Paid', 'EnrollmentORNumber' => $orNumber, 'EnrollmentORDate' => date('Y-m-d')]);
 
+
+        // send sms
+        $student = Students::find($studentId);
+        if ($student != null) {
+            SmsMessages::createSmsWithStudentProvided($student, 
+                "Holy Cross Academy System Notification\n\nENROLLMENT FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayables, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
+                2);
+        } 
+
         return response()->json($id, 200);
     }
 
@@ -511,6 +521,14 @@ class TransactionsController extends AppBaseController
             }
         }
 
+        // send sms
+        $student = Students::find($studentId);
+        if ($student != null) {
+            SmsMessages::createSmsWithStudentProvided($student, 
+                "Holy Cross Academy System Notification\n\nTUITION FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($paidAmount, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
+                2);
+        }        
+
         return response()->json($id, 200);
     }
 
@@ -621,6 +639,7 @@ class TransactionsController extends AppBaseController
         $transactions->save();
 
         // insert transaction details
+        $concat = "";
         foreach($transactionDetails as $item) {
             $transactionDetails = new TransactionDetails;
             $transactionDetails->id = IDGenerator::generateIDandRandString();
@@ -628,7 +647,18 @@ class TransactionsController extends AppBaseController
             $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
             $transactionDetails->Amount = $item['TotalAmount'];
             $transactionDetails->save();
+
+            $concat .= "- " . $item['Payable'] . " (" . $item["Quantity"] . " x P" . $item["Price"] .")\n";
         }
+
+        // send sms
+        $student = Students::find($studentId);
+        if ($student != null) {
+            SmsMessages::createSmsWithStudentProvided($student, 
+                "Holy Cross Academy System Notification\n\MISCELLANEOUS FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ", with the following items: \n\n" . 
+                $concat, 
+                2);
+        } 
 
         return response()->json($id, 200);
     }
@@ -669,5 +699,65 @@ class TransactionsController extends AppBaseController
             ->get();
 
         return response()->json($data, 200);
+    }
+
+    public function myDcr(Request $request) {
+        return view('/transactions/my_dcr');
+    }
+
+    public function fetchPayments(Request $request) {
+        $date = $request['Date'];
+
+        $data = DB::table('Transactions')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("Transactions.ORDate='" . $date . "' AND Transactions.Status IS NULL AND Transactions.UserId='" . Auth::id() . "'")
+            ->select(
+                'Transactions.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.created_at')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function fetchTransactionDetails(Request $request) {
+        $transactionId = $request['TransactionId'];
+
+        return response()->json(
+            TransactionDetails::where('TransactionsId', $transactionId)
+                ->orderBy('created_at')
+                ->get(),
+            200
+        );
+    }
+
+    public function fetchAllTransactionDetails(Request $request) {
+        $date = $request['Date'];
+
+        $data = DB::table('TransactionDetails')
+            ->leftJoin('Transactions', 'Transactions.id', '=', 'TransactionDetails.TransactionsId')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("Transactions.ORDate='" . $date . "' AND Transactions.Status IS NULL AND Transactions.UserId='" . Auth::id() . "'")
+            ->select(
+                'TransactionDetails.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Transactions.ORNumber',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.ORNumber')
+            ->orderBy('Transactions.created_at')
+            ->get();
+            
+        return response()->json($data, 200);
+    }
+
+    public function printMyDcr($date) {
+        return view('/transactions/print_my_dcr', [
+            'date' => $date
+        ]);
     }
 }
