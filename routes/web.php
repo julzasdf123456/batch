@@ -77,6 +77,7 @@ Route::get('/classes/existing-student', [ClassesController::class, 'existingStud
 Route::post('/classes/save-enrollment', [ClassesController::class, 'saveEnrollment'])->name('classes.save-enrollment');
 Route::get('/classes/get-students-from-class', [ClassesController::class, 'getStudentsFromClass'])->name('classes.get-students-from-class');
 Route::get('/classes/get-tuitions-breakdown', [ClassesController::class, 'getTuitionBreakdown'])->name('classes.get-tuitions-breakdown');
+Route::get('/classes/view-class/{adviserId}/{schoolyearid}/{classId}', [ClassesController::class, 'viewClass'])->name('classes.view-class');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

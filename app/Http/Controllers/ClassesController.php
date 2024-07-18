@@ -290,4 +290,12 @@ class ClassesController extends AppBaseController
 
         return response()->json($data, 200);
     }
+
+    public function viewClass($adviserId, $syId, $classId) {
+        return view('classes.show', [
+            'adviser' => $adviserId,
+            'schoolYearId' => $syId,
+            'classId' => $classId,
+        ]);
+    }
 }

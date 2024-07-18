@@ -32,10 +32,10 @@
                     <tbody>
                         @foreach ($classes as $item)
                             <tr>
-                                <td onclick="view(`{{ $item->id }}`)" class="v-align pointer">{{ $item->Year . ' - ' . $item->Section }}</td>
-                                <td onclick="view(`{{ $item->id }}`)" class="v-align pointer">{{ $item->FullName }} <span class="text-muted">({{ $item->Designation }})</span></td>
+                                <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Year . ' - ' . $item->Section }}</td>
+                                <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->FullName }} <span class="text-muted">({{ $item->Designation }})</span></td>
                                 <td class="text-right">
-                                    <a class="btn btn-primary-skinny btn-sm" href="{{ route('classes.show', [$item->id]) }}">View <i class="fas fa-angle-right ico-tab-left-mini"></i></a>
+                                    <a class="btn btn-primary-skinny btn-sm" href="{{ route('classes.view-class', [$item->Adviser, $schoolYear->id, $item->id]) }}">View <i class="fas fa-angle-right ico-tab-left-mini"></i></a>
                                 </td>
                             </tr>
                         @endforeach
@@ -51,8 +51,8 @@
 
 @push('page_scripts')
     <script>
-        function view(id) {
-            window.location.href = "{{ url('/classes') }}/" + id
+        function view(adviserId, syId, classId) {
+            window.location.href = "{{ url('/classes/view-class') }}/" + adviserId + '/' + syId + '/' + classId
         }
     </script>    
 @endpush
