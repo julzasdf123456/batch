@@ -26,6 +26,8 @@
                 <table class="table table-hover">
                     <thead>
                         <th>Grades/Classes - Section</th>
+                        <th>Strand</th>
+                        <th>Semester</th>
                         <th>Adviser</th>
                         <th></th>
                     </thead>
@@ -33,6 +35,8 @@
                         @foreach ($classes as $item)
                             <tr>
                                 <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Year . ' - ' . $item->Section }}</td>
+                                <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Strand }}</td>
+                                <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Semester != null ? $item->Semester . ' Sem' : '' }}</td>
                                 <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->FullName }} <span class="text-muted">({{ $item->Designation }})</span></td>
                                 <td class="text-right">
                                     <a class="btn btn-primary-skinny btn-sm" href="{{ route('classes.view-class', [$item->Adviser, $schoolYear->id, $item->id]) }}">View <i class="fas fa-angle-right ico-tab-left-mini"></i></a>

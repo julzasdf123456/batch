@@ -12,6 +12,9 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Borders;
 use Illuminate\Support\Facades\URL;
 use App\Models\BarcodeAttendance;
 use App\Models\IDGenerator;
@@ -164,6 +167,8 @@ class BarcodeAttendanceController extends AppBaseController
     }
 
     public function punchStudent(Request $request) {
+        date_default_timezone_set('Asia/Manila');
+
         $id = $request['StudentId'];
         
         $student = DB::table('Students')
@@ -282,6 +287,44 @@ class BarcodeAttendanceController extends AppBaseController
             ->orderBy('Students.LastName')
             ->get();
 
+        $crossOut = [
+            'borders' => [
+                'diagonal' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '000000'],
+                ],
+                'diagonalDirection' => \PhpOffice\PhpSpreadsheet\Style\Borders::DIAGONAL_BOTH,
+            ],
+        ];
+
+        $crossOutHalf = [
+            'borders' => [
+                'diagonal' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '000000'],
+                ],
+                'diagonalDirection' => \PhpOffice\PhpSpreadsheet\Style\Borders::DIAGONAL_UP,
+            ],
+        ];
+
+        $diagonalColor = [
+            'fill' => [
+                'fillType' => Fill::FILL_GRADIENT_LINEAR,
+                'rotation' => 45, // Diagonal gradient
+                'startColor' => [
+                    'argb' => '02c480', // Green
+                ],
+                'endColor' => [
+                    'argb' => 'FFFFFF', // White
+                ],
+            ],
+            'font' => [
+                'color' => [
+                    'argb' => '00000000', // Same color as the background to simulate transparency
+                ],
+            ],
+        ];
+        
         /**
          * MODIFY EXCEL
          */
@@ -389,10 +432,18 @@ class BarcodeAttendanceController extends AppBaseController
 
                             $totalPresent += $attSum;
 
+                            if ($attSum == 1) {
+
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
+                            }
+
                             $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
                         } else {
                             //return 0 if no attendance
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+                            // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+                            $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
                         }
 
                         $headerIndices += 1;
@@ -495,10 +546,18 @@ class BarcodeAttendanceController extends AppBaseController
 
                             $totalPresent += $attSum;
 
+                            if ($attSum == 1) {
+
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
+                            }
+
                             $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
                         } else {
                             //return 0 if no attendance
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+                            // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+                            $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
                         }
 
                         $headerIndices += 1;
@@ -582,6 +641,44 @@ class BarcodeAttendanceController extends AppBaseController
             )
             ->orderBy('Students.LastName')
             ->get();
+
+        $crossOut = [
+            'borders' => [
+                'diagonal' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '000000'],
+                ],
+                'diagonalDirection' => \PhpOffice\PhpSpreadsheet\Style\Borders::DIAGONAL_BOTH,
+            ],
+        ];
+
+        $crossOutHalf = [
+            'borders' => [
+                'diagonal' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '000000'],
+                ],
+                'diagonalDirection' => \PhpOffice\PhpSpreadsheet\Style\Borders::DIAGONAL_UP,
+            ],
+        ];
+
+        $diagonalColor = [
+            'fill' => [
+                'fillType' => Fill::FILL_GRADIENT_LINEAR,
+                'rotation' => 45, // Diagonal gradient
+                'startColor' => [
+                    'argb' => '02c480', // Green
+                ],
+                'endColor' => [
+                    'argb' => 'FFFFFF', // White
+                ],
+            ],
+            'font' => [
+                'color' => [
+                    'argb' => '00000000', // Same color as the background to simulate transparency
+                ],
+            ],
+        ];
 
         /**
          * MODIFY EXCEL
@@ -693,9 +790,19 @@ class BarcodeAttendanceController extends AppBaseController
                             $totalPresent += $attSum;
 
                             $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            
+                            if ($attSum == 1) {
+
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
+                            }
+
                         } else {
                             //return 0 if no attendance
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+                            // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+
+                            $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
                         }
 
                         $headerIndices += 1;
@@ -798,10 +905,19 @@ class BarcodeAttendanceController extends AppBaseController
 
                             $totalPresent += $attSum;
 
+                            if ($attSum == 1) {
+
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
+                            }
+
                             $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
                         } else {
                             //return 0 if no attendance
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+                            // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
+
+                            $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
                         }
 
                         $headerIndices += 1;

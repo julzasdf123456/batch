@@ -200,10 +200,14 @@ export default {
             if (jquery.isEmptyObject(item)) {
                 return true;
             } else {
-                if (item.length < 1) {
-                    return true;
+                if (item) {
+                    return false
                 } else {
-                    return false;
+                    if (item.length < 1) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
         },
@@ -322,7 +326,7 @@ export default {
             })
         },
         transact() {
-            if (this.orNumber.length < 1) {
+            if (this.orNumber === '' || this.orNumber === null || this.orNumber.value === 0) {
                 this.toast.fire({
                     icon : 'info',
                     text : 'OR Number should not be empty!'

@@ -75,7 +75,6 @@ class SchoolYearController extends AppBaseController
                 'Classes.*',
                 'Teachers.FullName',
                 'Teachers.Designation',
-                'Teachers.SubjectExpertise',
             )
             ->orderBy('Classes.Year')
             ->get();

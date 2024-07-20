@@ -70,6 +70,8 @@ Route::post('/students/save-student', [StudentsController::class, 'saveStudent']
 Route::get('/students/get-student', [StudentsController::class, 'getStudent'])->name('students.get-student');
 Route::get('/students/search-students-paginated', [StudentsController::class, 'searchStudentsPaginated'])->name('students.search-students-paginated');
 Route::get('/students/get-student-details', [StudentsController::class, 'getStudentDetails'])->name('students.get-student-details');
+Route::get('/students/edit-student/{studentId}', [StudentsController::class, 'editStudent'])->name('students.edit-student');
+Route::post('/students/update-student', [StudentsController::class, 'updateStudent'])->name('students.update-student');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');

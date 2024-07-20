@@ -261,4 +261,17 @@ class StudentsController extends AppBaseController
 
         return response()->json($data, 200);
     }
+
+    public function editStudent($studentId) {
+        return view('/students/edit_student', [
+            'studentId' => $studentId,
+        ]);
+    }
+
+    public function updateStudent(UpdateStudentsRequest $request)
+    {
+        $students = $this->studentsRepository->update($request->all(), $request['id']);
+
+        return response()->json($students, 200);
+    }
 }

@@ -226,7 +226,7 @@ export default {
                 enableTime: false,
                 dateFormat: 'Y-m-d', 
             },
-            collectionDate : '2024-07-15', //moment().format('YYYY-MM-DD'),
+            collectionDate : moment().format('YYYY-MM-DD'),
             summary : [],
             summaryTotal : 0,
             // modal details

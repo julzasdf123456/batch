@@ -19,6 +19,7 @@ class Payables extends Model
         'SchoolYear',
         'Payable',
         'DiscountAmount',
+        'ClassId'
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class Payables extends Model
         'SchoolYear' => 'string',
         'Payable' => 'string',
         'DiscountAmount' => 'string',
+        'ClassId' => 'string',
     ];
 
     public static array $rules = [
@@ -47,6 +49,7 @@ class Payables extends Model
         'SchoolYear' => 'nullable|string',
         'Payable' => 'nullable|string',
         'DiscountAmount' => 'nullable|string',
+        'ClassId' => 'nullable|string',
     ];
 
     

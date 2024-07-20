@@ -6,6 +6,7 @@
                 <th>Year</th>
                 <th>Section</th>
                 <th>Strand</th>
+                <th>Semester</th>
                 <th>Adviser</th>
                 <th class="text-right">Tuition Fees</th>
                 <th colspan="3">Action</th>
@@ -17,6 +18,7 @@
                     <td>{{ $classesRepo->Year }}</td>
                     <td>{{ $classesRepo->Section }}</td>
                     <td>{{ $classesRepo->Strand }}</td>
+                    <td>{{ $classesRepo->Semester != null ? $classesRepo->Semester . ' Sem' : '' }}</td>
                     <td>{{ $classesRepo->FullName }}</td>
                     <td class="text-right">{{ number_format($classesRepo->BaseTuitionFee, 2) }}</td>
                     <td  style="width: 120px">

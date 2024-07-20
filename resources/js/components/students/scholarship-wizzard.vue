@@ -322,6 +322,8 @@ export default {
 
                 if (this.from === 'student-view') {
                     window.location.href = this.baseURL + '/students/' + this.studentId
+                } else if (this.from === 'enrollment') {
+                    window.location.href = this.baseURL + '/classes/existing-student'
                 }
             })
             .catch(error => {

@@ -25,6 +25,10 @@
                                 <td class="text-muted v-align">Grade Level</td>
                                 <td class="v-align">{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}</td>
                             </tr>
+                            <tr>
+                                <td class="text-muted v-align">From</td>
+                                <td class="v-align"><span class="badge bg-warning">{{ isNull(studentData.FromSchool) ? '-' : (studentData.FromSchool + ' School') }}</span></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

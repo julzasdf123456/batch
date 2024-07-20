@@ -16,13 +16,22 @@
     {!! Form::text('Section', null, ['class' => 'form-control', 'maxlength' => 50, 'maxlength' => 50, 'placeholder' => 'Section name...']) !!}
 </div>
 
-<!-- Section Strand -->
+<!-- Strand Field -->
 <div class="form-group col-lg-12">
     {!! Form::label('Strand', 'Track & Strand:') !!}
     {!! Form::text('Strand', null, ['class' => 'form-control', 'maxlength' => 500, 'maxlength' => 500, 'placeholder' => 'Strand name...']) !!}
 </div>
 
-<!-- Section Field -->
+<!-- SEmester Field -->
+<div class="form-group col-lg-12">
+    {!! Form::label('Semester', 'Semester:') !!}
+    {!! Form::select('Semester', [
+        '' => 'Not Applicable', 
+        '1st' => '1st Semester', 
+        '2nd' => '2nd Semester'], null, ['class' => 'form-control']) !!}
+</div>
+
+<!-- Teachers Field -->
 <div class="form-group col-lg-12">
     {!! Form::label('Adviser', 'Teacher Adviser:') !!}
     {!! Form::select('Adviser', $teachers, null, ['class' => 'form-control',]) !!}

@@ -14,7 +14,8 @@
                     <div class="card shadow-none">
                         <div class="card-body">
                             <h4 class="no-pads">{{ a.Year + ' - ' + a.Section }}</h4>
-
+                            <span v-if="isNull(a.Strand) ? false : true">{{ a.Strand }}</span>
+                            <span v-if="isNull(a.Semester) ? false : true">{{ isNull(a.Semester) ? '' : (' • ' + a.Semester + ' Sem') }}</span>
                             <a :href="baseURL + '/users/view-advisory/' + teacherId + '/' + a.SchoolYearId + '/' + a.id" class="btn btn-link text-muted float-right" title="View Advisory"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>

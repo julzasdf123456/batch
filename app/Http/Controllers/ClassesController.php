@@ -16,6 +16,8 @@ use App\Models\IDGenerator;
 use App\Models\Payables;
 use App\Models\StudentSubjects;
 use App\Models\TuitionsBreakdown;
+use App\Models\PayableInclusions;
+use App\Models\TuitionInclusions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -174,6 +176,7 @@ class ClassesController extends AppBaseController
         $syId = $request['SchoolYearId'];
         $subjects = $request['Subjects'];
         $type = $request['Type'];
+        $semester = $request['Semester'];
 
         $sy = SchoolYear::find($syId);
         $classesRepo = ClassesRepo::find($classesRepoId);
@@ -185,6 +188,8 @@ class ClassesController extends AppBaseController
                 $class = Classes::where('SchoolYearId', $syId)
                     ->where('Year', $classesRepo->Year)
                     ->where('Section', $classesRepo->Section)
+                    ->where('Strand', $classesRepo->Strand)
+                    ->where('Semester', $semester)
                     ->first();
 
                 // save class if not yet created
@@ -197,6 +202,7 @@ class ClassesController extends AppBaseController
                     $class->Section = $classesRepo->Section;
                     $class->Adviser = $classesRepo->Adviser;
                     $class->Strand = $classesRepo->Strand;
+                    $class->Semester = $semester;
                     $class->save();
                 } else { 
                     $classId = $class->id;
@@ -218,6 +224,7 @@ class ClassesController extends AppBaseController
                     $enrollee->StudentId = $studentId;
                     $enrollee->Status = 'Pending Enrollment Payment';
                     $enrollee->Type = $type;
+                    $enrollee->Semester = $semester;
                     $enrollee->save();
 
                     // create payables
@@ -248,6 +255,91 @@ class ClassesController extends AppBaseController
                     // update student current grade level
                     $student->CurrentGradeLevel = $classId;
                     $student->save();
+
+                    /*
+                     * ======================================================
+                     * ADD TUITION FEE PAYABLES
+                     * ======================================================
+                     */
+                    $class = Classes::find($classId);
+                    if ($class != null) {
+                        $classRepo = ClassesRepo::where('Year', $class->Year)
+                            ->where('Section', $class->Section)
+                            ->first();
+                        
+                        $sy = SchoolYear::find($class->SchoolYearId);
+
+                        if ($classRepo != null) {
+                            $baseTuition = $classRepo->BaseTuitionFee;
+
+                            $payableId = IDGenerator::generateIDandRandString();
+                            $tuitionPayable = new Payables;
+                            $tuitionPayable->id = $payableId;
+                            $tuitionPayable->StudentId = $studentId;
+                            $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
+                            $tuitionPayable->Category = 'Tuition Fees';
+                            $tuitionPayable->SchoolYear = $sy->SchoolYear;
+                            $tuitionPayable->ClassId = $classId;
+
+                            if ($baseTuition != null) {
+                                // copy base tuition fee if declared in classes
+                                $tuitionPayable->Payable = $baseTuition;
+                                $tuitionPayable->AmountPayable = $baseTuition;
+                                $tuitionPayable->Balance = $baseTuition;
+                            } else {
+                                // get tuition per subject if not declared in classes
+                                $totalSubjectTuition = DB::table('SubjectClasses')
+                                    ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                                    ->whereRaw("SubjectClasses.ClassRepoId='" . $classRepo->id . "'")
+                                    ->select(
+                                        DB::raw("SUM(Subjects.CourseFee) AS Total")
+                                    )
+                                    ->first();
+
+                                if ($totalSubjectTuition != null) {
+                                    $tuitionPayable->Payable = $totalSubjectTuition->Total;
+                                    $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
+                                    $tuitionPayable->Balance = $totalSubjectTuition->Total;
+                                } else {
+                                    $tuitionPayable->Payable = 0.0;
+                                    $tuitionPayable->AmountPayable = 0.0;
+                                    $tuitionPayable->Balance = 0.0;
+                                }
+                            }
+
+                            // create payable tuition inclusion
+                            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)->get();
+                            if ($tuitionInclusions != null) {
+                                foreach($tuitionInclusions as $item) {
+                                    $payableInclusions = new PayableInclusions;
+                                    $payableInclusions->id = IDGenerator::generateIDandRandString();
+                                    $payableInclusions->PayableId = $payableId;
+                                    $payableInclusions->ItemName = $item->ItemName;
+                                    $payableInclusions->Amount = $item->Amount;
+                                    $payableInclusions->save();
+                                }
+                            }
+
+                            // create tuitions breakdown
+                            $monthsToPay = 10;
+                            for ($i=0; $i<$monthsToPay; $i++) {
+                                $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                                $tuitionBreakdown = new TuitionsBreakdown;
+                                $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+1) . ' months'));
+                                $tuitionBreakdown->PayableId = $payableId;
+
+                                $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
+
+                                $tuitionBreakdown->AmountPayable = $amntPayable;
+                                $tuitionBreakdown->Payable = $amntPayable;
+                                $tuitionBreakdown->Balance = $amntPayable;
+                                $tuitionBreakdown->save();
+                            }
+
+                            $tuitionPayable->save();
+                        }
+                    }
                 }
             } else {
                 return response()->json('Class repository not found!', 404);

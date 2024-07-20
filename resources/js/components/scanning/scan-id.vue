@@ -182,7 +182,7 @@ export default {
                 })
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error saving sms data!'

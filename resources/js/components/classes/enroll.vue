@@ -55,7 +55,7 @@
                                 <td class="text-muted v-align">Enroll In Class: </td>
                                 <td class="v-align">
                                     <select class="form-control" v-model="classSelected" @change="getSubjectsInClass()">
-                                        <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ grade.Year + ' - ' + grade.Section }}</option>
+                                        <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ grade.Year + ' - ' + grade.Section + (isNull(grade.Strand) ? '' : (' (' + grade.Strand + (isNull(grade.Semester) ? '' : (' • ' + grade.Semester + ' Semester')) + ')')) }}</option>
                                     </select>
                                 </td>
                             </tr>
@@ -68,6 +68,33 @@
 
                                         <input type="radio" id="Transferee" value="Transferee" v-model="type" class="custom-radio-sm">
                                         <label for="Transferee" class="custom-radio-label-sm">Transferee</label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted v-align">Semester: </td>
+                                <td class="v-align">
+                                    <div class="input-group-radio-sm">
+                                        <input type="radio" id="Not-Applicable" value="" v-model="semester" class="custom-radio-sm">
+                                        <label for="Not-Applicable" class="custom-radio-label-sm">Not Applicable</label>
+
+                                        <input type="radio" id="1st" value="1st" v-model="semester" class="custom-radio-sm">
+                                        <label for="1st" class="custom-radio-label-sm">1st Sem</label>
+                                        
+                                        <input type="radio" id="2nd" value="2nd" v-model="semester" class="custom-radio-sm">
+                                        <label for="2nd" class="custom-radio-label-sm">2nd Sem</label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted v-align">With Scholarship?</td>
+                                <td class="v-align">
+                                    <div class="input-group-radio-sm">
+                                        <input type="radio" id="Yes" value="Yes" v-model="withScholarship" class="custom-radio-sm">
+                                        <label for="Yes" class="custom-radio-label-sm">Yes</label>
+                                        
+                                        <input type="radio" id="No" value="No" v-model="withScholarship" class="custom-radio-sm">
+                                        <label for="No" class="custom-radio-label-sm">No</label>
                                     </div>
                                 </td>
                             </tr>
@@ -154,6 +181,8 @@ export default {
             schoolYearSelected : '',
             subjects : [],
             type : 'Regular',
+            semester : '',
+            withScholarship : 'No',
         }
     },
     methods : {
@@ -393,13 +422,19 @@ export default {
                                 SchoolYearId : this.schoolYearSelected,
                                 Subjects : this.subjects,
                                 Type : this.type,
+                                Semester : this.semester,
                             }) 
                             .then(response => {
                                 this.toast.fire({
                                     icon : 'success',
                                     text : 'Enrollment forwarded to cashier!'
                                 })
-                                window.location.href = this.baseURL + '/classes/existing-student'
+
+                                if (this.withScholarship === 'Yes') {
+                                    window.location.href = this.baseURL + '/student_scholarships/scholarship-wizzard/' + this.studentId + '/enrollment'
+                                } else {
+                                    window.location.href = this.baseURL + '/classes/existing-student'
+                                }
                             })
                             .catch(error => {
                                 console.log(error.response)
@@ -422,6 +457,19 @@ export default {
             })
             .then(response => {
                 this.subjects = response.data
+
+                // select semester
+                const c = this.gradeLevels.find(obj => obj.id === this.classSelected)
+
+                if (!this.isNull(c)) {
+                    if (!this.isNull(c.Semester)) {
+                        this.semester = c.Semester
+                    } else {
+                        this.semester = ''
+                    }
+                } else {
+                    this.semester = ''
+                }
             })
             .catch(error => {
                 console.log(error)

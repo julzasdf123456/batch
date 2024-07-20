@@ -290,7 +290,7 @@ class TeachersController extends AppBaseController
         $data = [];
         $data['Months'] = DB::table('TuitionsBreakdown')
             ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
-            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
             ->select(
                 'ForMonth'
             )
@@ -300,7 +300,7 @@ class TeachersController extends AppBaseController
 
         $data['PaymentData'] = DB::table('TuitionsBreakdown')
             ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
-            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
             ->select(
                 'ForMonth',
                 'Payables.StudentId',
@@ -314,7 +314,7 @@ class TeachersController extends AppBaseController
             ->get();
 
         $data['PayableProfile'] = DB::table('Payables')
-                ->whereRaw("SchoolYear='" . $schoolYear . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+                ->whereRaw("SchoolYear='" . $schoolYear . "' AND ClassId='" . $classId . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
                 ->get();
 
         return response()->json($data, 200);

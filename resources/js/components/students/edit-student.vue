@@ -11,31 +11,31 @@
                             <tr>
                                 <td class="v-align">Learner Ref. No. (LRN)</td>
                                 <td>
-                                    <input class="form-control" placeholder="LRN..." :autofocus="true" v-model="lrn">
+                                    <input class="form-control" placeholder="LRN..." :autofocus="true" v-model="student.LRN">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">First Name</td>
                                 <td>
-                                    <input class="form-control" placeholder="First name..." :autofocus="true" v-model="firstname">
+                                    <input class="form-control" placeholder="First name..." :autofocus="true" v-model="student.FirstName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Middle Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Middle name..." :autofocus="true" v-model="middlename">
+                                    <input class="form-control" placeholder="Middle name..." :autofocus="true" v-model="student.MiddleName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Last Name</td>
                                 <td>
-                                    <input class="form-control" placeholder="Last name..." :autofocus="true" v-model="lastname">
+                                    <input class="form-control" placeholder="Last name..." :autofocus="true" v-model="student.LastName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Suffix <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <select class="form-control" v-model="suffix">
+                                    <select class="form-control" v-model="student.Suffix">
                                         <option value="">-</option>
                                         <option value="SR">SR</option>
                                         <option value="JR">JR</option>
@@ -53,13 +53,13 @@
                             <tr>
                                 <td class="v-align">Birth Date <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <flat-pickr v-model="birthdate" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
+                                    <flat-pickr v-model="student.Birthdate" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Gender</td>
                                 <td>
-                                    <select class="form-control" v-model="gender">
+                                    <select class="form-control" v-model="student.Gender">
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                     </select>
@@ -68,25 +68,25 @@
                             <tr>
                                 <td class="v-align">Contact Number <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Separate by comma if many..." :autofocus="true" v-model="contactNumbers">
+                                    <input class="form-control" placeholder="Separate by comma if many..." :autofocus="true" v-model="student.ContactNumber">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">PSA Number <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="PSA Birth Certificate Number..." :autofocus="true" v-model="psaNumber">
+                                    <input class="form-control" placeholder="PSA Birth Certificate Number..." :autofocus="true" v-model="student.PSABirthCertificateNumber">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Place of Birth <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Place of birth..." :autofocus="true" v-model="placeOfBirth">
+                                    <input class="form-control" placeholder="Place of birth..." :autofocus="true" v-model="student.PlaceOfBirth">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Mother Tounge <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <select class="form-control" v-model="motherTounge">
+                                    <select class="form-control" v-model="student.MotherTounge">
                                         <option value="">-- None --</option>
                                         <option v-for="mtl in motherToungeList" :value="mtl">{{ mtl }}</option>
                                     </select>
@@ -95,7 +95,7 @@
                             <tr>
                                 <td class="v-align">Indigenous Community <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <select class="form-control" v-model="indigenousity">
+                                    <select class="form-control" v-model="student.Indigenousity">
                                         <option value="">-- None --</option>
                                         <option v-for="ind in indigenousList" :value="ind">{{ ind }}</option>
                                     </select>
@@ -104,17 +104,17 @@
                             <tr>
                                 <td class="v-align">4Ps ID Number <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="4Ps Household ID (if applicable)..." :autofocus="true" v-model="beneficiary4PsID">
+                                    <input class="form-control" placeholder="4Ps Household ID (if applicable)..." :autofocus="true" v-model="student.Beneficiary4PsIDNumber">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">From [] School?<span class="text-muted"></span></td>
                                 <td>
                                     <div class="input-group-radio-sm">
-                                        <input type="radio" id="Public" value="Public" v-model="fromSchool" class="custom-radio-sm">
+                                        <input type="radio" id="Public" value="Public" v-model="student.FromSchool" class="custom-radio-sm">
                                         <label for="Public" class="custom-radio-label-sm">Public School</label>
                                         
-                                        <input type="radio" id="Private" value="Private" v-model="fromSchool" class="custom-radio-sm">
+                                        <input type="radio" id="Private" value="Private" v-model="student.FromSchool" class="custom-radio-sm">
                                         <label for="Private" class="custom-radio-label-sm">Private School</label>
                                     </div>
                                 </td>
@@ -129,13 +129,13 @@
                             <tr>
                                 <td class="v-align">Current Sitio/Purok/Street</td>
                                 <td>
-                                    <input class="form-control" placeholder="Sitio/purok/street..." :autofocus="true" v-model="sitio">
+                                    <input class="form-control" placeholder="Sitio/purok/street..." :autofocus="true" v-model="student.Sitio">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Current Town</td>
                                 <td>
-                                    <select class="form-control" v-model="town" @change="getBarangays(town)">
+                                    <select class="form-control" v-model="student.Town" @change="getBarangays(student.Town)">
                                         <option v-for="town in towns" :value="town.id">{{ town.Town }}</option>
                                     </select>
                                 </td>
@@ -143,7 +143,7 @@
                             <tr>
                                 <td class="v-align">Current Barangay</td>
                                 <td>
-                                    <select class="form-control" v-model="barangay">
+                                    <select class="form-control" v-model="student.Barangay">
                                         <option v-for="brgy in barangays" :value="brgy.id">{{ brgy.Barangay }}</option>
                                     </select>
                                 </td>
@@ -151,7 +151,7 @@
                             <tr>
                                 <td class="v-align">Current Zip Code</td>
                                 <td>
-                                    <input class="form-control" placeholder="Zip Code..." :autofocus="true" v-model="zipCode">
+                                    <input class="form-control" placeholder="Zip Code..." :autofocus="true" v-model="student.ZipCode">
                                 </td>
                             </tr>
                             <tr>
@@ -166,13 +166,13 @@
                             <tr>
                                 <td class="v-align">Permanent Sitio/Purok/Street</td>
                                 <td>
-                                    <input class="form-control" placeholder="Sitio/purok/street..." :autofocus="true" v-model="permanentSitio">
+                                    <input class="form-control" placeholder="Sitio/purok/street..." :autofocus="true" v-model="student.PermanentSitio">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Permanent Town</td>
                                 <td>
-                                    <select class="form-control" v-model="permanentTown" @change="getBarangaysPermanent(permanentTown)">
+                                    <select class="form-control" v-model="student.PermanentTown" @change="getBarangaysPermanent(student.PermanentTown)">
                                         <option v-for="town in towns" :value="town.id">{{ town.Town }}</option>
                                     </select>
                                 </td>
@@ -180,7 +180,7 @@
                             <tr>
                                 <td class="v-align">Permanent Barangay</td>
                                 <td>
-                                    <select class="form-control" v-model="permanentBarangay">
+                                    <select class="form-control" v-model="student.PermanentBarangay">
                                         <option v-for="brgy in permanentBarangays" :value="brgy.id">{{ brgy.Barangay }}</option>
                                     </select>
                                 </td>
@@ -188,7 +188,7 @@
                             <tr>
                                 <td class="v-align">Permanent Zip Code</td>
                                 <td>
-                                    <input class="form-control" placeholder="Zip Code..." :autofocus="true" v-model="permanentZipCode">
+                                    <input class="form-control" placeholder="Zip Code..." :autofocus="true" v-model="student.PermanentZipCode">
                                 </td>
                             </tr>
                             <!-- PARENT -->
@@ -201,81 +201,81 @@
                             <tr>
                                 <td class="v-align">Father's First Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Father's First Name..." :autofocus="true" v-model="fatherFirstName">
+                                    <input class="form-control" placeholder="Father's First Name..." :autofocus="true" v-model="student.FatherFirstName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Father's Middle Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Father's Middle Name..." :autofocus="true" v-model="fatherMiddleName">
+                                    <input class="form-control" placeholder="Father's Middle Name..." :autofocus="true" v-model="student.FatherMiddleName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Father's Last Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Father's Last Name..." :autofocus="true" v-model="fatherLastName">
+                                    <input class="form-control" placeholder="Father's Last Name..." :autofocus="true" v-model="student.FatherLastName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Father's Contact Number <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Father's Contact Number..." :autofocus="true" v-model="fatherContact">
+                                    <input class="form-control" placeholder="Father's Contact Number..." :autofocus="true" v-model="student.FatherContactNumber">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Mother's First Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Mother's First Name..." :autofocus="true" v-model="motherFirstName">
+                                    <input class="form-control" placeholder="Mother's First Name..." :autofocus="true" v-model="student.MotherFirstName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Mother's Middle Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Mother's Middle Name..." :autofocus="true" v-model="motherMiddleName">
+                                    <input class="form-control" placeholder="Mother's Middle Name..." :autofocus="true" v-model="student.MotherMiddleName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Mother's Last Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Mother's Last Name..." :autofocus="true" v-model="motherLastName">
+                                    <input class="form-control" placeholder="Mother's Last Name..." :autofocus="true" v-model="student.MotherLastName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Mother's Contact Number <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Mother's Contact Number..." :autofocus="true" v-model="motherContact">
+                                    <input class="form-control" placeholder="Mother's Contact Number..." :autofocus="true" v-model="student.MotherContactNumber">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Guardian's First Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Guardian's First Name..." :autofocus="true" v-model="guardianFirstName">
+                                    <input class="form-control" placeholder="Guardian's First Name..." :autofocus="true" v-model="student.GuardianFirstName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Guardian's Middle Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Guardian's Middle Name..." :autofocus="true" v-model="guardianMiddleName">
+                                    <input class="form-control" placeholder="Guardian's Middle Name..." :autofocus="true" v-model="student.GuardianMiddleName">
                                 </td>
                             </tr>
                             <tr>
                                 <td class="v-align">Guardian's Last Name <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Guardian's Last Name..." :autofocus="true" v-model="guardianLastName">
+                                    <input class="form-control" placeholder="Guardian's Last Name..." :autofocus="true" v-model="student.GuardianLastName">
                                 </td>
                             </tr>
                             
                             <tr>
                                 <td class="v-align">Guardian's Contact Number <span class="text-muted">(Optional)</span></td>
                                 <td>
-                                    <input class="form-control" placeholder="Guardian's Contact Number..." :autofocus="true" v-model="guardianContact">
+                                    <input class="form-control" placeholder="Guardian's Contact Number..." :autofocus="true" v-model="student.GuardianContactNumber">
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="card-footer">
-                    <button @click="saveStudent()" class="btn btn-primary float-right">Next <i class="fas fa-arrow-right ico-tab-left-mini"></i></button>
+                    <button @click="saveStudent()" class="btn btn-primary float-right">Save <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
                 </div>
             </div>
         </div>
@@ -292,7 +292,7 @@ import jquery from 'jquery';
 import Swal from 'sweetalert2';
 
 export default {
-    name : 'NewStudent.new-student',
+    name : 'EditStudent.edit-student',
     components : {
         FlatPickr,
         Swal,
@@ -306,6 +306,7 @@ export default {
             filePath : axios.defaults.filePath,
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             token : document.querySelector("meta[name='token']").getAttribute('content'),
+            studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -361,6 +362,7 @@ export default {
             guardianContact : '',
             sameWithCurrentAddress : false,
             fromSchool : 'Public', // Public, Private
+            student : {},
         }
     },
     methods : {
@@ -409,6 +411,9 @@ export default {
             axios.get(`${ this.baseURL }/towns/get-towns`) // IF PORT 80 DIRECT FROM APACHE
             .then(response => {
                 this.towns = response.data
+
+                this.getBarangays(this.student.Town)
+                this.getBarangaysPermanent(this.student.PermanentTown)
             })
             .catch(error => {
                 console.log(error)
@@ -457,65 +462,64 @@ export default {
                 this.permanentBarangays = response.data
 
                 if (this.sameWithCurrentAddress) {
-                    this.permanentBarangay = this.barangay
+                    this.student.PermanentBarangay = this.student.Barangay
                 }
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
             })
         },
         saveStudent() {
-            if (this.isNull(this.lrn) | this.isNull(this.firstname) | this.isNull(this.lastname) | this.isNull(this.town) | this.isNull(this.barangay + '') | this.isNull(this.gender) | this.isNull(this.sitio)) {
+            if (this.isNull(this.student.LRN) | this.isNull(this.student.FirstName) | this.isNull(this.student.LastName) | this.isNull(this.student.Town) | this.isNull(this.student.Barangay + '') | this.isNull(this.student.Gender) | this.isNull(this.student.Sitio)) {
                 this.toast.fire({
                     icon : 'info',
                     text : 'Please supply all non-optional fields!'
                 })
             } else {
-                var studentId = this.generateId()
-                axios.post(`${ this.baseURL }/students/save-student`, {
+                axios.post(`${ this.baseURL }/students/update-student`, {
                     _token : this.token,
-                    id : studentId,
-                    FirstName : this.firstname,
-                    MiddleName : this.middlename,
-                    LastName : this.lastname,
-                    Suffix : this.suffix,
-                    Sitio : this.sitio,
-                    Town : this.town,
-                    Barangay : this.barangay + '',
-                    Birthdate : this.birthdate,
-                    Gender : this.gender,
-                    ContactNumber : this.contactNumbers,
-                    LRN : this.lrn,
-                    PSABirthCertificateNumber : this.psaNumber,
-                    PlaceOfBirth : this.placeOfBirth,
-                    MotherTounge : this.motherTounge,
-                    Indigenousity : this.indigenousity,
-                    Beneficiary4PsIDNumber : this.beneficiary4PsID,
-                    ZipCode : this.zipCode,
-                    PermanentTown : this.permanentTown,
-                    PermanentBarangay : this.permanentBarangay + '',
-                    PermanentSitio : this.permanentSitio,
-                    PermanentZipCode : this.permanentZipCode,
-                    FatherFirstName : this.fatherFirstName,
-                    FatherMiddleName : this.fatherMiddleName,
-                    FatherLastName : this.fatherLastName,
-                    FatherContactNumber : this.fatherContact,
-                    MotherFirstName : this.motherFirstName,
-                    MotherMiddleName : this.motherMiddleName,
-                    MotherLastName : this.motherLastName,
-                    MotherContactNumber : this.motherContact,
-                    GuardianFirstName : this.guardianFirstName,
-                    GuardianMiddleName : this.guardianMiddleName,
-                    GuardianLastName : this.guardianLastName,
-                    GuardianContactNumber : this.guardianContact,
-                    FromSchool : this.fromSchool,
+                    id : this.studentId,
+                    FirstName : this.student.FirstName,
+                    MiddleName : this.student.MiddleName,
+                    LastName : this.student.LastName,
+                    Suffix : this.student.Suffix,
+                    Sitio : this.student.Sitio,
+                    Town : this.student.Town,
+                    Barangay : this.student.Barangay + '',
+                    Birthdate : this.student.Birthdate,
+                    Gender : this.student.Gender,
+                    ContactNumber : this.student.ContactNumber,
+                    LRN : this.student.LRN,
+                    PSABirthCertificateNumber : this.student.PSABirthCertificateNumber,
+                    PlaceOfBirth : this.student.PlaceOfBirth,
+                    MotherTounge : this.student.MotherTounge,
+                    Indigenousity : this.student.Indigenousity,
+                    Beneficiary4PsIDNumber : this.student.Beneficiary4PsIDNumber,
+                    ZipCode : this.student.ZipCode,
+                    PermanentTown : this.student.PermanentTown,
+                    PermanentBarangay : this.student.PermanentBarangay + '',
+                    PermanentSitio : this.student.PermanentSitio,
+                    PermanentZipCode : this.student.PermanentZipCode,
+                    FatherFirstName : this.student.FatherFirstName,
+                    FatherMiddleName : this.student.FatherMiddleName,
+                    FatherLastName : this.student.FatherLastName,
+                    FatherContactNumber : this.student.FatherContactNumber,
+                    MotherFirstName : this.student.MotherFirstName,
+                    MotherMiddleName : this.student.MotherMiddleName,
+                    MotherLastName : this.student.MotherLastName,
+                    MotherContactNumber : this.student.MotherContactNumber,
+                    GuardianFirstName : this.student.GuardianFirstName,
+                    GuardianMiddleName : this.student.GuardianMiddleName,
+                    GuardianLastName : this.student.GuardianLastName,
+                    GuardianContactNumber : this.student.GuardianContactNumber,
+                    FromSchool : this.student.FromSchool,
                 }) // IF PORT 80 DIRECT FROM APACHE
                 .then(response => {
                     this.toast.fire({
                         icon : 'success',
-                        text : 'Student saved!'
+                        text : 'Student data updated!!'
                     })
-                    window.location.href = this.baseURL + '/classes/enroll/' + studentId
+                    window.location.href = this.baseURL + '/students/' + this.studentId
                 })
                 .catch(error => {
                     console.log(error.response)
@@ -528,24 +532,39 @@ export default {
         },
         isSameWithCurrentAddress() {
             if (this.sameWithCurrentAddress) {
-                this.permanentTown = this.town
-                this.permanentSitio = this.sitio
-                this.permanentZipCode = this.zipCode
-                this.getBarangaysPermanent(this.permanentTown)
+                this.student.PermanentTown = this.student.Town
+                this.student.PermanentSitio = this.student.Sitio
+                this.student.PermanentZipCode = this.student.ZipCode
+                this.getBarangaysPermanent(this.student.PermanentTown)
             } else {
-                this.permanentTown = ''
-                this.permanentSitio = ''
-                this.permanentZipCode = ''
+                this.student.PermanentTown = ''
+                this.student.PermanentSitio = ''
+                this.student.PermanentZipCode = ''
                 this.permanentBarangays = []
-                this.permanentBarangay = ''
+                this.student.PermanentBarangay = ''
             }
+        },
+        getStudentData() {
+            axios.get(`${ this.baseURL }/students/get-student`, {
+                params : {
+                    id : this.studentId,
+                }
+            }) 
+            .then(response => {
+                this.student = response.data
+
+                this.getTowns()
+            })
+            .catch(error => {
+                console.log(error)
+            })
         }
     },
     created() {
         
     },
     mounted() {
-        this.getTowns()
+        this.getStudentData()
 
         // all caps set
         this.setAllCaps()

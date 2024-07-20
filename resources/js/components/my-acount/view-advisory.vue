@@ -2,7 +2,9 @@
     <div class="row px-4">
         <div class="col-lg-12">
             <h4><i class="fas fa-graduation-cap ico-tab text-muted"></i><span class="text-muted">{{ advisory.Year }} - </span>{{ advisory.Section }}</h4>
-            <p class="no-pads text-muted">{{ syDetails.SchoolYear }}</p>
+            <span class="text-muted">{{ syDetails.SchoolYear }}</span>
+            <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
+            <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
         </div>
 
         <!-- students in class -->
@@ -53,7 +55,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align">
                                                     <strong>{{ student.FirstName + (isNull(student.Suffix) ? '' : (' ' + student.Suffix)) }}</strong>
@@ -73,7 +75,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align">
                                                     <strong>{{ student.FirstName + (isNull(student.Suffix) ? '' : (' ' + student.Suffix)) }}</strong>
@@ -145,7 +147,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-center" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
                                             </tr>
@@ -156,7 +158,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-center" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
                                             </tr>
@@ -186,7 +188,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
                                             </tr>
@@ -197,7 +199,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
                                             </tr>
@@ -229,7 +231,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
@@ -242,7 +244,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
@@ -569,7 +571,7 @@ export default {
             return returnData
         },
         downloadSF2() {
-            if (this.advisory.Year === 'Grade 10') {
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
                 window.location.href = this.baseURL + '/barcode_attendances/download-sf2-senior/' + this.classId + '/' + this.attendanceMonth + '/' + this.attendanceYear
             } else {
                 window.location.href = this.baseURL + '/barcode_attendances/download-sf2-junior/' + this.classId + '/' + this.attendanceMonth + '/' + this.attendanceYear
