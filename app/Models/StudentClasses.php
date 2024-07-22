@@ -17,6 +17,9 @@ class StudentClasses extends Model
         'EnrollmentORDate',
         'Type',
         'Semester',
+        'EnrollmentStatus',
+        'Notes',
+        'PreviousClassId'
     ];
 
     protected $casts = [
@@ -28,6 +31,9 @@ class StudentClasses extends Model
         'EnrollmentORDate' => 'string',
         'Type' => 'string',
         'Semester' => 'string',
+        'EnrollmentStatus' => 'string',
+        'Notes' => 'string',
+        'PreviousClassId' => 'string',
     ];
 
     public static array $rules = [
@@ -41,6 +47,9 @@ class StudentClasses extends Model
         'updated_at' => 'nullable',
         'Type' => 'nullable|string',
         'Semester' => 'nullable|string',
+        'EnrollmentStatus' => 'nullable|string',
+        'Notes' => 'nullable|string',
+        'PreviousClassId' => 'nullable|string',
     ];
 
     

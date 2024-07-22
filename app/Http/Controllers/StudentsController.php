@@ -202,13 +202,19 @@ class StudentsController extends AppBaseController
         $student = DB::table('Students')
             ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
             ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->leftJoin(DB::raw("Towns tp"), DB::raw("Students.PermanentTown"), '=', DB::raw("tp.id"))
+            ->leftJoin(DB::raw("Barangays bp"), DB::raw("Students.PermanentBarangay"), '=', DB::raw("bp.id"))
             ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
             ->whereRaw("Students.id='" . $id . "'")
             ->select('Students.*',
                 'Towns.Town AS TownSpelled',
                 'Barangays.Barangay AS BarangaySpelled',
+                'tp.Town AS TownSpelledPermanent',
+                'bp.Barangay AS BarangaySpelledPermanent',
                 'Classes.Year',
                 'Classes.Section',
+                'Classes.Semester',
+                'Classes.Strand',
             )
             ->first();
 
@@ -268,10 +274,44 @@ class StudentsController extends AppBaseController
         ]);
     }
 
-    public function updateStudent(UpdateStudentsRequest $request)
-    {
+    public function updateStudent(UpdateStudentsRequest $request) {
         $students = $this->studentsRepository->update($request->all(), $request['id']);
 
         return response()->json($students, 200);
+    }
+
+    public function getStudentClassDetails(Request $request) {
+        $studentId = $request['StudentId'];
+
+        $student = Students::find($studentId);
+        $data['Student'] = $student;
+
+        if ($student != null && $student->CurrentGradeLevel != null) {
+            $class = Classes::find($student->CurrentGradeLevel);
+            $data['Class'] = $class;
+
+            if ($class != null) {
+                $subjects = DB::table('StudentSubjects')
+                    ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                    ->leftJoin('Teachers', 'StudentSubjects.TeacherId', '=', 'Teachers.id')
+                    ->whereRaw("StudentSubjects.ClassId='" . $class->id . "' AND StudentSubjects.StudentId='" . $studentId . "'")
+                    ->select(
+                        'Subjects.*',
+                        'Teachers.FullName',
+                        'StudentSubjects.id AS StudentSubjectId'
+                    )
+                    ->orderBy('Subjects.Subject')
+                    ->get();
+
+                $data['Subjects'] = $subjects;
+            } else {
+                $data['Subjects'] = [];
+            }
+        } else {
+            $data['Class'] = [];
+            $data['Subjects'] = [];
+        }
+
+        return response()->json($data, 200);
     }
 }

@@ -5,6 +5,10 @@
             <span class="text-muted">{{ syDetails.SchoolYear }}</span>
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
+
+            <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         </div>
 
         <!-- students in class -->
@@ -307,6 +311,7 @@ export default {
             attendanceYear : moment().format('YYYY'),
             daysInAMonth : [],
             barcodeAttendances : [],
+            loaderVisibility : true
         }
     },
     methods : {
@@ -497,6 +502,8 @@ export default {
             })
             .then(response => {
                 this.barcodeAttendances = response.data
+
+                this.loaderVisibility = false
             })
             .catch(error => {
                 console.log(error)

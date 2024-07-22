@@ -14,8 +14,9 @@
                                 
                                 <span class="text-muted">
                                     <i class="fas fa-id-badge ico-tab-mini"></i>LRN-{{ studentData.LRN }} | 
-                                    <i class="fas fa-lightbulb ico-tab-mini"></i>{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}
-                                    <span class="badge" :class="isNull(studentData.Status) ? 'bg-success' : 'bg-danger'">{{ isNull(studentData.Status) ? 'Studying' : studentData.Status }}</span>
+                                    <i class="fas fa-lightbulb ico-tab-mini"></i>{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }} {{ isNull(studentData.Strand) ? '' : (' • ' + studentData.Strand) }} {{ isNull(studentData.Semester) ? '' : (' • ' + studentData.Semester + ' Sem') }}
+                                    <span class="badge" :class="isNull(studentData.Status) ? 'bg-success' : 'bg-danger'" title="Status">{{ isNull(studentData.Status) ? 'Studying' : studentData.Status }}</span>
+                                    <span class="badge bg-warning ico-tab-left-mini" title="From what school">{{ studentData.FromSchool }}</span>
                                 </span>
                             </span>
                         </div>
@@ -33,6 +34,11 @@
                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
                             <!-- <a class="dropdown-item" href="#"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a> -->
                             
+                            <div class="divider"></div>
+
+                            <a :href="baseURL + '/classes/transfer-to-another-class/' + studentId" class="dropdown-item"><i class="fas fa-random ico-tab"></i>Transfer to Another Section/Strand</a>
+                            <button class="dropdown-item" @click="scholarshipWizzard()"><i class="fas fa-folder-plus ico-tab"></i>Add Scholarship Grant</button>
+
                             <div class="divider"></div>
 
                             <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash ico-tab"></i>Delete Student</a>
@@ -56,9 +62,13 @@
 
                                 <table class="table table-sm table-borderless" style="margin-top: 18px;">
                                     <tbody>
-                                        <tr title="Permanent Address">
+                                        <tr title="Current Address">
                                             <td><i class="fas text-muted fa-map-marker-alt"></i></td>
-                                            <td>{{ (isNull(studentData.Sitio) ? '' : studentData.Sitio) + ', ' + studentData.BarangaySpelled + ', ' + studentData.TownSpelled }}</td>
+                                            <td>{{ (isNull(studentData.Sitio) ? '' : studentData.Sitio) + ', ' + studentData.BarangaySpelled + ', ' + studentData.TownSpelled }} ({{ studentData.ZipCode }})</td>
+                                        </tr>
+                                        <tr title="Permanent Address">
+                                            <td><i class="fas text-muted fa-home"></i></td>
+                                            <td>{{ (isNull(studentData.PermanentSitio) ? '' : studentData.PermanentSitio) + ', ' + studentData.BarangaySpelledPermanent + ', ' + studentData.TownSpelledPermanent }} ({{ studentData.PermanentZipCode }})</td>
                                         </tr>
                                         <tr title="Birthday">
                                             <td><i class="fas text-muted fa-birthday-cake"></i></td>
@@ -84,7 +94,10 @@
                                         <a class="nav-link active   " id="account-tab" data-toggle="pill" href="#account-content" role="tab" aria-controls="account-content" aria-selected="false">Account</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" id="subjects-tab" data-toggle="pill" href="#subjects-content" role="tab" aria-controls="subjects-content" aria-selected="false">Subjects</a>
+                                        <a class="nav-link" id="subjects-tab" data-toggle="pill" href="#subjects-content" role="tab" aria-controls="subjects-content" aria-selected="false">Subjects & Classes</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="more-details-tab" data-toggle="pill" href="#more-details-content" role="tab" aria-controls="more-details-content" aria-selected="false">More Details</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" id="scholarship-tab" data-toggle="pill" href="#scholarship-content" role="tab" aria-controls="scholarship-content" aria-selected="false">Scholarship Grants</a>
@@ -181,7 +194,9 @@
                                         ====================================================================================================================================
                                     -->
                                     <div class="tab-pane fade" id="subjects-content" role="tabpanel" aria-labelledby="subjects-tab">
-                                       <div class="p-2 table-responsive">
+                                        <a :href="baseURL + '/classes/transfer-to-another-class/' + studentId" class="btn btn-primary float-right m-2">Transfer to Another Section/Strand</a>
+
+                                        <div class="p-2 table-responsive">
                                             <p class="text-muted mt-3"><i class="fas fa-dot-circle ico-tab-mini"></i>Current/Latest Subjects Taken in this Class ({{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }})</p>
                                             <table class="table table-hover table-sm table-bordered">
                                                 <thead>
@@ -207,7 +222,71 @@
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                       </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 
+                                        ====================================================================================================================================
+                                        MORE DETAILS 
+                                        ====================================================================================================================================
+                                    -->
+                                    <div class="tab-pane fade" id="more-details-content" role="tabpanel" aria-labelledby="more-details-tab">
+                                        <div class="table-responsive p-2">
+                                            <table class="table table-sm table-hover table-borderless">
+                                                <tbody>
+                                                    <tr>
+                                                        <td colspan="2" class="text-muted text-center"><i>Other Information</i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Place of Birth</td>
+                                                        <td class="v-align">{{ studentData.PlaceOfBirth }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Mother Tongue</td>
+                                                        <td class="v-align">{{ studentData.MotherTounge }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">PSA Birth Cert. Number</td>
+                                                        <td class="v-align">{{ studentData.PSABirthCertificateNumber }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Indigeneity</td>
+                                                        <td class="v-align">{{ isNull(studentData.Indigenousity) ? '-' : studentData.Indigenousity }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">4Ps Beneficiary Number</td>
+                                                        <td class="v-align">{{ isNull(studentData.Beneficiary4PsIDNumber) ? '-' : studentData.Beneficiary4PsIDNumber }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" class="text-muted text-center"><i>Parent/Guardian Information</i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Father's Name</td>
+                                                        <td class="v-align">{{ validateNullStrings(studentData.FatherFirstName) + ' ' + validateNullStrings(studentData.FatherMiddleName) + ' ' + validateNullStrings(studentData.FatherLastName) + ' ' + validateNullStrings(studentData.FatherSuffix) }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Father's Contact Info</td>
+                                                        <td class="v-align">{{ studentData.FatherContactNumber }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Mother's Name</td>
+                                                        <td class="v-align">{{ validateNullStrings(studentData.MotherFirstName) + ' ' + validateNullStrings(studentData.MotherMiddleName) + ' ' + validateNullStrings(studentData.MotherLastName) + ' ' + validateNullStrings(studentData.MotherSuffix) }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Mother's Contact Info</td>
+                                                        <td class="v-align">{{ studentData.MotherContactNumber }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Guardian's Name</td>
+                                                        <td class="v-align">{{ validateNullStrings(studentData.GuardianFirstName) + ' ' + validateNullStrings(studentData.GuardianMiddleName) + ' ' + validateNullStrings(studentData.GuardianLastName) + ' ' + validateNullStrings(studentData.GuardianSuffix) }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Guardian's Contact Info</td>
+                                                        <td class="v-align">{{ studentData.GuardianContactNumber }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                     
                                     <!-- 
@@ -484,6 +563,9 @@ export default {
                     return false;
                 }
             }
+        },
+        validateNullStrings(string) {
+            return this.isNull(string) ? '' : string
         },
         toMoney(value) {
             if (this.isNumber(value)) {

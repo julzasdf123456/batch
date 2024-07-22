@@ -18,6 +18,8 @@ use App\Models\StudentSubjects;
 use App\Models\TuitionsBreakdown;
 use App\Models\PayableInclusions;
 use App\Models\TuitionInclusions;
+use App\Models\Transactions;
+use App\Models\StudentScholarships;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -265,6 +267,8 @@ class ClassesController extends AppBaseController
                     if ($class != null) {
                         $classRepo = ClassesRepo::where('Year', $class->Year)
                             ->where('Section', $class->Section)
+                            ->where('Strand', $class->Strand)
+                            ->where('Semester', $class->Semester)
                             ->first();
                         
                         $sy = SchoolYear::find($class->SchoolYearId);
@@ -389,5 +393,314 @@ class ClassesController extends AppBaseController
             'schoolYearId' => $syId,
             'classId' => $classId,
         ]);
+    }
+
+    public function transferToAnotherClass($studentId) {
+        return view('/classes/transfer_to_another_class', [
+            'studentId' => $studentId,
+        ]);
+    }
+
+    public function saveTransfer(Request $request) {
+        $studentId = $request['StudentId'];
+        $currentClassId = $request['CurrentClassId'];
+        $syId = $request['SchoolYearId'];
+        $transferedClassId = $request['TransferedClassId'];
+        $subjects = $request['Subjects'];
+        $reason = $request['Reason'];
+        $semester = $request['Semester'];
+
+        $student = Students::find($studentId);
+        $sy = SchoolYear::find($syId);
+        $classesRepo = ClassesRepo::find($transferedClassId);
+
+        if ($student != null) {
+            if ($classesRepo != null) {
+                // check if class exists in a particular school year
+                $class = Classes::where('SchoolYearId', $syId)
+                    ->where('Year', $classesRepo->Year)
+                    ->where('Section', $classesRepo->Section)
+                    ->where('Strand', $classesRepo->Strand)
+                    ->where('Semester', $semester)
+                    ->first();
+
+                // save class if not yet created
+                if ($class == null) {
+                    $classId = IDGenerator::generateID();
+                    $class = new Classes;
+                    $class->id = $classId;
+                    $class->SchoolYearId = $syId;
+                    $class->Year = $classesRepo->Year;
+                    $class->Section = $classesRepo->Section;
+                    $class->Adviser = $classesRepo->Adviser;
+                    $class->Strand = $classesRepo->Strand;
+                    $class->Semester = $semester;
+                    $class->save();
+                } else { 
+                    $classId = $class->id;
+                }
+
+                 // create student inside the class
+                // check student first if enrolled already in class
+                $enrollee = StudentClasses::where('ClassId', $classId)
+                    ->where('StudentId', $studentId)
+                    ->first();
+                
+                if ($enrollee != null) {
+                    return response()->json('Student is already enrolled in this class!', 403);
+                } else {
+                    // delete previous enrollment
+                    $prevClass = StudentClasses::where('ClassId', $currentClassId)
+                        ->where('StudentId', $studentId)
+                        ->first();
+
+                    if ($prevClass != null) {
+                        $prevClass->delete();
+                    }
+                    
+                    // create enrollee/student
+                    $enrollee = new StudentClasses;
+                    $enrollee->id = IDGenerator::generateID();
+                    $enrollee->ClassId = $classId;
+                    $enrollee->StudentId = $studentId;
+                    $enrollee->Status = 'Paid';
+                    $enrollee->Type = 'Transfered';
+                    $enrollee->Semester = $semester;
+                    $enrollee->EnrollmentORNumber = $prevClass != null ? $prevClass->EnrollmentORNumber : '';
+                    $enrollee->EnrollmentORDate = $prevClass != null ? $prevClass->EnrollmentORDate : '';
+                    $enrollee->EnrollmentStatus = 'Transfered Enrollment';
+                    $enrollee->Notes = $reason . ' (From Class ID ' . $currentClassId . ')';
+                    $enrollee->PreviousClassId = $currentClassId;
+                    $enrollee->save();
+
+                    // create subjects
+                    foreach($subjects as $item) {
+                        if ($item['Selected'] | $item['Selected']==='true') {
+                            $studentSubjects = StudentSubjects::where('StudentId', $studentId)
+                                ->where('ClassId', $classId)
+                                ->where('SubjectId', $item['id'])
+                                ->where('TeacherId', $item['TeacherId'])
+                                ->first();
+
+                            if ($studentSubjects == null) {
+                                $studentSubjects = new StudentSubjects;
+                                $studentSubjects->id = IDGenerator::generateIDandRandString();
+                                $studentSubjects->StudentId = $studentId;
+                                $studentSubjects->SubjectId = $item['id'];
+                                $studentSubjects->ClassId = $classId;
+                                $studentSubjects->TeacherId = $item['TeacherId'];
+                                $studentSubjects->save();
+                            }
+                        }
+                    }
+                    
+                    // update student current grade level
+                    $student->CurrentGradeLevel = $classId;
+                    $student->save();
+
+                    /**
+                     * =====================================================
+                     * CONFIGURE TUITION FEE HERE
+                     * =====================================================
+                     */
+                    // delete first existing tuition feest
+                    $tpExisting = Payables::where('StudentId', $studentId)
+                        ->where('ClassId', $currentClassId)
+                        ->first();
+                    $amountPaid = 0;
+                    if ($tpExisting != null) {
+                        // delete tuitions breakdown
+                        TuitionsBreakdown::where('PayableId', $tpExisting->id)
+                            ->delete();
+
+                        // delete payable inclusions
+                        PayableInclusions::where('PayableId', $tpExisting->id)
+                        ->delete();
+
+                        $tpExisting->delete();
+
+                        $amountPaid = $tpExisting->AmountPaid != null && is_numeric($tpExisting->AmountPaid) ? floatval($tpExisting->AmountPaid) : 0;
+                    }
+
+
+                    /*
+                     * ======================================================
+                     * ADD TUITION FEE PAYABLES
+                     * ======================================================
+                     */
+                    $class = Classes::find($classId);
+                    if ($class != null) {
+                        $classRepo = ClassesRepo::where('Year', $class->Year)
+                            ->where('Section', $class->Section)
+                            ->where('Strand', $class->Strand)
+                            ->where('Semester', $class->Semester)
+                            ->first();
+                        
+                        $sy = SchoolYear::find($class->SchoolYearId);
+
+                        if ($classRepo != null) {
+                            $baseTuition = $classRepo->BaseTuitionFee;
+
+                            $payableId = IDGenerator::generateIDandRandString();
+                            $tuitionPayable = new Payables;
+                            $tuitionPayable->id = $payableId;
+                            $tuitionPayable->StudentId = $studentId;
+                            $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
+                            $tuitionPayable->Category = 'Tuition Fees';
+                            $tuitionPayable->SchoolYear = $sy->SchoolYear;
+                            $tuitionPayable->ClassId = $classId;
+
+                            if ($baseTuition != null) {
+                                // copy base tuition fee if declared in classes
+                                $tuitionPayable->Payable = $baseTuition;
+                                $tuitionPayable->AmountPayable = $baseTuition;
+                                $tuitionPayable->Balance = $baseTuition;
+                            } else {
+                                // get tuition per subject if not declared in classes
+                                $totalSubjectTuition = DB::table('SubjectClasses')
+                                    ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                                    ->whereRaw("SubjectClasses.ClassRepoId='" . $classRepo->id . "'")
+                                    ->select(
+                                        DB::raw("SUM(Subjects.CourseFee) AS Total")
+                                    )
+                                    ->first();
+
+                                if ($totalSubjectTuition != null) {
+                                    $tuitionPayable->Payable = $totalSubjectTuition->Total;
+                                    $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
+                                    $tuitionPayable->Balance = $totalSubjectTuition->Total;
+                                } else {
+                                    $tuitionPayable->Payable = 0.0;
+                                    $tuitionPayable->AmountPayable = 0.0;
+                                    $tuitionPayable->Balance = 0.0;
+                                }
+                            }
+
+                            // create payable tuition inclusion
+                            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)->get();
+                            if ($tuitionInclusions != null) {
+                                foreach($tuitionInclusions as $item) {
+                                    $payableInclusions = new PayableInclusions;
+                                    $payableInclusions->id = IDGenerator::generateIDandRandString();
+                                    $payableInclusions->PayableId = $payableId;
+                                    $payableInclusions->ItemName = $item->ItemName;
+                                    $payableInclusions->Amount = $item->Amount;
+                                    $payableInclusions->save();
+                                }
+                            }
+
+                            // create tuitions breakdown
+                            $monthsToPay = 10;
+                            for ($i=0; $i<$monthsToPay; $i++) {
+                                $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                                $tuitionBreakdown = new TuitionsBreakdown;
+                                $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+1) . ' months'));
+                                $tuitionBreakdown->PayableId = $payableId;
+
+                                $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
+
+                                $tuitionBreakdown->AmountPayable = $amntPayable;
+                                $tuitionBreakdown->Payable = $amntPayable;
+                                $tuitionBreakdown->Balance = $amntPayable;
+                                $tuitionBreakdown->save();
+                            }
+
+                            $tuitionPayable->save();
+
+                            /**
+                             * ==========================================================================
+                             * VALIDATE SCHOLARSHIPS
+                             * ==========================================================================
+                             */
+                            $scholarship = StudentScholarships::where('PayableId', $tpExisting->id)
+                                ->where('StudentId', $studentId)
+                                ->where("DeductMonthly", "Yes")
+                                ->get();
+                        
+                            $scholarshipAmount = 0;
+                            foreach($scholarship as $item) {
+                                $item->PayableId = $payableId;
+                                $item->Notes = 'Transfered from Transfer Wizzard';
+                                $item->save();
+
+                                $scholarshipAmount += ($item->Amount != null ? floatval($item->Amount) : 0);
+                            }
+                            
+                            $tuitionPayable = Payables::find($payableId);
+
+                            if ($scholarshipAmount > 0) {
+                                $tuitionPayable->DiscountAmount = $scholarshipAmount;
+                                $tuitionPayable->AmountPayable = floatval($tuitionPayable->AmountPayable) - $scholarshipAmount;
+                                $tuitionPayable->Balance = $tuitionPayable->AmountPayable;
+                                $tuitionPayable->save();
+
+                                // update payable tuitions breakdown
+                                $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
+                                if ($tuitionsBreakdown != null) {
+                                    $count = count($tuitionsBreakdown);
+
+                                    if ($count > 0) {
+                                        $amountDistributable = round((floatval($scholarshipAmount) / $count), 2);
+                                    
+                                        foreach($tuitionsBreakdown as $item) {
+                                            $item->Discount = $amountDistributable;
+                                            $item->AmountPayable = floatval($item->AmountPayable) - floatval($amountDistributable);
+                                            $item->Balance = floatval($item->Balance) - floatval($amountDistributable);
+                                            $item->save();
+                                        }
+                                    }
+                                }
+                            }
+
+                            /**
+                             * ==========================================================================
+                             * CREDIT THE PREVIOUS PAYMENTS FROM THE PREVIOUS TUITION PAYABLE
+                             * ==========================================================================
+                             */
+                            // update tuitions breakdown
+                            if ($amountPaid > 0) {
+                                $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
+
+                                // update transactions
+                                Transactions::where('PayablesId', $tpExisting->id)
+                                    ->update(['PayablesId' => $payableId]);
+
+                                $payment = $amountPaid;
+                                foreach($tBreakdown as $item) {
+                                    $currentPayable = floatval($item->Balance);
+                                    if ($payment > 0) {
+                                        if ($payment >= $currentPayable) {
+                                            $item->Balance = 0;
+                                            $item->AmountPaid = $item->AmountPayable;
+                                            
+                                            $payment = $payment - $currentPayable;
+                                        } else {
+                                            $item->Balance = $currentPayable - $payment;
+                                            $item->AmountPaid = floatval($item->AmountPaid) + $payment;
+
+                                            $payment = 0;
+                                        }
+                                        $item->Notes = 'Transfered payments from Transfer Wizzard';
+                                        $item->save();
+                                    }
+                                }
+
+                                // update payable
+                                if ($tuitionPayable != null) {
+                                    $bal = $tuitionPayable != null && $tuitionPayable->Balance != null && is_numeric($tuitionPayable->Balance) ? floatval($tuitionPayable->Balance) : 0;
+
+                                    $tuitionPayable->AmountPaid = $amountPaid;
+                                    $tuitionPayable->Balance = $bal - $amountPaid;
+                                    $tuitionPayable->save();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json($student, 200);
     }
 }

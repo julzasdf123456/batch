@@ -72,6 +72,7 @@ Route::get('/students/search-students-paginated', [StudentsController::class, 's
 Route::get('/students/get-student-details', [StudentsController::class, 'getStudentDetails'])->name('students.get-student-details');
 Route::get('/students/edit-student/{studentId}', [StudentsController::class, 'editStudent'])->name('students.edit-student');
 Route::post('/students/update-student', [StudentsController::class, 'updateStudent'])->name('students.update-student');
+Route::get('/students/get-student-class-details', [StudentsController::class, 'getStudentClassDetails'])->name('students.get-student-class-details');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -80,6 +81,8 @@ Route::post('/classes/save-enrollment', [ClassesController::class, 'saveEnrollme
 Route::get('/classes/get-students-from-class', [ClassesController::class, 'getStudentsFromClass'])->name('classes.get-students-from-class');
 Route::get('/classes/get-tuitions-breakdown', [ClassesController::class, 'getTuitionBreakdown'])->name('classes.get-tuitions-breakdown');
 Route::get('/classes/view-class/{adviserId}/{schoolyearid}/{classId}', [ClassesController::class, 'viewClass'])->name('classes.view-class');
+Route::get('/classes/transfer-to-another-class/{studentId}', [ClassesController::class, 'transferToAnotherClass'])->name('classes.transfer-to-another-class');
+Route::post('/classes/save-transfer', [ClassesController::class, 'saveTransfer'])->name('classes.save-transfer');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

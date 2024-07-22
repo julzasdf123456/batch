@@ -1,5 +1,6 @@
 <template>
     <div class="row">
+        <!-- student info -->
         <div class="col-lg-4 col-md-12">
             <div class="card shadow-none">
                 <div class="card-header">
@@ -32,6 +33,7 @@
                 </div>
             </div>
         </div>
+        
         <!-- Enrollment Form -->
         <div class="col-lg-8 col-md-12"> 
             <!-- FORM -->
@@ -447,7 +449,6 @@ export default {
                     })
                 }
             }
-            
         },
         getSubjectsInClass() {
             axios.get(`${ this.baseURL }/classes_repos/get-subjects-in-class`, {

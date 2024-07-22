@@ -96,7 +96,7 @@
                             <tr v-for="month in tuitionMonths" :key="month.id">
                                 <td>
                                     <div class="input-group-radio-sm">
-                                        <input disabled @change="sumTotalTuitions()" type="checkbox" :id="month.id" :value="month" class="custom-radio-sm" v-model="selectedMonths">
+                                        <input @change="sumTotalTuitions()" type="checkbox" :id="month.id" :value="month" class="custom-radio-sm" v-model="selectedMonths">
                                         <label :for="month.id" class="custom-radio-label-sm">{{ moment(month.ForMonth).format('MMMM YYYY') }}</label>
                                     </div>
                                 </td>
@@ -222,12 +222,12 @@
                             <tr>
                                 <td class="text-muted v-align">
                                     TOTAL SELECTED PAYABLE
-                                    <br>
-                                    <span class="text-muted text-sm">Change</span>
+                                    <!-- <br> -->
+                                    <!-- <span class="text-muted text-sm">Change</span> -->
                                 </td>
                                 <td class="v-align text-right text-danger">
                                     <h4 class="no-pads">{{ toMoney(totalSelectedTuitions) }}</h4>
-                                    <span class="text-info text-sm">{{ toMoney(change) }}</span>
+                                    <!-- <span class="text-info text-sm">{{ toMoney(change) }}</span> -->
                                 </td>
                             </tr>
                         </tbody>
