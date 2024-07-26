@@ -7,6 +7,8 @@ use App\Http\Requests\UpdateMiscellaneousPayablesRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\MiscellaneousPayablesRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class MiscellaneousPayablesController extends AppBaseController
@@ -36,7 +38,11 @@ class MiscellaneousPayablesController extends AppBaseController
      */
     public function create()
     {
-        return view('miscellaneous_payables.create');
+        if (Auth::user()->hasAnyPermission(['god permission', 'create miscellaneous payables'])) {
+            return view('miscellaneous_payables.create');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -58,15 +64,19 @@ class MiscellaneousPayablesController extends AppBaseController
      */
     public function show($id)
     {
-        $miscellaneousPayables = $this->miscellaneousPayablesRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view miscellaneous payables'])) {
+            $miscellaneousPayables = $this->miscellaneousPayablesRepository->find($id);
 
-        if (empty($miscellaneousPayables)) {
-            Flash::error('Miscellaneous Payables not found');
+            if (empty($miscellaneousPayables)) {
+                Flash::error('Miscellaneous Payables not found');
 
-            return redirect(route('miscellaneousPayables.index'));
+                return redirect(route('miscellaneousPayables.index'));
+            }
+
+            return view('miscellaneous_payables.show')->with('miscellaneousPayables', $miscellaneousPayables);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('miscellaneous_payables.show')->with('miscellaneousPayables', $miscellaneousPayables);
     }
 
     /**
@@ -74,15 +84,19 @@ class MiscellaneousPayablesController extends AppBaseController
      */
     public function edit($id)
     {
-        $miscellaneousPayables = $this->miscellaneousPayablesRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit miscellaneous payables'])) {
+            $miscellaneousPayables = $this->miscellaneousPayablesRepository->find($id);
 
-        if (empty($miscellaneousPayables)) {
-            Flash::error('Miscellaneous Payables not found');
+            if (empty($miscellaneousPayables)) {
+                Flash::error('Miscellaneous Payables not found');
 
-            return redirect(route('miscellaneousPayables.index'));
+                return redirect(route('miscellaneousPayables.index'));
+            }
+
+            return view('miscellaneous_payables.edit')->with('miscellaneousPayables', $miscellaneousPayables);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('miscellaneous_payables.edit')->with('miscellaneousPayables', $miscellaneousPayables);
     }
 
     /**
@@ -112,18 +126,22 @@ class MiscellaneousPayablesController extends AppBaseController
      */
     public function destroy($id)
     {
-        $miscellaneousPayables = $this->miscellaneousPayablesRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete miscellaneous payables'])) {
+            $miscellaneousPayables = $this->miscellaneousPayablesRepository->find($id);
 
-        if (empty($miscellaneousPayables)) {
-            Flash::error('Miscellaneous Payables not found');
+            if (empty($miscellaneousPayables)) {
+                Flash::error('Miscellaneous Payables not found');
+
+                return redirect(route('miscellaneousPayables.index'));
+            }
+
+            $this->miscellaneousPayablesRepository->delete($id);
+
+            Flash::success('Miscellaneous Payables deleted successfully.');
 
             return redirect(route('miscellaneousPayables.index'));
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $this->miscellaneousPayablesRepository->delete($id);
-
-        Flash::success('Miscellaneous Payables deleted successfully.');
-
-        return redirect(route('miscellaneousPayables.index'));
     }
 }

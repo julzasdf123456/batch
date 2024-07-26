@@ -161,15 +161,23 @@ class ClassesController extends AppBaseController
     }
 
     public function enroll($studentId) {
-        return view('/classes/enroll', [
-            'studentId' => $studentId
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class'])) {
+            return view('/classes/enroll', [
+                'studentId' => $studentId
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function existingStudent(Request $request) {
-        return view('/classes/existing_student', [
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class'])) {
+            return view('/classes/existing_student', [
 
-        ]);
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function saveEnrollment(Request $request) {
@@ -388,17 +396,26 @@ class ClassesController extends AppBaseController
     }
 
     public function viewClass($adviserId, $syId, $classId) {
-        return view('classes.show', [
-            'adviser' => $adviserId,
-            'schoolYearId' => $syId,
-            'classId' => $classId,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view class'])) {
+            return view('classes.show', [
+                'adviser' => $adviserId,
+                'schoolYearId' => $syId,
+                'classId' => $classId,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
+        
     }
 
     public function transferToAnotherClass($studentId) {
-        return view('/classes/transfer_to_another_class', [
-            'studentId' => $studentId,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'transfer student class'])) {
+            return view('/classes/transfer_to_another_class', [
+                'studentId' => $studentId,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function saveTransfer(Request $request) {

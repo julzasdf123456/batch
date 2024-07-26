@@ -18,15 +18,21 @@
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['miscellaneousPayables.destroy', $item->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'view miscellaneous payables']))
                             <a href="{{ route('miscellaneousPayables.show', [$item->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-eye"></i>
                             </a>
+                            @endif
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'edit miscellaneous payables']))
                             <a href="{{ route('miscellaneousPayables.edit', [$item->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-edit"></i>
                             </a>
-                            {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                            @endif
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'delete miscellaneous payables']))
+                                {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                            @endif
                         </div>
                         {!! Form::close() !!}
                     </td>

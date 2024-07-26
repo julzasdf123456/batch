@@ -23,15 +23,22 @@
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['scholarships.destroy', $item->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
+                            
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'view scholarship']))
                             <a href="{{ route('scholarships.show', [$item->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-eye"></i>
                             </a>
+                            @endif
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'edit scholarship']))
                             <a href="{{ route('scholarships.edit', [$item->id]) }}"
                                class='btn btn-default btn-xs'>
                                 <i class="far fa-edit"></i>
                             </a>
-                            {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                            @endif
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'delete scholarship']))
+                                {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                            @endif
                         </div>
                         {!! Form::close() !!}
                     </td>

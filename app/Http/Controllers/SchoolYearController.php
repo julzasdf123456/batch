@@ -60,29 +60,33 @@ class SchoolYearController extends AppBaseController
      */
     public function show($id)
     {
-        $schoolYear = $this->schoolYearRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view school year'])) {
+            $schoolYear = $this->schoolYearRepository->find($id);
 
-        if (empty($schoolYear)) {
-            Flash::error('School Year not found');
+            if (empty($schoolYear)) {
+                Flash::error('School Year not found');
 
-            return redirect(route('schoolYears.index'));
+                return redirect(route('schoolYears.index'));
+            }
+
+            $classes = DB::table('Classes')
+                ->leftJoin('Teachers', 'Classes.Adviser', '=', 'Teachers.id')
+                ->where('Classes.SchoolYearId', $id)
+                ->select(
+                    'Classes.*',
+                    'Teachers.FullName',
+                    'Teachers.Designation',
+                )
+                ->orderBy('Classes.Year')
+                ->get();
+
+            return view('school_years.show', [
+                'schoolYear' => $schoolYear,
+                'classes' => $classes,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $classes = DB::table('Classes')
-            ->leftJoin('Teachers', 'Classes.Adviser', '=', 'Teachers.id')
-            ->where('Classes.SchoolYearId', $id)
-            ->select(
-                'Classes.*',
-                'Teachers.FullName',
-                'Teachers.Designation',
-            )
-            ->orderBy('Classes.Year')
-            ->get();
-
-        return view('school_years.show', [
-            'schoolYear' => $schoolYear,
-            'classes' => $classes,
-        ]);
     }
 
     /**
@@ -90,15 +94,19 @@ class SchoolYearController extends AppBaseController
      */
     public function edit($id)
     {
-        $schoolYear = $this->schoolYearRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit school year'])) {
+            $schoolYear = $this->schoolYearRepository->find($id);
 
-        if (empty($schoolYear)) {
-            Flash::error('School Year not found');
+            if (empty($schoolYear)) {
+                Flash::error('School Year not found');
 
-            return redirect(route('schoolYears.index'));
+                return redirect(route('schoolYears.index'));
+            }
+
+            return view('school_years.edit')->with('schoolYear', $schoolYear);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('school_years.edit')->with('schoolYear', $schoolYear);
     }
 
     /**
@@ -128,19 +136,23 @@ class SchoolYearController extends AppBaseController
      */
     public function destroy($id)
     {
-        $schoolYear = $this->schoolYearRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete school year'])) {
+            $schoolYear = $this->schoolYearRepository->find($id);
 
-        if (empty($schoolYear)) {
-            Flash::error('School Year not found');
+            if (empty($schoolYear)) {
+                Flash::error('School Year not found');
+
+                return redirect(route('schoolYears.index'));
+            }
+
+            $this->schoolYearRepository->delete($id);
+
+            Flash::success('School Year deleted successfully.');
 
             return redirect(route('schoolYears.index'));
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $this->schoolYearRepository->delete($id);
-
-        Flash::success('School Year deleted successfully.');
-
-        return redirect(route('schoolYears.index'));
     }
 
     public function getSchoolYears(Request $request) {

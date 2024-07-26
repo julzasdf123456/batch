@@ -19,4 +19,12 @@ class CatchController extends AppBaseController
     public function notAllowed(Request $request) {
         return view('/error_messages/not_allowed');
     } 
+    
+    public function errorWithback($title, $message, $errorCode) {
+        return view('/error_messages/error_with_back', [
+            'title' => $title,
+            'errorCode' => $errorCode,
+            'message' => $message,
+        ]);
+    } 
 }
