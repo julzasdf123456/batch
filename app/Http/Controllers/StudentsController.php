@@ -32,7 +32,11 @@ class StudentsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        return view('students.index');
+        if (Auth::user()->hasAnyPermission(['god permission', 'view students'])) {
+            return view('students.index');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -63,9 +67,13 @@ class StudentsController extends AppBaseController
      */
     public function show($id)
     {
-        return view('students.show', [
-            'id'  => $id,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view student details'])) {
+            return view('students.show', [
+                'id'  => $id,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -127,9 +135,13 @@ class StudentsController extends AppBaseController
     }
 
     public function newStudent(Request $request) {
-        return view('/students/new_student', [
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student details'])) {
+            return view('/students/new_student', [
 
-        ]);
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function saveStudent(CreateStudentsRequest $request)
@@ -269,9 +281,13 @@ class StudentsController extends AppBaseController
     }
 
     public function editStudent($studentId) {
-        return view('/students/edit_student', [
-            'studentId' => $studentId,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit student details'])) {
+            return view('/students/edit_student', [
+                'studentId' => $studentId,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function updateStudent(UpdateStudentsRequest $request) {

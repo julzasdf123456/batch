@@ -28,16 +28,20 @@ class SubjectsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $subjects = DB::table('Subjects')
-            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-            ->select(
-                'Subjects.*',
-                'Teachers.Fullname'
-            )
-            ->paginate(15);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view subjects'])) {
+            $subjects = DB::table('Subjects')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->select(
+                    'Subjects.*',
+                    'Teachers.Fullname'
+                )
+                ->paginate(15);
 
-        return view('subjects.index')
-            ->with('subjects', $subjects);
+            return view('subjects.index')
+                ->with('subjects', $subjects);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -45,9 +49,13 @@ class SubjectsController extends AppBaseController
      */
     public function create()
     {
-        return view('subjects.create', [
-            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'create subjects'])) {
+            return view('subjects.create', [
+                'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -69,15 +77,19 @@ class SubjectsController extends AppBaseController
      */
     public function show($id)
     {
-        $subjects = $this->subjectsRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view subjects'])) {
+            $subjects = $this->subjectsRepository->find($id);
 
-        if (empty($subjects)) {
-            Flash::error('Subjects not found');
+            if (empty($subjects)) {
+                Flash::error('Subjects not found');
 
-            return redirect(route('subjects.index'));
+                return redirect(route('subjects.index'));
+            }
+
+            return view('subjects.show')->with('subjects', $subjects);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('subjects.show')->with('subjects', $subjects);
     }
 
     /**
@@ -85,18 +97,22 @@ class SubjectsController extends AppBaseController
      */
     public function edit($id)
     {
-        $subjects = $this->subjectsRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit subjects'])) {
+            $subjects = $this->subjectsRepository->find($id);
 
-        if (empty($subjects)) {
-            Flash::error('Subjects not found');
+            if (empty($subjects)) {
+                Flash::error('Subjects not found');
 
-            return redirect(route('subjects.index'));
+                return redirect(route('subjects.index'));
+            }
+
+            return view('subjects.edit', [
+                'subjects' => $subjects,
+                'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('subjects.edit', [
-            'subjects' => $subjects,
-            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
-        ]);
     }
 
     /**
@@ -126,18 +142,22 @@ class SubjectsController extends AppBaseController
      */
     public function destroy($id)
     {
-        $subjects = $this->subjectsRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete subjects'])) {
+            $subjects = $this->subjectsRepository->find($id);
 
-        if (empty($subjects)) {
-            Flash::error('Subjects not found');
+            if (empty($subjects)) {
+                Flash::error('Subjects not found');
+
+                return redirect(route('subjects.index'));
+            }
+
+            $this->subjectsRepository->delete($id);
+
+            Flash::success('Subjects deleted successfully.');
 
             return redirect(route('subjects.index'));
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $this->subjectsRepository->delete($id);
-
-        Flash::success('Subjects deleted successfully.');
-
-        return redirect(route('subjects.index'));
     }
 }

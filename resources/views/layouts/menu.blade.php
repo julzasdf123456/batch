@@ -94,6 +94,14 @@
                 <p>My DCR</p>
             </a>
         </li>
+        
+        <li class="nav-item" title="All Daily Collection Report">
+            <a href="{{ route('transactions.all-dcr') }}"
+               class="nav-link {{ Request::is('transactions.all-dcr*') ? 'active' : '' }}">
+               <i class="fas fa-receipt nav-icon"></i>
+                <p>All DCR</p>
+            </a>
+        </li>
     </ul>
 </li>
 

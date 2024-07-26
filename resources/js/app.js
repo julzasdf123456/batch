@@ -29,6 +29,7 @@ import Tuitions from "./components/transactions/tuitions.vue"
 import Miscellaneous from "./components/transactions/miscellaneous.vue"
 import MiscellaneousSearch from "./components/transactions/miscellaneous-search.vue"
 import MyDCR from "./components/transactions/my-dcr.vue"
+import AllDCR from "./components/transactions/all-dcr.vue"
 import PrintMyDCR from "./components/transactions/print-my-dcr.vue"
 import ViewTeacher from "./components/teachers/view-teacher.vue"
 import ScholarshipWizzard from "./components/students/scholarship-wizzard.vue"
@@ -60,6 +61,7 @@ app.component('tuitions', Tuitions);
 app.component('miscellaneous', Miscellaneous);
 app.component('miscellaneous-search', MiscellaneousSearch);
 app.component('my-dcr', MyDCR);
+app.component('all-dcr', AllDCR);
 app.component('print-my-dcr', PrintMyDCR);
 app.component('view-teacher', ViewTeacher);
 app.component('scholarship-wizzard', ScholarshipWizzard);

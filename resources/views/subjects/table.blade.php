@@ -23,15 +23,21 @@
                     <td  style="width: 120px">
                         {!! Form::open(['route' => ['subjects.destroy', $subject->id], 'method' => 'delete']) !!}
                         <div class='btn-group'>
-                            <a href="{{ route('subjects.show', [$subject->id]) }}"
-                               class='btn btn-default btn-xs'>
-                                <i class="far fa-eye"></i>
-                            </a>
-                            <a href="{{ route('subjects.edit', [$subject->id]) }}"
-                               class='btn btn-default btn-xs'>
-                                <i class="far fa-edit"></i>
-                            </a>
-                            {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'view subjects']))
+                                <a href="{{ route('subjects.show', [$subject->id]) }}"
+                                class='btn btn-default btn-xs'>
+                                    <i class="far fa-eye"></i>
+                                </a>
+                            @endif
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'edit subjects']))
+                                <a href="{{ route('subjects.edit', [$subject->id]) }}"
+                                class='btn btn-default btn-xs'>
+                                    <i class="far fa-edit"></i>
+                                </a>
+                            @endif
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'delete subjects']))
+                                {!! Form::button('<i class="far fa-trash-alt"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-xs', 'onclick' => "return confirm('Are you sure?')"]) !!}
+                            @endif
                         </div>
                         {!! Form::close() !!}
                     </td>

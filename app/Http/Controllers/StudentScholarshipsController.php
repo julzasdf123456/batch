@@ -136,10 +136,14 @@ class StudentScholarshipsController extends AppBaseController
     }
 
     public function scholarshipWizzard($id, $from) {
-        return view('/student_scholarships/scholarship_wizzard', [
-            'id' => $id,
-            'from' => $from,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'add scholarship grant'])) {
+            return view('/student_scholarships/scholarship_wizzard', [
+                'id' => $id,
+                'from' => $from,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function getAvailableSYPayables(Request $request) {
@@ -222,47 +226,51 @@ class StudentScholarshipsController extends AppBaseController
 
         $scholarship = StudentScholarships::find($id);
 
-        if ($scholarship != null) {
-            if ($scholarship->DeductMonthly === 'Yes') {
-                $grantAmount = floatval($scholarship->Amount);
+        if (Auth::user()->hasAnyPermission(['god permission', 'remove scholarship grant'])) {
+            if ($scholarship != null) {
+                if ($scholarship->DeductMonthly === 'Yes') {
+                    $grantAmount = floatval($scholarship->Amount);
 
-                // update payable
-                $payable = Payables::find($scholarship->PayableId);
+                    // update payable
+                    $payable = Payables::find($scholarship->PayableId);
 
-                if ($payable != null) {
-                    $dsc = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-                    $dscAmount = ($dsc - $grantAmount);
-    
-                    $payable->DiscountAmount = $dscAmount < 0 ? 0 : $dscAmount;
-                    $payable->Balance = floatval($payable->Balance) + floatval($grantAmount);
-                    $payable->AmountPayable = floatval($payable->AmountPayable) + $grantAmount;
-                    $payable->save();
-                }
+                    if ($payable != null) {
+                        $dsc = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+                        $dscAmount = ($dsc - $grantAmount);
+        
+                        $payable->DiscountAmount = $dscAmount < 0 ? 0 : $dscAmount;
+                        $payable->Balance = floatval($payable->Balance) + floatval($grantAmount);
+                        $payable->AmountPayable = floatval($payable->AmountPayable) + $grantAmount;
+                        $payable->save();
+                    }
 
-                // update payable tuitions breakdown
-                $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $scholarship->PayableId)->whereRaw("Discount IS NOT NULL AND (AmountPaid IS NULL OR AmountPaid = 0)")->get();
-                if ($tuitionsBreakdown != null && count($tuitionsBreakdown) > 0) {
-                    if ($grantAmount > 0) {
-                        $count = count($tuitionsBreakdown);
-                        
-                        $deductAmount = $grantAmount / $count;
-
-                        foreach($tuitionsBreakdown as $item) {
-                            $dsc = $item->Discount != null ? floatval($item->Discount) : 0;
-                            $dscAmount = $dsc - $deductAmount;
+                    // update payable tuitions breakdown
+                    $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $scholarship->PayableId)->whereRaw("Discount IS NOT NULL AND (AmountPaid IS NULL OR AmountPaid = 0)")->get();
+                    if ($tuitionsBreakdown != null && count($tuitionsBreakdown) > 0) {
+                        if ($grantAmount > 0) {
+                            $count = count($tuitionsBreakdown);
                             
-                            $item->Discount = $dscAmount < 0 ? 0 : $dscAmount;
-                            $item->AmountPayable = $item->AmountPayable != null ? (floatval($item->AmountPayable) + $deductAmount) : $item->Payable;
-                            $item->Balance = $item->AmountPayable;
-                            $item->save();
+                            $deductAmount = $grantAmount / $count;
+
+                            foreach($tuitionsBreakdown as $item) {
+                                $dsc = $item->Discount != null ? floatval($item->Discount) : 0;
+                                $dscAmount = $dsc - $deductAmount;
+                                
+                                $item->Discount = $dscAmount < 0 ? 0 : $dscAmount;
+                                $item->AmountPayable = $item->AmountPayable != null ? (floatval($item->AmountPayable) + $deductAmount) : $item->Payable;
+                                $item->Balance = $item->AmountPayable;
+                                $item->save();
+                            }
                         }
                     }
                 }
+
+                $scholarship->delete();
             }
 
-            $scholarship->delete();
+            return response()->json($scholarship, 200);
+        } else {
+            return response()->json('You are not allowed to access this function.', 403);
         }
-
-        return response()->json($scholarship, 200);
     }
 }

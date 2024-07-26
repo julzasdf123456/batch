@@ -28,7 +28,7 @@
                             <td @click="viewStudent(student.id)" class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
                             <td @click="viewStudent(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + student.Section) }}</td>
                             <td class="v-align text-right">
-                                <a class="btn btn-primary-skinny btn-sm" :href="baseURL + '/transactions/tuitions/' + student.id">More <i class="fas fa-angle-down ico-tab-left-mini"></i></a>
+                                <!-- <a class="btn btn-primary-skinny btn-sm" :href="baseURL + '/transactions/tuitions/' + student.id">More <i class="fas fa-angle-down ico-tab-left-mini"></i></a> -->
                             </td>
                         </tr>
                     </tbody>

@@ -23,6 +23,7 @@
 
             <div class="card-body">
                 <div class="row">
+                    <input type="hidden" name="guard_name" value="web">
                     @include('permissions.fields')
                 </div>
             </div>

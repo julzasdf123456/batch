@@ -144,9 +144,13 @@ class TransactionsController extends AppBaseController
     }
 
     public function enrollment(Request $request) {
-        return view('/transactions/enrollment', [
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact enrollment'])) {
+            return view('/transactions/enrollment', [
 
-        ]);
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function getNextOR(Request $request) {
@@ -304,13 +308,21 @@ class TransactionsController extends AppBaseController
     }
 
     public function tuitions($studentId) {
-        return view('/transactions/tuitions', [
-            'studentId' => $studentId,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact tuitions'])) {
+            return view('/transactions/tuitions', [
+                'studentId' => $studentId,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function tuitionsSearch(Request $request) {
-        return view('/transactions/tuitions_search');
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact tuitions'])) {
+            return view('/transactions/tuitions_search');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
     
     public function getSearchStudent(Request $request) {
@@ -502,13 +514,21 @@ class TransactionsController extends AppBaseController
     }
 
     public function miscellaneousSearch(Request $request) {
-        return view('/transactions/miscellaneous_search');
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact miscellaneous'])) {
+            return view('/transactions/miscellaneous_search');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function miscellaneous($studentId) {
-        return view('/transactions/miscellaneous', [
-            'studentId' => $studentId,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact miscellaneous'])) {
+            return view('/transactions/miscellaneous', [
+                'studentId' => $studentId,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function getMiscPayables(Request $request) {
@@ -622,7 +642,11 @@ class TransactionsController extends AppBaseController
     }
 
     public function myDcr(Request $request) {
-        return view('/transactions/my_dcr');
+        if (Auth::user()->hasAnyPermission(['god permission', 'view my dcr'])) {
+            return view('/transactions/my_dcr');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     public function fetchPayments(Request $request) {
@@ -679,5 +703,15 @@ class TransactionsController extends AppBaseController
         return view('/transactions/print_my_dcr', [
             'date' => $date
         ]);
+    }
+
+    public function allDcr(Request $request) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view all dcr'])) {
+            return view('/transactions/all_dcr', [
+
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 }

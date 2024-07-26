@@ -35,7 +35,9 @@
                     <div class="card-header">
                         <span class="card-title">Tuition Fee Inclusions</span>
                         <div class="card-tools">
-                            <button class="btn btn-primary" data-toggle="modal" data-target="#modal-add-tuition-inclusion">Add</button>
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'edit class repos']))
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#modal-add-tuition-inclusion">Add</button>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body table-responsive p-0">
@@ -71,7 +73,9 @@
                         <span class="card-title text-muted">Subjects Offered in this Class/Grade</span>
         
                         <div class="card-tools">
-                            <button class="btn btn-tools btn-primary" data-toggle="modal" data-target="#modal-add-subject">Add Subject</button>
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'edit class repos']))
+                                <button class="btn btn-tools btn-primary" data-toggle="modal" data-target="#modal-add-subject">Add Subject</button>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body table-responsive p-0">
@@ -86,7 +90,9 @@
                                         <td class="v-align">{{ $item->Subject }}</td>
                                         <td class="v-align text-right">{{ number_format($item->CourseFee, 2) }}</td>
                                         <td class="text-right">
-                                            <button onclick="remove(`{{ $item->SubjectClassId }}`)" class="btn btn-danger btn-sm"><i class="fas fa-trash ico-tab-mini"></i>Remove</button>
+                                            @if (Auth::user()->hasAnyPermission(['god permission', 'edit class repos']))
+                                                <button onclick="remove(`{{ $item->SubjectClassId }}`)" class="btn btn-danger btn-sm"><i class="fas fa-trash ico-tab-mini"></i>Remove</button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

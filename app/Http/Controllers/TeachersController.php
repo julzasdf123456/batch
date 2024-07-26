@@ -29,10 +29,14 @@ class TeachersController extends AppBaseController
      */
     public function index(Request $request)
     {
-        $teachers = $this->teachersRepository->paginate(10);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view teachers'])) {
+            $teachers = $this->teachersRepository->paginate(30);
 
-        return view('teachers.index')
-            ->with('teachers', $teachers);
+            return view('teachers.index')
+                ->with('teachers', $teachers);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -40,7 +44,11 @@ class TeachersController extends AppBaseController
      */
     public function create()
     {
-        return view('teachers.create');
+        if (Auth::user()->hasAnyPermission(['god permission', 'create teachers'])) {
+            return view('teachers.create');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -62,9 +70,13 @@ class TeachersController extends AppBaseController
      */
     public function show($id)
     {
-        return view('teachers.show', [
-            'id' => $id,
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view teachers'])) {
+            return view('teachers.show', [
+                'id' => $id,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -72,15 +84,19 @@ class TeachersController extends AppBaseController
      */
     public function edit($id)
     {
-        $teachers = $this->teachersRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit teachers'])) {
+            $teachers = $this->teachersRepository->find($id);
 
-        if (empty($teachers)) {
-            Flash::error('Teachers not found');
+            if (empty($teachers)) {
+                Flash::error('Teachers not found');
 
-            return redirect(route('teachers.index'));
+                return redirect(route('teachers.index'));
+            }
+
+            return view('teachers.edit')->with('teachers', $teachers);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('teachers.edit')->with('teachers', $teachers);
     }
 
     /**
@@ -110,19 +126,23 @@ class TeachersController extends AppBaseController
      */
     public function destroy($id)
     {
-        $teachers = $this->teachersRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete teachers'])) {
+            $teachers = $this->teachersRepository->find($id);
 
-        if (empty($teachers)) {
-            Flash::error('Teachers not found');
+            if (empty($teachers)) {
+                Flash::error('Teachers not found');
+
+                return redirect(route('teachers.index'));
+            }
+
+            $this->teachersRepository->delete($id);
+
+            Flash::success('Teachers deleted successfully.');
 
             return redirect(route('teachers.index'));
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $this->teachersRepository->delete($id);
-
-        Flash::success('Teachers deleted successfully.');
-
-        return redirect(route('teachers.index'));
     }
 
     public function getTeacherData(Request $request) {

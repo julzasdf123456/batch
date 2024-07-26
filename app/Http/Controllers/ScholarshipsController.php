@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateScholarshipsRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\ScholarshipsRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class ScholarshipsController extends AppBaseController
@@ -36,7 +37,11 @@ class ScholarshipsController extends AppBaseController
      */
     public function create()
     {
-        return view('scholarships.create');
+        if (Auth::user()->hasAnyPermission(['god permission', 'create scholarship'])) {
+            return view('scholarships.create');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -58,15 +63,19 @@ class ScholarshipsController extends AppBaseController
      */
     public function show($id)
     {
-        $scholarships = $this->scholarshipsRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view scholarship'])) {
+            $scholarships = $this->scholarshipsRepository->find($id);
 
-        if (empty($scholarships)) {
-            Flash::error('Scholarships not found');
+            if (empty($scholarships)) {
+                Flash::error('Scholarships not found');
 
-            return redirect(route('scholarships.index'));
+                return redirect(route('scholarships.index'));
+            }
+
+            return view('scholarships.show')->with('scholarships', $scholarships);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('scholarships.show')->with('scholarships', $scholarships);
     }
 
     /**
@@ -74,15 +83,19 @@ class ScholarshipsController extends AppBaseController
      */
     public function edit($id)
     {
-        $scholarships = $this->scholarshipsRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit scholarship'])) {
+            $scholarships = $this->scholarshipsRepository->find($id);
 
-        if (empty($scholarships)) {
-            Flash::error('Scholarships not found');
+            if (empty($scholarships)) {
+                Flash::error('Scholarships not found');
 
-            return redirect(route('scholarships.index'));
+                return redirect(route('scholarships.index'));
+            }
+
+            return view('scholarships.edit')->with('scholarships', $scholarships);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('scholarships.edit')->with('scholarships', $scholarships);
     }
 
     /**
@@ -112,18 +125,22 @@ class ScholarshipsController extends AppBaseController
      */
     public function destroy($id)
     {
-        $scholarships = $this->scholarshipsRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete scholarship'])) {
+            $scholarships = $this->scholarshipsRepository->find($id);
 
-        if (empty($scholarships)) {
-            Flash::error('Scholarships not found');
+            if (empty($scholarships)) {
+                Flash::error('Scholarships not found');
+
+                return redirect(route('scholarships.index'));
+            }
+
+            $this->scholarshipsRepository->delete($id);
+
+            Flash::success('Scholarships deleted successfully.');
 
             return redirect(route('scholarships.index'));
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $this->scholarshipsRepository->delete($id);
-
-        Flash::success('Scholarships deleted successfully.');
-
-        return redirect(route('scholarships.index'));
     }
 }

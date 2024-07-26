@@ -127,6 +127,7 @@ Route::get('/transactions/fetch-payments', [TransactionsController::class, 'fetc
 Route::get('/transactions/fetch-transaction-details', [TransactionsController::class, 'fetchTransactionDetails'])->name('transactions.fetch-transaction-details');
 Route::get('/transactions/fetch-all-transaction-details', [TransactionsController::class, 'fetchAllTransactionDetails'])->name('transactions.fetch-all-transaction-details');
 Route::get('/transactions/print-my-dcr/{date}', [TransactionsController::class, 'printMyDcr'])->name('transactions.print-my-dcr');
+Route::get('/transactions/all-dcr', [TransactionsController::class, 'allDcr'])->name('transactions.all-dcr');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
@@ -158,4 +159,6 @@ Route::get('/barcode_attendances/download-sf2-senior/{classId}/{month}/{year}', 
 Route::resource('barcodeAttendances', BarcodeAttendanceController::class);
 
 Route::get('/error_messages/not-allowed', [CatchController::class, 'notAllowed'])->name('errorMessages.not-allowed');
+Route::get('/error_messages/error-with-back/{title}/{msg}/{errorCode}', [CatchController::class, 'errorWithback'])->name('errorMessages.error-with-back');
+
 Route::resource('sms-messages', App\Http\Controllers\SmsMessagesController::class);

@@ -12,6 +12,7 @@ use App\Models\Teachers;
 use App\Models\Subjects;
 use App\Models\TuitionInclusions;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Flash;
 
 class ClassesRepoController extends AppBaseController
@@ -34,7 +35,7 @@ class ClassesRepoController extends AppBaseController
             ->leftJoin('Teachers', 'ClassesRepo.Adviser', '=', 'Teachers.id')
             ->select('ClassesRepo.*', 'Teachers.FullName')
             ->orderBy('ClassesRepo.Year')
-            ->paginate(10);
+            ->paginate(30);
 
         return view('classes_repos.index')
             ->with('classesRepos', $classesRepos);
@@ -45,9 +46,13 @@ class ClassesRepoController extends AppBaseController
      */
     public function create()
     {
-        return view('classes_repos.create', [
-            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
-        ]);
+        if (Auth::user()->hasAnyPermission(['god permission', 'create class repos'])) {
+            return view('classes_repos.create', [
+                'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
     }
 
     /**
@@ -69,37 +74,41 @@ class ClassesRepoController extends AppBaseController
      */
     public function show($id)
     {
-        $classesRepo = $this->classesRepoRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'view class repos'])) {
+            $classesRepo = $this->classesRepoRepository->find($id);
 
-        if (empty($classesRepo)) {
-            Flash::error('Classes Repo not found');
+            if (empty($classesRepo)) {
+                Flash::error('Classes Repo not found');
 
-            return redirect(route('classesRepos.index'));
+                return redirect(route('classesRepos.index'));
+            }
+
+            $subjectClasses = DB::table('SubjectClasses')
+                ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                ->whereRaw("SubjectClasses.ClassRepoId='" . $id . "'")
+                ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId')
+                ->get();
+
+            $totalSubjectTuition = DB::table('SubjectClasses')
+                ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                ->whereRaw("SubjectClasses.ClassRepoId='" . $id . "'")
+                ->select(
+                    DB::raw("SUM(Subjects.CourseFee) AS Total")
+                )
+                ->first();
+
+            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $id)->orderBy('ItemName')->get();
+
+            return view('classes_repos.show', [
+                'classRepo' => $classesRepo,
+                'subjects' => Subjects::orderBy('Subject')->get(),
+                'subjectClasses' => $subjectClasses,
+                'totalSubjectTuition' => $totalSubjectTuition,
+                'tuitionInclusions' => $tuitionInclusions,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $subjectClasses = DB::table('SubjectClasses')
-            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
-            ->whereRaw("SubjectClasses.ClassRepoId='" . $id . "'")
-            ->select('Subjects.*', 'SubjectClasses.id AS SubjectClassId')
-            ->get();
-
-        $totalSubjectTuition = DB::table('SubjectClasses')
-            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
-            ->whereRaw("SubjectClasses.ClassRepoId='" . $id . "'")
-            ->select(
-                DB::raw("SUM(Subjects.CourseFee) AS Total")
-            )
-            ->first();
-
-        $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $id)->orderBy('ItemName')->get();
-
-        return view('classes_repos.show', [
-            'classRepo' => $classesRepo,
-            'subjects' => Subjects::orderBy('Subject')->get(),
-            'subjectClasses' => $subjectClasses,
-            'totalSubjectTuition' => $totalSubjectTuition,
-            'tuitionInclusions' => $tuitionInclusions,
-        ]);
     }
 
     /**
@@ -107,18 +116,22 @@ class ClassesRepoController extends AppBaseController
      */
     public function edit($id)
     {
-        $classesRepo = $this->classesRepoRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit class repos'])) {
+            $classesRepo = $this->classesRepoRepository->find($id);
 
-        if (empty($classesRepo)) {
-            Flash::error('Classes Repo not found');
+            if (empty($classesRepo)) {
+                Flash::error('Classes Repo not found');
 
-            return redirect(route('classesRepos.index'));
+                return redirect(route('classesRepos.index'));
+            }
+
+            return view('classes_repos.edit', [
+                'classesRepo' => $classesRepo,
+                'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        return view('classes_repos.edit', [
-            'classesRepo' => $classesRepo,
-            'teachers' => Teachers::orderBy('FullName')->pluck('FullName', 'id'),
-        ]);
     }
 
     /**
@@ -148,19 +161,23 @@ class ClassesRepoController extends AppBaseController
      */
     public function destroy($id)
     {
-        $classesRepo = $this->classesRepoRepository->find($id);
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete class repos'])) {
+            $classesRepo = $this->classesRepoRepository->find($id);
 
-        if (empty($classesRepo)) {
-            Flash::error('Classes Repo not found');
+            if (empty($classesRepo)) {
+                Flash::error('Classes Repo not found');
+
+                return redirect(route('classesRepos.index'));
+            }
+
+            $this->classesRepoRepository->delete($id);
+
+            Flash::success('Classes Repo deleted successfully.');
 
             return redirect(route('classesRepos.index'));
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-
-        $this->classesRepoRepository->delete($id);
-
-        Flash::success('Classes Repo deleted successfully.');
-
-        return redirect(route('classesRepos.index'));
     }
 
     public function getGradeLevels(Request $request) {
