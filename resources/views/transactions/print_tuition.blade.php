@@ -21,12 +21,12 @@
         /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
         /* font-stretch: condensed; */
         /* , Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
-        font-size: .72em;
+        font-size: .90em;
     }
     @media print {
         @page {
-            orientation: portrait;
-            margin: 0;
+            size: 8.14in 4.33in !important;
+            size: landscape !important;
         }
 
         header {
@@ -162,62 +162,55 @@
         padding: 5px 8px 5px 8px;
     }
 
+    .header-data {
+        padding: 85px 30px 10px 50px;
+    }
+
+    .body-data {
+        padding: 60px 30px 0px 30px;
+    }
+
 </style>
 
 <div id="print-area" class="content">
-    <div class="bg-bill" style="padding: 25px 30px 15px 30px;">
+
+    @php
+        $f = new \NumberFormatter("en", \NumberFormatter::SPELLOUT);
+        $numToWords = $f->format($transaction->TotalAmountPaid);
+    @endphp
+
+    <div class='header-data'>
         <div class="half">
-           <img src="{{ URL::asset('imgs/logo.png') }}" width="80px;" style="margin-bottom: 10px;"> 
-           <h1 class="text-white no-pad">ACKNOWLEDGEMENT RECEIPT</h1>
-           <h3 class="text-white no-pad">{{ $transaction->ORNumber }}</h3>
+            <p style='font-size: 1.4em !important;'>{{ strtoupper(Students::formatNameFormal($student)) }}</p>
+            <p>{{ $numToWords != null ? (ucfirst($numToWords) . ' Pesos') : '-' }}</p>
         </div>
-        
+
         <div class="half">
-           <p class="text-right text-white" style="padding-bottom: 2px; font-size: 1.52em;"><strong>{{ env('APP_COMPANY') }}</strong></p>
-           <p class="text-right text-white" style="padding-bottom: 2px;">{{ env('APP_ADDRESS') }}</p>
-           <p class="text-right text-white" style="padding-bottom: 2px;">{{ env('APP_POSTAL') }}</p>
-        </div>
-    </div>
-  
-    <div style="padding: 10px 30px 15px 30px;">
-        <div class="half">
-           <span class="text-muted">Payment From:</span><br><br>
-           <h1 class="no-pad">{{ Students::formatNameFormal($student) }}</h1>
-           <p class="no-pad">{{ $student->BarangaySpelled . ', ' . $student->BarangaySpelled }}</p>
-           <p class="no-pad"><span class="text-muted">ID Number:</span> {{ $student->id }}</p>
-           {{-- <p class="no-pad text-muted">Date Connected: {{ $customer->DateConnected != null ? date('F d, Y', strtotime($customer->DateConnected)) : '' }}</p>
-           <p class="no-pad text-muted">Subscription: {{ $customerTechnical->SpeedSubscribed }} mbps</p> --}}
-        </div>
-  
-        <div class="half">
-           <p class="text-muted text-right no-pad">OR Number:</p>
-           <p class="no-pad text-right">{{ $transaction->ORNumber }}</p>
-           <p class="text-muted text-right no-pad">OR Date:</p>
-           <p class="no-pad text-right">{{ $transaction->ORDate != null ? date('F d, Y', strtotime($transaction->ORDate)) : '' }}</p>
-           <p class="text-muted text-right no-pad">Cashier/Teller:</p>
-           <p class="no-pad text-right">{{ $transaction->UserId != null ? Users::find($transaction->UserId)->name : '-' }}</p>
+           <p class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
+           <p class="text-right">₱ {{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
         </div>
     </div>
-  
-    <div class="divider"></div>
-  
-    <div style="padding: 10px 30px 15px 30px;">
-        <span class="text-muted">Payment Particulars:</span>
-        <br>
-        <br>
-        <table class="table">
+
+    <div class="body-data">
+        <table style="width: 100%;">
             <tbody>
-                @foreach ($transactionDetails as $item)
-                    <tr>
-                        <td>{{ $item->Particulars }}</td>
-                        <td class="text-right">₱ {{ $item->Amount != null ? number_format($item->Amount, 2) : 0 }}</td>
-                    </tr>
-                @endforeach
+                <tr>
+                    <td>{{ $classes != null ? ($classes->Year . ' ' . $classes->Grade) : '-' }}</td>
+                    <td>{{ $transaction->PaymentFor != null ? $transaction->PaymentFor : '' }}</td>
+                    <td>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</td>
+                    <td class="text-right">{{ $student->id }}</td>
+                </tr>
+                <tr>
+                    <td>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }} | {{ $transaction->ModeOfPayment }} |</td>
+                    <td></td>
+                    <td></td>
+                    <td class="text-right"></td>
+                </tr>
             </tbody>
         </table>
 
-        <p class="no-pad text-right" style="margin-top: 15px;">Total Amount Paid</p>
-        <h1 class="text-right">₱ {{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</h1>
+        
+        <p style='font-size: 1.4em !important; padding-top: 30px !important;' class="text-right">ALICIA I. MAGATAO</p>
     </div>
 </div>
 <script type="text/javascript">
