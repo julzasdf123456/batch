@@ -50,10 +50,11 @@
                                             <th class="text-muted">Address</th>
                                             <th class="text-muted">Birth Date</th>
                                             <th class="text-muted">Contact Numbers</th>
+                                            <th style="width: 40px;"></th>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colspan="8" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                <td colspan="9" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -71,9 +72,12 @@
                                                 <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
                                                 <td class="v-align">{{ isNull(student.Birthdate) ? '-' : moment(student.Birthdate).format('MMM DD, YYYY') }}</td>
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
+                                                <td class="text-right">
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="8" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                <td colspan="9" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -91,6 +95,9 @@
                                                 <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
                                                 <td class="v-align">{{ isNull(student.Birthdate) ? '-' : moment(student.Birthdate).format('MMM DD, YYYY') }}</td>
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
+                                                <td class="text-right">
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -150,7 +157,9 @@
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-center" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
@@ -161,7 +170,9 @@
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-center" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
@@ -191,7 +202,9 @@
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
@@ -202,7 +215,9 @@
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
@@ -234,7 +249,9 @@
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
@@ -247,7 +264,9 @@
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>

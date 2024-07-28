@@ -73,6 +73,7 @@ Route::get('/students/get-student-details', [StudentsController::class, 'getStud
 Route::get('/students/edit-student/{studentId}', [StudentsController::class, 'editStudent'])->name('students.edit-student');
 Route::post('/students/update-student', [StudentsController::class, 'updateStudent'])->name('students.update-student');
 Route::get('/students/get-student-class-details', [StudentsController::class, 'getStudentClassDetails'])->name('students.get-student-class-details');
+Route::get('/students/guest-view/{studentId}', [StudentsController::class, 'guestView'])->name('students.guest-view');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -128,6 +129,10 @@ Route::get('/transactions/fetch-transaction-details', [TransactionsController::c
 Route::get('/transactions/fetch-all-transaction-details', [TransactionsController::class, 'fetchAllTransactionDetails'])->name('transactions.fetch-all-transaction-details');
 Route::get('/transactions/print-my-dcr/{date}', [TransactionsController::class, 'printMyDcr'])->name('transactions.print-my-dcr');
 Route::get('/transactions/all-dcr', [TransactionsController::class, 'allDcr'])->name('transactions.all-dcr');
+Route::post('/transactions/cancel-transaction', [TransactionsController::class, 'cancelTransaction'])->name('transactions.cancel-transaction');
+Route::get('/transactions/get-cashiers', [TransactionsController::class, 'getCashiers'])->name('transactions.get-cashiers');
+Route::get('/transactions/fetch-admin-payments', [TransactionsController::class, 'fetchAdminPayments'])->name('transactions.fetch-admin-payments');
+Route::get('/transactions/fetch-all-admin-transaction-details', [TransactionsController::class, 'fetchAllAdminTransactionDetails'])->name('transactions.fetch-all-admin-transaction-details');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);

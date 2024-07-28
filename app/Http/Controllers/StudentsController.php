@@ -330,4 +330,14 @@ class StudentsController extends AppBaseController
 
         return response()->json($data, 200);
     }
+
+    public function guestView($id) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view student details'])) {
+            return view('/students/guest_view', [
+                'id'  => $id,
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
+    }
 }
