@@ -9,6 +9,7 @@ class Users extends Model
     public $table = 'users';
 
     public $fillable = [
+        'id',
         'name',
         'email',
         'email_verified_at',
