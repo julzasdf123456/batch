@@ -58,7 +58,7 @@
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-coins"></i>
         <p>
-            Cashering
+            Cashiering
             <i class="right fas fa-caret-left"></i>
         </p>
     </a>

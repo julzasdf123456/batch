@@ -119,6 +119,18 @@
                                     </div>
                                 </td>
                             </tr>
+                            <tr>
+                                <td class="v-align">ESC Scholar/Grantee<span class="text-muted"></span></td>
+                                <td>
+                                    <div class="input-group-radio-sm">
+                                        <input type="radio" id="Yes" value="Yes" v-model="escScholar" class="custom-radio-sm">
+                                        <label for="Yes" class="custom-radio-label-sm">Yes</label>
+                                        
+                                        <input type="radio" id="No" value="No" v-model="escScholar" class="custom-radio-sm">
+                                        <label for="No" class="custom-radio-label-sm">No</label>
+                                    </div>
+                                </td>
+                            </tr>
                             <!-- ADDRESS -->
                             <tr>
                                 <td colspan="2" class="tbl-divider"></td>
@@ -363,6 +375,7 @@ export default {
             sameWithCurrentAddress : false,
             fromSchool : 'Public', // Public, Private
             student : {},
+            escScholar : 'No',
         }
     },
     methods : {
@@ -513,6 +526,7 @@ export default {
                     GuardianLastName : this.student.GuardianLastName,
                     GuardianContactNumber : this.student.GuardianContactNumber,
                     FromSchool : this.student.FromSchool,
+                    ESCScholar : this.escScholar,
                 }) // IF PORT 80 DIRECT FROM APACHE
                 .then(response => {
                     this.toast.fire({
@@ -552,6 +566,12 @@ export default {
             }) 
             .then(response => {
                 this.student = response.data
+
+                if (!this.isNull(this.student.ESCScholar) && this.student.ESCScholar === 'Yes') {
+                    this.escScholar = 'Yes'
+                } else {
+                    this.escScholar = 'No'
+                }
 
                 this.getTowns()
             })

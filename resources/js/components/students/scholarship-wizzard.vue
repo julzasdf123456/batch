@@ -29,6 +29,17 @@
                                 <td class="text-muted v-align"><i class="fas fa-book"></i></td>
                                 <td class="v-align">{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}</td>
                             </tr>
+                            <tr title="From what school">
+                                <td class="text-muted v-align"><i class="fas fa-school"></i></td>
+                                <td class="v-align">{{ studentData.FromSchool }} School</td>
+                            </tr>
+                            <tr title="ESC Scholarship">
+                                <td class="text-muted v-align"><i class="fas fa-info-circle"></i></td>
+                                <td class="v-align">
+                                    <span class="badge bg-success" v-if="!isNull(studentData.ESCScholar) && studentData.ESCScholar==='Yes' ? true : false">ESC Scholar/Grantee</span>
+                                    <span class="badge bg-warning" v-if="isNull(studentData.ESCScholar) || studentData.ESCScholar==='No' ? true : false">Non-ESC Scholar</span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -79,7 +90,7 @@
                             <div class="mx-4 px-4" style="border-left: 4px solid #a9a9a9;" v-if="tuitionInclusions.length > 0 ? true : false">
                                 <p class="text-muted">Select Tuition Item to Deduct the Scholarship With</p>
                                 <div class="input-group-radio-sm" v-for="ti in tuitionInclusions">
-                                    <input type="radio" :id="ti.id" :value="ti.id" class="custom-radio-sm" v-model="selectedTuitionInclusionId" @change="onTuitionInclusionSelection()">
+                                    <input type="checkbox" :id="ti.id" :value="ti.id" class="custom-radio-sm" v-model="selectedTuitionInclusionId" @change="onTuitionInclusionSelection()">
                                     <label :for="ti.id" class="custom-radio-label-sm">{{ ti.ItemName }}</label>
                                 </div>
                             </div>
@@ -89,7 +100,7 @@
                             <div class="divider my-2"></div>
 
                             <p class="text-muted no-pads">Amount Deductible:</p>
-                            <h4 class="no-pads text-primary">P {{ isNull(amountDeductible) ? '-' : (toMoney(parseFloat(amountDeductible))) }}</h4>
+                            <h4 class="no-pads text-primary">P {{ toMoney(amountDeductible) }}</h4>
                         </div>
 
                         <!-- scholarship form -->
@@ -120,6 +131,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
+                    <button @click="skip()" class="btn btn-default">Skip <i class="fas fa-arrow-right ico-tab-left-mini"></i></button>
                     <button @click="saveScholarshipGrant()" class="btn btn-primary float-right">Apply Scholarship and Save <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
                 </div>
             </div>
@@ -170,14 +182,14 @@ export default {
             studentData : {},
             availablePayables : [],
             tuitionInclusions : [],
-            selectedTuitionInclusionId : '',
+            selectedTuitionInclusionId : [],
             selectedTuitionInclusion : {},
             selectedPayable : '',
             selectedPayableData : {},
             grants : [],
             selectedGrant : '',
             percentage : 0,
-            amountDeductible : 0,
+            amountDeductible : 0.0,
             amount : 0,
             selectedScholarship : {},
             deductToTuition : true,
@@ -235,6 +247,7 @@ export default {
             })
             .then(response => {
                 this.studentData = response.data.StudentDetails
+                this.getGrants()
             })
             .catch(error => {
                 console.log(error)
@@ -265,6 +278,17 @@ export default {
             axios.get(`${ this.baseURL }/student_scholarships/get-grants`)
             .then(response => {
                 this.grants = response.data
+
+                // filter if has esc scholarship
+                if (!this.isNull(this.studentData.ESCScholar) && this.studentData.ESCScholar === 'Yes') {
+                    const escPreSelect = this.grants.find(obj => obj.Scholarship === 'ESC')
+
+                    if (!this.isNull(escPreSelect)) {
+                        this.selectedGrant = escPreSelect.id
+
+                        this.selectScholarship()
+                    }
+                }
             })
             .catch(error => {
                 console.log(error.response)
@@ -340,11 +364,13 @@ export default {
             if (this.scholarshipOptions === 'TUITION_ONLY') {
                 if (!this.isNull(selected)) {
                     this.tuitionInclusions = selected.TuitionInclusions
-                    console.log(this.tuitionInclusions)
+                    // console.log(this.tuitionInclusions)
                 }
                 this.amountDeductible = 0
             } else {
                 this.amountDeductible = selected.Payable
+
+                this.selectScholarship()
             }
         },
         onTuitionInclusionSelection() {
@@ -354,14 +380,24 @@ export default {
                     text : 'No tuition inclusion data found!'
                 })
             } else {
-                this.selectedTuitionInclusion = this.tuitionInclusions.find(obj => obj.id === this.selectedTuitionInclusionId)
-
-                if (!this.isNull(this.selectedTuitionInclusion)) {
-                    this.amountDeductible = this.selectedTuitionInclusion.Amount
+                const size = this.selectedTuitionInclusionId.length
+                this.amountDeductible = 0
+                if (size > 0) {
+                    for (let i=0; i<size; i++) {
+                        var sel = this.tuitionInclusions.find(obj => obj.id === this.selectedTuitionInclusionId[i])
+                        
+                        if (!this.isNull(sel)) {
+                            var amnt = parseFloat(sel.Amount)
+                            this.amountDeductible = this.amountDeductible + amnt
+                        }
+                    }
                 } else {
                     this.amountDeductible = 0
                 }
             }
+        },
+        skip() {
+            window.location.href = this.baseURL + '/students/' + this.studentData.id
         }
     }, 
     created() {
@@ -369,7 +405,6 @@ export default {
     mounted() {
         this.getStudentDetails()
         this.getAvailableSYPayables()
-        this.getGrants()
     }
 }
 

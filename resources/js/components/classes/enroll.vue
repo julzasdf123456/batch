@@ -25,6 +25,17 @@
                                 <td class="text-muted v-align"><i class="fas fa-venus-mars"></i></td>
                                 <td class="v-align">{{ studentData.Gender }}</td>
                             </tr>
+                            <tr title="From what school">
+                                <td class="text-muted v-align"><i class="fas fa-school"></i></td>
+                                <td class="v-align">{{ studentData.FromSchool }} School</td>
+                            </tr>
+                            <tr title="ESC Scholarship">
+                                <td class="text-muted v-align"><i class="fas fa-info-circle"></i></td>
+                                <td class="v-align">
+                                    <span class="badge bg-success" v-if="!isNull(studentData.ESCScholar) && studentData.ESCScholar==='Yes' ? true : false">ESC Scholar/Grantee</span>
+                                    <span class="badge bg-warning" v-if="isNull(studentData.ESCScholar) || studentData.ESCScholar==='No' ? true : false">Non-ESC Scholar</span>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -237,6 +248,12 @@ export default {
             }) // IF PORT 80 DIRECT FROM APACHE
             .then(response => {
                 this.studentData = response.data
+
+                if (!this.isNull(this.studentData.ESCScholar) && this.studentData.ESCScholar === 'Yes') {
+                    this.withScholarship = 'Yes'
+                } else {
+                    this.withScholarship = 'No'
+                }
             })
             .catch(error => {
                 console.log(error)

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Payables;
 use App\Models\Scholarships;
+use App\Models\Students;
 use App\Models\StudentScholarships;
 use App\Models\IDGenerator;
 use App\Models\TuitionsBreakdown;
@@ -184,6 +185,15 @@ class StudentScholarshipsController extends AppBaseController
         $scholarship->StudentId = $studentId;
         $scholarship->DeductMonthly = $deductMonthly;
         $scholarship->save();
+
+        // update student if esc scholar
+        $scholar = Scholarships::find($scholarshipId);
+        if ($scholar != null) {
+            if ($scholar->Scholarship === 'ESC') {
+                Students::where('id', $studentId)
+                    ->update(['ESCScholar' => 'Yes']);
+            }
+        }
 
         // update payable
         if ($deductMonthly === 'Yes') {

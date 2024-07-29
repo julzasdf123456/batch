@@ -11,6 +11,13 @@
                 <div class="col-sm-6">
                     <h4>
                         {{ $classRepo->Year . ' - ' . $classRepo->Section }}
+                        @if ($classRepo->Strand != null)
+                            {{ ' • ' . $classRepo->Strand }}
+                        @endif
+
+                        @if ($classRepo->Semester != null)
+                            {{ ' • ' . $classRepo->Semester . ' Sem' }}
+                        @endif
                     </h4>
                     @if ($classRepo->BaseTuitionFee != null)
                         <span><span class="text-muted">Tuition Fee: </span> <strong>{{ number_format($classRepo->BaseTuitionFee, 2) }}</strong> <span class="text-muted">(Fixed Tuition)</span></span>
