@@ -9,6 +9,7 @@ use App\Repositories\SchoolYearRepository;
 use Illuminate\Http\Request;
 use App\Models\SchoolYear;
 use App\Models\Classes;
+use App\Models\IDGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -49,6 +50,7 @@ class SchoolYearController extends AppBaseController
     public function store(CreateSchoolYearRequest $request)
     {
         $input = $request->all();
+        $input['id'] = IDGenerator::generateID();
 
         $schoolYear = $this->schoolYearRepository->create($input);
 
