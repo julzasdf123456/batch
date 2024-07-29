@@ -368,7 +368,8 @@ export default {
                 }
                 this.amountDeductible = 0
             } else {
-                this.amountDeductible = selected.Payable
+                const amnt = parseFloat(selected.Payable)
+                this.amountDeductible = amnt
 
                 this.selectScholarship()
             }
