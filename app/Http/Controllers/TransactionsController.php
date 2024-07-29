@@ -619,12 +619,15 @@ class TransactionsController extends AppBaseController
                     'Barangays.Barangay as BarangaySpelled')
                 ->first();
 
+            $classes = Classes::find($student->CurrentGradeLevel);
+
             $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
 
             return view('/transactions/print_miscellaneous', [
                 'transaction' => $transaction,
                 'student' => $student,
                 'transactionDetails' => $transactionDetails,
+                'classes' => $classes,
             ]);
         } else {
             return abort('No transaction found!', 404);

@@ -71,10 +71,10 @@
                             {{ item.Payable }}
                         </td>
                         <td>
-                            <input class="table-input text-right" :class="tableInputTextColor" v-model="item.Price" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id)" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
+                            <input :ref="'payable-' + item.id" class="table-input text-right" :class="tableInputTextColor" v-model="item.Price" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
                         </td>
                         <td>
-                            <input class="table-input text-right" :class="tableInputTextColor" v-model="item.Quantity" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id)" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
+                            <input class="table-input text-right" :class="tableInputTextColor" v-model="item.Quantity" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
                         </td>
                         <td class="text-right">
                             <strong>{{ toMoney(parseFloat(item.TotalAmount)) }}</strong>
@@ -307,7 +307,7 @@ export default {
         generateId() {
             return moment().valueOf()
         },
-        inputEnter(price, qty, id) {
+        inputEnter(price, qty, id, key=null) {
             var amount = parseFloat(price) * parseFloat(qty)
 
             this.payableItems = this.payableItems.map(obj => {
@@ -316,6 +316,10 @@ export default {
                 }
                 return obj
             })
+
+            if (!this.isNull(key) && key==='enter') {
+                this.$refs.cashInput.focus()
+            }
 
             this.validateTotal()
         },
@@ -358,12 +362,16 @@ export default {
             const selected = this.miscPayables.find(obj => obj.id === this.miscSelected)
 
             if (!this.isNull(selected)) {
+                const idtmp = this.generateUniqueId()
                 this.payableItems.push({
-                    id : this.generateUniqueId(),
+                    id : idtmp,
                     Payable : selected.Payable,
                     Price : selected.DefaultAmount,
                     Quantity : 1,
                     TotalAmount : selected.DefaultAmount
+                })
+                this.$nextTick(() => {
+                    this.$refs['payable-' + idtmp][0].focus()
                 })
             } else {
                 this.toast.fire({
