@@ -20,9 +20,17 @@
                         @endif
                     </h4>
                     @if ($classRepo->BaseTuitionFee != null)
-                        <span><span class="text-muted">Tuition Fee: </span> <strong>{{ number_format($classRepo->BaseTuitionFee, 2) }}</strong> <span class="text-muted">(Fixed Tuition)</span></span>
+                        <span><span class="text-muted">From <span class="badge bg-primary">Private</span> School Tuition Fee: </span> <strong>{{ number_format($classRepo->BaseTuitionFee, 2) }}</strong> <span class="text-muted">(Fixed Tuition)</span></span>
                     @else
-                        <span><span class="text-muted">Tuition Fee: </span> <strong>{{ $totalSubjectTuition != null ? number_format($totalSubjectTuition->Total, 2) : '0' }}</strong> <span class="text-muted">(Subject Based-Tuition)</span></span>
+                        <span><span class="text-muted">From <span class="badge bg-primary">Private</span> School Tuition Fee: </span> <strong>{{ $totalSubjectTuition != null ? number_format($totalSubjectTuition->Total, 2) : '0' }}</strong> <span class="text-muted">(Subject Based-Tuition)</span></span>
+                    @endif
+
+                    <br>
+
+                    @if ($classRepo->BaseTuitionFeePublic != null)
+                        <span><span class="text-muted">From <span class="badge bg-warning">Public</span> School Tuition Fee: </span> <strong>{{ number_format($classRepo->BaseTuitionFeePublic, 2) }}</strong> <span class="text-muted">(Fixed Tuition)</span></span>
+                    @else
+                        <span><span class="text-muted">From <span class="badge bg-warning">Public</span> School Tuition Fee: </span> <strong>{{ $totalSubjectTuition != null ? number_format($totalSubjectTuition->Total, 2) : '0' }}</strong> <span class="text-muted">(Subject Based-Tuition)</span></span>
                     @endif
                 </div>
                 <div class="col-sm-6">
@@ -37,10 +45,16 @@
     <div class="content px-3">
         <div class="row">
             {{-- tuitions --}}
-            <div class="col-lg-4">
+            <div class="col-lg-5">
+                {{-- private --}}
                 <div class="card shadow-none">
                     <div class="card-header">
-                        <span class="card-title">Tuition Fee Inclusions</span>
+                        <span class="card-title">
+                            Tuition Fee Inclusions
+                            <br>
+                            <span class="text-muted text-sm">From <span class="badge bg-primary"><strong>PRIVATE</strong></span> School Students (Default)</span>
+                        </span>
+                        
                         <div class="card-tools">
                             @if (Auth::user()->hasAnyPermission(['god permission', 'edit class repos']))
                                 <button class="btn btn-primary" data-toggle="modal" data-target="#modal-add-tuition-inclusion">Add</button>
@@ -71,10 +85,50 @@
 
                     </div>
                 </div>
+
+                {{-- public --}}
+                <div class="card shadow-none">
+                    <div class="card-header">
+                        <span class="card-title">
+                            Tuition Fee Inclusions
+                            <br>
+                            <span class="text-muted text-sm">From <span class="badge bg-warning"><strong>PUBLIC</strong></span> School Students</span>
+                        </span>
+                        
+                        <div class="card-tools">
+                            @if (Auth::user()->hasAnyPermission(['god permission', 'edit class repos']))
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#modal-add-tuition-inclusion-public">Add</button>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover table-sm">
+                            <thead>
+                                <th>Item</th>
+                                <th class="text-right">Amount</th>
+                                <th></th>
+                            </thead>
+                            <tbody>
+                                @foreach ($tuitionInclusionsPublic as $item)
+                                    <tr>
+                                        <td class="v-align">{{ $item->ItemName }}</td>
+                                        <td class="text-right v-align">{{ number_format($item->Amount, 2) }}</td>
+                                        <td class="text-right v-align">
+                                            <button onclick="removeTuitionInclusion(`{{ $item->id }}`)" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+
+                    </div>
+                </div>
             </div>
 
             {{-- subjects --}}
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <div class="card shadow-none">
                     <div class="card-header">
                         <span class="card-title text-muted">Subjects Offered in this Class/Grade</span>
@@ -143,7 +197,7 @@
     </div>
 </div>
 
- {{-- ADD TUITION INCLUSIONS --}}
+ {{-- ADD PRIVATE TUITION INCLUSIONS --}}
 <div class="modal fade" id="modal-add-tuition-inclusion" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
@@ -154,6 +208,7 @@
                 </button>
             </div>
             <div class="modal-body">
+                <span class="badge bg-primary">PRIVATE STUDENTS</span>
                 <div class="form-group">
                    <label for="Item">Item to Include</label>
                    <input type="text" class="form-control" name="Item" id="Item" style="width: 100%;" required placeholder="Tuition Fee, Books, Uniform, etc...">
@@ -167,6 +222,37 @@
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-sm btn-primary" onclick="addTuitionInclusion()"><i class="fas fa-check ico-tab-mini"></i>Save</button>
+            </div>
+        </div>
+    </div>
+ </div>
+
+ 
+ {{-- ADD PUBLIC TUITION INCLUSIONS --}}
+<div class="modal fade" id="modal-add-tuition-inclusion-public" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Tuition Inclusions to this Class</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span class="badge bg-warning">PUBLIC STUDENTS</span>
+                <div class="form-group">
+                   <label for="ItemPublic">Item to Include</label>
+                   <input type="text" class="form-control" name="ItemPublic" id="ItemPublic" style="width: 100%;" required placeholder="Tuition Fee, Books, Uniform, etc...">
+                </div>
+ 
+                <div class="form-group">
+                    <label for="AmountPublic">Amount</label>
+                    <input type="number" step="any" class="form-control" name="AmountPublic" id="AmountPublic" style="width: 100%;" required placeholder="0.0">
+                 </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="addTuitionInclusionPublic()"><i class="fas fa-check ico-tab-mini"></i>Save</button>
             </div>
         </div>
     </div>
@@ -263,7 +349,8 @@
                         id : "{{ IDGenerator::generateIDandRandString() }}",
                         ItemName : item,
                         Amount : amount,
-                        ClassRepoId : "{{ $classRepo->id }}"
+                        ClassRepoId : "{{ $classRepo->id }}",
+                        FromSchool : 'Private'
                     },
                     success : function(res) {
                         Toast.fire({
@@ -314,6 +401,44 @@
                     })
                 }
             })
+        }
+        
+        function addTuitionInclusionPublic() {
+            var item = $('#ItemPublic').val()
+            var amount = $('#AmountPublic').val()
+
+            if (isNull(item) | isNull(amount)) {
+                Toast.fire({
+                    icon : 'warning',
+                    text : 'Kindly provide both item and amount to proceed!'
+                })
+            } else {
+                $.ajax({
+                    url : "{{ route('tuitionInclusions.store') }}",
+                    type : "POST",
+                    data : {
+                        _token : "{{ csrf_token() }}",
+                        id : "{{ IDGenerator::generateIDandRandString() }}",
+                        ItemName : item,
+                        Amount : amount,
+                        ClassRepoId : "{{ $classRepo->id }}",
+                        FromSchool : 'Public'
+                    },
+                    success : function(res) {
+                        Toast.fire({
+                            icon : 'success',
+                            text : 'New tuition inclusion added!'
+                        })
+                        location.reload()
+                    },
+                    error : function(err) {
+                        Toast.fire({
+                            icon : 'error',
+                            text : 'Error adding tuition inclusion!'
+                        })
+                    }
+                })
+            }
         }
     </script>
 @endpush

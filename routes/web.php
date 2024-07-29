@@ -18,6 +18,7 @@ use App\Http\Controllers\StudentScholarshipsController;
 use App\Http\Controllers\BarcodeAttendanceController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\CatchController;
+use App\Http\Controllers\SmsMessagesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -166,4 +167,7 @@ Route::resource('barcodeAttendances', BarcodeAttendanceController::class);
 Route::get('/error_messages/not-allowed', [CatchController::class, 'notAllowed'])->name('errorMessages.not-allowed');
 Route::get('/error_messages/error-with-back/{title}/{msg}/{errorCode}', [CatchController::class, 'errorWithback'])->name('errorMessages.error-with-back');
 
-Route::resource('sms-messages', App\Http\Controllers\SmsMessagesController::class);
+Route::get('/sms_messages/sms-notifiers', [SmsMessagesController::class, 'smsNotifiers'])->name('smsMessages.sms-notifiers');
+Route::get('/sms_messages/get-grades', [SmsMessagesController::class, 'getGrades'])->name('smsMessages.get-grades');
+Route::post('/sms_messages/send-sms', [SmsMessagesController::class, 'sendSMS'])->name('smsMessages.send-sms');
+Route::resource('smsMessages', SmsMessagesController::class);

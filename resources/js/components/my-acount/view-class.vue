@@ -54,7 +54,9 @@
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right">
@@ -82,7 +84,9 @@
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right">
@@ -134,7 +138,10 @@
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
@@ -147,7 +154,10 @@
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
-                                                    <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>

@@ -42,7 +42,7 @@ class SmsMessages extends Model
 
     public static function createSmsWithStudentProvided($studentData, $message, $priority) {
         if ($studentData != null) {
-            if (isset($studentData->ContactNumber) && $studentData->ContactNumber != null && strlen($studentData->ContactNumber) >= 10) {
+            if (isset($studentData->ContactNumber) && $studentData->ContactNumber != null && (strlen($studentData->ContactNumber) >= 10 && strlen($studentData->ContactNumber) < 13)) {
                 SmsMessages::create([
                     'id' => IDGenerator::generateIDandRandString(),
                     'ContactNumber' => $studentData->ContactNumber,

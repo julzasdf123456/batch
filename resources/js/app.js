@@ -34,6 +34,7 @@ import PrintMyDCR from "./components/transactions/print-my-dcr.vue"
 import ViewTeacher from "./components/teachers/view-teacher.vue"
 import ScholarshipWizzard from "./components/students/scholarship-wizzard.vue"
 import ScanId from "./components/scanning/scan-id.vue"
+import Notifier from "./components/sms/notifier.vue"
 
 import MyClasses from "./components/my-acount/my-classes.vue"
 import ViewClass from "./components/my-acount/view-class.vue"
@@ -66,6 +67,7 @@ app.component('print-my-dcr', PrintMyDCR);
 app.component('view-teacher', ViewTeacher);
 app.component('scholarship-wizzard', ScholarshipWizzard);
 app.component('scan-id', ScanId);
+app.component('notifier', Notifier);
 
 app.component('my-classes', MyClasses);
 app.component('view-class', ViewClass);

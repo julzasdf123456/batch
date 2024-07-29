@@ -262,6 +262,7 @@ class TeachersController extends AppBaseController
                 'Students.LastName',
                 'Students.MiddleName',
                 'Students.Suffix',
+                'Students.FromSchool',
                 'StudentClasses.Status',
             )
             ->orderBy('Students.LastName')
@@ -281,6 +282,7 @@ class TeachersController extends AppBaseController
                 'Students.LastName',
                 'Students.MiddleName',
                 'Students.Suffix',
+                'Students.FromSchool',
                 'StudentClasses.Status',
             )
             ->orderBy('Students.LastName')

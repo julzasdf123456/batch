@@ -7,6 +7,11 @@ use App\Http\Requests\UpdateSmsMessagesRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\SmsMessagesRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\SmsMessages;
+use App\Models\Classes;
+use App\Models\Students;
 use Flash;
 
 class SmsMessagesController extends AppBaseController
@@ -125,5 +130,52 @@ class SmsMessagesController extends AppBaseController
         Flash::success('Sms Messages deleted successfully.');
 
         return redirect(route('smsMessages.index'));
+    }
+
+    public function smsNotifiers(Request $request) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'create notifiers'])) {
+            return view('/sms_messages/notifier');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
+    }
+
+    public function getGrades(Request $request) {
+        $data = DB::table('ClassesRepo')
+            ->orderBy('Year')
+            ->orderBy('Section')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function sendSMS(Request $request) {
+        $recipients = $request['Recipients'];
+        $message = $request['Message'];
+
+        if ($recipients != null) {
+            foreach($recipients as $item) {
+                $class = Classes::where('Year', $item['Year'])
+                    ->where('Section', $item['Section'])
+                    ->where('Strand', $item['Strand'])
+                    ->where('Semester', $item['Semester'])
+                    ->orderByDesc('created_at')
+                    ->first();
+
+                if ($class != null) {
+                    $students = Students::where('CurrentGradeLevel', $class->id)
+                        ->whereRaw("ContactNumber IS NOT NULL AND LEN(ContactNumber) > 9")
+                        ->get();
+
+                    if ($students != null) {
+                        foreach($students as $s) {
+                            SmsMessages::createSmsWithStudentProvided($s, $message, 2);
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
     }
 }
