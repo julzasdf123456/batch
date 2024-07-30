@@ -139,6 +139,8 @@ Route::get('/transactions/fetch-all-admin-transaction-details', [TransactionsCon
 Route::get('/transactions/repopulate-payables', [TransactionsController::class, 'repopulatePayables'])->name('transactions.repopulate-payables');
 Route::get('/transactions/get-payable-inclusions', [TransactionsController::class, 'getPayableInclusions'])->name('transactions.get-payable-inclusions');
 Route::post('/transactions/update-or-number', [TransactionsController::class, 'updateORNumber'])->name('transactions.update-or-number');
+Route::post('/transactions/remove-payable-inclusion', [TransactionsController::class, 'removePayableInclusion'])->name('transactions.remove-payable-inclusion');
+Route::post('/transactions/add-payable-inclusion', [TransactionsController::class, 'addPayableInclusion'])->name('transactions.add-payable-inclusion');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
