@@ -357,10 +357,6 @@
                     `<p class='text-left'>Please make sure you write your password down in order for you to remember it the next time you log in.</p>
                     <input id="password" class="form-control" type="password" placeholder="Enter new password...">
                     <input id="password-confirm" class="form-control mt-2" type="password" placeholder="Confirm password...">`,
-                focusConfirm: false,
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false,
                 confirmButtonText: 'Update Password',
                 preConfirm: () => {
                     const pword = document.getElementById('password').value;
