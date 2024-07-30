@@ -75,14 +75,6 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 ### New Tables
 
 ### New Columns on Tables
-- Students
-    - ESCScholar (Yes, No/Null) (Pushed to HCA, Not yet to SVI)
 
-- ClassesRepo
-    - BaseTuitionFeePublic
-
-- TuitionInclusions
-    - FromSchool (Public, Private)
 
 ### New Permissions
-- create notifiers

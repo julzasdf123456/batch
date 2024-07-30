@@ -5,6 +5,8 @@
             <span class="text-muted">{{ syDetails.SchoolYear }}</span>
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
+            
+            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right" @click="revalidatePayments()">Revalidate Payments</button>
 
             <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
                 <span class="sr-only">Loading...</span>
@@ -321,6 +323,7 @@ export default {
             syId : document.querySelector("meta[name='school-year-id']").getAttribute('content'),
             classId : document.querySelector("meta[name='class-id']").getAttribute('content'),
             token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
+            userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             amInThreshold : document.querySelector("meta[name='am-in-threshold']").getAttribute('content'),
             pmOutThreshold : document.querySelector("meta[name='pm-out-threshold']").getAttribute('content'),
             male : [],
@@ -608,6 +611,26 @@ export default {
             } else {
                 window.location.href = this.baseURL + '/barcode_attendances/download-sf2-junior/' + this.classId + '/' + this.attendanceMonth + '/' + this.attendanceYear
             }
+        },
+        revalidatePayments() {
+            axios.get(`${ this.baseURL }/transactions/repopulate-payables`, {
+                params : {
+                    ClassId : this.classId
+                }
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Payables repopulated!'
+                })
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error repopulating payables!'
+                })
+            })
         }
     },
     created() {

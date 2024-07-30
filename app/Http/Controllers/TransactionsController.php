@@ -867,4 +867,84 @@ class TransactionsController extends AppBaseController
             
         return response()->json($data, 200);
     }
+
+    public function repopulatePayables(Request $request) {
+        $classId = $request['ClassId'];
+
+        $students = Students::where('CurrentGradeLevel', $classId)->get();
+
+        $class = Classes::find($classId);
+
+        $sy = SchoolYear::find($class->SchoolYearId);
+
+        if ($class != null) {
+            $classRepo = ClassesRepo::where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', $class->Semester)
+                ->first();
+
+            // loop students
+            foreach($students as $item) {
+                if ($classRepo != null) {
+                    $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
+                        ->where('FromSchool', $item->FromSchool != null ? $item->FromSchool : 'Private')
+                        ->get();
+                } else {
+                    $tuitionInclusions = [];
+                }
+
+                /**
+                 * ==========================
+                 * PAYABLE INCLUSIONS
+                 * ==========================
+                 */
+                $payable = Payables::where('StudentId', $item->id)
+                    ->where('ClassId', $classId)
+                    ->first();
+
+                // repopulate payable inclusions
+                if ($payable != null && count($tuitionInclusions) > 0) {
+                    PayableInclusions::where('PayableId', $payable->id)->delete();
+                    // insert tuition inclusions to payable inclusions
+                    foreach($tuitionInclusions as $ti) {
+                        $pi = new PayableInclusions;
+                        $pi->id = IDGenerator::generateIDandRandString();
+                        $pi->ItemName = $ti->ItemName;
+                        $pi->Amount = $ti->Amount;
+                        $pi->PayableId = $payable->id;
+                        $pi->save();
+                    }
+                }
+
+                /**
+                 * ==========================
+                 * TUITIONS BREAKDOWN
+                 * ==========================
+                 */
+                
+                if ($payable != null) {
+                    TuitionsBreakdown::where('PayableId', $payable->id)->delete();
+                    // create tuitions breakdown
+                    $monthsToPay = 10;
+                    for ($i=0; $i<$monthsToPay; $i++) {
+                        $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                        $tuitionBreakdown = new TuitionsBreakdown;
+                        $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+1) . ' months'));
+                        $tuitionBreakdown->PayableId = $payable->id;
+
+                        $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+
+                        $tuitionBreakdown->AmountPayable = $amntPayable;
+                        $tuitionBreakdown->Payable = $amntPayable;
+                        $tuitionBreakdown->Balance = $amntPayable;
+                        $tuitionBreakdown->save();
+                    }
+                }
+            }
+        }
+
+        return response()->json($class, 200);
+    }
 }

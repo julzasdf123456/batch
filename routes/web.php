@@ -134,6 +134,7 @@ Route::post('/transactions/cancel-transaction', [TransactionsController::class, 
 Route::get('/transactions/get-cashiers', [TransactionsController::class, 'getCashiers'])->name('transactions.get-cashiers');
 Route::get('/transactions/fetch-admin-payments', [TransactionsController::class, 'fetchAdminPayments'])->name('transactions.fetch-admin-payments');
 Route::get('/transactions/fetch-all-admin-transaction-details', [TransactionsController::class, 'fetchAllAdminTransactionDetails'])->name('transactions.fetch-all-admin-transaction-details');
+Route::get('/transactions/repopulate-payables', [TransactionsController::class, 'repopulatePayables'])->name('transactions.repopulate-payables');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
