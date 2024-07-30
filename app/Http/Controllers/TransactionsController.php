@@ -905,7 +905,7 @@ class TransactionsController extends AppBaseController
 
                 // repopulate payable inclusions
                 if ($payable != null && count($tuitionInclusions) > 0) {
-                    PayableInclusions::where('PayableId', $payable->id)->delete();
+                    // PayableInclusions::where('PayableId', $payable->id)->delete();
                     // insert tuition inclusions to payable inclusions
                     foreach($tuitionInclusions as $ti) {
                         $pi = new PayableInclusions;
@@ -924,7 +924,7 @@ class TransactionsController extends AppBaseController
                  */
                 
                 if ($payable != null) {
-                    TuitionsBreakdown::where('PayableId', $payable->id)->delete();
+                    // TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                     // create tuitions breakdown
                     $monthsToPay = 10;
                     for ($i=0; $i<$monthsToPay; $i++) {

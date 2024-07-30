@@ -6,7 +6,7 @@
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
             
-            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right" @click="revalidatePayments()">Revalidate Payments</button>
+            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
 
             <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
                 <span class="sr-only">Loading...</span>
