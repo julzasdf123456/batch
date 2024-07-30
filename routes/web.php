@@ -43,6 +43,8 @@ Route::get('/users/add-roles/{id}', [UsersController::class, 'addRoles'])->name(
 Route::post('/users/create-roles', [UsersController::class, 'createRoles'])->name('users.create-roles');
 Route::post('/users/create-user-roles', [UsersController::class, 'createUserRoles'])->name('users.create-user-roles');
 Route::get('/users/switch-color-modes', [UsersController::class, 'switchColorModes'])->name('users.switch-color-modes');
+Route::post('/users/update-password', [UsersController::class, 'updatePassword'])->name('users.update-password');
+Route::post('/users/update-password-admin', [UsersController::class, 'updatePasswordAdmin'])->name('users.update-password-admin');
 
 Route::get('/users/my-account-index/', [UsersController::class, 'myAccountIndex'])->name('users.my-account-index');
 Route::get('/users/my-classes/', [UsersController::class, 'myClasses'])->name('users.my-classes');
@@ -135,6 +137,8 @@ Route::get('/transactions/get-cashiers', [TransactionsController::class, 'getCas
 Route::get('/transactions/fetch-admin-payments', [TransactionsController::class, 'fetchAdminPayments'])->name('transactions.fetch-admin-payments');
 Route::get('/transactions/fetch-all-admin-transaction-details', [TransactionsController::class, 'fetchAllAdminTransactionDetails'])->name('transactions.fetch-all-admin-transaction-details');
 Route::get('/transactions/repopulate-payables', [TransactionsController::class, 'repopulatePayables'])->name('transactions.repopulate-payables');
+Route::get('/transactions/get-payable-inclusions', [TransactionsController::class, 'getPayableInclusions'])->name('transactions.get-payable-inclusions');
+Route::post('/transactions/update-or-number', [TransactionsController::class, 'updateORNumber'])->name('transactions.update-or-number');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);

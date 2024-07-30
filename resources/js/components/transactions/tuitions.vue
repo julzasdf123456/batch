@@ -29,15 +29,46 @@
                                 <td class="text-muted v-align">From</td>
                                 <td class="v-align"><span class="badge bg-warning">{{ isNull(studentData.FromSchool) ? '-' : (studentData.FromSchool + ' School') }}</span></td>
                             </tr>
+                            <tr>
+                                <td class="text-muted v-align">ESC Grantee/Scholar</td>
+                                <td class="v-align"><span class="badge bg-warning">{{ isNull(studentData.ESCScholar) ? 'No' : studentData.ESCScholar }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- tuition inclusions -->
+            <div class="card shadow-none">
+                <div class="card-header">
+                    <span class="card-title text-muted">Breakdown</span>
+
+                    <div class="card-tools">
+                        <button class="btn btn-default btn-sm">Add</button>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-sm table-hover">
+                        <tbody>
+                            <tr v-for="inc in tuitionInclusions">
+                                <td>{{ inc.ItemName }}</td>
+                                <td class="text-right">{{ toMoney(parseFloat(inc.Amount)) }}</td>
+                                <td style="width: 30px;" class="text-right">
+                                    <button title="Remove this item from tuition" class="btn btn-link-muted"><i class="fas fa-times"></i></button>
+                                </td> 
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <!-- classes -->
-            <div class="card shadow-none">
+            <div class="card shadow-none collapsed-card">
                 <div class="card-header border-0">
                     <span class="text-muted">Subjects Taken</span>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm" data-card-widget="collapse" title="Collapse"><i class="fas fa-plus"></i></button>
+                    </div>
                 </div>
                 <div class="card-body table-responsive px-0">
                     <table class="table table-hover table-sm">
@@ -307,6 +338,7 @@ export default {
             tuitionMonths : [],
             selectedMonths : [],
             totalSelectedTuitions : 0.0,
+            tuitionInclusions : [],
         }
     },
     methods : {
@@ -413,6 +445,7 @@ export default {
             this.totalPayables = this.isNull(this.activePayable) ? 0 : parseFloat(this.activePayable.Balance)
             this.focusCash()
 
+            // GET TUITIONS BREAKDOWN
             axios.get(`${ this.baseURL }/classes/get-tuitions-breakdown`, {
                 params : {
                     PayableId : this.activePayable.id,
@@ -428,6 +461,23 @@ export default {
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error getting payable data!'
+                })
+            })
+
+            // GET PAYABLE INCLUSIONS
+            axios.get(`${ this.baseURL }/transactions/get-payable-inclusions`, {
+                params : {
+                    PayableId : this.activePayable.id,
+                }
+            })
+            .then(response => {
+                this.tuitionInclusions = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting payable inclusions!'
                 })
             })
         }, 

@@ -74,12 +74,17 @@
                     </li>
                     <table class="table table-borderless table-hover table-sm">
                         @if (Auth::user()->TeacherId != null)
-                            <tr>
-                                <td>
-                                    <a href="{{ route('users.my-account-index') }}" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-circle ico-tab"></i>My Profile</a>
+                            <tr class="no-pads">
+                                <td class="no-pads">
+                                    <a href="{{ route('users.my-account-index') }}" class="no-pads btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-circle ico-tab"></i>My Profile</a>
                                 </td>
                             </tr>
                         @endif
+                        <tr>
+                            <td>
+                                <button onclick="changePassword()" class="btn btn-link {{ $userCache->ColorProfile != null ? 'text-light' : 'text-dark' }}"><i class="fas fa-user-lock ico-tab-mini"></i>Change Password</button>
+                            </td>
+                        </tr>
                         <tr>
                             <td>
                                 <div class="custom-control custom-switch" style="margin-left: 10px; margin-top: 6px; margin-bottom: 6px;">
@@ -343,6 +348,67 @@
 
     function round(value) {
         return Math.round((value + Number.EPSILON) * 100) / 100
+    }
+
+    function changePassword() {
+        Swal.fire({
+                title: 'Update Your Password',
+                html:
+                    `<p class='text-left'>Please make sure you write your password down in order for you to remember it the next time you log in.</p>
+                    <input id="password" class="form-control" type="password" placeholder="Enter new password...">
+                    <input id="password-confirm" class="form-control mt-2" type="password" placeholder="Confirm password...">`,
+                focusConfirm: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                confirmButtonText: 'Update Password',
+                preConfirm: () => {
+                    const pword = document.getElementById('password').value;
+                    const pwordConfirm = document.getElementById('password-confirm').value;
+
+                    if (!pword || !pwordConfirm) {
+                        Swal.showValidationMessage('Both passwords are required.');
+                        return false;
+                    }
+
+                    if (pword !== pwordConfirm) {
+                        Swal.showValidationMessage('Passwords do not match.');
+                        return false;
+                    }
+
+                    return fetch('{{ route("users.update-password") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            password: pword,
+                            password_confirmation: pwordConfirm
+                        })
+                    })
+                    .then(response => response.json().then(data => ({
+                        status: response.status,
+                        body: data
+                    })))
+                    .then(({ status, body }) => {
+                        if (status !== 200) {
+                            console.log('Server response:', body);
+                            Swal.showValidationMessage(`Request failed: ${body.message || 'Unknown error'}`);
+                            return false;
+                        }
+                        return body
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error}`);
+                        console.log(error.message)
+                    })
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire('Success', 'Password updated successfully', 'success');
+                }
+            })
     }
     
 </script>

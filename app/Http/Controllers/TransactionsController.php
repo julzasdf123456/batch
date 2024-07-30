@@ -253,6 +253,7 @@ class TransactionsController extends AppBaseController
         $transactions->DigitalPaymentAmount = $digitalAmount;
         $transactions->TotalAmountPaid = $totalPayables;
         $transactions->UserId = Auth::id();
+        $transactions->TransactionType = 'Enrollment';
         $transactions->save();
 
         // insert transaction details
@@ -423,6 +424,7 @@ class TransactionsController extends AppBaseController
         $transactions->TotalAmountPaid = $paidAmount;
         $transactions->UserId = Auth::id();
         $transactions->Period = $period;
+        $transactions->TransactionType = 'Tuition Fees';
         $transactions->save();
 
         // insert transaction details
@@ -582,6 +584,7 @@ class TransactionsController extends AppBaseController
         $transactions->DigitalPaymentAmount = $digitalAmount;
         $transactions->TotalAmountPaid = $totalPayments;
         $transactions->UserId = Auth::id();
+        $transactions->TransactionType = 'Miscellaneous';
         $transactions->save();
 
         // insert transaction details
@@ -946,5 +949,21 @@ class TransactionsController extends AppBaseController
         }
 
         return response()->json($class, 200);
+    }
+
+    public function getPayableInclusions(Request $request) {
+        $payableId = $request['PayableId'];
+
+        return response()->json(PayableInclusions::where('PayableId', $payableId)->get(), 200);
+    }
+
+    public function updateORNumber(Request $request) {
+        $id = $request['id'];
+        $newORNumber = $request['NewORNumber'];
+
+        Transactions::where('id', $id)
+            ->update(['ORNumber' => $newORNumber]);
+
+        return response()->json('ok', 200);
     }
 }
