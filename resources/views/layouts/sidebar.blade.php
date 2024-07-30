@@ -19,7 +19,8 @@
         <nav class="mt-4">
             <ul class="nav nav-pills nav-sidebar flex-column text-sm nav-child-indent nav-flat" data-widget="treeview" role="menu" data-accordion="false">
                 @if (in_array(Route::currentRouteName(), [
-                            'users.my-account-index', 'users.my-classes', 'users.my-advisory', 'users.view-class', 'users.my-advisory', 'users.view-advisory'
+                            'users.my-account-index', 'users.my-classes', 'users.my-advisory', 'users.view-class', 'users.my-advisory', 'users.view-advisory',
+                            'students.guest-view',
                         ]))
                     {{-- MY ACCOUNTS --}}
                     @include('layouts.my_account_menu')

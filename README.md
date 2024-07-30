@@ -71,3 +71,10 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 ### COLORS
 - Red - #e03822
 - Green - #3a9971
+
+### New Tables
+
+### New Columns on Tables
+
+
+### New Permissions

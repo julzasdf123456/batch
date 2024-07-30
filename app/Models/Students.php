@@ -46,6 +46,7 @@ class Students extends Model
         'PSABirthCertificateNumber',
         'MotherTounge',
         'FromSchool',
+        'ESCScholar'
     ];
 
     protected $casts = [
@@ -86,6 +87,7 @@ class Students extends Model
         'PSABirthCertificateNumber' => 'string',
         'MotherTounge' => 'string',
         'FromSchool' => 'string',
+        'ESCScholar' => 'string',
     ];
 
     public static array $rules = [
@@ -127,6 +129,7 @@ class Students extends Model
         'PSABirthCertificateNumber' => 'nullable|string',
         'MotherTounge' => 'nullable|string',
         'FromSchool' => 'nullable|string',
+        'ESCScholar' => 'nullable|string',
     ];
 
     public static function formatNameFormal($student) {

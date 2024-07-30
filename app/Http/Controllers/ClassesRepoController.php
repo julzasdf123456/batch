@@ -97,7 +97,15 @@ class ClassesRepoController extends AppBaseController
                 )
                 ->first();
 
-            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $id)->orderBy('ItemName')->get();
+            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $id)
+                ->where('FromSchool', 'Private')
+                ->orderBy('ItemName')
+                ->get();
+
+            $tuitionInclusionsPublic = TuitionInclusions::where('ClassRepoId', $id)
+                ->where('FromSchool', 'Public')
+                ->orderBy('ItemName')
+                ->get();
 
             return view('classes_repos.show', [
                 'classRepo' => $classesRepo,
@@ -105,6 +113,7 @@ class ClassesRepoController extends AppBaseController
                 'subjectClasses' => $subjectClasses,
                 'totalSubjectTuition' => $totalSubjectTuition,
                 'tuitionInclusions' => $tuitionInclusions,
+                'tuitionInclusionsPublic' => $tuitionInclusionsPublic,
             ]);
         } else {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));

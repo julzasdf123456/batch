@@ -39,6 +39,12 @@
 
 <!-- Tuition Field -->
 <div class="form-group col-lg-12">
-    {!! Form::label('BaseTuitionFee', 'Tuition Fee:') !!}
+    {!! Form::label('BaseTuitionFee', 'Tuition Fee (From Private Schools, Default):') !!}
     {!! Form::number('BaseTuitionFee', null, ['class' => 'form-control', 'step' => 'any']) !!}
+</div>
+
+<!-- BaseTuitionFeePublic Field -->
+<div class="form-group col-lg-12">
+    {!! Form::label('BaseTuitionFeePublic', 'Tuition Fee (From Public Schools):') !!}
+    {!! Form::number('BaseTuitionFeePublic', null, ['class' => 'form-control', 'step' => 'any']) !!}
 </div>

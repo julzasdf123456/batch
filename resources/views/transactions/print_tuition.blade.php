@@ -210,7 +210,7 @@
         </table>
 
         
-        <p style='font-size: 1.4em !important; padding-top: 30px !important;' class="text-right">ALICIA I. MAGATAO</p>
+        <p style='font-size: 1.4em !important; padding-top: 30px !important;' class="text-right">{{ env('CASHIER_NAME') }}</p>
     </div>
 </div>
 <script type="text/javascript">

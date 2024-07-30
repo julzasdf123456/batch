@@ -13,6 +13,7 @@ class TuitionInclusions extends Model
         'ItemName',
         'Amount',
         'ClassRepoId',
+        'FromSchool',
     ];
 
     protected $casts = [
@@ -20,6 +21,7 @@ class TuitionInclusions extends Model
         'ItemName' => 'string',
         'Amount' => 'string',
         'ClassRepoId' => 'string',
+        'FromSchool' => 'string',
     ];
 
     public static array $rules = [
@@ -28,6 +30,7 @@ class TuitionInclusions extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'ClassRepoId' => 'nullable|string',
+        'FromSchool' => 'nullable|string',
     ];
 
     

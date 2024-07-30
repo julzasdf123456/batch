@@ -24,6 +24,14 @@
     </a>
 </li>
 
+{{-- SMS Notifiers --}}
+<li class="nav-item">
+    <a href="{{ route('smsMessages.sms-notifiers') }}" class="nav-link {{ Request::is('smsMessages.sms-notifiers*') ? 'active' : '' }}">
+        <i class="nav-icon fas fa-sms"></i>
+        <p>SMS Notifiers</p>
+    </a>
+</li>
+
 {{-- ENROLLMENT SIDE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -58,7 +66,7 @@
     <a href="#" class="nav-link">
         <i class="nav-icon fas fa-coins"></i>
         <p>
-            Cashering
+            Cashiering
             <i class="right fas fa-caret-left"></i>
         </p>
     </a>

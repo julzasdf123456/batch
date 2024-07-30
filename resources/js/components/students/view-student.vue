@@ -16,7 +16,7 @@
                                     <i class="fas fa-id-badge ico-tab-mini"></i>LRN-{{ studentData.LRN }} | 
                                     <i class="fas fa-lightbulb ico-tab-mini"></i>{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }} {{ isNull(studentData.Strand) ? '' : (' • ' + studentData.Strand) }} {{ isNull(studentData.Semester) ? '' : (' • ' + studentData.Semester + ' Sem') }}
                                     <span class="badge" :class="isNull(studentData.Status) ? 'bg-success' : 'bg-danger'" title="Status">{{ isNull(studentData.Status) ? 'Studying' : studentData.Status }}</span>
-                                    <span class="badge bg-warning ico-tab-left-mini" title="From what school">{{ studentData.FromSchool }}</span>
+                                    <span class="badge bg-success ico-tab-left-mini" v-if="!isNull(studentData.ESCScholar) && studentData.ESCScholar==='Yes' ? true : false">ESC Scholar/Grantee</span>
                                 </span>
                             </span>
                         </div>
@@ -60,6 +60,8 @@
                             <div class="col-lg-4" style="padding: 25px 35px 15px 35px;">
                                 <h4><strong>Student Info</strong></h4>
 
+                                <span class="badge bg-warning ico-tab-left-mini" title="From what school">From {{ studentData.FromSchool }} School</span>
+                                
                                 <table class="table table-sm table-borderless" style="margin-top: 18px;">
                                     <tbody>
                                         <tr title="Current Address">

@@ -295,12 +295,15 @@ class TransactionsController extends AppBaseController
                     'Barangays.Barangay as BarangaySpelled')
                 ->first();
 
+            $classes = Classes::find($student->CurrentGradeLevel);
+
             $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
 
             return view('/transactions/print_enrollment', [
                 'transaction' => $transaction,
                 'student' => $student,
                 'transactionDetails' => $transactionDetails,
+                'classes' => $classes,
             ]);
         } else {
             return abort('No transaction found!', 404);
@@ -619,12 +622,15 @@ class TransactionsController extends AppBaseController
                     'Barangays.Barangay as BarangaySpelled')
                 ->first();
 
+            $classes = Classes::find($student->CurrentGradeLevel);
+
             $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
 
             return view('/transactions/print_miscellaneous', [
                 'transaction' => $transaction,
                 'student' => $student,
                 'transactionDetails' => $transactionDetails,
+                'classes' => $classes,
             ]);
         } else {
             return abort('No transaction found!', 404);
@@ -637,6 +643,7 @@ class TransactionsController extends AppBaseController
         $data = DB::table('Transactions')
             ->leftJoin('users', 'Transactions.UserId', '=', 'users.id')
             ->where('StudentId', $studentId)
+            ->whereRaw("Transactions.Status IS NULL")
             ->select('Transactions.*', 'users.name')
             ->orderByDesc('ORDate')
             ->get();
@@ -655,9 +662,21 @@ class TransactionsController extends AppBaseController
     public function fetchPayments(Request $request) {
         $date = $request['Date'];
 
-        $data = DB::table('Transactions')
+        $data['Payments'] = DB::table('Transactions')
             ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
             ->whereRaw("Transactions.ORDate='" . $date . "' AND Transactions.Status IS NULL AND Transactions.UserId='" . Auth::id() . "'")
+            ->select(
+                'Transactions.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.created_at')
+            ->get();
+
+        $data['Cancelled'] = DB::table('Transactions')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("Transactions.ORDate='" . $date . "' AND Transactions.Status='CANCELLED' AND Transactions.UserId='" . Auth::id() . "'")
             ->select(
                 'Transactions.*',
                 'Students.FirstName',
@@ -716,5 +735,216 @@ class TransactionsController extends AppBaseController
         } else {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
+    }
+
+    public function cancelTransaction(Request $request) {
+        $id = $request['id'];
+        $reason = $request['Reason'];
+
+        Transactions::where('id', $id)
+            ->update(['Status' => 'CANCELLED', 'Notes' => $reason]);
+
+        $transaction = Transactions::find($id);
+
+        // remove from tuitions payable
+        if ($transaction != null && $transaction->PayablesId != null) {
+            $payable = Payables::find($transaction->PayablesId);
+
+            if ($payable != null) {
+                $amount = $transaction->TotalAmountPaid != null ? floatval($transaction->TotalAmountPaid) : 0;
+
+                if ($amount > 0) {
+                    // update payable amount
+                    $payableAmountPaid = $payable->AmountPaid != null ? $payable->AmountPaid : 0;
+                    $payableBalance = $payable->Balance != null ? $payable->Balance : 0;
+
+                    $payable->AmountPaid = $payableAmountPaid - $amount;
+                    $payable->Balance = $payableBalance + $amount;
+                    $payable->save();
+
+                    // update tuitions breakdown
+                    $tuitionBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)
+                        ->whereRaw("AmountPaid IS NOT NULL AND AmountPaid > 0")
+                        ->orderByDesc('ForMonth')
+                        ->get();
+
+                    if ($tuitionBreakdown != null) {
+                        $pdAmount = $amount;
+                        foreach($tuitionBreakdown as $item) {
+                            if ($pdAmount > 0) {
+                                $tbPaidAmount = $item->AmountPaid != null ? floatval($item->AmountPaid) : 0;
+                                $tbBalance = $item->Balance != null ? floatval($item->Balance) : 0;
+
+                                if ($pdAmount >= $tbPaidAmount) {
+                                    $item->AmountPaid = null;
+                                    $item->Balance = $item->AmountPayable;
+                                    $item->save();
+
+                                    $pdAmount = $pdAmount - $tbPaidAmount;
+                                } else {
+                                    $dif = $tbPaidAmount - $pdAmount;
+
+                                    $item->AmountPaid = $dif;
+                                    $item->Balance = $tbBalance + $pdAmount;
+                                    $item->save();
+
+                                    $pdAmount = 0;
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json($id, 200);
+    }
+
+    public function getCashiers(Request $request) {
+        $data = DB::table('Transactions')
+            ->leftJoin('users', 'Transactions.UserId', '=', 'users.id')
+            ->select('name', 'users.id')
+            ->orderBy('name')
+            ->groupBy('name', 'users.id')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+    
+    public function fetchAdminPayments(Request $request) {
+        $from = $request['From'];
+        $to = $request['To'];
+        $cashier = $request['Cashier'];
+
+        $data['Payments'] = DB::table('Transactions')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("(Transactions.ORDate BETWEEN '" . $from . "' AND '" . $to . "') AND Transactions.Status IS NULL AND Transactions.UserId='" . $cashier . "'")
+            ->select(
+                'Transactions.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.created_at')
+            ->get();
+
+        $data['Cancelled'] = DB::table('Transactions')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("(Transactions.ORDate BETWEEN '" . $from . "' AND '" . $to . "') AND Transactions.Status='CANCELLED' AND Transactions.UserId='" . $cashier . "'")
+            ->select(
+                'Transactions.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.created_at')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function fetchAllAdminTransactionDetails(Request $request) {
+        $from = $request['From'];
+        $to = $request['To'];
+        $cashier = $request['Cashier'];
+
+        $data = DB::table('TransactionDetails')
+            ->leftJoin('Transactions', 'Transactions.id', '=', 'TransactionDetails.TransactionsId')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("(Transactions.ORDate BETWEEN '" . $from . "' AND '" . $to . "') AND Transactions.Status IS NULL AND Transactions.UserId='" . $cashier . "'")
+            ->select(
+                'TransactionDetails.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Transactions.ORNumber',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.ORNumber')
+            ->orderBy('Transactions.created_at')
+            ->get();
+            
+        return response()->json($data, 200);
+    }
+
+    public function repopulatePayables(Request $request) {
+        $classId = $request['ClassId'];
+
+        $students = Students::where('CurrentGradeLevel', $classId)->get();
+
+        $class = Classes::find($classId);
+
+        $sy = SchoolYear::find($class->SchoolYearId);
+
+        if ($class != null) {
+            $classRepo = ClassesRepo::where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', $class->Semester)
+                ->first();
+
+            // loop students
+            foreach($students as $item) {
+                if ($classRepo != null) {
+                    $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
+                        ->where('FromSchool', $item->FromSchool != null ? $item->FromSchool : 'Private')
+                        ->get();
+                } else {
+                    $tuitionInclusions = [];
+                }
+
+                /**
+                 * ==========================
+                 * PAYABLE INCLUSIONS
+                 * ==========================
+                 */
+                $payable = Payables::where('StudentId', $item->id)
+                    ->where('ClassId', $classId)
+                    ->first();
+
+                // repopulate payable inclusions
+                if ($payable != null && count($tuitionInclusions) > 0) {
+                    // PayableInclusions::where('PayableId', $payable->id)->delete();
+                    // insert tuition inclusions to payable inclusions
+                    foreach($tuitionInclusions as $ti) {
+                        $pi = new PayableInclusions;
+                        $pi->id = IDGenerator::generateIDandRandString();
+                        $pi->ItemName = $ti->ItemName;
+                        $pi->Amount = $ti->Amount;
+                        $pi->PayableId = $payable->id;
+                        $pi->save();
+                    }
+                }
+
+                /**
+                 * ==========================
+                 * TUITIONS BREAKDOWN
+                 * ==========================
+                 */
+                
+                if ($payable != null) {
+                    // TuitionsBreakdown::where('PayableId', $payable->id)->delete();
+                    // create tuitions breakdown
+                    $monthsToPay = 10;
+                    for ($i=0; $i<$monthsToPay; $i++) {
+                        $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                        $tuitionBreakdown = new TuitionsBreakdown;
+                        $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+1) . ' months'));
+                        $tuitionBreakdown->PayableId = $payable->id;
+
+                        $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+
+                        $tuitionBreakdown->AmountPayable = $amntPayable;
+                        $tuitionBreakdown->Payable = $amntPayable;
+                        $tuitionBreakdown->Balance = $amntPayable;
+                        $tuitionBreakdown->save();
+                    }
+                }
+            }
+        }
+
+        return response()->json($class, 200);
     }
 }

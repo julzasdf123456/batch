@@ -282,7 +282,7 @@ class ClassesController extends AppBaseController
                         $sy = SchoolYear::find($class->SchoolYearId);
 
                         if ($classRepo != null) {
-                            $baseTuition = $classRepo->BaseTuitionFee;
+                            $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
                             $payableId = IDGenerator::generateIDandRandString();
                             $tuitionPayable = new Payables;
@@ -320,7 +320,9 @@ class ClassesController extends AppBaseController
                             }
 
                             // create payable tuition inclusion
-                            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)->get();
+                            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
+                                ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
+                                ->get();
                             if ($tuitionInclusions != null) {
                                 foreach($tuitionInclusions as $item) {
                                     $payableInclusions = new PayableInclusions;
@@ -556,7 +558,7 @@ class ClassesController extends AppBaseController
                         $sy = SchoolYear::find($class->SchoolYearId);
 
                         if ($classRepo != null) {
-                            $baseTuition = $classRepo->BaseTuitionFee;
+                            $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
                             $payableId = IDGenerator::generateIDandRandString();
                             $tuitionPayable = new Payables;
@@ -594,7 +596,9 @@ class ClassesController extends AppBaseController
                             }
 
                             // create payable tuition inclusion
-                            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)->get();
+                            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
+                                ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
+                                ->get();
                             if ($tuitionInclusions != null) {
                                 foreach($tuitionInclusions as $item) {
                                     $payableInclusions = new PayableInclusions;

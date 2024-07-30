@@ -52,11 +52,19 @@ class TuitionInclusionsController extends AppBaseController
         // update base tuition fee on ClassesRepo
         $classRepo = ClassesRepo::find($input['ClassRepoId']);
         if ($classRepo != null) {
-            $baseTuition = $classRepo->BaseTuitionFee != null ? floatval($classRepo->BaseTuitionFee) : 0;
-            $inclusionAmount = isset($input['Amount']) ? floatval($input['Amount']) : 0;
-            
-            $classRepo->BaseTuitionFee = ($baseTuition + $inclusionAmount);
-            $classRepo->save();
+            if ($input['FromSchool'] === 'Private') {
+                $baseTuition = $classRepo->BaseTuitionFee != null ? floatval($classRepo->BaseTuitionFee) : 0;
+                $inclusionAmount = isset($input['Amount']) ? floatval($input['Amount']) : 0;
+                
+                $classRepo->BaseTuitionFee = ($baseTuition + $inclusionAmount);
+                $classRepo->save();
+            } else {
+                $baseTuition = $classRepo->BaseTuitionFeePublic != null ? floatval($classRepo->BaseTuitionFeePublic) : 0;
+                $inclusionAmount = isset($input['Amount']) ? floatval($input['Amount']) : 0;
+                
+                $classRepo->BaseTuitionFeePublic = ($baseTuition + $inclusionAmount);
+                $classRepo->save();
+            }
         }
 
         // Flash::success('Tuition Inclusions saved successfully.');

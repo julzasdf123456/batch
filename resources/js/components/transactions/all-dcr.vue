@@ -6,14 +6,24 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-2">
-                                <span class="text-muted">Select Date</span>
-                                <flat-pickr v-model="collectionDate" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
+                                <span class="text-muted">From</span>
+                                <flat-pickr v-model="from" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
+                            </div>
+                            <div class="col-lg-2">
+                                <span class="text-muted">To</span>
+                                <flat-pickr v-model="to" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
+                            </div>
+                            <div class="col-lg-2">
+                                <span class="text-muted">Cashier</span>
+                                <select v-model="cashier" class="form-control">
+                                    <option v-for="c in cashiers" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                </select>
                             </div>
                             <div class="col-lg-2">
                                 <span class="text-muted">Actions</span>
                                 <br>
                                 <button class="btn btn-default ico-tab-mini" @click="fetchPayments()"><i class="fas fa-eye ico-tab-mini"></i>View</button>
-                                <button class="btn btn-primary" @click="printDcr()"><i class="fas fa-print ico-tab-mini"></i>Print</button>
+                                <!-- <button class="btn btn-primary" @click="printDcr()"><i class="fas fa-print ico-tab-mini"></i>Print</button> -->
                             </div>
                         </div>
                     </div>
@@ -33,6 +43,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="details-tab" data-toggle="pill" href="#details-content" role="tab" aria-controls="details-content" aria-selected="false">Collection Details</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="cancelled-tab" data-toggle="pill" href="#cancelled-content" role="tab" aria-controls="cancelled-content" aria-selected="false">Cancelled Payments</a>
+                            </li>
                         </ul>
                         <!-- TAB BODY -->
                         <div class="tab-content" id="custom-tabs-three-tabContent">
@@ -49,6 +62,7 @@
                                             <th>OR Number</th>
                                             <th>Student</th>
                                             <th>Payment For</th>
+                                            <th>Date</th>
                                             <th>Time</th>
                                             <th>Mode of<br>Payment</th>
                                             <th class="text-right">Amount Paid</th>
@@ -58,8 +72,11 @@
                                             <tr v-for="(item, index) in summary" :key="item.id">
                                                 <td class="v-align">{{ index + 1 }}</td>
                                                 <td class="v-align">{{ item.ORNumber }}</td>
-                                                <td class="v-align">{{ item.FirstName + ' ' + item.LastName }}</td>
+                                                <td class="v-align">
+                                                    <a target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                </td>
                                                 <td class="v-align">{{ item.PaymentFor }}</td>
+                                                <td class="v-align">{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
                                                 <td class="v-align">{{ moment(item.created_at).format('hh:mm A') }}</td>
                                                 <td class="v-align">{{ item.ModeOfPayment }}</td>
                                                 <td class="v-align text-right">{{ isNull(item.TotalAmountPaid) ? '-' : toMoney(parseFloat(item.TotalAmountPaid)) }}</td>
@@ -68,7 +85,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="v-align" colspan="6"><strong>TOTAL PAYMENTS</strong></td>
+                                                <td class="v-align" colspan="7"><strong>TOTAL PAYMENTS</strong></td>
                                                 <td class="v-align text-right"><strong>{{ toMoney(summaryTotal) }}</strong></td>
                                                 <td></td>
                                             </tr>
@@ -88,6 +105,7 @@
                                         <thead>
                                             <th></th>
                                             <th>OR Number</th>
+                                            <th>OR Date</th>
                                             <th>Student</th>
                                             <th>Particulars</th>
                                             <th class="text-right">Amount Paid</th>
@@ -97,12 +115,64 @@
                                             <tr v-for="(item, index) in details" :key="item.id">
                                                 <td class="v-align">{{ index + 1 }}</td>
                                                 <td class="v-align">{{ item.ORNumber }}</td>
-                                                <td class="v-align">{{ item.FirstName + ' ' + item.LastName }}</td>
+                                                <td class="v-align">{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
+                                                <td class="v-align">
+                                                    <a target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                </td>
                                                 <td class="v-align">{{ item.Particulars }}</td>
                                                 <td class="v-align text-right">{{ isNull(item.Amount) ? '-' : toMoney(parseFloat(item.Amount)) }}</td>
                                                 <td class="text-right">
                                                     <button @click="viewDetails(item.TransactionsId)" class="btn btn-link-muted btn-sm"><i class="fas fa-eye"></i></button>
                                                 </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 
+                                ====================================================================================================================================
+                                CANCELLED 
+                                ====================================================================================================================================
+                            -->
+                            <div class="tab-pane fade" id="cancelled-content" role="tabpanel" aria-labelledby="cancelled-tab">
+                                <div class="p-2 table-responsive">
+                                    <table class="table table-sm table-hover table-bordered">
+                                        <thead>
+                                            <th></th>
+                                            <th>OR Number</th>
+                                            <th>Student</th>
+                                            <th>Payment For</th>
+                                            <th>OR Number</th>
+                                            <th>Time</th>
+                                            <th>Mode of<br>Payment</th>
+                                            <th class="text-right">Amount Paid</th>
+                                            <th>Reason</th>
+                                            <!-- <th style="width: 120px;"></th> -->
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(item, index) in cancelled" :key="item.id">
+                                                <td class="v-align">{{ index + 1 }}</td>
+                                                <td class="v-align">{{ item.ORNumber }}</td>
+                                                <td class="v-align">
+                                                    <a target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                </td>
+                                                <td class="v-align">{{ item.PaymentFor }}</td>
+                                                <td class="v-align">{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
+                                                <td class="v-align">{{ moment(item.created_at).format('hh:mm A') }}</td>
+                                                <td class="v-align">{{ item.ModeOfPayment }}</td>
+                                                <td class="v-align text-right">{{ isNull(item.TotalAmountPaid) ? '-' : toMoney(parseFloat(item.TotalAmountPaid)) }}</td>
+                                                <td class="v-align">{{ item.Notes }}</td>
+                                                <!-- <td class="text-right">
+                                                    <div class="btn-group">
+                                                        <button @click="viewDetails(item.id)" class="btn btn-link-muted btn-sm" title="View Transaction Detalis"><i class="fas fa-eye"></i></button>
+                                                    </div>
+                                                </td> -->
+                                            </tr>
+                                            <tr>
+                                                <td class="v-align" colspan="7"><strong>TOTAL PAYMENTS</strong></td>
+                                                <td class="v-align text-right"><strong>{{ toMoney(cancelledTotal) }}</strong></td>
+                                                <td></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -226,13 +296,18 @@ export default {
                 enableTime: false,
                 dateFormat: 'Y-m-d', 
             },
-            collectionDate : moment().format('YYYY-MM-DD'),
+            from : moment().format('YYYY-MM-DD'),
+            to : moment().format('YYYY-MM-DD'),
             summary : [],
             summaryTotal : 0,
             // modal details
             activeTransaction : {},
             transactionDetails : [],
             details : [],
+            cashiers : [],
+            cashier : '',
+            cancelled : [],
+            cancelledTotal : 0,
         }
     },
     methods : {
@@ -279,19 +354,23 @@ export default {
         },
         fetchPayments() {
             // FETCH SUMMARY
-            axios.get(`${ this.baseURL }/transactions/fetch-payments`, {
+            axios.get(`${ this.baseURL }/transactions/fetch-admin-payments`, {
                 params : {
-                    Date : this.collectionDate,
+                    From : this.from,
+                    To : this.to,
+                    Cashier : this.cashier
                 }
             })
             .then(response => {
-                this.summary = response.data
+                this.summary = response.data.Payments
+                this.cancelled = response.data.Cancelled
 
                 // sum total summary
                 this.summaryTotal = this.summary.reduce((sum, item) => sum + parseFloat(item.TotalAmountPaid), 0)
+                this.cancelledTotal = this.cancelled.reduce((sum, item) => sum + parseFloat(item.TotalAmountPaid), 0)
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error getting daily collection summary'
@@ -299,16 +378,18 @@ export default {
             })
 
             // FETCH DETAILS
-            axios.get(`${ this.baseURL }/transactions/fetch-all-transaction-details`, {
+            axios.get(`${ this.baseURL }/transactions/fetch-all-admin-transaction-details`, {
                 params : {
-                    Date : this.collectionDate,
+                    From : this.from,
+                    To : this.to,
+                    Cashier : this.cashier
                 }
             })
             .then(response => {
                 this.details = response.data
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error getting daily collection details'
@@ -341,6 +422,19 @@ export default {
         },
         printDcr() {
             window.location.href = this.baseURL + '/transactions/print-my-dcr/' + this.collectionDate
+        },
+        getCashiers() {
+            axios.get(`${ this.baseURL }/transactions/get-cashiers`)
+            .then(response => {
+                this.cashiers = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting cashiers'
+                })
+            })
         }
     },
     created() {
@@ -348,6 +442,7 @@ export default {
     },
     mounted() {
         this.fetchPayments()
+        this.getCashiers()
     }
 }
 
