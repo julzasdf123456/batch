@@ -87,12 +87,14 @@ Route::get('/classes/get-tuitions-breakdown', [ClassesController::class, 'getTui
 Route::get('/classes/view-class/{adviserId}/{schoolyearid}/{classId}', [ClassesController::class, 'viewClass'])->name('classes.view-class');
 Route::get('/classes/transfer-to-another-class/{studentId}', [ClassesController::class, 'transferToAnotherClass'])->name('classes.transfer-to-another-class');
 Route::post('/classes/save-transfer', [ClassesController::class, 'saveTransfer'])->name('classes.save-transfer');
+Route::post('/classes/revalidate-subjects', [ClassesController::class, 'revalidateSubjects'])->name('classes.revalidate-subjects');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
 
 Route::get('/classes_repos/get-grade-levels', [ClassesRepoController::class, 'getGradeLevels'])->name('classesRepos.get-grade-levels');
 Route::get('/classes_repos/get-subjects-in-class', [ClassesRepoController::class, 'getSubjectsInClass'])->name('classesRepos.get-subjects-in-class');
+Route::get('/classes_repos/view-classes-repo/{year}/{section}/{strand}', [ClassesRepoController::class, 'viewClassRepo'])->name('classesRepos.view-classes-repo');
 Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
