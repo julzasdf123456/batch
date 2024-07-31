@@ -29,15 +29,46 @@
                                 <td class="text-muted v-align">From</td>
                                 <td class="v-align"><span class="badge bg-warning">{{ isNull(studentData.FromSchool) ? '-' : (studentData.FromSchool + ' School') }}</span></td>
                             </tr>
+                            <tr>
+                                <td class="text-muted v-align">ESC Grantee/Scholar</td>
+                                <td class="v-align"><span class="badge bg-warning">{{ isNull(studentData.ESCScholar) ? 'No' : studentData.ESCScholar }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- tuition inclusions -->
+            <div class="card shadow-none">
+                <div class="card-header">
+                    <span class="card-title text-muted">Breakdown</span>
+
+                    <div class="card-tools">
+                        <button class="btn btn-default btn-sm" @click="addPayableBreakdown()">Add</button>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-sm table-hover">
+                        <tbody>
+                            <tr v-for="inc in tuitionInclusions">
+                                <td>{{ inc.ItemName }}</td>
+                                <td class="text-right">{{ toMoney(parseFloat(inc.Amount)) }}</td>
+                                <td style="width: 30px;" class="text-right">
+                                    <button @click="removeTuitionInclusion(inc.id)" title="Remove this item from tuition" class="btn btn-link-muted"><i class="fas fa-times"></i></button>
+                                </td> 
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <!-- classes -->
-            <div class="card shadow-none">
+            <div class="card shadow-none collapsed-card">
                 <div class="card-header border-0">
                     <span class="text-muted">Subjects Taken</span>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-sm" data-card-widget="collapse" title="Collapse"><i class="fas fa-plus"></i></button>
+                    </div>
                 </div>
                 <div class="card-body table-responsive px-0">
                     <table class="table table-hover table-sm">
@@ -243,6 +274,31 @@
     <div class="right-bottom" style="bottom: 0px !important;">
         <p id="msg-display" class="msg-display shadow" style="font-size: .8em; z-index: 99999999;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>Amount tendered should not be less than the total amount payable!</p>
     </div>
+
+    <div ref="modalAddBreakdown" class="modal fade" id="modal-add-breakdown" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Add Subject Breakdown</span>
+                </div>
+                <div class="modal-body table-responsive">
+                    <div class="form-group">
+                        <label for="ItemPublic">Item to Include</label>
+                        <input type="text" class="form-control" name="ItemPublic" id="ItemPublic" v-model="additionalPayableItem" style="width: 100%;" required placeholder="Tuition Fee, Books, Uniform, etc...">
+                     </div>
+      
+                     <div class="form-group">
+                        <label for="AmountPublic">Amount</label>
+                        <input type="number" step="any" class="form-control" name="AmountPublic" v-model="additionalPayableAmount" id="AmountPublic" style="width: 100%;" required placeholder="0.0">
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-sm btn-primary" @click="saveTuitionInclusion()"><i class="fas fa-check ico-tab-mini"></i>Proceed Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -271,6 +327,7 @@ export default {
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
+            token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -307,6 +364,9 @@ export default {
             tuitionMonths : [],
             selectedMonths : [],
             totalSelectedTuitions : 0.0,
+            tuitionInclusions : [],
+            additionalPayableItem : '',
+            additionalPayableAmount : 0.0
         }
     },
     methods : {
@@ -413,6 +473,7 @@ export default {
             this.totalPayables = this.isNull(this.activePayable) ? 0 : parseFloat(this.activePayable.Balance)
             this.focusCash()
 
+            // GET TUITIONS BREAKDOWN
             axios.get(`${ this.baseURL }/classes/get-tuitions-breakdown`, {
                 params : {
                     PayableId : this.activePayable.id,
@@ -428,6 +489,23 @@ export default {
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error getting payable data!'
+                })
+            })
+
+            // GET PAYABLE INCLUSIONS
+            axios.get(`${ this.baseURL }/transactions/get-payable-inclusions`, {
+                params : {
+                    PayableId : this.activePayable.id,
+                }
+            })
+            .then(response => {
+                this.tuitionInclusions = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting payable inclusions!'
                 })
             })
         }, 
@@ -596,6 +674,76 @@ export default {
                 message.style.opacity = 0;
             }, 1500);
         },
+        removeTuitionInclusion(id) {
+            Swal.fire({
+                title : 'Confirm Removal',
+                text: "Removing this item from the tuition breakdown will alsow change the total tuition payable of the student. Proceed with caution.",
+                showCancelButton: true,
+                confirmButtonText: "Proceed Remove",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/transactions/remove-payable-inclusion`, {
+                        _token : this.token,
+                        id : id,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Tuition inclusion removed!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error removing tuition inclusions!'
+                        })
+                    })
+                }
+            })
+        },
+        addPayableBreakdown() {
+            if (this.isNull(this.activePayable)) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select payable particulars first!'
+                })
+            } else {
+                let modalElement = this.$refs.modalAddBreakdown
+                $(modalElement).modal('show')
+            }
+        },
+        saveTuitionInclusion() {
+            if (this.isNull(this.additionalPayableItem)) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please fill in an item name!'
+                })
+            } else {
+                axios.post(`${ this.baseURL }/transactions/add-payable-inclusion`, {
+                    _token : this.token,
+                    ItemName : this.additionalPayableItem,
+                    Amount : this.additionalPayableAmount,
+                    PayableId : this.activePayable.id,
+                })
+                .then(response => {
+                    this.toast.fire({
+                        icon : 'success',
+                        text : 'Tuition inclusion added!'
+                    })
+                    location.reload()
+                })
+                .catch(error => {
+                    console.log(error.response)
+                    this.toast.fire({
+                        icon : 'error',
+                        text : 'Error adding tuition inclusions!'
+                    })
+                })
+            }
+        }
     },
     created() {
     },

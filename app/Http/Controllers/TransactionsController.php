@@ -253,6 +253,7 @@ class TransactionsController extends AppBaseController
         $transactions->DigitalPaymentAmount = $digitalAmount;
         $transactions->TotalAmountPaid = $totalPayables;
         $transactions->UserId = Auth::id();
+        $transactions->TransactionType = 'Enrollment';
         $transactions->save();
 
         // insert transaction details
@@ -423,6 +424,7 @@ class TransactionsController extends AppBaseController
         $transactions->TotalAmountPaid = $paidAmount;
         $transactions->UserId = Auth::id();
         $transactions->Period = $period;
+        $transactions->TransactionType = 'Tuition Fees';
         $transactions->save();
 
         // insert transaction details
@@ -582,6 +584,7 @@ class TransactionsController extends AppBaseController
         $transactions->DigitalPaymentAmount = $digitalAmount;
         $transactions->TotalAmountPaid = $totalPayments;
         $transactions->UserId = Auth::id();
+        $transactions->TransactionType = 'Miscellaneous';
         $transactions->save();
 
         // insert transaction details
@@ -946,5 +949,113 @@ class TransactionsController extends AppBaseController
         }
 
         return response()->json($class, 200);
+    }
+
+    public function getPayableInclusions(Request $request) {
+        $payableId = $request['PayableId'];
+
+        return response()->json(PayableInclusions::where('PayableId', $payableId)->get(), 200);
+    }
+
+    public function updateORNumber(Request $request) {
+        $id = $request['id'];
+        $newORNumber = $request['NewORNumber'];
+
+        Transactions::where('id', $id)
+            ->update(['ORNumber' => $newORNumber]);
+
+        return response()->json('ok', 200);
+    }
+
+    public function removePayableInclusion(Request $request) {
+        $id = $request['id'];
+
+        $inc = PayableInclusions::find($id);
+
+        if ($inc != null) {
+            $inc->delete();
+
+            $payable = Payables::find($inc->PayableId);
+
+            if ($payable != null) {
+                $incAmount = $inc->Amount != null ? floatval($inc->Amount) : 0;
+
+                // update payable
+                $payablePayable = $payable->Payable != null ? floatval($payable->Payable) : 0;
+                $payableAmountPayable  = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                $payableBalance  = $payable->Balance != null ? floatval($payable->Balance) : 0;
+
+                $payable->Payable = $payablePayable - $incAmount;
+                $payable->AmountPayable = $payableAmountPayable - $incAmount;
+                $payable->Balance = $payableBalance - $incAmount;
+                $payable->save();
+
+                // update payable tuitions breakdown
+                $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
+                if ($tuitionsBreakdown != null) {
+                    $count = count($tuitionsBreakdown);
+
+                    if ($count > 0) {
+                        $amountDistributable = round(($incAmount / $count), 2);
+                    
+                        foreach($tuitionsBreakdown as $item) {
+                            $item->AmountPayable = floatval($item->AmountPayable) - $amountDistributable;
+                            $item->Balance = $item->AmountPayable;
+                            $item->save();
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json($inc, 200);
+    }
+    
+    public function addPayableInclusion(Request $request) {
+        $itemName = $request['ItemName'];
+        $itemAmount = $request['Amount'];
+        $payableId = $request['PayableId'];
+
+        $inc = new PayableInclusions;
+        $inc->id = IDGenerator::generateIDandRandString();
+        $inc->ItemName = $itemName;
+        $inc->Amount = $itemAmount;
+        $inc->PayableId = $payableId;
+        $inc->save();
+
+        // save payable
+        $payable = Payables::find($payableId);
+
+        if ($payable != null) {
+            $incAmount = $itemAmount != null ? floatval($itemAmount) : 0;
+
+            // update payable
+            $payablePayable = $payable->Payable != null ? floatval($payable->Payable) : 0;
+            $payableAmountPayable  = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+            $payableBalance  = $payable->Balance != null ? floatval($payable->Balance) : 0;
+
+            $payable->Payable = $payablePayable + $incAmount;
+            $payable->AmountPayable = $payableAmountPayable + $incAmount;
+            $payable->Balance = $payableBalance + $incAmount;
+            $payable->save();
+
+            // update payable tuitions breakdown
+            $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
+            if ($tuitionsBreakdown != null) {
+                $count = count($tuitionsBreakdown);
+
+                if ($count > 0) {
+                    $amountDistributable = round(($incAmount / $count), 2);
+                
+                    foreach($tuitionsBreakdown as $item) {
+                        $item->AmountPayable = floatval($item->AmountPayable) + $amountDistributable;
+                        $item->Balance = $item->AmountPayable;
+                        $item->save();
+                    }
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
     }
 }

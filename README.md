@@ -75,6 +75,7 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 ### New Tables
 
 ### New Columns on Tables
-
+- Transactions
+    - TransactionType (Tuition Fees, Miscellaneous, Enrollment) - Pushed to HCA
 
 ### New Permissions

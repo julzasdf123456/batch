@@ -70,8 +70,17 @@
                                             <td class="v-align text-right">{{ isNull(item.TotalAmountPaid) ? '-' : toMoney(parseFloat(item.TotalAmountPaid)) }}</td>
                                             <td class="text-right">
                                                 <div class="btn-group">
-                                                    <button @click="viewDetails(item.id)" class="btn btn-link-muted btn-sm" title="View Transaction Detalis"><i class="fas fa-eye"></i></button>
-                                                    <button @click="cancelPayment(item.id)" class="btn btn-link btn-sm text-danger" title="Cancel this Payment"><i class="fas fa-times-circle"></i></button>
+                                                    <button @click="viewDetails(item.id)" class="btn btn-link-muted btn-xs" title="View Transaction Details"><i class="fas fa-eye"></i></button>
+                                                    <button @click="cancelPayment(item.id)" class="btn btn-link btn-xs text-danger" title="Cancel this Payment"><i class="fas fa-times-circle"></i></button>
+                                                    <div class="dropdown" style="display: inline;">
+                                                        <a class="btn btn-link-muted btn-xs" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-ellipsis-v"></i>
+                                                        </a>
+                                                        <div class="dropdown-menu" aria-labelledby="more-menu">
+                                                            <button @click="rePrintOR(item.id, item.TransactionType)" class="dropdown-item" title="Reprint OR"><i class="fas fa-print ico-tab"></i> Re-print OR</button>
+                                                            <button @click="editORNumber(item)" class="dropdown-item" title="Reprint OR"><i class="fas fa-pen ico-tab"></i> Edit OR Number</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -435,6 +444,52 @@ export default {
                         this.toast.fire({
                             icon : 'error',
                             text : 'Error cancelling payment'
+                        })
+                    })
+                }
+            })()
+        },
+        rePrintOR(id, type) {
+            if (type === 'Tuition Fees') {
+                window.location.href = this.baseURL + '/transactions/print-tuition/' + id
+            } else if (type === 'Enrollment') {
+                window.location.href = this.baseURL + '/transactions/print-enrollment/' + id
+            } else {
+                window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + id
+            }
+        },
+        editORNumber(paymentData) {
+            (async () => {
+                const { value: text } = await Swal.fire({
+                    input: 'number',
+                    inputPlaceholder: 'Type New OR Number...',
+                    inputAttributes: {
+                        'aria-label': 'Type New OR Number'
+                    },
+                    title: 'Edit OR Number',
+                    html : `<p class='text-left'><strong>NOTE </strong> that changing the OR number might change the Active OR Number in the cashiering modules. Proceed with caution.</p>
+                        <p class='text-left'>Original OR Number: <strong>${ paymentData.ORNumber }</strong></p>`,
+                    showCancelButton: true
+                })
+
+                if (text) {
+                    axios.post(`${ this.baseURL }/transactions/update-or-number`, {
+                        _token : this.token,
+                        id : paymentData.id,
+                        NewORNumber : text,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'OR Number updated!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error updating OR Number'
                         })
                     })
                 }
