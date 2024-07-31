@@ -143,12 +143,14 @@
                         <table class="table table-hover">
                             <thead>
                                 <th class="text-muted">Subject</th>
+                                <th class="text-muted">Teacher</th>
                                 <th class="text-muted text-right">Subject/Course Fees</th>
                             </thead>
                             <tbody>
                                 @foreach ($subjectClasses as $item)
                                     <tr>
                                         <td class="v-align">{{ $item->Subject }}</td>
+                                        <td class="v-align">{{ $item->FullName }}</td>
                                         <td class="v-align text-right">{{ number_format($item->CourseFee, 2) }}</td>
                                         <td class="text-right">
                                             @if (Auth::user()->hasAnyPermission(['god permission', 'edit class repos']))
@@ -183,7 +185,7 @@
                    <select class="custom-select select2"  name="Subjects" id="Subjects" style="width: 100%;" required>
                         <option value="">-- Select --</option>
                         @foreach ($subjects as $item)
-                            <option value="{{ $item->id }}">{{ $item->Subject }}</option>
+                            <option value="{{ $item->id }}">{{ $item->Subject }} ({{ $item->FullName }})</option>
                         @endforeach
                     </select>
                 </div>
