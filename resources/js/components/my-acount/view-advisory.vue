@@ -414,11 +414,12 @@ export default {
                     for(let i=0; i<this.male.length; i++) {
                         let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.male[i].id)
 
-                        if (!this.isNull(dataFound)) {
-                            this.male[i].PayableData = dataFound
-                        } else {
-                            this.male[i].PayableData = []
-                        }
+                        // if (!this.isNull(dataFound)) {
+                        //     this.male[i].PayableData = dataFound
+                        // } else {
+                        //     this.male[i].PayableData = []
+                        // }
+                        this.male[i].PayableData = dataFound
                     }
                 }
 
@@ -426,11 +427,12 @@ export default {
                     for(let i=0; i<this.female.length; i++) {
                         let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.female[i].id)
 
-                        if (!this.isNull(dataFound)) {
-                            this.female[i].PayableData = dataFound
-                        } else {
-                            this.female[i].PayableData = []
-                        }
+                        // if (!this.isNull(dataFound)) {
+                        //     this.female[i].PayableData = dataFound
+                        // } else {
+                        //     this.female[i].PayableData = []
+                        // }
+                        this.female[i].PayableData = dataFound
                     }
                 }
             })
