@@ -376,7 +376,6 @@ class UsersController extends AppBaseController
             'message' => 'Password updated successfully.',
         ]);
     }
-
     
     public function updatePasswordAdmin(Request $request) {
         // Validate the request
