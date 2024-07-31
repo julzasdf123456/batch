@@ -14,6 +14,7 @@ class Subjects extends Model
         'Description',
         'CourseFee',
         'Teacher',
+        'ParentSubject'
     ];
 
     protected $casts = [
@@ -22,6 +23,7 @@ class Subjects extends Model
         'Description' => 'string',
         'CourseFee' => 'string',
         'Teacher' => 'string',
+        'ParentSubject' => 'string',
     ];
 
     public static array $rules = [
@@ -32,6 +34,7 @@ class Subjects extends Model
         'updated_at' => 'nullable',
         'CourseFee' => 'nullable|string',
         'Teacher' => 'nullable|string',
+        'ParentSubject' => 'nullable|string',
     ];
 
     
