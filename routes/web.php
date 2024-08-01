@@ -38,6 +38,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home/get-junior-enrolless-trend', [HomeController::class, 'getJuniorEnrolleesTrend'])->name('home.get-junior-enrolless-trend');
+Route::get('/home/get-senior-enrolless-trend', [HomeController::class, 'getSeniorEnrolleesTrend'])->name('home.get-senior-enrolless-trend');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/users/add-roles/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');

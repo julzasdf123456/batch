@@ -111,4 +111,119 @@ class HomeController extends Controller
 
         return response()->json($data, 200);
     }
+    
+    public function getSeniorEnrolleesTrend(Request $request) {
+        $syCurrent = SchoolYear::orderByDesc('created_at')->first();
+        $syPrevious = SchoolYear::orderByDesc('created_at')->offset(1)->first();
+
+        $data = [];
+
+        // CURRENT
+        $labelsQuery = DB::table('ClassesRepo')
+            ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
+            ->select(
+                DB::raw("CONCAT(Year, '-', Strand) AS GradeLevels")
+            )
+            ->groupBy('Year', 'Section', 'Strand')
+            ->orderBy('Year')
+            ->orderByRaw("CONCAT(Year, ' - ', Strand)")
+            ->get();
+        $labels = [];
+        foreach ($labelsQuery as $item) {
+            array_push($labels, $item->GradeLevels);
+        }
+
+        $currentDataFirstSem = null;
+        $currentDataSecondSem = null;
+        if ($syCurrent != null) {
+            // 1st sem
+            $currentDataFirstSemQuery = DB::table('ClassesRepo')
+                ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
+                ->select(
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='1st') AS Count")
+                )
+                ->groupBy('Year', 'Section', 'Strand')
+                ->orderBy('Year')
+                ->orderByRaw("CONCAT(Year, ' - ', Strand)")
+                ->get()
+                ->toArray();
+
+            $currentDataFirstSem = [];
+            foreach($currentDataFirstSemQuery as $item) {
+                array_push($currentDataFirstSem, intval($item->Count));
+            }
+
+            // 2nd sem
+            $currentDataSecondSemQuery = DB::table('ClassesRepo')
+                ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
+                ->select(
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='2nd') AS Count")
+                )
+                ->groupBy('Year', 'Section', 'Strand')
+                ->orderBy('Year')
+                ->orderByRaw("CONCAT(Year, ' - ', Strand)")
+                ->get()
+                ->toArray();
+
+            $currentDataSecondSem = [];
+            foreach($currentDataSecondSemQuery as $item) {
+                array_push($currentDataSecondSem, intval($item->Count));
+            }
+        }
+
+        $data['Labels'] = $labels;
+        $data['Current'] = [
+            'SchoolYear' => $syCurrent != null ? $syCurrent->SchoolYear : '-',
+            'DataFirstSem' => $currentDataFirstSem,
+            'DataSecondSem' => $currentDataSecondSem,
+        ];
+
+        // PREVIOUS
+        $previousDataFirstSem = null;
+        if ($syPrevious != null) {
+            // 1st sem
+            $previousDataFirstSemQuery = DB::table('ClassesRepo')
+                ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
+                ->select(
+                    'Year',
+                    'Section',
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='1st') AS Count")
+                )
+                ->groupBy('Year', 'Section', 'Strand')
+                ->orderBy('Year')
+                ->orderByRaw("CONCAT(Year, ' - ', Strand)")
+                ->get()
+                ->toArray();
+
+            $previousDataFirstSem = [];
+            foreach($previousDataFirstSemQuery as $item) {
+                array_push($previousDataFirstSem, intval($item->Count));
+            }
+
+            // 2nd sem
+            $previousDataSecondSemQuery = DB::table('ClassesRepo')
+                ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
+                ->select(
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='2nd') AS Count")
+                )
+                ->groupBy('Year', 'Section', 'Strand')
+                ->orderBy('Year')
+                ->orderByRaw("CONCAT(Year, ' - ', Strand)")
+                ->get()
+                ->toArray();
+
+            $previousDataSecondSem = [];
+            foreach($previousDataSecondSemQuery as $item) {
+                array_push($previousDataSecondSem, intval($item->Count));
+            }
+        }
+
+        $data['Previous'] = [
+            'SchoolYear' => $syPrevious != null ? $syPrevious->SchoolYear : '-',
+            'DataFirstSem' => $previousDataFirstSem,
+            'DataSecondSem' => $previousDataSecondSem,
+        ];
+
+        return response()->json($data, 200);
+    }
 }
