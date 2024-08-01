@@ -15,3 +15,6 @@
     - ParentSubject - Pushed to SVI
 
 ### New Permissions
+
+### New NPM Packages
+- npm i vue-chartjs chart.js
