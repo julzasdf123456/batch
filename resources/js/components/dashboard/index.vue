@@ -1,5 +1,6 @@
 <template>
     <div class="row">
+        <!-- STUDENTS DATA -->
         <!-- junior high enrollees trend -->
         <div class="col-lg-12">
             <div class="card shadow-none">
@@ -38,6 +39,55 @@
                 </div>
                 <div class="card-body">
                     <Bar :data="seniorEnrolleeLineData" :options="barOptions" />
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <!-- 1st sem -->
+                        <div class="col-lg-3">
+                            <p class="no-pads text-muted text-sm text-center">1st Sem</p>
+                            <p class="text-center no-pads">{{ isNull(seniorEnrolleePrevious) ? '-' : seniorEnrolleePrevious.SchoolYear }}</p>
+                            <h2 class="text-center no-pads"><strong>{{ isNull(seniorEnrolleePrevious) ? '0' : toMoneyInteger(sumUpArray(seniorEnrolleePrevious.DataFirstSem)) }}</strong></h2>
+                        </div>
+                        
+                        <div class="col-lg-3">
+                            <p class="no-pads text-muted text-sm text-center">1st Sem</p>
+                            <p class="text-center no-pads">{{ isNull(seniorEnrolleeCurrent) ? '-' : seniorEnrolleeCurrent.SchoolYear }}</p>
+                            <h2 class="text-center no-pads"><strong>{{ isNull(seniorEnrolleeCurrent) ? '0' : toMoneyInteger(sumUpArray(seniorEnrolleeCurrent.DataFirstSem)) }}</strong></h2>
+                            <p class="text-muted text-sm text-center" v-html="getPercentage(isNull(seniorEnrolleePrevious) ? 0 : sumUpArray(seniorEnrolleePrevious.DataFirstSem), sumUpArray(seniorEnrolleeCurrent.DataFirstSem))"></p>
+                        </div>
+
+                        <!-- 2nd sem  -->
+                        <div class="col-lg-3">
+                            <p class="no-pads text-muted text-sm text-center">2nd Sem</p>
+                            <p class="text-center no-pads">{{ isNull(seniorEnrolleePrevious) ? '-' : seniorEnrolleePrevious.SchoolYear }}</p>
+                            <h2 class="text-center no-pads"><strong>{{ isNull(seniorEnrolleePrevious) ? '0' : toMoneyInteger(sumUpArray(seniorEnrolleePrevious.DataSecondSem)) }}</strong></h2>
+                        </div>
+                        
+                        <div class="col-lg-3">
+                            <p class="no-pads text-muted text-sm text-center">2nd Sem</p>
+                            <p class="text-center no-pads">{{ isNull(seniorEnrolleeCurrent) ? '-' : seniorEnrolleeCurrent.SchoolYear }}</p>
+                            <h2 class="text-center no-pads"><strong>{{ isNull(seniorEnrolleeCurrent) ? '0' : toMoneyInteger(sumUpArray(seniorEnrolleeCurrent.DataSecondSem)) }}</strong></h2>
+                            <p class="text-muted text-sm text-center" v-html="getPercentage(isNull(seniorEnrolleePrevious) ? 0 : sumUpArray(seniorEnrolleePrevious.DataSecondSem), sumUpArray(seniorEnrolleeCurrent.DataSecondSem))"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLLECTION DATA -->
+        <div class="col-lg-6">
+            <div class="card shadow-none">
+                <div class="card-header border-0">
+                    <span class="text-muted">Monthly Payment Transaction Trend per SY</span>
+                </div>
+                <div class="card-body">
+                    <span class="text-sm text-muted">School Year Options</span>
+                    <select class="form-control form-control-sm" v-model="collectionSySelect" style="width: 160px" @change="getMonthlyCollectionTrend()">
+                        <option v-for="sy in schoolYears" :value="sy.id">{{ sy.SchoolYear }}</option>
+                    </select>
+                    <div class="mt-3">
+                        <Line :data="monthlyTransactionsData" :options="lineOptions" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,6 +153,7 @@ export default {
                 enableTime: false,
                 dateFormat: 'Y-m-d', 
             },
+            // students
             juniorEnrolleeLineData : {
                 labels: [],
                 datasets: [
@@ -127,6 +178,8 @@ export default {
                     }
                 ]
             },
+            seniorEnrolleePrevious : {},
+            seniorEnrolleeCurrent : {},
             lineOptions : {
                 responsive: true,
                 maintainAspectRatio: false
@@ -134,7 +187,20 @@ export default {
             barOptions : {
                 responsive: true,
                 maintainAspectRatio: false
-            }
+            },
+            // collection
+            collectionSySelect : '',
+            schoolYears : [],
+            monthlyTransactionsData : {
+                labels: [],
+                datasets: [
+                    {
+                        borderColor : '#00968b',
+                        backgroundColor : '#afafaf',
+                        data: []
+                    }
+                ]
+            },
         }
     },
     methods : {
@@ -186,6 +252,25 @@ export default {
         generateId() {
             return moment().valueOf()
         },
+        getSchoolYears() {
+            axios.get(`${ this.baseURL }/school_years/get-school-years`)
+            .then(response => {
+                this.schoolYears = response.data
+
+                if (!this.isNull(this.schoolYears)) {
+                    this.collectionSySelect = this.schoolYears[0].id
+
+                    this.getMonthlyCollectionTrend()
+                }
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting school years!'
+                })
+            })
+        },
         getJuniorEnrolleesTrend() {
             axios.get(`${ this.baseURL }/home/get-junior-enrolless-trend`)
             .then(response => {
@@ -221,7 +306,9 @@ export default {
         getSeniorEnrolleesTrend() {
             axios.get(`${ this.baseURL }/home/get-senior-enrolless-trend`)
             .then(response => {
-                // this.data.datasets[0].data = response.data.Current.Data
+                this.seniorEnrolleePrevious = response.data.Previous
+                this.seniorEnrolleeCurrent = response.data.Current
+
                 this.seniorEnrolleeLineData = {
                     labels : response.data.Labels,
                     datasets : [
@@ -256,7 +343,7 @@ export default {
                 console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
-                    text : 'Error getting junior enrollees trend!'
+                    text : 'Error getting senior enrollees trend!'
                 })
             })
         },
@@ -292,14 +379,45 @@ export default {
                     return `<span class='text-danger'>${ round((dif / current) * 100, 2) }% <i class='fas fa-caret-down'></i></span>`
                 }
             }
+        },
+        getMonthlyCollectionTrend() {
+            axios.get(`${ this.baseURL }/home/get-monthly-collection-trend`, {
+                params : {
+                    SchoolYearId : this.collectionSySelect
+                }
+            })
+            .then(response => {
+                console.log(response.data)
+                this.monthlyTransactionsData = {
+                    labels : response.data.Labels,
+                    datasets : [
+                        {
+                            label : 'Payment Trend',
+                            data : response.data.Data,
+                            backgroundColor : this.colorProfile === 'dark-mode' ? 'rgba(70, 199, 154, .2)' : 'rgba(69, 209, 160, .2)',
+                            borderColor : this.colorProfile === 'dark-mode' ? '#2e8063' : '#349e77',
+                            borderWidth: 2,
+                        },
+                    ]
+                }
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting monthly collection trend!'
+                })
+            })
         }
     },
     created() {
         
     },
     mounted() {
+        this.getSchoolYears()
         this.getJuniorEnrolleesTrend()
         this.getSeniorEnrolleesTrend()
+        this.getMonthlyCollectionTrend()
     }
 }
 

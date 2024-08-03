@@ -226,4 +226,40 @@ class HomeController extends Controller
 
         return response()->json($data, 200);
     }
+
+    public function getMonthlyCollectionTrend(Request $request) {
+        $syId = $request['SchoolYearId'];
+
+        $sy = SchoolYear::find($syId);
+
+        $data = [];
+        $months = [];
+        $counts = [];
+        if ($sy != null) {
+            $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+
+            for ($i=0; $i<11; $i++) {
+                $fromDate = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                $toDate = date('Y-m-d', strtotime('last day of ' . $fromDate));
+
+                // set labels (months)
+                array_push($months, date('M Y', strtotime($fromDate)));
+
+                // set data
+                $transactions = DB::table('Transactions')
+                    ->whereRaw("(ORDate BETWEEN '" . $fromDate . "' AND '" . $toDate . "') AND Status IS NULL")
+                    ->select(
+                        DB::raw("SUM(TotalAmountPaid) AS Total")
+                    )
+                    ->first();
+
+                array_push($counts, $transactions != null && $transactions->Total != null ? floatval($transactions->Total) : 0);
+            }
+        }
+
+        $data['Labels'] = $months;
+        $data['Data'] = $counts;
+
+        return response()->json($data, 200);
+    }
 }
