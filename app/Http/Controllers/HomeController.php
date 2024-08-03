@@ -180,6 +180,7 @@ class HomeController extends Controller
 
         // PREVIOUS
         $previousDataFirstSem = null;
+        $previousDataSecondSem = null;
         if ($syPrevious != null) {
             // 1st sem
             $previousDataFirstSemQuery = DB::table('ClassesRepo')
