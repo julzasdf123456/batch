@@ -1,36 +1,36 @@
 <template>
-    <div class="row">
-        <div class="col-lg-6 offset-lg-3 col-md-12 content-cards px-5">
+    <div class="row" @click="focusInput()">
+        <div class="col-lg-6 offset-lg-3 col-md-12 content-cards px-5" @click="focusInput()">
             <!-- scanner -->
-            <div class="card shadow-soft w-100">
-                <div class="card-body">
-                    <h3 class="mt-3 text-success"><i class="fas fa-qrcode ico-tab"></i><strong>batch.ID</strong></h3>
-                    <p class="no-pads text-muted text-sm">Barcode and QR Scanning ID System</p>
+            <div class="card shadow-soft w-100" @click="focusInput()">
+                <div class="card-body" @click="focusInput()">
+                    <h3 class="mt-3 text-success"><i class="fas fa-qrcode ico-tab" @click="focusInput()"></i><strong>batch.ID</strong></h3>
+                    <p class="no-pads text-muted text-sm" @click="focusInput()">Barcode and QR Scanning ID System</p>
                 
-                    <input type="text" class="form-control form-control-lg mt-3" autofocus placeholder="QR/Barcode..." @keyup.enter="getStudentDetails" v-model="idNumber">
+                    <input ref="scanner" type="text" class="form-control form-control-lg mt-3" autofocus placeholder="QR/Barcode..." @keyup.enter="getStudentDetails" v-model="idNumber">
                 </div>
-                <div class="card-footer">
-                    <p class="text-muted text-right text-sm mt-4 mb-3">batch.ID | All Rights Reserved @ Hashed.it</p>
+                <div class="card-footer" @click="focusInput()">
+                    <p class="text-muted text-right text-sm mt-4 mb-3" @click="focusInput()">batch.ID | All Rights Reserved @ Hashed.it</p>
                 </div>
             </div>
 
             <!-- results -->
-            <div class="card shadow-none w-100 student-info-card" id="student-info">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div style="display: flex; padding-bottom: 15px;">
-                                <div style="width: 105px; display: inline;">
+            <div class="card shadow-none w-100 student-info-card" id="student-info" @click="focusInput()">
+                <div class="card-body" @click="focusInput()">
+                    <div class="row" @click="focusInput()">
+                        <div class="col-lg-12" @click="focusInput()">
+                            <div style="display: flex; padding-bottom: 15px;" @click="focusInput()">
+                                <div style="width: 105px; display: inline;" @click="focusInput()">
                                     <img id="prof-img" style="width: 85px !important;" class="profile-user-img img-fluid img-circle" :src="imgPath + 'prof-img.png'" alt="User profile picture">
                                 </div>
-                                <div>
-                                    <span>
-                                        <p class="no-pads" style="font-size: 1.85em;"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></p>
+                                <div @click="focusInput()">
+                                    <span @click="focusInput()">
+                                        <p @click="focusInput()" class="no-pads" style="font-size: 1.85em;"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></p>
                                         
-                                        <p class="text-muted no-pads">
+                                        <p @click="focusInput()" class="text-muted no-pads">
                                             <i class="fas fa-id-badge ico-tab"></i>LRN-{{ studentData.LRN }} 
                                         </p>
-                                        <p class="text-muted no-pads">
+                                        <p @click="focusInput()" class="text-muted no-pads">
                                             <i class="fas fa-clock ico-tab"></i>{{ moment().format('dddd, MMMM DD, YYYY, hh:mm a') }} 
                                         </p>
                                     </span>
@@ -180,6 +180,7 @@ export default {
                     icon : 'success',
                     text : studentData.FirstName + ' ' + studentData.LastName + ' scanned his/her ID. Sending SMS now...'
                 })
+                this.focusInput()
             })
             .catch(error => {
                 console.log(error.response)
@@ -187,6 +188,12 @@ export default {
                     icon : 'error',
                     text : 'Error saving sms data!'
                 })
+                this.focusInput()
+            })
+        },
+        focusInput() {
+            this.$nextTick(function() {
+                this.$refs.scanner.focus()
             })
         }
     }, 
