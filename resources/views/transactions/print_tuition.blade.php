@@ -208,7 +208,6 @@
                 </tr>
             </tbody>
         </table>
-
         
         <p style='font-size: 1.4em !important; padding-top: 30px !important;' class="text-right">{{ env('CASHIER_NAME') }}</p>
     </div>

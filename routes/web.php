@@ -80,6 +80,7 @@ Route::get('/students/edit-student/{studentId}', [StudentsController::class, 'ed
 Route::post('/students/update-student', [StudentsController::class, 'updateStudent'])->name('students.update-student');
 Route::get('/students/get-student-class-details', [StudentsController::class, 'getStudentClassDetails'])->name('students.get-student-class-details');
 Route::get('/students/guest-view/{studentId}', [StudentsController::class, 'guestView'])->name('students.guest-view');
+Route::get('/students/print-students/{classId}', [StudentsController::class, 'printStudents'])->name('students.print-students');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');

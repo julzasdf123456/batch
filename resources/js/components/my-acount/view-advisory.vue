@@ -42,6 +42,9 @@
                                 ====================================================================================================================================
                             -->
                             <div class="tab-pane fade active show" id="students-list-content" role="tabpanel" aria-labelledby="students-list-tab">
+                                <div class="mt-2">
+                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
+                                </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
