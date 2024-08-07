@@ -129,9 +129,10 @@ class StudentsController extends AppBaseController
 
         $this->studentsRepository->delete($id);
 
-        Flash::success('Students deleted successfully.');
+        // Flash::success('Students deleted successfully.');
 
-        return redirect(route('students.index'));
+        // return redirect(route('students.index'));
+        return response()->json($students, 200);
     }
 
     public function newStudent(Request $request) {

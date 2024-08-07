@@ -148,6 +148,8 @@ export default {
                 this.idNumber = ''
             })
             .catch(error => {
+                this.idNumber = ''
+                this.focusInput()
                 console.log(error)
                 this.toast.fire({
                     icon : 'error',
