@@ -37,8 +37,9 @@ class ClassesRepoController extends AppBaseController
             ->orderBy('ClassesRepo.Year')
             ->paginate(30);
 
-        return view('classes_repos.index')
-            ->with('classesRepos', $classesRepos);
+        return view('classes_repos.index', [
+            'classesRepos' => $classesRepos
+        ]);
     }
 
     /**
@@ -221,5 +222,20 @@ class ClassesRepoController extends AppBaseController
         }
 
         return response()->json($subjectClasses, 200);
+    }
+
+    public function viewClassRepo($year, $section, $strand) {
+        $strand = $strand=='xstrand' ? null : $strand;
+        $repo = ClassesRepo::where('Year', $year)
+            ->where('Section', $section)
+            ->where('Strand', $strand)
+            ->orderBy('Semester')
+            ->first();
+
+        if ($repo != null) {
+            return redirect(route('classesRepos.show', [$repo->id]));
+        } else {
+            return abort(404, "Classes repository not found!");
+        }
     }
 }

@@ -929,20 +929,47 @@ class TransactionsController extends AppBaseController
                 if ($payable != null) {
                     // TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                     // create tuitions breakdown
-                    $monthsToPay = 10;
-                    for ($i=0; $i<$monthsToPay; $i++) {
-                        $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
-                        $tuitionBreakdown = new TuitionsBreakdown;
-                        $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+1) . ' months'));
-                        $tuitionBreakdown->PayableId = $payable->id;
+                    if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                        // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
+                        $monthsToPay = 5;
 
-                        $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                        for ($i=0; $i<$monthsToPay; $i++) {
+                            $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                            $tuitionBreakdown = new TuitionsBreakdown;
+                            $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                            
+                            if ($class->Semester != null && $class->Semester == '2nd') {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
+                            } else {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                            }
+                            
+                            $tuitionBreakdown->PayableId = $payable->id;
 
-                        $tuitionBreakdown->AmountPayable = $amntPayable;
-                        $tuitionBreakdown->Payable = $amntPayable;
-                        $tuitionBreakdown->Balance = $amntPayable;
-                        $tuitionBreakdown->save();
+                            $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+
+                            $tuitionBreakdown->AmountPayable = $amntPayable;
+                            $tuitionBreakdown->Payable = $amntPayable;
+                            $tuitionBreakdown->Balance = $amntPayable;
+                            $tuitionBreakdown->save();
+                        }
+                    } else {
+                        $monthsToPay = 10;
+
+                        for ($i=0; $i<$monthsToPay; $i++) {
+                            $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                            $tuitionBreakdown = new TuitionsBreakdown;
+                            $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                            $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                            $tuitionBreakdown->PayableId = $payable->id;
+
+                            $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+
+                            $tuitionBreakdown->AmountPayable = $amntPayable;
+                            $tuitionBreakdown->Payable = $amntPayable;
+                            $tuitionBreakdown->Balance = $amntPayable;
+                            $tuitionBreakdown->save();
+                        }
                     }
                 }
             }

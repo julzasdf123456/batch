@@ -7,6 +7,7 @@
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
             
             <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
+            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidateSubjects()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Subjects</button>
 
             <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
                 <span class="sr-only">Loading...</span>
@@ -41,6 +42,9 @@
                                 ====================================================================================================================================
                             -->
                             <div class="tab-pane fade active show" id="students-list-content" role="tabpanel" aria-labelledby="students-list-tab">
+                                <div class="mt-2">
+                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
+                                </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
@@ -623,12 +627,35 @@ export default {
                     icon : 'success',
                     text : 'Payables repopulated!'
                 })
+                location.reload()
             })
             .catch(error => {
                 console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error repopulating payables!'
+                })
+            })
+        },
+        revalidateSubjects() {
+            axios.get(`${ this.baseURL }/classes/revalidate-subjects`, {
+                params : {
+                    _token : this.token,
+                    ClassId : this.classId
+                }
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Subjects repopulated!'
+                })
+                location.reload()
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error repopulating subjects!'
                 })
             })
         }

@@ -340,4 +340,44 @@ class StudentsController extends AppBaseController
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
+
+    public function printStudents($classId) {
+        $class = DB::table('Classes')
+            ->whereRaw("id='" . $classId . "'")
+            ->first();
+
+        $male =  DB::table('StudentClasses')
+            ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Male'")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $female =  DB::table('StudentClasses')
+            ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Female'")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        return view('/students/print_students', [
+            'class' => $class, 
+            'male' => $male,
+            'female' => $female,
+        ]);
+    }
 }

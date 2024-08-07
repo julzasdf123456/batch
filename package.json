@@ -23,6 +23,7 @@
         "@fullcalendar/daygrid": "^6.1.14",
         "@fullcalendar/vue3": "^6.1.14",
         "@vitejs/plugin-vue": "^4.3.4",
+        "chart.js": "^4.4.3",
         "daterangepicker": "^3.1.0",
         "flatpickr": "^4.6.13",
         "jquery": "^3.7.1",
@@ -33,6 +34,7 @@
         "sweetalert2": "^11.10.7",
         "vite": "^5.2.6",
         "vue": "^3.2.36",
+        "vue-chartjs": "^5.3.1",
         "vue-flatpickr-component": "^11.0.5"
     }
 }

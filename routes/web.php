@@ -37,6 +37,9 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('/home/get-junior-enrolless-trend', [HomeController::class, 'getJuniorEnrolleesTrend'])->name('home.get-junior-enrolless-trend');
+Route::get('/home/get-senior-enrolless-trend', [HomeController::class, 'getSeniorEnrolleesTrend'])->name('home.get-senior-enrolless-trend');
+Route::get('/home/get-monthly-collection-trend', [HomeController::class, 'getMonthlyCollectionTrend'])->name('home.get-monthly-collection-trend');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/users/add-roles/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
@@ -77,6 +80,7 @@ Route::get('/students/edit-student/{studentId}', [StudentsController::class, 'ed
 Route::post('/students/update-student', [StudentsController::class, 'updateStudent'])->name('students.update-student');
 Route::get('/students/get-student-class-details', [StudentsController::class, 'getStudentClassDetails'])->name('students.get-student-class-details');
 Route::get('/students/guest-view/{studentId}', [StudentsController::class, 'guestView'])->name('students.guest-view');
+Route::get('/students/print-students/{classId}', [StudentsController::class, 'printStudents'])->name('students.print-students');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -87,12 +91,14 @@ Route::get('/classes/get-tuitions-breakdown', [ClassesController::class, 'getTui
 Route::get('/classes/view-class/{adviserId}/{schoolyearid}/{classId}', [ClassesController::class, 'viewClass'])->name('classes.view-class');
 Route::get('/classes/transfer-to-another-class/{studentId}', [ClassesController::class, 'transferToAnotherClass'])->name('classes.transfer-to-another-class');
 Route::post('/classes/save-transfer', [ClassesController::class, 'saveTransfer'])->name('classes.save-transfer');
+Route::post('/classes/revalidate-subjects', [ClassesController::class, 'revalidateSubjects'])->name('classes.revalidate-subjects');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
 
 Route::get('/classes_repos/get-grade-levels', [ClassesRepoController::class, 'getGradeLevels'])->name('classesRepos.get-grade-levels');
 Route::get('/classes_repos/get-subjects-in-class', [ClassesRepoController::class, 'getSubjectsInClass'])->name('classesRepos.get-subjects-in-class');
+Route::get('/classes_repos/view-classes-repo/{year}/{section}/{strand}', [ClassesRepoController::class, 'viewClassRepo'])->name('classesRepos.view-classes-repo');
 Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
