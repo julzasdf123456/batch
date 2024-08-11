@@ -256,6 +256,7 @@ class TeachersController extends AppBaseController
                     ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
             })
             ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Male'")
+            ->whereRaw("Students.Status IS NULL")
             ->select(
                 'StudentSubjects.*',
                 'Students.FirstName',
@@ -276,6 +277,7 @@ class TeachersController extends AppBaseController
                     ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
             })
             ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Female'")
+            ->whereRaw("Students.Status IS NULL")
             ->select(
                 'StudentSubjects.*',
                 'Students.FirstName',

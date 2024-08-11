@@ -81,6 +81,8 @@ Route::post('/students/update-student', [StudentsController::class, 'updateStude
 Route::get('/students/get-student-class-details', [StudentsController::class, 'getStudentClassDetails'])->name('students.get-student-class-details');
 Route::get('/students/guest-view/{studentId}', [StudentsController::class, 'guestView'])->name('students.guest-view');
 Route::get('/students/print-students/{classId}', [StudentsController::class, 'printStudents'])->name('students.print-students');
+Route::post('/students/update-status', [StudentsController::class, 'updateStatus'])->name('students.update-status');
+Route::get('/students/print-inactive-students/{classId}', [StudentsController::class, 'printInactiveStudents'])->name('students.print-inactive-students');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');

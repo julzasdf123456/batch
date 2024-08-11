@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Students;
+use App\Models\StudentClasses;
 use App\Models\Classes;
 use App\Models\Payables;
 use App\Models\PayableInclusions;
@@ -128,6 +129,10 @@ class StudentsController extends AppBaseController
         }
 
         $this->studentsRepository->delete($id);
+
+        StudentClasses::where('StudentId', $id)->delete();
+        Payables::where('StudentId', $id)->delete();
+        StudentScholarships::where('StudentId', $id)->delete();
 
         // Flash::success('Students deleted successfully.');
 
@@ -379,6 +384,47 @@ class StudentsController extends AppBaseController
             'class' => $class, 
             'male' => $male,
             'female' => $female,
+        ]);
+    }
+
+    public function updateStatus(Request $request) {
+        $id = $request['id'];
+        $status = $request['Status'];
+
+        $student = Students::find($id);
+
+        if ($student != null) {
+            $student->Status = $status;
+            $student->save();
+        }
+
+        return response()->json('ok', 200);
+    }
+    
+    public function printInactiveStudents($classId) {
+        $class = DB::table('Classes')
+            ->whereRaw("id='" . $classId . "'")
+            ->first();
+
+        $students =  DB::table('StudentClasses')
+            ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NOT NULL")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus'
+            )
+            ->orderBy('Students.Status')
+            ->orderBy('Students.LastName')
+            ->get();
+
+        return view('/students/print_inactive_students', [
+            'class' => $class, 
+            'students' => $students,
         ]);
     }
 }

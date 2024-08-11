@@ -22,7 +22,7 @@
                         <!-- TAB HEADS -->
                         <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="students-list-tab" data-toggle="pill" href="#students-list-content" role="tab" aria-controls="students-list-content" aria-selected="false">Students List</a>
+                                <a class="nav-link active" id="students-list-tab" data-toggle="pill" href="#students-list-content" role="tab" aria-controls="students-list-content" aria-selected="false">Active Students List</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="attendance-tab" data-toggle="pill" href="#attendance-content" role="tab" aria-controls="attendance-content" aria-selected="false">Attendance</a>
@@ -32,6 +32,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="payments-tab" data-toggle="pill" href="#payments-content" role="tab" aria-controls="payments-content" aria-selected="false">Payments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="inactive-tab" data-toggle="pill" href="#inactive-content" role="tab" aria-controls="inactive-content" aria-selected="false">Inactive Students</a>
                             </li>
                         </ul>
 
@@ -56,7 +59,7 @@
                                             <th class="text-muted">Address</th>
                                             <th class="text-muted">Birth Date</th>
                                             <th class="text-muted">Contact Numbers</th>
-                                            <th style="width: 40px;"></th>
+                                            <th style="width: 80px;"></th>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -81,6 +84,18 @@
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
                                                 <td class="text-right">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
+
+                                                    <div class="dropdown px-3" title="More Options" style="display: inline;">
+                                                        <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                                                          <i class="fas fa-ellipsis-v"></i>
+                                                        </a>
+                                                        <div class="dropdown-menu">
+                                                            <span class="text-muted text-sm px-2">Tag as: </span>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Dropped Out</button>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -103,8 +118,20 @@
                                                 <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
                                                 <td class="v-align">{{ isNull(student.Birthdate) ? '-' : moment(student.Birthdate).format('MMM DD, YYYY') }}</td>
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
-                                                <td class="text-right">
+                                                <td class="text-right" title="View Student">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
+
+                                                    <div class="dropdown px-3" title="More Options" style="display: inline;">
+                                                        <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
+                                                          <i class="fas fa-ellipsis-v"></i>
+                                                        </a>
+                                                        <div class="dropdown-menu">
+                                                            <span class="text-muted text-sm px-2">Tag as: </span>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Dropped Out</button>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -289,6 +316,43 @@
                                     </table>
                                 </div>
                             </div>
+                            
+                            <!-- 
+                                ====================================================================================================================================
+                                INACTIVE 
+                                ====================================================================================================================================
+                            -->
+                            <div class="tab-pane fade" id="inactive-content" role="tabpanel" aria-labelledby="inactive-tab">
+                                <div class="mt-2">
+                                    <a :href="baseURL + '/students/print-inactive-students/' + classId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
+                                </div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-hover table-bordered table-sm">
+                                        <thead>
+                                            <th></th>
+                                            <th>Student Name</th>
+                                            <th>LRN</th>
+                                            <th>Address</th>
+                                            <th>Gender</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(student, index) in inactive">
+                                                <td>{{ index+1 }}</td>
+                                                <td class="v-align"><a :href="baseURL + '/students/guest-view/' + student.id" target="_blank"><strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong></a></td>
+                                                <td class="v-align">{{ student.LRN }}</td>
+                                                <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
+                                                <td class="v-align">{{ student.Gender }}</td>
+                                                <td class="v-align">{{ student.Status }}</td>
+                                                <td class="text-right">
+                                                    <button title="Revert to Active" @click="updateStatus(student.id, null, `Re-active this student? You can always change this anytime.`)" class="btn btn-link-muted" :href="baseURL + '/students/edit-student/' + studentId"><i class="fas fa-sync-alt"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -343,7 +407,8 @@ export default {
             attendanceYear : moment().format('YYYY'),
             daysInAMonth : [],
             barcodeAttendances : [],
-            loaderVisibility : true
+            loaderVisibility : true,
+            inactive : []
         }
     },
     methods : {
@@ -390,6 +455,7 @@ export default {
                 this.syDetails = response.data.SchoolYear
                 this.male = response.data.Male
                 this.female = response.data.Female
+                this.inactive = response.data.Inactive
 
                 this.getClassPaymentDetails()
             })
@@ -658,6 +724,38 @@ export default {
                     text : 'Error repopulating subjects!'
                 })
             })
+        },
+        updateStatus(id, status, message) {
+            Swal.fire({
+                title: "Update Status",
+                showCancelButton: true,
+                text : message,
+                confirmButtonText: "Proceed",
+                confirmButtonColor : '#3a9971'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/students/update-status`, {
+                        _token : this.token,
+                        id : id,
+                        Status : status
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Student status updated!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error updating student status!'
+                        })
+                    })
+                }
+            })
+            
         }
     },
     created() {
