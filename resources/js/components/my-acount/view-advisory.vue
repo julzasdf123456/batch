@@ -721,7 +721,7 @@ export default {
                 console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
-                    text : 'Error repopulating subjects!'
+                    text : 'Error repopulating subjects!\n' + error.response
                 })
             })
         },

@@ -829,8 +829,10 @@ class ClassesController extends AppBaseController
                     }
                 }
             }
-        }
 
-        return response()->json($class, 200);
+            return response()->json($class, 200);
+        } else {
+            return response()->json('Class not found!', 404);
+        }
     }
 }
