@@ -828,9 +828,11 @@ class ClassesController extends AppBaseController
                         $ss->save();
                     }
                 }
+                
+                return response()->json($class, 200);
+            } else {
+                return response()->json('Classes Repo not found!', 404);
             }
-
-            return response()->json($class, 200);
         } else {
             return response()->json('Class not found!', 404);
         }
