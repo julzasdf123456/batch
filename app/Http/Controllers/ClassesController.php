@@ -790,12 +790,18 @@ class ClassesController extends AppBaseController
         $sy = SchoolYear::find($class->SchoolYearId);
 
         if ($class != null) {
-            $classRepo = ClassesRepo::where('Year', $class->Year)
-                ->where('Section', $class->Section)
-                ->where('Strand', $class->Strand)
-                ->where('Semester', $class->Semester)
-                ->first();
-
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                $classRepo = ClassesRepo::where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->where('Strand', $class->Strand)
+                    ->where('Semester', $class->Semester)
+                    ->first();
+            } else {
+                $classRepo = ClassesRepo::where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->first();
+            }
+            
             if ($classesRepo != null) {
                 $subjectClasses = DB::table('SubjectClasses')
                     ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
