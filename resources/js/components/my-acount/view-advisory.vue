@@ -704,11 +704,9 @@ export default {
             })
         },
         revalidateSubjects() {
-            axios.get(`${ this.baseURL }/classes/revalidate-subjects`, {
-                params : {
-                    _token : this.token,
-                    ClassId : this.classId
-                }
+            axios.post(`${ this.baseURL }/classes/revalidate-subjects`, {
+                _token : this.token,
+                ClassId : this.classId
             })
             .then(response => {
                 this.toast.fire({
