@@ -7,7 +7,7 @@
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
             
             <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
-            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidateSubjects()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Subjects</button>
+            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
 
             <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
                 <span class="sr-only">Loading...</span>
@@ -91,9 +91,9 @@
                                                         </a>
                                                         <div class="dropdown-menu">
                                                             <span class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Dropped Out</button>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item">Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item">Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item">Dropped Out</button>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -127,9 +127,9 @@
                                                         </a>
                                                         <div class="dropdown-menu">
                                                             <span class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId">Dropped Out</button>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item">Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item">Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item">Dropped Out</button>
                                                         </div>
                                                     </div>
                                                 </td>
