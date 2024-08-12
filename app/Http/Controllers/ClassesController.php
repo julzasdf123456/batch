@@ -802,10 +802,10 @@ class ClassesController extends AppBaseController
                     ->first();
             }
             
-            if ($classesRepo != null) {
+            if ($classRepo != null) {
                 $subjectClasses = DB::table('SubjectClasses')
                     ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
-                    ->where('ClassRepoId', $classesRepo->id)
+                    ->where('ClassRepoId', $classRepo->id)
                     ->select(
                         'SubjectClasses.*',
                         'Subjects.Teacher'
