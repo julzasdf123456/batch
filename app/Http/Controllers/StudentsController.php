@@ -427,4 +427,23 @@ class StudentsController extends AppBaseController
             'students' => $students,
         ]);
     }
+
+    public function addNew(Request $request) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student details'])) {
+            return view('/students/add_new');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        } 
+    }
+
+    
+    public function addNewToClass($studentId) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class'])) {
+            return view('/students/add_new_to_class', [
+                'studentId' => $studentId
+            ]);
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
+    }
 }

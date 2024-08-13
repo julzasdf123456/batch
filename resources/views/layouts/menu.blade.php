@@ -1,11 +1,31 @@
 {{-- STUDENTS --}}
 <li class="nav-item">
-    <a href="{{ route('students.index') }}"
-       class="nav-link {{ Request::is('students.index*') ? 'active' : '' }}">
-       <i class="fas fa-user-circle nav-icon"></i>
-        <p>Students</p>
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-portrait"></i>
+        <p>
+            Students
+            <i class="right fas fa-caret-left"></i>
+        </p>
     </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="{{ route('students.index') }}"
+               class="nav-link {{ Request::is('students.index*') ? 'active' : '' }}">
+               <i class="fas fa-user-circle nav-icon"></i>
+                <p>All Students</p>
+            </a>
+        </li>
+        
+        <li class="nav-item">
+            <a href="{{ route('students.add-new') }}"
+               class="nav-link {{ Request::is('students.add-new*') ? 'active' : '' }}">
+               <i class="fas fa-user-plus nav-icon"></i>
+                <p>Add New Student</p>
+            </a>
+        </li>
+    </ul>
 </li>
+
 
 {{-- CLASSES --}}
 <li class="nav-item">

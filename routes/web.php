@@ -83,6 +83,8 @@ Route::get('/students/guest-view/{studentId}', [StudentsController::class, 'gues
 Route::get('/students/print-students/{classId}', [StudentsController::class, 'printStudents'])->name('students.print-students');
 Route::post('/students/update-status', [StudentsController::class, 'updateStatus'])->name('students.update-status');
 Route::get('/students/print-inactive-students/{classId}', [StudentsController::class, 'printInactiveStudents'])->name('students.print-inactive-students');
+Route::get('/students/add-new', [StudentsController::class, 'addNew'])->name('students.add-new');
+Route::get('/students/add-new-to-class/{studentId}', [StudentsController::class, 'addNewToClass'])->name('students.add-new-to-class');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -94,6 +96,7 @@ Route::get('/classes/view-class/{adviserId}/{schoolyearid}/{classId}', [ClassesC
 Route::get('/classes/transfer-to-another-class/{studentId}', [ClassesController::class, 'transferToAnotherClass'])->name('classes.transfer-to-another-class');
 Route::post('/classes/save-transfer', [ClassesController::class, 'saveTransfer'])->name('classes.save-transfer');
 Route::post('/classes/revalidate-subjects', [ClassesController::class, 'revalidateSubjects'])->name('classes.revalidate-subjects');
+Route::post('/classes/save-new-student', [ClassesController::class, 'saveNewStudent'])->name('classes.save-new-student');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
