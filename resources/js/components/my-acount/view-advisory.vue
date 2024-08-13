@@ -82,20 +82,27 @@
                                                 <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
                                                 <td class="v-align">{{ isNull(student.Birthdate) ? '-' : moment(student.Birthdate).format('MMM DD, YYYY') }}</td>
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
-                                                <td class="text-right">
+                                                <td class="text-right" style="overflow: visible;">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
 
-                                                    <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='btn btn-link-muted btn-sm'><i class="fas fa-trash"></i></button>
-
-                                                    <div class="dropdown px-1" title="More Options" style="display: inline;">
+                                                    <div class="px-3" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                                                           <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <div class="dropdown-menu">
                                                             <span class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item">Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item">Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item">Dropped Out</button>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
+
+                                                            <div class="divider"></div>
+
+                                                            <a target="_blank" class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
+                                                            <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+
+                                                            <div class="divider"></div>
+
+                                                            <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -123,17 +130,24 @@
                                                 <td class="text-right" title="View Student">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
                                                     
-                                                    <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='btn btn-link-muted btn-sm'><i class="fas fa-trash"></i></button>
-
-                                                    <div class="dropdown px-1" title="More Options" style="display: inline;">
+                                                    <div class="px-3" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                                                           <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <div class="dropdown-menu">
                                                             <span class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item">Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item">Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item">Dropped Out</button>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
+
+                                                            <div class="divider"></div>
+
+                                                            <a target="_blank" class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
+                                                            <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+
+                                                            <div class="divider"></div>
+
+                                                            <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
                                                         </div>
                                                     </div>
                                                 </td>
