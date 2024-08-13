@@ -238,17 +238,19 @@ class ClassesController extends AppBaseController
                     $enrollee->Semester = $semester;
                     $enrollee->save();
 
-                    // create payables
-                    $payableId = IDGenerator::generateIDandRandString();
-                    $payable = new Payables;
-                    $payable->id = $payableId;
-                    $payable->StudentId = $studentId;
-                    $payable->AmountPayable = 700.00;
-                    $payable->PaymentFor = 'Enrollment Fees for ' . $sy->SchoolYear;
-                    $payable->Category = 'Enrollment';
-                    $payable->Balance = 700.00;
-                    $payable->SchoolYear = $sy->SchoolYear;
-                    $payable->save();
+                    if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
+                        // create payables
+                        $payableId = IDGenerator::generateIDandRandString();
+                        $payable = new Payables;
+                        $payable->id = $payableId;
+                        $payable->StudentId = $studentId;
+                        $payable->AmountPayable = 700.00;
+                        $payable->PaymentFor = 'Enrollment Fees for ' . $sy->SchoolYear;
+                        $payable->Category = 'Enrollment';
+                        $payable->Balance = 700.00;
+                        $payable->SchoolYear = $sy->SchoolYear;
+                        $payable->save();
+                    }
 
                     // create subjects
                     foreach($subjects as $item) {
@@ -336,7 +338,7 @@ class ClassesController extends AppBaseController
                             }
 
                             // create tuitions breakdown
-                            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
@@ -639,7 +641,7 @@ class ClassesController extends AppBaseController
                             }
 
                             // create tuitions breakdown
-                            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 

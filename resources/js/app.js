@@ -24,6 +24,7 @@ import ExistingStudentEnroll from "./components/classes/existing-student-enroll.
 import ClassView from "./components/classes/class-view.vue"
 import Transfer from "./components/classes/transfer.vue"
 import EnrollmentTransactions from "./components/transactions/enrollment.vue"
+import EnrollmentFlexible from "./components/transactions/enrollment-flexible.vue"
 import TuitionsSearch from "./components/transactions/tuitions-search.vue"
 import Tuitions from "./components/transactions/tuitions.vue"
 import Miscellaneous from "./components/transactions/miscellaneous.vue"
@@ -58,6 +59,7 @@ app.component('existing-student-enroll', ExistingStudentEnroll);
 app.component('class-view', ClassView);
 app.component('transfer', Transfer);
 app.component('enrollment-transactions', EnrollmentTransactions);
+app.component('enrollment-flexible', EnrollmentFlexible);
 app.component('tuitions-search', TuitionsSearch);
 app.component('tuitions', Tuitions);
 app.component('miscellaneous', Miscellaneous);

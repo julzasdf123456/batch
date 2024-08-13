@@ -295,7 +295,8 @@ class UsersController extends AppBaseController
                     'Students.*',
                     'Towns.Town AS TownSpelled',
                     'Barangays.Barangay AS BarangaySpelled',
-                    'StudentClasses.Status as EnrollmentStatus'
+                    'StudentClasses.Status as EnrollmentStatus',
+                    'StudentClasses.id as StudentClassId'
                 )
                 ->orderBy('Students.LastName')
                 ->get();
@@ -310,7 +311,8 @@ class UsersController extends AppBaseController
                     'Students.*',
                     'Towns.Town AS TownSpelled',
                     'Barangays.Barangay AS BarangaySpelled',
-                    'StudentClasses.Status as EnrollmentStatus'
+                    'StudentClasses.Status as EnrollmentStatus',
+                    'StudentClasses.id as StudentClassId'
                 )
                 ->orderBy('Students.LastName')
                 ->get();
@@ -326,7 +328,8 @@ class UsersController extends AppBaseController
                     'Students.*',
                     'Towns.Town AS TownSpelled',
                     'Barangays.Barangay AS BarangaySpelled',
-                    'StudentClasses.Status as EnrollmentStatus'
+                    'StudentClasses.Status as EnrollmentStatus',
+                    'StudentClasses.id as StudentClassId'
                 )
                 ->orderBy('Students.Status')
                 ->orderBy('Students.LastName')

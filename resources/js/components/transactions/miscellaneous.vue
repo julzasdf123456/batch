@@ -233,6 +233,7 @@ export default {
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
+            school : document.querySelector("meta[name='school']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -505,7 +506,12 @@ export default {
                                         icon : 'success',
                                         text : 'Tuition successfully paid!'
                                     })
-                                    window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + response.data
+                                    if (this.school === 'SVI') {
+                                        
+                                    } else if (this.school === 'HCA') {
+                                        window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + response.data
+                                    }
+                                    
                                 })
                                 .catch(error => {
                                     console.log(error.response)

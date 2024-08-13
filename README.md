@@ -18,3 +18,8 @@
 
 ### New NPM Packages
 - npm i vue-chartjs chart.js
+
+
+### New Config Items
+- TUITION_PROPAGATION_PRESET
+- SENIOR_HIGH_SEM_ENROLLMENT

@@ -59,7 +59,7 @@
                                             <th class="text-muted">Address</th>
                                             <th class="text-muted">Birth Date</th>
                                             <th class="text-muted">Contact Numbers</th>
-                                            <th style="width: 80px;"></th>
+                                            <th style="width: 120px;"></th>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -85,7 +85,9 @@
                                                 <td class="text-right">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
 
-                                                    <div class="dropdown px-3" title="More Options" style="display: inline;">
+                                                    <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='btn btn-link-muted btn-sm'><i class="fas fa-trash"></i></button>
+
+                                                    <div class="dropdown px-1" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                                                           <i class="fas fa-ellipsis-v"></i>
                                                         </a>
@@ -120,8 +122,10 @@
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
                                                 <td class="text-right" title="View Student">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
+                                                    
+                                                    <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='btn btn-link-muted btn-sm'><i class="fas fa-trash"></i></button>
 
-                                                    <div class="dropdown px-3" title="More Options" style="display: inline;">
+                                                    <div class="dropdown px-1" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                                                           <i class="fas fa-ellipsis-v"></i>
                                                         </a>
@@ -752,8 +756,37 @@ export default {
                         })
                     })
                 }
+            })            
+        },
+        removeFromClass(studentClassId) {
+            Swal.fire({
+                title: "Confirm Removal",
+                text : 'Removing this student from this class does not delete the student. If you wish to delete the student, you may go to the student account page. Proceed with caution.',
+                showCancelButton: true,
+                confirmButtonText: "Proceed Removal",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`${ this.baseURL }/studentClasses/` + studentClassId, {
+                        _token : this.token,
+                        id : studentClassId,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Student removed!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error removing student!'
+                        })
+                    })
+                }
             })
-            
         }
     },
     created() {

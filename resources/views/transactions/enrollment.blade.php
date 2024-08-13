@@ -4,7 +4,12 @@
 
 @section('content')
 <div id="app">
-    <enrollment-transactions></enrollment-transactions>
+    @if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE')
+        <enrollment-transactions></enrollment-transactions>
+    @else
+        <enrollment-flexible></enrollment-flexible>
+    @endif
+    
 </div>
 @vite('resources/js/app.js')
 @endsection

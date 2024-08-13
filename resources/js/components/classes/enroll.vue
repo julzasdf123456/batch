@@ -423,12 +423,8 @@ export default {
                         title: "Enrollment Confirmation",
                         showCancelButton: true,
                         html: `
-                            <p style='text-align: left;'>By proceeding, this enrollment application shall be forwarded to the cashier for the following payment: </p>
+                            <p style='text-align: left;'>By proceeding, this enrollment application shall be forwarded to the cashier for the enrollment/registration fees.</p>
                             <br>
-                            <ul>
-                                <li style='text-align: left;'>Enrollment Fees: <strong>P 500.00</strong></li>
-                                <li style='text-align: left;'>Miscellaneous Fees: <strong>P 230.00</strong></li>
-                            </ul>
                         `,
                         confirmButtonText: "Proceed Enrollment to Cashier",
                         confirmButtonColor : '#3a9971'

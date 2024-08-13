@@ -2,6 +2,7 @@
 
 <meta name="token" content="{{ csrf_token() }}">
 <meta name="student-id" content="{{ $studentId }}">
+<meta name="school" content="{{ env('APP_COMPANY_ABRV') }}">
 
 @section('content')
 <div id="app">

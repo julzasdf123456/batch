@@ -196,10 +196,17 @@ class TransactionsController extends AppBaseController
     public function getEnrollmentPayables(Request $request) {
         $studentId = $request['StudentId'];
 
-        $payables = Payables::where('StudentId', $studentId)
-            ->whereRaw("Balance > 0 AND Category='Enrollment'")
-            ->orderBy('created_at')
-            ->get();
+        if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
+            $payables = Payables::where('StudentId', $studentId)
+                ->whereRaw("Balance > 0 AND Category='Enrollment'")
+                ->orderBy('created_at')
+                ->get();
+        } else {
+            $payables = Payables::where('StudentId', $studentId)
+                ->whereRaw("Balance > 0 AND Category='Tuition Fees'")
+                ->orderBy('created_at')
+                ->first();
+        }
 
         return response()->json($payables, 200);
     }
@@ -219,14 +226,6 @@ class TransactionsController extends AppBaseController
         $payables = $request['Payables'];
         $orNumber = $request['ORNumber'];
 
-        // update payables
-        $payableIds = '';
-        foreach($payables as $item) {
-            $payableIds .= $item['id'];
-            Payables::where('id', $item['id'])
-                ->update(['AmountPaid' => $item['AmountPayable'], 'Balance' => 0]);
-        }
-
         $modeOfPayment = '';
         if ($cashAmount != null) {
             $modeOfPayment .= 'Cash;';
@@ -238,32 +237,148 @@ class TransactionsController extends AppBaseController
             $modeOfPayment .= 'Digital;';
         }
 
+        $student = Students::find($studentId);
+        $class = null;
+        $sy = null;
+        if ($student != null && $student->CurrentGradeLevel != null) {
+            $class = Classes::find($student->CurrentGradeLevel);
+        }
+
         // insert transactions
         $id = IDGenerator::generateIDandRandString();
-        $transactions = new Transactions;
-        $transactions->id = $id;
-        $transactions->PayablesId = $payableIds;
-        $transactions->StudentId = $studentId;
-        $transactions->PaymentFor = 'Enrollment Fees';
-        $transactions->ModeOfPayment = $modeOfPayment;
-        $transactions->ORNumber = $orNumber;
-        $transactions->ORDate = date('Y-m-d');
-        $transactions->CashAmount = $cashAmount;
-        $transactions->CheckAmount = $checkAmount;
-        $transactions->DigitalPaymentAmount = $digitalAmount;
-        $transactions->TotalAmountPaid = $totalPayables;
-        $transactions->UserId = Auth::id();
-        $transactions->TransactionType = 'Enrollment';
-        $transactions->save();
 
-        // insert transaction details
-        foreach($payables as $item) {
-            $details = new TransactionDetails;
-            $details->id = IDGenerator::generateIDandRandString();
-            $details->TransactionsId = $id;
-            $details->Particulars = $item['PaymentFor'];
-            $details->Amount = $item['Balance'];
-            $details->save();
+        if (env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+            /**
+             * ============================================================================
+             * FOR TUITION_PROPAGATION_PRESET="STATIC_ENROLLMENT_FEE"
+             * ============================================================================
+             */
+            // update payables
+            $payableIds = '';
+            foreach($payables as $item) {
+                $payableIds .= $item['id'];
+                Payables::where('id', $item['id'])
+                    ->update(['AmountPaid' => $item['AmountPayable'], 'Balance' => 0]);
+            }
+
+            $transactions = new Transactions;
+            $transactions->id = $id;
+            $transactions->PayablesId = $payableIds;
+            $transactions->StudentId = $studentId;
+            $transactions->PaymentFor = 'Enrollment Fees';
+            $transactions->ModeOfPayment = $modeOfPayment;
+            $transactions->ORNumber = $orNumber;
+            $transactions->ORDate = date('Y-m-d');
+            $transactions->CashAmount = $cashAmount;
+            $transactions->CheckAmount = $checkAmount;
+            $transactions->DigitalPaymentAmount = $digitalAmount;
+            $transactions->TotalAmountPaid = $totalPayables;
+            $transactions->UserId = Auth::id();
+            $transactions->TransactionType = 'Enrollment';
+            $transactions->save();
+
+            // insert transaction details
+            foreach($payables as $item) {
+                $details = new TransactionDetails;
+                $details->id = IDGenerator::generateIDandRandString();
+                $details->TransactionsId = $id;
+                $details->Particulars = $item['PaymentFor'];
+                $details->Amount = $item['Balance'];
+                $details->save();
+            }
+        } else {
+            /**
+             * ============================================================================
+             * FOR TUITION_PROPAGATION_PRESET="FLEXIBLE_ENROLLMENT_FEE"
+             * ============================================================================
+             */
+            $payable = Payables::find($payables['id']);
+
+            if ($payable != null) {
+                // deduct payable
+                $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+                $newAmntPaid = $payableAmntPaid + floatval($totalPayments);
+
+                $amntPayable = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                $newAmntPayable = $amntPayable - floatval($totalPayments);
+                $balance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                $newBalance = $balance - floatval($totalPayments);
+
+                $payable->AmountPaid = $newAmntPaid;
+                $payable->AmountPayable = $newAmntPayable;
+                $payable->Balance = $newBalance;
+                $payable->save();
+
+                // insert transactions
+                $transactions = new Transactions;
+                $transactions->id = $id;
+                $transactions->PayablesId = $payable->id;
+                $transactions->StudentId = $studentId;
+                $transactions->PaymentFor = 'Enrollment Fees';
+                $transactions->ModeOfPayment = $modeOfPayment;
+                $transactions->ORNumber = $orNumber;
+                $transactions->ORDate = date('Y-m-d');
+                $transactions->CashAmount = $cashAmount;
+                $transactions->CheckAmount = $checkAmount;
+                $transactions->DigitalPaymentAmount = $digitalAmount;
+                $transactions->TotalAmountPaid = $totalPayments;
+                $transactions->UserId = Auth::id();
+                $transactions->TransactionType = 'Enrollment';
+                $transactions->save();
+
+                // revalidate tuitions breakdown
+                if ($class != null) {
+                    $sy = SchoolYear::find($class->SchoolYearId);
+
+                    TuitionsBreakdown::where('PayableId', $payable->id)->delete();
+                    // create tuitions breakdown
+                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
+                        $monthsToPay = 5;
+
+                        for ($i=0; $i<$monthsToPay; $i++) {
+                            $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                            $tuitionBreakdown = new TuitionsBreakdown;
+                            $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                            
+                            if ($class->Semester != null && $class->Semester == '2nd') {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
+                            } else {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                            }
+                            
+                            $tuitionBreakdown->PayableId = $payable->id;
+
+                            $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                            $tf = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
+
+                            $tuitionBreakdown->AmountPayable = $amntPayable;
+                            $tuitionBreakdown->Payable = $tf;
+                            $tuitionBreakdown->Balance = $amntPayable;
+                            $tuitionBreakdown->save();
+                        }
+                    } else {
+                        // if not SHS and SHS enrollment for semestrals are continuos
+                        $monthsToPay = 10;
+
+                        for ($i=0; $i<$monthsToPay; $i++) {
+                            $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                            $tuitionBreakdown = new TuitionsBreakdown;
+                            $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                            $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                            $tuitionBreakdown->PayableId = $payable->id;
+
+                            $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                            $tf = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
+
+                            $tuitionBreakdown->AmountPayable = $amntPayable;
+                            $tuitionBreakdown->Payable = $tf;
+                            $tuitionBreakdown->Balance = $amntPayable;
+                            $tuitionBreakdown->save();
+                        }
+                    }
+                }
+            }
         }
 
         // update student classes
