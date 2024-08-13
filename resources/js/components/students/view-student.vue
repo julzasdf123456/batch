@@ -41,7 +41,7 @@
 
                             <div class="divider"></div>
 
-                            <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash ico-tab"></i>Delete Student</a>
+                            <button class="dropdown-item text-danger" @click="deleteStudent()"><i class="fas fa-trash ico-tab"></i>Delete Student</button>
                         </div>
                     </div>
                 </div>
@@ -739,6 +739,39 @@ export default {
                     })
                 }
             })
+        },
+        deleteStudent() {
+            Swal.fire({
+                title: "Remove Student?",
+                showCancelButton: true,
+                text : 'Deleting this student will also delete all his data. Proceed with caution.',
+                confirmButtonText: "Proceed Removal",
+                confirmButtonColor : '#3a9971'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`${ this.baseURL }/students/` + this.studentId, {
+                        params : {
+                            _token : this.token,
+                            id : this.studentId,
+                        }
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Student removed!'
+                        })
+                        window.location.href = this.baseURL + '/students'
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error getting all transaction history data!'
+                        })
+                    })
+                }
+            })
+            
         }
     }, 
     created() {

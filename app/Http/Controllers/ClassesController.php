@@ -790,16 +790,22 @@ class ClassesController extends AppBaseController
         $sy = SchoolYear::find($class->SchoolYearId);
 
         if ($class != null) {
-            $classRepo = ClassesRepo::where('Year', $class->Year)
-                ->where('Section', $class->Section)
-                ->where('Strand', $class->Strand)
-                ->where('Semester', $class->Semester)
-                ->first();
-
-            if ($classesRepo != null) {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                $classRepo = ClassesRepo::where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->where('Strand', $class->Strand)
+                    ->where('Semester', $class->Semester)
+                    ->first();
+            } else {
+                $classRepo = ClassesRepo::where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->first();
+            }
+            
+            if ($classRepo != null) {
                 $subjectClasses = DB::table('SubjectClasses')
                     ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
-                    ->where('ClassRepoId', $classesRepo->id)
+                    ->where('ClassRepoId', $classRepo->id)
                     ->select(
                         'SubjectClasses.*',
                         'Subjects.Teacher'
@@ -822,9 +828,13 @@ class ClassesController extends AppBaseController
                         $ss->save();
                     }
                 }
+                
+                return response()->json($class, 200);
+            } else {
+                return response()->json('Classes Repo not found!', 404);
             }
+        } else {
+            return response()->json('Class not found!', 404);
         }
-
-        return response()->json($class, 200);
     }
 }

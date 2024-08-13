@@ -290,6 +290,7 @@ class UsersController extends AppBaseController
                 ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
                 ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
                 ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Male'")
+                ->whereRaw("Students.Status IS NULL")
                 ->select(
                     'Students.*',
                     'Towns.Town AS TownSpelled',
@@ -304,6 +305,7 @@ class UsersController extends AppBaseController
                 ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
                 ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
                 ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Female'")
+                ->whereRaw("Students.Status IS NULL")
                 ->select(
                     'Students.*',
                     'Towns.Town AS TownSpelled',
@@ -312,9 +314,27 @@ class UsersController extends AppBaseController
                 )
                 ->orderBy('Students.LastName')
                 ->get();
+
+                
+            $data['Inactive'] =  DB::table('StudentClasses')
+                ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+                ->whereRaw("Students.Status IS NOT NULL")
+                ->select(
+                    'Students.*',
+                    'Towns.Town AS TownSpelled',
+                    'Barangays.Barangay AS BarangaySpelled',
+                    'StudentClasses.Status as EnrollmentStatus'
+                )
+                ->orderBy('Students.Status')
+                ->orderBy('Students.LastName')
+                ->get();
         } else {
             $data['Male'] = [];
             $data['Female'] = [];
+            $data['Inactive'] = [];
         }
 
         return response()->json($data, 200);
