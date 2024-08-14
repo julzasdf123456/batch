@@ -286,9 +286,9 @@ class UsersController extends AppBaseController
         
         if ($class != null) {
             $data['Male'] =  DB::table('StudentClasses')
-                ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
-                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
-                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+                ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Male'")
                 ->whereRaw("Students.Status IS NULL")
                 ->select(

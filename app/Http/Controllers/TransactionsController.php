@@ -996,11 +996,17 @@ class TransactionsController extends AppBaseController
         $sy = SchoolYear::find($class->SchoolYearId);
 
         if ($class != null) {
-            $classRepo = ClassesRepo::where('Year', $class->Year)
-                ->where('Section', $class->Section)
-                ->where('Strand', $class->Strand)
-                ->where('Semester', $class->Semester)
-                ->first();
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                $classRepo = ClassesRepo::where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->where('Strand', $class->Strand)
+                    ->where('Semester', $class->Semester)
+                    ->first();
+            } else {
+                $classRepo = ClassesRepo::where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->first();
+            }
 
             // loop students
             foreach($students as $item) {
@@ -1023,7 +1029,7 @@ class TransactionsController extends AppBaseController
 
                 // repopulate payable inclusions
                 if ($payable != null && count($tuitionInclusions) > 0) {
-                    // PayableInclusions::where('PayableId', $payable->id)->delete();
+                    PayableInclusions::where('PayableId', $payable->id)->delete();
                     // insert tuition inclusions to payable inclusions
                     foreach($tuitionInclusions as $ti) {
                         $pi = new PayableInclusions;
@@ -1033,6 +1039,45 @@ class TransactionsController extends AppBaseController
                         $pi->PayableId = $payable->id;
                         $pi->save();
                     }
+                } else {
+                    // create a payable
+                    $baseTuition = $item->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
+
+                    $payableId = IDGenerator::generateIDandRandString();
+                    $payable = new Payables;
+                    $payable->id = $payableId;
+                    $payable->StudentId = $item->id;
+                    $payable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
+                    $payable->Category = 'Tuition Fees';
+                    $payable->SchoolYear = $sy->SchoolYear;
+                    $payable->ClassId = $classId;
+
+                    if ($baseTuition != null) {
+                        // copy base tuition fee if declared in classes
+                        $payable->Payable = $baseTuition;
+                        $payable->AmountPayable = $baseTuition;
+                        $payable->Balance = $baseTuition;
+                    } else {
+                        // get tuition per subject if not declared in classes
+                        $totalSubjectTuition = DB::table('SubjectClasses')
+                            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                            ->whereRaw("SubjectClasses.ClassRepoId='" . $classRepo->id . "'")
+                            ->select(
+                                DB::raw("SUM(Subjects.CourseFee) AS Total")
+                            )
+                            ->first();
+
+                        if ($totalSubjectTuition != null) {
+                            $payable->Payable = $totalSubjectTuition->Total;
+                            $payable->AmountPayable = $totalSubjectTuition->Total;
+                            $payable->Balance = $totalSubjectTuition->Total;
+                        } else {
+                            $payable->Payable = 0.0;
+                            $payable->AmountPayable = 0.0;
+                            $payable->Balance = 0.0;
+                        }
+                    }
+                    $payable->save();
                 }
 
                 /**
@@ -1041,10 +1086,13 @@ class TransactionsController extends AppBaseController
                  * ==========================
                  */
                 
+                $payable = Payables::where('StudentId', $item->id)
+                    ->where('ClassId', $classId)
+                    ->first();
                 if ($payable != null) {
-                    // TuitionsBreakdown::where('PayableId', $payable->id)->delete();
+                    TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                     // create tuitions breakdown
-                    if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
                         // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                         $monthsToPay = 5;
 
