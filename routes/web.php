@@ -86,6 +86,7 @@ Route::post('/students/update-status', [StudentsController::class, 'updateStatus
 Route::get('/students/print-inactive-students/{classId}', [StudentsController::class, 'printInactiveStudents'])->name('students.print-inactive-students');
 Route::get('/students/add-new', [StudentsController::class, 'addNew'])->name('students.add-new');
 Route::get('/students/add-new-to-class/{studentId}', [StudentsController::class, 'addNewToClass'])->name('students.add-new-to-class');
+Route::post('/students/mark-esc', [StudentsController::class, 'markEsc'])->name('students.mark-esc');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');

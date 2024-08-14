@@ -21,6 +21,8 @@ use App\Models\MiscellaneousPayables;
 use App\Models\PayableInclusions;
 use App\Models\TuitionInclusions;
 use App\Models\SmsMessages;
+use App\Models\Scholarships;
+use App\Models\StudentScholarships;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -995,6 +997,8 @@ class TransactionsController extends AppBaseController
 
         $sy = SchoolYear::find($class->SchoolYearId);
 
+        $escScholarship = Scholarships::find(env('ESC_SCHOLARSHIP_ID'));
+
         if ($class != null) {
             if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
                 $classRepo = ClassesRepo::where('Year', $class->Year)
@@ -1025,59 +1029,95 @@ class TransactionsController extends AppBaseController
                  */
                 $payable = Payables::where('StudentId', $item->id)
                     ->where('ClassId', $classId)
-                    ->first();
+                    ->delete();
 
-                // repopulate payable inclusions
-                if ($payable != null && count($tuitionInclusions) > 0) {
-                    PayableInclusions::where('PayableId', $payable->id)->delete();
-                    // insert tuition inclusions to payable inclusions
-                    foreach($tuitionInclusions as $ti) {
-                        $pi = new PayableInclusions;
-                        $pi->id = IDGenerator::generateIDandRandString();
-                        $pi->ItemName = $ti->ItemName;
-                        $pi->Amount = $ti->Amount;
-                        $pi->PayableId = $payable->id;
-                        $pi->save();
-                    }
+                // create a payable
+                $baseTuition = $item->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
+
+                $payableId = IDGenerator::generateIDandRandString();
+                $payable = new Payables;
+                $payable->id = $payableId;
+                $payable->StudentId = $item->id;
+                $payable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
+                $payable->Category = 'Tuition Fees';
+                $payable->SchoolYear = $sy->SchoolYear;
+                $payable->ClassId = $classId;
+
+                if ($baseTuition != null) {
+                    // copy base tuition fee if declared in classes
+                    $payable->Payable = $baseTuition;
+                    $payable->AmountPayable = $baseTuition;
+                    $payable->Balance = $baseTuition;
                 } else {
-                    // create a payable
-                    $baseTuition = $item->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
+                    // get tuition per subject if not declared in classes
+                    $totalSubjectTuition = DB::table('SubjectClasses')
+                        ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                        ->whereRaw("SubjectClasses.ClassRepoId='" . $classRepo->id . "'")
+                        ->select(
+                            DB::raw("SUM(Subjects.CourseFee) AS Total")
+                        )
+                        ->first();
 
-                    $payableId = IDGenerator::generateIDandRandString();
-                    $payable = new Payables;
-                    $payable->id = $payableId;
-                    $payable->StudentId = $item->id;
-                    $payable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
-                    $payable->Category = 'Tuition Fees';
-                    $payable->SchoolYear = $sy->SchoolYear;
-                    $payable->ClassId = $classId;
-
-                    if ($baseTuition != null) {
-                        // copy base tuition fee if declared in classes
-                        $payable->Payable = $baseTuition;
-                        $payable->AmountPayable = $baseTuition;
-                        $payable->Balance = $baseTuition;
+                    if ($totalSubjectTuition != null) {
+                        $payable->Payable = $totalSubjectTuition->Total;
+                        $payable->AmountPayable = $totalSubjectTuition->Total;
+                        $payable->Balance = $totalSubjectTuition->Total;
                     } else {
-                        // get tuition per subject if not declared in classes
-                        $totalSubjectTuition = DB::table('SubjectClasses')
-                            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
-                            ->whereRaw("SubjectClasses.ClassRepoId='" . $classRepo->id . "'")
-                            ->select(
-                                DB::raw("SUM(Subjects.CourseFee) AS Total")
-                            )
-                            ->first();
-
-                        if ($totalSubjectTuition != null) {
-                            $payable->Payable = $totalSubjectTuition->Total;
-                            $payable->AmountPayable = $totalSubjectTuition->Total;
-                            $payable->Balance = $totalSubjectTuition->Total;
-                        } else {
-                            $payable->Payable = 0.0;
-                            $payable->AmountPayable = 0.0;
-                            $payable->Balance = 0.0;
-                        }
+                        $payable->Payable = 0.0;
+                        $payable->AmountPayable = 0.0;
+                        $payable->Balance = 0.0;
                     }
-                    $payable->save();
+                }
+
+                $discount = 0;
+                // update esc scholarship
+                if ($escScholarship != null && $item->ESCScholar === 'Yes') {
+                    // update payable
+                    $escAmount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
+                    
+                    $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                    $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                    $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+
+                    $payable->AmountPayable = $pyblAmount - $escAmount;
+                    $payable->Balance = $pyblBalance - $escAmount;
+                    $payable->DiscountAmount = $pyblDiscount + $escAmount;
+
+                    // insert esc scholarship
+                    $studScholarship = StudentScholarships::where('StudentId', $item->id)
+                        ->where('SchoolYear', $sy->SchoolYear)
+                        ->where('ScholarshipId', $escScholarship->id)
+                        ->first();
+
+                    if ($studScholarship != null) {
+
+                    } else {
+                        $studScholarship = new StudentScholarships;
+                        $studScholarship->id = IDGenerator::generateIDandRandString();
+                        $studScholarship->PayableId = $payableId;
+                        $studScholarship->SchoolYear = $sy->SchoolYear;
+                        $studScholarship->ScholarshipId = $escScholarship->id;
+                        $studScholarship->Amount = $escScholarship->Amount;
+                        $studScholarship->StudentId = $item->id;
+                        $studScholarship->Notes = 'Auto-generated from Rre-populate Payables';
+                        $studScholarship->DeductMonthly = 'Yes';
+                        $studScholarship->save();
+                    }
+
+                    $discount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
+                }
+
+                $payable->save();
+
+                PayableInclusions::where('PayableId', $payableId)->delete();
+                // insert tuition inclusions to payable inclusions
+                foreach($tuitionInclusions as $ti) {
+                    $pi = new PayableInclusions;
+                    $pi->id = IDGenerator::generateIDandRandString();
+                    $pi->ItemName = $ti->ItemName;
+                    $pi->Amount = $ti->Amount;
+                    $pi->PayableId = $payableId;
+                    $pi->save();
                 }
 
                 /**
@@ -1085,7 +1125,6 @@ class TransactionsController extends AppBaseController
                  * TUITIONS BREAKDOWN
                  * ==========================
                  */
-                
                 $payable = Payables::where('StudentId', $item->id)
                     ->where('ClassId', $classId)
                     ->first();
@@ -1110,9 +1149,12 @@ class TransactionsController extends AppBaseController
                             $tuitionBreakdown->PayableId = $payable->id;
 
                             $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                            $pyblOriginal = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
+                            $dscntOriginal = $discount > 0 ? ($discount / $monthsToPay) : 0;
 
                             $tuitionBreakdown->AmountPayable = $amntPayable;
-                            $tuitionBreakdown->Payable = $amntPayable;
+                            $tuitionBreakdown->Payable = $pyblOriginal;
+                            $tuitionBreakdown->Discount = $dscntOriginal;
                             $tuitionBreakdown->Balance = $amntPayable;
                             $tuitionBreakdown->save();
                         }
@@ -1127,9 +1169,12 @@ class TransactionsController extends AppBaseController
                             $tuitionBreakdown->PayableId = $payable->id;
 
                             $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                            $pyblOriginal = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
+                            $dscntOriginal = $discount > 0 ? ($discount / $monthsToPay) : 0;
 
                             $tuitionBreakdown->AmountPayable = $amntPayable;
-                            $tuitionBreakdown->Payable = $amntPayable;
+                            $tuitionBreakdown->Payable = $pyblOriginal;
+                            $tuitionBreakdown->Discount = $dscntOriginal;
                             $tuitionBreakdown->Balance = $amntPayable;
                             $tuitionBreakdown->save();
                         }

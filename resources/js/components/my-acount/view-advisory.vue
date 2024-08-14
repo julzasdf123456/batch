@@ -9,8 +9,16 @@
             <select v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
                 <option v-for="c in classesInSy" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
             </select>
-            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
-            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
+            <div class="dropdown mr-1 float-right" title="More Options" v-if="userId === '1' ? true : false">
+                <a href="#" role="button" data-toggle="dropdown" aria-expanded="false" class="btn btn-default btn-sm">
+                  Administrative Options
+                </a>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
+                    <button  class="dropdown-item" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
+                </div>
+            </div>
+            
 
             <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
                 <span class="sr-only">Loading...</span>
@@ -94,7 +102,7 @@
                                                           <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <div class="dropdown-menu">
-                                                            <span class="text-muted text-sm px-2">Tag as: </span>
+                                                            <span class="text-muted text-sm px-4">Tag as: </span>
                                                             <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
                                                             <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
                                                             <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
@@ -103,6 +111,8 @@
 
                                                             <a target="_blank" class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+                                                            <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
+                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button>
 
                                                             <div class="divider"></div>
 
@@ -828,6 +838,27 @@ export default {
         },
         goToClass() {
             window.location.href = `${ this.baseURL }/classes/view-class/${ this.teacherId }/${ this.syId }/${ this.classSelect }`
+        },
+        markEsc(studentId, isEscScholar) {
+            axios.post(`${ this.baseURL }/students/mark-esc`, {
+                _token : this.token,
+                id : studentId,
+                ESCScholar : isEscScholar
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Student marked ' + isEscScholar + ' for ESC Scholarship!'
+                })
+                location.reload()
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error tagging ESC Scholar!'
+                })
+            })
         }
     },
     created() {

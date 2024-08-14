@@ -220,8 +220,8 @@ class StudentsController extends AppBaseController
         $student = DB::table('Students')
             ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
             ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
-            ->leftJoin(DB::raw("Towns tp"), DB::raw("Students.PermanentTown"), '=', DB::raw("tp.id"))
-            ->leftJoin(DB::raw("Barangays bp"), DB::raw("Students.PermanentBarangay"), '=', DB::raw("bp.id"))
+            ->leftJoin(DB::raw("Towns tp"), DB::raw("TRY_CAST(Students.PermanentTown AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(tp.id AS VARCHAR(100))"))
+            ->leftJoin(DB::raw("Barangays bp"), DB::raw("TRY_CAST(Students.PermanentBarangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(bp.id AS VARCHAR(100))"))
             ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
             ->whereRaw("Students.id='" . $id . "'")
             ->select('Students.*',
@@ -435,7 +435,6 @@ class StudentsController extends AppBaseController
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         } 
     }
-
     
     public function addNewToClass($studentId) {
         if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class'])) {
@@ -445,5 +444,19 @@ class StudentsController extends AppBaseController
         } else {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
+    }
+
+    public function markEsc(Request $request) {
+        $id = $request['id'];
+        $escScholar = $request['ESCScholar'];
+
+        $student = Students::find($id);
+
+        if ($student != null) {
+            $student->ESCScholar = $escScholar;
+            $student->save();
+        }
+
+        return response()->json($student, 200);
     }
 }
