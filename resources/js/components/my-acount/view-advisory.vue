@@ -6,7 +6,10 @@
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
             
-            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
+            <select v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
+                <option v-for="c in classesInSy" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
+            </select>
+            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
             <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
 
             <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
@@ -426,7 +429,9 @@ export default {
             daysInAMonth : [],
             barcodeAttendances : [],
             loaderVisibility : true,
-            inactive : []
+            inactive : [],
+            classesInSy : [],
+            classSelect : ''
         }
     },
     methods : {
@@ -801,17 +806,41 @@ export default {
                     })
                 }
             })
+        },
+        getClassesInSY() {
+            axios.get(`${ this.baseURL }/school_years/get-classes-in-sy`, {
+                params : {
+                    SchoolYearId : this.syId
+                }
+            })
+            .then(response => {
+                this.classesInSy = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting classes inside school year!'
+                })
+            })
+        },
+        goToClass() {
+            window.location.href = `${ this.baseURL }/classes/view-class/${ this.teacherId }/${ this.syId }/${ this.classSelect }`
         }
     },
     created() {
         
     },
     mounted() {
+        this.classSelect = this.classId
+
         this.getAdvisoryData()
         this.getSubjects()
         
         // attendance
         this.getAllAttendanceData()
+
+        this.getClassesInSY()
     }
 }
 

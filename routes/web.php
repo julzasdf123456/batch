@@ -40,6 +40,7 @@ Auth::routes();
 Route::get('/home/get-junior-enrolless-trend', [HomeController::class, 'getJuniorEnrolleesTrend'])->name('home.get-junior-enrolless-trend');
 Route::get('/home/get-senior-enrolless-trend', [HomeController::class, 'getSeniorEnrolleesTrend'])->name('home.get-senior-enrolless-trend');
 Route::get('/home/get-monthly-collection-trend', [HomeController::class, 'getMonthlyCollectionTrend'])->name('home.get-monthly-collection-trend');
+Route::get('/home/app-settings', [HomeController::class, 'appSettings'])->name('home.app-settings');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/users/add-roles/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
@@ -108,6 +109,7 @@ Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
 Route::get('/school_years/get-school-year', [SchoolYearController::class, 'getSchoolYear'])->name('schoolYears.get-school-year');
+Route::get('/school_years/get-classes-in-sy', [SchoolYearController::class, 'getClassesInSY'])->name('schoolYears.get-classes-in-sy');
 Route::resource('schoolYears', SchoolYearController::class);
 
 Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');

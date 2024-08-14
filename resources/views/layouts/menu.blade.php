@@ -200,7 +200,7 @@
 </li>
 {{-- @endcanany --}}
 
-{{-- @canany('god permission') --}}
+@canany('god permission')
 {{-- ADMIN SIDE --}}
 <li class="nav-item">
     <a href="#" class="nav-link">
@@ -231,7 +231,16 @@
                 <p>Permissions</p>
             </a>
         </li>
+
+        <div class="divider"></div>
+        
+        <li class="nav-item">
+            <a href="{{ route('home.app-settings') }}" class="nav-link {{ Request::is('home.app-settings*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-cogs"></i>
+                <p>App Settings</p>
+            </a>
+        </li>
     </ul>
 </li>
-{{-- @endcanany --}}
+@endcanany
 
