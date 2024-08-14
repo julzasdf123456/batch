@@ -501,6 +501,8 @@ class TransactionsController extends AppBaseController
         $paidAmount = $request['PaidAmount'];
         $balance = $request['Balance'];
         $tuitionBreakdown = $request['TuitionBreakdowns'];
+        $amountForTuition = $request['AmountForTuition'];
+        $minimumAmountPayable = $request['MinimumAmountPayable'];
 
         // update tuition payable
         $payable = Payables::find($payableId);
@@ -552,9 +554,14 @@ class TransactionsController extends AppBaseController
         $transactionDetails->Amount = $paidAmount;
         $transactionDetails->save();
 
+        // update payable inclusions for non-distributed inclusions
+        PayableInclusions::where('PayableId', $payableId)
+            ->where('NotDeductedMonthly', 'Yes')
+            ->update(['NotDeductedMonthly' => 'Paid']);
+
         // update tuitions breakdown
         $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
-        $payment = $paidAmount;
+        $payment = floatval($amountForTuition);
         foreach($tBreakdown as $item) {
             $currentPayable = floatval($item->Balance);
             if ($payment > 0) {
@@ -1226,17 +1233,19 @@ class TransactionsController extends AppBaseController
                 $payable->save();
 
                 // update payable tuitions breakdown
-                $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
-                if ($tuitionsBreakdown != null) {
-                    $count = count($tuitionsBreakdown);
+                if ($inc->NotDeductedMonthly != "Yes") {
+                    $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
+                    if ($tuitionsBreakdown != null) {
+                        $count = count($tuitionsBreakdown);
 
-                    if ($count > 0) {
-                        $amountDistributable = round(($incAmount / $count), 2);
-                    
-                        foreach($tuitionsBreakdown as $item) {
-                            $item->AmountPayable = floatval($item->AmountPayable) - $amountDistributable;
-                            $item->Balance = $item->AmountPayable;
-                            $item->save();
+                        if ($count > 0) {
+                            $amountDistributable = round(($incAmount / $count), 2);
+                        
+                            foreach($tuitionsBreakdown as $item) {
+                                $item->AmountPayable = floatval($item->AmountPayable) - $amountDistributable;
+                                $item->Balance = $item->AmountPayable;
+                                $item->save();
+                            }
                         }
                     }
                 }
@@ -1250,12 +1259,14 @@ class TransactionsController extends AppBaseController
         $itemName = $request['ItemName'];
         $itemAmount = $request['Amount'];
         $payableId = $request['PayableId'];
+        $notDeductedMonthly = $request['NotDeductedMonthly'];
 
         $inc = new PayableInclusions;
         $inc->id = IDGenerator::generateIDandRandString();
         $inc->ItemName = $itemName;
         $inc->Amount = $itemAmount;
         $inc->PayableId = $payableId;
+        $inc->NotDeductedMonthly = $notDeductedMonthly;
         $inc->save();
 
         // save payable
@@ -1275,20 +1286,23 @@ class TransactionsController extends AppBaseController
             $payable->save();
 
             // update payable tuitions breakdown
-            $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
-            if ($tuitionsBreakdown != null) {
-                $count = count($tuitionsBreakdown);
+            if ($notDeductedMonthly != "Yes") {
+                $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
+                if ($tuitionsBreakdown != null) {
+                    $count = count($tuitionsBreakdown);
 
-                if ($count > 0) {
-                    $amountDistributable = round(($incAmount / $count), 2);
-                
-                    foreach($tuitionsBreakdown as $item) {
-                        $item->AmountPayable = floatval($item->AmountPayable) + $amountDistributable;
-                        $item->Balance = $item->AmountPayable;
-                        $item->save();
+                    if ($count > 0) {
+                        $amountDistributable = round(($incAmount / $count), 2);
+                    
+                        foreach($tuitionsBreakdown as $item) {
+                            $item->AmountPayable = floatval($item->AmountPayable) + $amountDistributable;
+                            $item->Balance = $item->AmountPayable;
+                            $item->save();
+                        }
                     }
                 }
             }
+            
         }
 
         return response()->json('ok', 200);

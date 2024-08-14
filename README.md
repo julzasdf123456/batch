@@ -11,13 +11,12 @@
 ### New Tables
 
 ### New Columns on Tables
-- Subjects
-    - ParentSubject - Pushed to SVI
+- PayableInclusions
+    - NotDeductedMonthly
 
 ### New Permissions
 
 ### New NPM Packages
-- npm i vue-chartjs chart.js
 
 
 ### New Config Items
