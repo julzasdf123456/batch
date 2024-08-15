@@ -1100,7 +1100,7 @@ class TransactionsController extends AppBaseController
         
                             $payable->AmountPayable = $pyblAmount - $vmsAmount;
                             $payable->Balance = $pyblBalance - $vmsAmount;
-                            $payable->DiscountAmount = $pyblDiscount + $vmsAmount;
+                            $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
 
                             // insert esc scholarship
                             $studScholarship = StudentScholarships::where('StudentId', $item->id)
@@ -1137,7 +1137,7 @@ class TransactionsController extends AppBaseController
         
                             $payable->AmountPayable = $pyblAmount - $vmsAmount;
                             $payable->Balance = $pyblBalance - $vmsAmount;
-                            $payable->DiscountAmount = $pyblDiscount + $vmsAmount;
+                            $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
 
                             // insert esc scholarship
                             $studScholarship = StudentScholarships::where('StudentId', $item->id)
@@ -1201,7 +1201,6 @@ class TransactionsController extends AppBaseController
                         $discount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
                     }
                 }
-                
 
                 $payable->save();
 
