@@ -1385,4 +1385,28 @@ class ClassesController extends AppBaseController
     public function getClassesRepos(Request $request) {
         return response()->json(ClassesRepo::orderBy('Year')->get(), 200);
     }
+
+    public function markEscMultiple(Request $request) {
+        $students = $request['Students'];
+        $option = $request['Option'];
+
+        foreach($students as $item) {
+            Students::where('id', $item['id'])
+                ->update(['ESCScholar' => $option]);
+        }
+
+        return response()->json('ok', 200);
+    }
+    
+    public function markFromSchoolMultiple(Request $request) {
+        $students = $request['Students'];
+        $school = $request['School'];
+
+        foreach($students as $item) {
+            Students::where('id', $item['id'])
+                ->update(['FromSchool' => $school]);
+        }
+
+        return response()->json('ok', 200);
+    }
 }

@@ -62,8 +62,12 @@
                                 </div>
                                 <!-- SELECT OPTIONS -->
                                 <div class="pt-3 pb-2" v-if="selectionMode">
-                                    <p class="text-muted text-sm">Select Options</p>
+                                    <p class="text-muted text-sm">Select Multiple Options</p>
                                     <button @click="batchTransfer()" class="btn btn-sm btn-default mr-1"><i class="fas fa-random ico-tab-mini"></i>Transfer to Another Class</button>
+                                    <button @click="markEscMultiple('Yes')" class="btn btn-sm btn-default mr-1"><i class="fas fa-check-circle ico-tab-mini"></i>Mark {{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
+                                    <button @click="markEscMultiple('No')" class="btn btn-sm btn-default mr-1"><i class="far fa-check-circle ico-tab-mini"></i>Mark Non-{{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
+                                    <button @click="markFromSchool('Private')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-lock ico-tab-mini"></i>Mark from Private</button>
+                                    <button @click="markFromSchool('Public')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-check ico-tab-mini"></i>Mark from Public</button>
                                     <!-- <button class="btn btn-sm btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Remove/Unenroll</button> -->
                                 </div>
                                 <div class="table-responsive mt-2">
@@ -94,7 +98,7 @@
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
-                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC Scholar' : 'Non-ESC Scholar'"></i></span>
+                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC/VMS Scholar' : 'Non-ESC/VMS Scholar'"></i></span>
                                                     <strong>{{ student.LastName }}</strong>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
@@ -139,6 +143,12 @@
                                                 <td colspan="9" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
+                                                <td class="v-align" v-if="selectionMode">
+                                                    <div class="input-group-radio-sm">
+                                                        <input type="checkbox" class="custom-radio-sm" :id="student.StudentClassId" :value="student" v-model="selection">
+                                                        <label :for="student.StudentClassId" class="custom-radio-label-sm"></label>
+                                                    </div>
+                                                </td>
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
@@ -934,7 +944,6 @@ export default {
             })
         },
         saveBatchTransfer() {
-            console.log(this.transferedClassSelect)
             Swal.fire({
                 title: "Confirm Transfer",
                 text : 'Transferring the selected students would transfer all their class data and subjects to the selected class, including the tuition fees. Proceed with caution.',
@@ -966,6 +975,82 @@ export default {
                     })
                 }
             })
+        },
+        markEscMultiple(option) {
+            if (this.selection.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select students first!'
+                })
+            } else {
+                Swal.fire({
+                    title: "Confirmation",
+                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed Marking",
+                    confirmButtonColor : '#e03822'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            Option : option
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students marked!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error marking students!'
+                            })
+                        })
+                    }
+                })
+            }
+        },
+        markFromSchool(school) {
+            if (this.selection.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select students first!'
+                })
+            } else {
+                Swal.fire({
+                    title: "Confirmation",
+                    text : `Marking these students as from ${ school } school will change their future payment data. It will not change the current payable since there might already be payments incured to the account.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed Marking",
+                    confirmButtonColor : '#e03822'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/mark-from-school-multiple`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            School : school
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students marked!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error marking students!'
+                            })
+                        })
+                    }
+                })
+            }
         }
     },
     created() {

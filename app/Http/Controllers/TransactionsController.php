@@ -1011,6 +1011,8 @@ class TransactionsController extends AppBaseController
         $sy = SchoolYear::find($class->SchoolYearId);
 
         $escScholarship = Scholarships::find(env('ESC_SCHOLARSHIP_ID'));
+        $vmsPublic = Scholarships::find(env('VMS_PUBLIC_SCHOLARSHIP_ID'));
+        $vmsPrivate = Scholarships::find(env('VMS_PRIVATE_SCHOLARSHIP_ID'));
 
         if ($class != null) {
             if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
@@ -1084,41 +1086,122 @@ class TransactionsController extends AppBaseController
 
                 $discount = 0;
                 // update esc scholarship
-                if ($escScholarship != null && $item->ESCScholar === 'Yes') {
-                    // update payable
-                    $escAmount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
-                    
-                    $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
-                    $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
-                    $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+                if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                    // VMS
+                    if ($item->FromSchool == 'Private') {
+                        // PRIVATE
+                        if ($vmsPrivate != null && $item->ESCScholar === 'Yes') {
+                            // update payable
+                            $vmsAmount = $vmsPrivate->Amount != null ? (floatval($vmsPrivate->Amount)) : 0;
+                            
+                            $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                            $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                            $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+        
+                            $payable->AmountPayable = $pyblAmount - $vmsAmount;
+                            $payable->Balance = $pyblBalance - $vmsAmount;
+                            $payable->DiscountAmount = $pyblDiscount + $vmsAmount;
 
-                    $payable->AmountPayable = $pyblAmount - $escAmount;
-                    $payable->Balance = $pyblBalance - $escAmount;
-                    $payable->DiscountAmount = $pyblDiscount + $escAmount;
+                            // insert esc scholarship
+                            $studScholarship = StudentScholarships::where('StudentId', $item->id)
+                                ->where('SchoolYear', $sy->SchoolYear)
+                                ->where('ScholarshipId', $vmsPrivate->id)
+                                ->first();
 
-                    // insert esc scholarship
-                    $studScholarship = StudentScholarships::where('StudentId', $item->id)
-                        ->where('SchoolYear', $sy->SchoolYear)
-                        ->where('ScholarshipId', $escScholarship->id)
-                        ->first();
+                            if ($studScholarship != null) {
 
-                    if ($studScholarship != null) {
+                            } else {
+                                $studScholarship = new StudentScholarships;
+                                $studScholarship->id = IDGenerator::generateIDandRandString();
+                                $studScholarship->PayableId = $payableId;
+                                $studScholarship->SchoolYear = $sy->SchoolYear;
+                                $studScholarship->ScholarshipId = $vmsPrivate->id;
+                                $studScholarship->Amount = $vmsPrivate->Amount;
+                                $studScholarship->StudentId = $item->id;
+                                $studScholarship->Notes = 'Auto-generated from Re-populate Payables';
+                                $studScholarship->DeductMonthly = 'Yes';
+                                $studScholarship->save();
+                            }
 
+                            $discount = $vmsPrivate->Amount != null ? floatval($vmsPrivate->Amount) : 0;
+                        }
                     } else {
-                        $studScholarship = new StudentScholarships;
-                        $studScholarship->id = IDGenerator::generateIDandRandString();
-                        $studScholarship->PayableId = $payableId;
-                        $studScholarship->SchoolYear = $sy->SchoolYear;
-                        $studScholarship->ScholarshipId = $escScholarship->id;
-                        $studScholarship->Amount = $escScholarship->Amount;
-                        $studScholarship->StudentId = $item->id;
-                        $studScholarship->Notes = 'Auto-generated from Rre-populate Payables';
-                        $studScholarship->DeductMonthly = 'Yes';
-                        $studScholarship->save();
-                    }
+                        // PUBLIC
+                        if ($vmsPublic != null && $item->ESCScholar === 'Yes') {
+                            // update payable
+                            $vmsAmount = $vmsPublic->Amount != null ? (floatval($vmsPublic->Amount)) : 0;
+                            
+                            $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                            $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                            $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+        
+                            $payable->AmountPayable = $pyblAmount - $vmsAmount;
+                            $payable->Balance = $pyblBalance - $vmsAmount;
+                            $payable->DiscountAmount = $pyblDiscount + $vmsAmount;
 
-                    $discount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
+                            // insert esc scholarship
+                            $studScholarship = StudentScholarships::where('StudentId', $item->id)
+                                ->where('SchoolYear', $sy->SchoolYear)
+                                ->where('ScholarshipId', $vmsPublic->id)
+                                ->first();
+
+                            if ($studScholarship != null) {
+
+                            } else {
+                                $studScholarship = new StudentScholarships;
+                                $studScholarship->id = IDGenerator::generateIDandRandString();
+                                $studScholarship->PayableId = $payableId;
+                                $studScholarship->SchoolYear = $sy->SchoolYear;
+                                $studScholarship->ScholarshipId = $vmsPublic->id;
+                                $studScholarship->Amount = $vmsPublic->Amount;
+                                $studScholarship->StudentId = $item->id;
+                                $studScholarship->Notes = 'Auto-generated from Re-populate Payables';
+                                $studScholarship->DeductMonthly = 'Yes';
+                                $studScholarship->save();
+                            }
+
+                            $discount = $vmsPublic->Amount != null ? floatval($vmsPublic->Amount) : 0;
+                        }
+                    }
+                } else {
+                    // ESC
+                    if ($escScholarship != null && $item->ESCScholar === 'Yes') {
+                        // update payable
+                        $escAmount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
+                        
+                        $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                        $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                        $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+    
+                        $payable->AmountPayable = $pyblAmount - $escAmount;
+                        $payable->Balance = $pyblBalance - $escAmount;
+                        $payable->DiscountAmount = $pyblDiscount + $escAmount;
+    
+                        // insert esc scholarship
+                        $studScholarship = StudentScholarships::where('StudentId', $item->id)
+                            ->where('SchoolYear', $sy->SchoolYear)
+                            ->where('ScholarshipId', $escScholarship->id)
+                            ->first();
+    
+                        if ($studScholarship != null) {
+    
+                        } else {
+                            $studScholarship = new StudentScholarships;
+                            $studScholarship->id = IDGenerator::generateIDandRandString();
+                            $studScholarship->PayableId = $payableId;
+                            $studScholarship->SchoolYear = $sy->SchoolYear;
+                            $studScholarship->ScholarshipId = $escScholarship->id;
+                            $studScholarship->Amount = $escScholarship->Amount;
+                            $studScholarship->StudentId = $item->id;
+                            $studScholarship->Notes = 'Auto-generated from Re-populate Payables';
+                            $studScholarship->DeductMonthly = 'Yes';
+                            $studScholarship->save();
+                        }
+    
+                        $discount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
+                    }
                 }
+                
 
                 $payable->save();
 
@@ -1145,6 +1228,12 @@ class TransactionsController extends AppBaseController
                     TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                     // create tuitions breakdown
                     if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        // update payable, set to half per sem
+                        $payable->Payable = $payable->Payable > 0 ? ($payable->Payable / 2) : 0;
+                        $payable->AmountPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / 2) : 0;
+                        $payable->Balance = $payable->Balance > 0 ? ($payable->Balance / 2) : 0;
+                        $payable->save();
+
                         // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                         $monthsToPay = 5;
 
@@ -1163,7 +1252,7 @@ class TransactionsController extends AppBaseController
 
                             $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
                             $pyblOriginal = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
-                            $dscntOriginal = $discount > 0 ? ($discount / $monthsToPay) : 0;
+                            $dscntOriginal = $discount > 0 ? (($discount / 2) / $monthsToPay) : 0;
 
                             $tuitionBreakdown->AmountPayable = $amntPayable;
                             $tuitionBreakdown->Payable = $pyblOriginal;
