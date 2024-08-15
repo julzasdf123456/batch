@@ -12,7 +12,7 @@
 
 ### New Columns on Tables
 - PayableInclusions
-    - NotDeductedMonthly
+    - NotDeductedMonthly (HCA pushed)
 
 ### New Permissions
 
@@ -20,6 +20,4 @@
 
 
 ### New Config Items
-- TUITION_PROPAGATION_PRESET
-- SENIOR_HIGH_SEM_ENROLLMENT
-- ESC_SCHOLARSHIP_ID
+- ESC_SCHOLARSHIP_ID (HCA pushed)

@@ -99,6 +99,8 @@ Route::get('/classes/transfer-to-another-class/{studentId}', [ClassesController:
 Route::post('/classes/save-transfer', [ClassesController::class, 'saveTransfer'])->name('classes.save-transfer');
 Route::post('/classes/revalidate-subjects', [ClassesController::class, 'revalidateSubjects'])->name('classes.revalidate-subjects');
 Route::post('/classes/save-new-student', [ClassesController::class, 'saveNewStudent'])->name('classes.save-new-student');
+Route::post('/classes/batch-transfer', [ClassesController::class, 'batchTransfer'])->name('classes.batch-transfer');
+Route::get('/classes/get-classes-repos', [ClassesController::class, 'getClassesRepos'])->name('classes.get-classes-repos');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

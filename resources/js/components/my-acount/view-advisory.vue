@@ -57,11 +57,19 @@
                             -->
                             <div class="tab-pane fade active show" id="students-list-content" role="tabpanel" aria-labelledby="students-list-tab">
                                 <div class="mt-2">
-                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
+                                    <button @click="switchSelectionMode()" title="Select" class="btn btn-link-muted btn-sm"><i class="fas fa-check-circle" :class="selectionButtonIndicator"></i></button>
+                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-link-muted btn-sm" title="Print"><i class="fas fa-print"></i></a>
+                                </div>
+                                <!-- SELECT OPTIONS -->
+                                <div class="pt-3 pb-2" v-if="selectionMode">
+                                    <p class="text-muted text-sm">Select Options</p>
+                                    <button @click="batchTransfer()" class="btn btn-sm btn-default mr-1"><i class="fas fa-random ico-tab-mini"></i>Transfer to Another Class</button>
+                                    <!-- <button class="btn btn-sm btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Remove/Unenroll</button> -->
                                 </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
+                                            <th style="width: 16px;" v-if="selectionMode"></th>
                                             <th style="width: 35px;"></th>
                                             <th class="text-muted">Last Name</th>
                                             <th class="text-muted">First Name</th>
@@ -77,6 +85,12 @@
                                                 <td colspan="9" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
+                                                <td class="v-align" v-if="selectionMode">
+                                                    <div class="input-group-radio-sm">
+                                                        <input type="checkbox" class="custom-radio-sm" :id="student.StudentClassId" :value="student" v-model="selection">
+                                                        <label :for="student.StudentClassId" class="custom-radio-label-sm"></label>
+                                                    </div>
+                                                </td>
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
@@ -324,9 +338,9 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) && isNull(student.PayableData.AmountPayable) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
+                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
+                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
                                             </tr>
                                             <tr>
                                                 <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
@@ -341,9 +355,9 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) && isNull(student.PayableData.AmountPayable) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
+                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
+                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -388,6 +402,27 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ref="modalSelectionTransfer" class="modal fade" id="modal-selection-transfer" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Transfer Students To</span>
+                </div>
+                <div class="modal-body table-responsive">
+                     <div class="form-group">
+                        <label class="text-muted">Select Class</label>
+                        <select v-model="transferedClassSelect" class="form-control">
+                            <option v-for="c in classRepos" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
+                        </select>
+                     </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-sm btn-primary" @click="saveBatchTransfer()"><i class="fas fa-check ico-tab-mini"></i>Transfer Selection</button>
                 </div>
             </div>
         </div>
@@ -443,7 +478,12 @@ export default {
             loaderVisibility : true,
             inactive : [],
             classesInSy : [],
-            classSelect : ''
+            classSelect : '',
+            selectionMode : false,
+            selectionButtonIndicator : 'text-gray',
+            selection : [],
+            transferedClassSelect : '',
+            classRepos : [],
         }
     },
     methods : {
@@ -859,6 +899,73 @@ export default {
                     text : 'Error tagging ESC Scholar!'
                 })
             })
+        },
+        switchSelectionMode() {
+            if (this.selectionMode) {
+                this.selectionMode = false
+                this.selectionButtonIndicator = 'text-gray'
+            } else {
+                this.selectionMode = true
+                this.selectionButtonIndicator = 'text-success'
+            }
+        },
+        batchTransfer() {
+            if (this.selection.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select students first!'
+                })
+            } else {
+                let modalElement = this.$refs.modalSelectionTransfer
+                $(modalElement).modal('show')
+            }
+        },
+        getClassesRepo() {
+            axios.get(`${ this.baseURL }/classes/get-classes-repos`)
+            .then(response => {
+                this.classRepos = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting class repositories!'
+                })
+            })
+        },
+        saveBatchTransfer() {
+            console.log(this.transferedClassSelect)
+            Swal.fire({
+                title: "Confirm Transfer",
+                text : 'Transferring the selected students would transfer all their class data and subjects to the selected class, including the tuition fees. Proceed with caution.',
+                showCancelButton: true,
+                confirmButtonText: "Proceed Transfer",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/classes/batch-transfer`, {
+                        _token : this.token,
+                        Students : this.selection,
+                        CurrentClassId : this.classId,
+                        SchoolYearId : this.syId,
+                        TransferedClassId : this.transferedClassSelect,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Student transferred!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error transferring students!'
+                        })
+                    })
+                }
+            })
         }
     },
     created() {
@@ -874,6 +981,7 @@ export default {
         this.getAllAttendanceData()
 
         this.getClassesInSY()
+        this.getClassesRepo()
     }
 }
 

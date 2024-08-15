@@ -213,6 +213,9 @@ class TransactionsController extends AppBaseController
         return response()->json($payables, 200);
     }
 
+    /**
+     * WITH SEM TUITION COMPUTATION
+     */
     public function transactEnrollment(Request $request) {
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
@@ -995,6 +998,9 @@ class TransactionsController extends AppBaseController
         return response()->json($data, 200);
     }
 
+    /**
+     * WITH SEM TUITION COMPUTATION
+     */
     public function repopulatePayables(Request $request) {
         $classId = $request['ClassId'];
 
