@@ -103,6 +103,7 @@ Route::post('/classes/batch-transfer', [ClassesController::class, 'batchTransfer
 Route::get('/classes/get-classes-repos', [ClassesController::class, 'getClassesRepos'])->name('classes.get-classes-repos');
 Route::post('/classes/mark-esc-multiple', [ClassesController::class, 'markEscMultiple'])->name('classes.mark-esc-multiple');
 Route::post('/classes/mark-from-school-multiple', [ClassesController::class, 'markFromSchoolMultiple'])->name('classes.mark-from-school-multiple');
+Route::get('/classes/get-miscellaneous-to-tuitions-data', [ClassesController::class, 'getMiscellaneousToTuitionsData'])->name('classes.get-miscellaneous-to-tuitions-data');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

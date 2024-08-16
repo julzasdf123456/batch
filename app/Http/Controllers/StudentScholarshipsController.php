@@ -177,8 +177,9 @@ class StudentScholarshipsController extends AppBaseController
         $deductMonthly = $request['DeductMonthly'];
 
         // save scholarship profile
+        $id = IDGenerator::generateIDandRandString();
         $scholarship = new StudentScholarships;
-        $scholarship->id = IDGenerator::generateIDandRandString();
+        $scholarship->id = $id;
         $scholarship->PayableId = $payableId;
         $scholarship->SchoolYear = $schoolYear;
         $scholarship->ScholarshipId = $scholarshipId;
@@ -200,13 +201,37 @@ class StudentScholarshipsController extends AppBaseController
         if ($deductMonthly === 'Yes') {
             $payable = Payables::find($payableId);
 
-            if ($payable != null) {
-                $dsc = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+            $student = Students::find($studentId);
+            $class = Classes::find($student != null && $student->CurrentGradeLevel != null ? $student->CurrentGradeLevel : '');
 
-                $payable->DiscountAmount = ($dsc + $amount);
-                $payable->AmountPayable = floatval($payable->AmountPayable) - floatval($amount);
-                $payable->Balance = floatval($payable->Balance) - floatval($amount);
-                $payable->save();
+            $grantAmount = floatval($amount);
+            if ($payable != null) {
+                if ($student != null && $class != null) {
+                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        $dsc = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+
+                        $payable->DiscountAmount = ($dsc + ($amount / 2));
+                        $payable->AmountPayable = floatval($payable->AmountPayable) - (floatval($amount) / 2);
+                        $payable->Balance = floatval($payable->Balance) - (floatval($amount) / 2);
+                        $payable->save();
+
+                        $grantAmount = $grantAmount / 2;
+                    } else {
+                        $dsc = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+
+                        $payable->DiscountAmount = ($dsc + $amount);
+                        $payable->AmountPayable = floatval($payable->AmountPayable) - floatval($amount);
+                        $payable->Balance = floatval($payable->Balance) - floatval($amount);
+                        $payable->save();
+                    }
+                } else {
+                    $dsc = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+
+                    $payable->DiscountAmount = ($dsc + $amount);
+                    $payable->AmountPayable = floatval($payable->AmountPayable) - floatval($amount);
+                    $payable->Balance = floatval($payable->Balance) - floatval($amount);
+                    $payable->save();
+                }
             }
             
             // update payable tuitions breakdown
@@ -215,7 +240,7 @@ class StudentScholarshipsController extends AppBaseController
                 $count = count($tuitionsBreakdown);
 
                 if ($count > 0) {
-                    $amountDistributable = round((floatval($amount) / $count), 2);
+                    $amountDistributable = round((floatval($grantAmount) / $count), 2);
                 
                     foreach($tuitionsBreakdown as $item) {
                         $dsc = $item->Discount != null ? floatval($item->Discount) : 0;

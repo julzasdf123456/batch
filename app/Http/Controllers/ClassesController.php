@@ -572,9 +572,19 @@ class ClassesController extends AppBaseController
                         PayableInclusions::where('PayableId', $tpExisting->id)
                         ->delete();
 
-                        $tpExisting->delete();
-
                         $amountPaid = $tpExisting->AmountPaid != null && is_numeric($tpExisting->AmountPaid) ? floatval($tpExisting->AmountPaid) : 0;
+                        
+                        $payableId = $tpExisting->id;
+
+                        // update scholarship id
+                        $scholarship = StudentScholarships::where('PayableId', $tpExisting->id)
+                                ->where('StudentId', $studentId)
+                                ->where("DeductMonthly", "Yes")
+                                ->update(['id' => $payableId]);          
+
+                        $tpExisting->delete();
+                    } else {
+                        $payableId = IDGenerator::generateIDandRandString();
                     }
 
 
@@ -596,7 +606,6 @@ class ClassesController extends AppBaseController
                         if ($classRepo != null) {
                             $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
-                            $payableId = IDGenerator::generateIDandRandString();
                             $tuitionPayable = new Payables;
                             $tuitionPayable->id = $payableId;
                             $tuitionPayable->StudentId = $studentId;
@@ -648,6 +657,11 @@ class ClassesController extends AppBaseController
 
                             // create tuitions breakdown
                             if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                // update payable, set to half per sem
+                                $tuitionPayable->Payable = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / 2) : 0;
+                                $tuitionPayable->AmountPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / 2) : 0;
+                                $tuitionPayable->Balance = $tuitionPayable->Balance > 0 ? ($tuitionPayable->Balance / 2) : 0;
+
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
@@ -697,7 +711,7 @@ class ClassesController extends AppBaseController
                              * VALIDATE SCHOLARSHIPS
                              * ==========================================================================
                              */
-                            $scholarship = StudentScholarships::where('PayableId', $tpExisting->id)
+                            $scholarship = StudentScholarships::where('PayableId', $payableId)
                                 ->where('StudentId', $studentId)
                                 ->where("DeductMonthly", "Yes")
                                 ->get();
@@ -709,6 +723,10 @@ class ClassesController extends AppBaseController
                                 $item->save();
 
                                 $scholarshipAmount += ($item->Amount != null ? floatval($item->Amount) : 0);
+                            }
+
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                $scholarshipAmount = $scholarshipAmount / 2;
                             }
                             
                             $tuitionPayable = Payables::find($payableId);
@@ -1055,6 +1073,10 @@ class ClassesController extends AppBaseController
                                     $item->save();
 
                                     $scholarshipAmount += ($item->Amount != null ? floatval($item->Amount) : 0);
+                                }
+
+                                if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                    $scholarshipAmount = $scholarshipAmount / 2;
                                 }
                                 
                                 $tuitionPayable = Payables::find($payableId);
@@ -1417,5 +1439,26 @@ class ClassesController extends AppBaseController
         }
 
         return response()->json('ok', 200);
+    }
+
+    public function getMiscellaneousToTuitionsData(Request $request) {
+        $classId = $request['ClassId'];
+
+        $data =  DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL")
+            ->select(
+                'Students.*',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId',
+                DB::raw("(SELECT SUM(TRY_CAST(td.Amount AS DECIMAL(13,2))) FROM TransactionDetails td
+                        LEFT JOIN Transactions t ON t.id=td.TransactionsId
+                    WHERE t.StudentId=Students.id AND td.Particulars LIKE '%Tuition Fee%' AND t.Status IS NULL) AS TuitionMiscPayable")
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        return response()->json($data, 200);
     }
 }

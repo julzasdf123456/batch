@@ -11,11 +11,12 @@
             </select>
             <div class="dropdown mr-1 float-right" title="More Options" v-if="userId === '1' ? true : false">
                 <a href="#" role="button" data-toggle="dropdown" aria-expanded="false" class="btn btn-default btn-sm">
-                  Administrative Options
+                    <i class="fas fa-shield-alt"></i>
+                    Administrative Options
                 </a>
                 <div class="dropdown-menu">
                     <button class="dropdown-item" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
-                    <button  class="dropdown-item" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
+                    <button  class="dropdown-item" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payables</button>
                 </div>
             </div>
             
@@ -46,6 +47,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="inactive-tab" data-toggle="pill" href="#inactive-content" role="tab" aria-controls="inactive-content" aria-selected="false">Inactive Students</a>
+                            </li>
+                            <li class="nav-item" v-if="userId === '1' ? true : false">
+                                <a class="nav-link" id="flush-payments-tab" data-toggle="pill" href="#flush-payments-content" role="tab" aria-controls="flush-payments-content" aria-selected="false"><i class="fas fa-shield-alt ico-tab-mini"></i>Misc. Tuition Payments</a>
                             </li>
                         </ul>
 
@@ -410,6 +414,41 @@
                                     </table>
                                 </div>
                             </div>
+
+                            
+                            <!-- 
+                                ====================================================================================================================================
+                                FLUSH PAYMENTS (JULIO LOPEZ USER ONLY)
+                                ====================================================================================================================================
+                            -->
+                            <div class="tab-pane fade" id="flush-payments-content" role="tabpanel" aria-labelledby="flush-payments-tab" v-if="userId === '1' ? true : false">
+                                <div class="mt-2">
+                                    <button @click="flushToTuitionData()" class="btn btn-primary btn-sm">Flush to Tuitions</button>
+                                </div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-hover table-sm table-bordered">
+                                        <thead>
+                                            <th style="width: 28px;"</th>
+                                            <th class="text-center">Students</th>
+                                            <th class="text-right">Total Miscellaneous Tuition Payments</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(student, index) in miscToTuitions" :key="student.StudentSubjectId">
+                                                <td class="v-align">{{ index+1 }}</td>
+                                                <td class="v-align">
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                </td>
+                                                <td class="v-align text-right">
+                                                    {{ student.TuitionMiscPayable }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -494,6 +533,7 @@ export default {
             selection : [],
             transferedClassSelect : '',
             classRepos : [],
+            miscToTuitions : []
         }
     },
     methods : {
@@ -1051,6 +1091,54 @@ export default {
                     }
                 })
             }
+        },
+        getMiscellaneousToTuitions() {
+            axios.get(`${ this.baseURL }/classes/get-miscellaneous-to-tuitions-data`, {
+                params : {
+                    ClassId : this.classId
+                }
+            })
+            .then(response => {
+                this.miscToTuitions = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting miscellaneous tuitions data!'
+                })
+            })
+        },
+        flushToTuitionData() {
+            Swal.fire({
+                    title: "Confirmation",
+                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed Marking",
+                    confirmButtonColor : '#e03822'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            Option : option
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students marked!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error marking students!'
+                            })
+                        })
+                    }
+                })
         }
     },
     created() {
@@ -1067,6 +1155,10 @@ export default {
 
         this.getClassesInSY()
         this.getClassesRepo()
+
+        if (this.userId === '1') {
+            this.getMiscellaneousToTuitions()
+        }
     }
 }
 

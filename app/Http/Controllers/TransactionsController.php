@@ -1109,7 +1109,8 @@ class TransactionsController extends AppBaseController
                                 ->first();
 
                             if ($studScholarship != null) {
-
+                                $studScholarship->PayableId = $payableId;
+                                $studScholarship->save();
                             } else {
                                 $studScholarship = new StudentScholarships;
                                 $studScholarship->id = IDGenerator::generateIDandRandString();
@@ -1146,7 +1147,8 @@ class TransactionsController extends AppBaseController
                                 ->first();
 
                             if ($studScholarship != null) {
-
+                                $studScholarship->PayableId = $payableId;
+                                $studScholarship->save();
                             } else {
                                 $studScholarship = new StudentScholarships;
                                 $studScholarship->id = IDGenerator::generateIDandRandString();
@@ -1184,7 +1186,8 @@ class TransactionsController extends AppBaseController
                             ->first();
     
                         if ($studScholarship != null) {
-    
+                            $studScholarship->PayableId = $payableId;
+                            $studScholarship->save();
                         } else {
                             $studScholarship = new StudentScholarships;
                             $studScholarship->id = IDGenerator::generateIDandRandString();
