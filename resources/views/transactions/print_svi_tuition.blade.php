@@ -172,11 +172,11 @@
 
 
     .or-data {
-        padding: 40px 1px 10px 1px;
+        padding: 0px 1px 10px 1px;
     }
 
     .figure-data {
-        padding: 40px 1px 10px 1px;
+        padding: 30px 1px 10px 1px !important;
         display: inline;
     }
 
@@ -189,18 +189,19 @@
         $numToWords = $f->format($transaction->TotalAmountPaid);
     @endphp
 
-    <div class="thirty">
+    <div class="thirty" style="float: left;">
         <div class="figure-data">
-            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 98px !important; padding-left: 140px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+            {{-- TUITION --}}
+            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 38px !important; padding-left: 140px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
 
             {{-- TOTAL --}}
-            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 88px !important; padding-left: 140px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 218px !important; padding-left: 140px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
         </div>
     </div>
 
     <div class="seventy">
         <div class="or-data">
-            <p style='font-size: 1.2em !important; padding-top: 28px !important; padding-left: 80px !important;' class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 68px !important; padding-left: 80px !important;' class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
 
             {{-- NAME --}}
             <p style='font-size: 1.2em !important; padding-top: 29px !important; padding-left: 118px !important; text-align: left !important;'>{{ strtoupper(Students::formatNameFormal($student)) }}</p>
@@ -209,10 +210,10 @@
             <p style='font-size: 1.2em !important; padding-top: 15px !important; padding-left: 130px !important; text-align: left !important;'>{{ ($student->BarangaySpelled != null ? ($student->BarangaySpelled . ', ') : '') . ($student->TownSpelled != null ? ($student->TownSpelled) : '') }}</p>
             
             {{-- AMOUNT IN WORDS --}}
-            <p style='font-size: 1.2em !important; padding-top: 45px !important; padding-left: 50px !important; text-align: left !important;'>{{ $numToWords != null ? (strtoupper($numToWords)) : '-' }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 50px !important; padding-left: 50px !important; text-align: left !important;'>{{ $numToWords != null ? (strtoupper($numToWords)) : '-' }}</p>
             
             {{-- AMOUNT --}}
-            <p style='font-size: 1.2em !important; padding-top: 18px !important; padding-left: 66px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 20px !important; padding-left: 66px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
 
             
             {{-- CASHIER --}}
