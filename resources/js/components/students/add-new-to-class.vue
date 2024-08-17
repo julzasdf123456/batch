@@ -147,7 +147,7 @@
     </div>
 
     <div class="right-bottom">
-        <button @click="saveEnrollment()" class="btn-floating shadow btn-primary">Submit Enrollee <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
+        <button @click="saveEnrollment()" class="btn-floating shadow btn-primary">Finish <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
     </div>
 </template>
 
@@ -359,50 +359,6 @@ export default {
                     }
                 })
 
-                // =============================================
-                // OLD
-                // (async () => {
-                //     const { value: text } = await Swal.fire({
-                //         input: 'text',
-                //         inputPlaceholder: 'e.g.: S.Y. ' + moment().format('YYYY') + ' - ' + moment().add(1, 'Y').format('YYYY'),
-                //         inputAttributes: {
-                //             'aria-label': 'Type your remarks here'
-                //         },
-                //         title: 'Add New School Year',
-                //         showCancelButton: true
-                //     })
-
-                //     if (text) {
-                //         if (text.length < 1) {
-                //             this.toast.fire({
-                //                 icon : 'info',
-                //                 text : 'Please provide school year!',
-                //             })
-                //         } else { 
-                //             var syId = this.generateId()
-                //             axios.post(`${ this.baseURL }/schoolYears`, {
-                //                 _token : this.token,
-                //                 id : syId,
-                //                 SchoolYear : text,
-                //             }) // IF PORT 80 DIRECT FROM APACHE
-                //             .then(response => {
-                //                 this.toast.fire({
-                //                     icon : 'success',
-                //                     text : 'School year added!'
-                //                 })
-                //                 this.schoolYears.push(response.data)
-                //                 this.schoolYearSelected = response.data.SchoolYear
-                //             })
-                //             .catch(error => {
-                //                 console.log(error.response)
-                //                 Swal.fire({
-                //                     icon : 'error',
-                //                     text : 'Error adding school year!'
-                //                 })
-                //             })
-                //         }
-                //     }
-                // })()
             }
             
         },
@@ -420,17 +376,14 @@ export default {
                     })
                 } else {
                     Swal.fire({
-                        title: "Enrollment Confirmation",
+                        title: "Save Student Class",
                         showCancelButton: true,
-                        html: `
-                            <p style='text-align: left;'>By proceeding, this enrollment application shall be forwarded to the cashier for the enrollment/registration fees.</p>
-                            <br>
-                        `,
-                        confirmButtonText: "Proceed Enrollment to Cashier",
+                        text : 'Saving this will add this student to the selected class. Proceed with caution.',
+                        confirmButtonText: "Continue",
                         confirmButtonColor : '#3a9971'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            axios.post(`${ this.baseURL }/classes/save-enrollment`, {
+                            axios.post(`${ this.baseURL }/classes/save-new-student`, {
                                 _token : this.token,
                                 StudentId : this.studentId,
                                 ClassRepoId : this.classSelected,
@@ -442,14 +395,10 @@ export default {
                             .then(response => {
                                 this.toast.fire({
                                     icon : 'success',
-                                    text : 'Enrollment forwarded to cashier!'
+                                    text : 'New student added!'
                                 })
 
-                                if (this.withScholarship === 'Yes') {
-                                    window.location.href = this.baseURL + '/student_scholarships/scholarship-wizzard/' + this.studentId + '/enrollment'
-                                } else {
-                                    window.location.href = this.baseURL + '/classes/existing-student'
-                                }
+                                window.location.href = this.baseURL + '/students'
                             })
                             .catch(error => {
                                 console.log(error.response)

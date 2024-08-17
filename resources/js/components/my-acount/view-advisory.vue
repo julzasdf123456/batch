@@ -6,8 +6,20 @@
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
             
-            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payments</button>
-            <button v-if="userId === '1' ? true : false" class="btn btn-sm btn-default float-right mr-1" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
+            <select v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
+                <option v-for="c in classesInSy" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
+            </select>
+            <div class="dropdown mr-1 float-right" title="More Options" v-if="userId === '1' ? true : false">
+                <a href="#" role="button" data-toggle="dropdown" aria-expanded="false" class="btn btn-default btn-sm">
+                    <i class="fas fa-shield-alt"></i>
+                    Administrative Options
+                </a>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
+                    <button  class="dropdown-item" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payables</button>
+                </div>
+            </div>
+            
 
             <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
                 <span class="sr-only">Loading...</span>
@@ -36,6 +48,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="inactive-tab" data-toggle="pill" href="#inactive-content" role="tab" aria-controls="inactive-content" aria-selected="false">Inactive Students</a>
                             </li>
+                            <li class="nav-item" v-if="userId === '1' ? true : false">
+                                <a class="nav-link" id="flush-payments-tab" data-toggle="pill" href="#flush-payments-content" role="tab" aria-controls="flush-payments-content" aria-selected="false"><i class="fas fa-shield-alt ico-tab-mini"></i>Misc. Tuition Payments</a>
+                            </li>
                         </ul>
 
                         <div class="tab-content" id="custom-tabs-three-tabContent">
@@ -46,11 +61,23 @@
                             -->
                             <div class="tab-pane fade active show" id="students-list-content" role="tabpanel" aria-labelledby="students-list-tab">
                                 <div class="mt-2">
-                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
+                                    <button @click="switchSelectionMode()" title="Select" class="btn btn-link-muted btn-sm"><i class="fas fa-check-circle" :class="selectionButtonIndicator"></i></button>
+                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-link-muted btn-sm" title="Print"><i class="fas fa-print"></i></a>
+                                </div>
+                                <!-- SELECT OPTIONS -->
+                                <div class="pt-3 pb-2" v-if="selectionMode">
+                                    <p class="text-muted text-sm">Select Multiple Options</p>
+                                    <button @click="batchTransfer()" class="btn btn-sm btn-default mr-1"><i class="fas fa-random ico-tab-mini"></i>Transfer to Another Class</button>
+                                    <button @click="markEscMultiple('Yes')" class="btn btn-sm btn-default mr-1"><i class="fas fa-check-circle ico-tab-mini"></i>Mark {{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
+                                    <button @click="markEscMultiple('No')" class="btn btn-sm btn-default mr-1"><i class="far fa-check-circle ico-tab-mini"></i>Mark Non-{{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
+                                    <button @click="markFromSchool('Private')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-lock ico-tab-mini"></i>Mark from Private</button>
+                                    <button @click="markFromSchool('Public')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-check ico-tab-mini"></i>Mark from Public</button>
+                                    <!-- <button class="btn btn-sm btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Remove/Unenroll</button> -->
                                 </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
+                                            <th style="width: 16px;" v-if="selectionMode"></th>
                                             <th style="width: 35px;"></th>
                                             <th class="text-muted">Last Name</th>
                                             <th class="text-muted">First Name</th>
@@ -59,16 +86,23 @@
                                             <th class="text-muted">Address</th>
                                             <th class="text-muted">Birth Date</th>
                                             <th class="text-muted">Contact Numbers</th>
-                                            <th style="width: 80px;"></th>
+                                            <th style="width: 120px;"></th>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td colspan="9" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
+                                                <td class="v-align" v-if="selectionMode">
+                                                    <div class="input-group-radio-sm">
+                                                        <input type="checkbox" class="custom-radio-sm" :id="student.StudentClassId" :value="student" v-model="selection">
+                                                        <label :for="student.StudentClassId" class="custom-radio-label-sm"></label>
+                                                    </div>
+                                                </td>
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
+                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC/VMS Scholar' : 'Non-ESC/VMS Scholar'"></i></span>
                                                     <strong>{{ student.LastName }}</strong>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
@@ -82,18 +116,29 @@
                                                 <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
                                                 <td class="v-align">{{ isNull(student.Birthdate) ? '-' : moment(student.Birthdate).format('MMM DD, YYYY') }}</td>
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
-                                                <td class="text-right">
+                                                <td class="text-right" style="overflow: visible;">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
 
-                                                    <div class="dropdown px-3" title="More Options" style="display: inline;">
+                                                    <div class="px-3" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                                                           <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <div class="dropdown-menu">
-                                                            <span class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item">Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item">Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item">Dropped Out</button>
+                                                            <span class="text-muted text-sm px-4">Tag as: </span>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
+
+                                                            <div class="divider"></div>
+
+                                                            <a target="_blank" class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
+                                                            <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+                                                            <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
+                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button>
+
+                                                            <div class="divider"></div>
+
+                                                            <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -102,9 +147,16 @@
                                                 <td colspan="9" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
+                                                <td class="v-align" v-if="selectionMode">
+                                                    <div class="input-group-radio-sm">
+                                                        <input type="checkbox" class="custom-radio-sm" :id="student.StudentClassId" :value="student" v-model="selection">
+                                                        <label :for="student.StudentClassId" class="custom-radio-label-sm"></label>
+                                                    </div>
+                                                </td>
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
+                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC Scholar' : 'Non-ESC Scholar'"></i></span>
                                                     <strong>{{ student.LastName }}</strong>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
@@ -120,16 +172,25 @@
                                                 <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
                                                 <td class="text-right" title="View Student">
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
-
-                                                    <div class="dropdown px-3" title="More Options" style="display: inline;">
+                                                    
+                                                    <div class="px-3" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
                                                           <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <div class="dropdown-menu">
                                                             <span class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item">Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item">Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item">Dropped Out</button>
+                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
+                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
+                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
+
+                                                            <div class="divider"></div>
+
+                                                            <a target="_blank" class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
+                                                            <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+
+                                                            <div class="divider"></div>
+
+                                                            <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -291,9 +352,9 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) && isNull(student.PayableData.AmountPayable) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
+                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
+                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
                                             </tr>
                                             <tr>
                                                 <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
@@ -308,9 +369,9 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) && isNull(student.PayableData.AmountPayable) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
+                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
+                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -353,8 +414,64 @@
                                     </table>
                                 </div>
                             </div>
+
+                            
+                            <!-- 
+                                ====================================================================================================================================
+                                FLUSH PAYMENTS (JULIO LOPEZ USER ONLY)
+                                ====================================================================================================================================
+                            -->
+                            <div class="tab-pane fade" id="flush-payments-content" role="tabpanel" aria-labelledby="flush-payments-tab" v-if="userId === '1' ? true : false">
+                                <div class="mt-2">
+                                    <button @click="flushToTuitionData()" class="btn btn-primary btn-sm">Flush to Tuitions</button>
+                                </div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-hover table-sm table-bordered">
+                                        <thead>
+                                            <th style="width: 28px;"</th>
+                                            <th class="text-center">Students</th>
+                                            <th class="text-right">Total Miscellaneous Tuition Payments</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(student, index) in miscToTuitions" :key="student.StudentSubjectId">
+                                                <td class="v-align">{{ index+1 }}</td>
+                                                <td class="v-align">
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                </td>
+                                                <td class="v-align text-right">
+                                                    {{ student.TuitionMiscPayable }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ref="modalSelectionTransfer" class="modal fade" id="modal-selection-transfer" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Transfer Students To</span>
+                </div>
+                <div class="modal-body table-responsive">
+                     <div class="form-group">
+                        <label class="text-muted">Select Class</label>
+                        <select v-model="transferedClassSelect" class="form-control">
+                            <option v-for="c in classRepos" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
+                        </select>
+                     </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-sm btn-primary" @click="saveBatchTransfer()"><i class="fas fa-check ico-tab-mini"></i>Transfer Selection</button>
                 </div>
             </div>
         </div>
@@ -408,7 +525,15 @@ export default {
             daysInAMonth : [],
             barcodeAttendances : [],
             loaderVisibility : true,
-            inactive : []
+            inactive : [],
+            classesInSy : [],
+            classSelect : '',
+            selectionMode : false,
+            selectionButtonIndicator : 'text-gray',
+            selection : [],
+            transferedClassSelect : '',
+            classRepos : [],
+            miscToTuitions : []
         }
     },
     methods : {
@@ -752,19 +877,288 @@ export default {
                         })
                     })
                 }
+            })            
+        },
+        removeFromClass(studentClassId) {
+            Swal.fire({
+                title: "Confirm Removal",
+                text : 'Removing this student from this class does not delete the student. If you wish to delete the student, you may go to the student account page. Proceed with caution.',
+                showCancelButton: true,
+                confirmButtonText: "Proceed Removal",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`${ this.baseURL }/studentClasses/` + studentClassId, {
+                        _token : this.token,
+                        id : studentClassId,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Student removed!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error removing student!'
+                        })
+                    })
+                }
             })
-            
+        },
+        getClassesInSY() {
+            axios.get(`${ this.baseURL }/school_years/get-classes-in-sy`, {
+                params : {
+                    SchoolYearId : this.syId
+                }
+            })
+            .then(response => {
+                this.classesInSy = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting classes inside school year!'
+                })
+            })
+        },
+        goToClass() {
+            window.location.href = `${ this.baseURL }/classes/view-class/${ this.teacherId }/${ this.syId }/${ this.classSelect }`
+        },
+        markEsc(studentId, isEscScholar) {
+            axios.post(`${ this.baseURL }/students/mark-esc`, {
+                _token : this.token,
+                id : studentId,
+                ESCScholar : isEscScholar
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Student marked ' + isEscScholar + ' for ESC Scholarship!'
+                })
+                location.reload()
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error tagging ESC Scholar!'
+                })
+            })
+        },
+        switchSelectionMode() {
+            if (this.selectionMode) {
+                this.selectionMode = false
+                this.selectionButtonIndicator = 'text-gray'
+            } else {
+                this.selectionMode = true
+                this.selectionButtonIndicator = 'text-success'
+            }
+        },
+        batchTransfer() {
+            if (this.selection.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select students first!'
+                })
+            } else {
+                let modalElement = this.$refs.modalSelectionTransfer
+                $(modalElement).modal('show')
+            }
+        },
+        getClassesRepo() {
+            axios.get(`${ this.baseURL }/classes/get-classes-repos`)
+            .then(response => {
+                this.classRepos = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting class repositories!'
+                })
+            })
+        },
+        saveBatchTransfer() {
+            Swal.fire({
+                title: "Confirm Transfer",
+                text : 'Transferring the selected students would transfer all their class data and subjects to the selected class, including the tuition fees. Proceed with caution.',
+                showCancelButton: true,
+                confirmButtonText: "Proceed Transfer",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/classes/batch-transfer`, {
+                        _token : this.token,
+                        Students : this.selection,
+                        CurrentClassId : this.classId,
+                        SchoolYearId : this.syId,
+                        TransferedClassId : this.transferedClassSelect,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Student transferred!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error transferring students!'
+                        })
+                    })
+                }
+            })
+        },
+        markEscMultiple(option) {
+            if (this.selection.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select students first!'
+                })
+            } else {
+                Swal.fire({
+                    title: "Confirmation",
+                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed Marking",
+                    confirmButtonColor : '#e03822'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            Option : option
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students marked!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error marking students!'
+                            })
+                        })
+                    }
+                })
+            }
+        },
+        markFromSchool(school) {
+            if (this.selection.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select students first!'
+                })
+            } else {
+                Swal.fire({
+                    title: "Confirmation",
+                    text : `Marking these students as from ${ school } school will change their future payment data. It will not change the current payable since there might already be payments incured to the account.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed Marking",
+                    confirmButtonColor : '#e03822'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/mark-from-school-multiple`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            School : school
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students marked!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error marking students!'
+                            })
+                        })
+                    }
+                })
+            }
+        },
+        getMiscellaneousToTuitions() {
+            axios.get(`${ this.baseURL }/classes/get-miscellaneous-to-tuitions-data`, {
+                params : {
+                    ClassId : this.classId
+                }
+            })
+            .then(response => {
+                this.miscToTuitions = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting miscellaneous tuitions data!'
+                })
+            })
+        },
+        flushToTuitionData() {
+            Swal.fire({
+                    title: "Confirmation",
+                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed Marking",
+                    confirmButtonColor : '#e03822'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            Option : option
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students marked!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error marking students!'
+                            })
+                        })
+                    }
+                })
         }
     },
     created() {
         
     },
     mounted() {
+        this.classSelect = this.classId
+
         this.getAdvisoryData()
         this.getSubjects()
         
         // attendance
         this.getAllAttendanceData()
+
+        this.getClassesInSY()
+        this.getClassesRepo()
+
+        if (this.userId === '1') {
+            this.getMiscellaneousToTuitions()
+        }
     }
 }
 

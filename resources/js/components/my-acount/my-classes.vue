@@ -14,7 +14,11 @@
                     <div class="card shadow-none">
                         <div class="card-body">
                             <h4 class="no-pads">{{ c.Subject }}</h4>
-                            <p class="no-pads text-muted">{{ c.Year + ' - ' + c.Section }}</p>
+                            <span class="text-muted">{{ c.Year + ' - ' + c.Section }}</span>
+                            <span class="text-muted" v-if="isNull(c.Strand) ? false : true">{{ isNull(c.Strand) ? '' : (' • ' + c.Strand) }}</span>
+                            <span class="text-muted" v-if="isNull(c.Semester) ? false : true">{{ isNull(c.Semester) ? '' : (' • ' + c.Semester + ' sem') }}</span>
+
+                            <br>
 
                             <a :href="baseURL + '/users/view-class/' + c.ClassId + '/' + syId + '/' + c.id" class="btn btn-link text-muted float-right" title="View Class"><i class="fas fa-eye"></i></a>
                         </div>

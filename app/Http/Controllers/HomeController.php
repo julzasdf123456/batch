@@ -263,4 +263,8 @@ class HomeController extends Controller
 
         return response()->json($data, 200);
     }
+
+    public function appSettings(Request $request) {
+        return view('app_settings');
+    }
 }

@@ -40,6 +40,7 @@ Auth::routes();
 Route::get('/home/get-junior-enrolless-trend', [HomeController::class, 'getJuniorEnrolleesTrend'])->name('home.get-junior-enrolless-trend');
 Route::get('/home/get-senior-enrolless-trend', [HomeController::class, 'getSeniorEnrolleesTrend'])->name('home.get-senior-enrolless-trend');
 Route::get('/home/get-monthly-collection-trend', [HomeController::class, 'getMonthlyCollectionTrend'])->name('home.get-monthly-collection-trend');
+Route::get('/home/app-settings', [HomeController::class, 'appSettings'])->name('home.app-settings');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/users/add-roles/{id}', [UsersController::class, 'addRoles'])->name('users.add-roles');
@@ -83,6 +84,9 @@ Route::get('/students/guest-view/{studentId}', [StudentsController::class, 'gues
 Route::get('/students/print-students/{classId}', [StudentsController::class, 'printStudents'])->name('students.print-students');
 Route::post('/students/update-status', [StudentsController::class, 'updateStatus'])->name('students.update-status');
 Route::get('/students/print-inactive-students/{classId}', [StudentsController::class, 'printInactiveStudents'])->name('students.print-inactive-students');
+Route::get('/students/add-new', [StudentsController::class, 'addNew'])->name('students.add-new');
+Route::get('/students/add-new-to-class/{studentId}', [StudentsController::class, 'addNewToClass'])->name('students.add-new-to-class');
+Route::post('/students/mark-esc', [StudentsController::class, 'markEsc'])->name('students.mark-esc');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -94,6 +98,12 @@ Route::get('/classes/view-class/{adviserId}/{schoolyearid}/{classId}', [ClassesC
 Route::get('/classes/transfer-to-another-class/{studentId}', [ClassesController::class, 'transferToAnotherClass'])->name('classes.transfer-to-another-class');
 Route::post('/classes/save-transfer', [ClassesController::class, 'saveTransfer'])->name('classes.save-transfer');
 Route::post('/classes/revalidate-subjects', [ClassesController::class, 'revalidateSubjects'])->name('classes.revalidate-subjects');
+Route::post('/classes/save-new-student', [ClassesController::class, 'saveNewStudent'])->name('classes.save-new-student');
+Route::post('/classes/batch-transfer', [ClassesController::class, 'batchTransfer'])->name('classes.batch-transfer');
+Route::get('/classes/get-classes-repos', [ClassesController::class, 'getClassesRepos'])->name('classes.get-classes-repos');
+Route::post('/classes/mark-esc-multiple', [ClassesController::class, 'markEscMultiple'])->name('classes.mark-esc-multiple');
+Route::post('/classes/mark-from-school-multiple', [ClassesController::class, 'markFromSchoolMultiple'])->name('classes.mark-from-school-multiple');
+Route::get('/classes/get-miscellaneous-to-tuitions-data', [ClassesController::class, 'getMiscellaneousToTuitionsData'])->name('classes.get-miscellaneous-to-tuitions-data');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -105,6 +115,7 @@ Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
 Route::get('/school_years/get-school-year', [SchoolYearController::class, 'getSchoolYear'])->name('schoolYears.get-school-year');
+Route::get('/school_years/get-classes-in-sy', [SchoolYearController::class, 'getClassesInSY'])->name('schoolYears.get-classes-in-sy');
 Route::resource('schoolYears', SchoolYearController::class);
 
 Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');

@@ -11,10 +11,15 @@
 ### New Tables
 
 ### New Columns on Tables
-- Subjects
-    - ParentSubject - Pushed to SVI
+- PayableInclusions
+    - NotDeductedMonthly (HCA pushed)
 
 ### New Permissions
 
 ### New NPM Packages
-- npm i vue-chartjs chart.js
+
+
+### New Config Items
+- ESC_SCHOLARSHIP_ID (HCA pushed)
+- VMS_PUBLIC_SCHOLARSHIP_ID
+- VMS_PRIVATE_SCHOLARSHIP_ID

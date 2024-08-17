@@ -171,6 +171,8 @@ class TeachersController extends AppBaseController
                     'StudentSubjects.ClassId',
                     'Classes.Year',
                     'Classes.Section',
+                    'Classes.Strand',
+                    'Classes.Semester',
                     'Subjects.id',
                     'Subjects.Subject',
                     DB::raw("'false' AS Selected")
@@ -179,6 +181,8 @@ class TeachersController extends AppBaseController
                     'StudentSubjects.ClassId',
                     'Classes.Year',
                     'Classes.Section',
+                    'Classes.Strand',
+                    'Classes.Semester',
                     'Subjects.id',
                     'Subjects.Subject',
                 )

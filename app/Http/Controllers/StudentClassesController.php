@@ -7,6 +7,10 @@ use App\Http\Requests\UpdateStudentClassesRequest;
 use App\Http\Controllers\AppBaseController;
 use App\Repositories\StudentClassesRepository;
 use Illuminate\Http\Request;
+use App\Models\Payables;
+use App\Models\Classes;
+use App\Models\SchoolYear;
+use App\Models\TuitionsBreakdown;
 use Flash;
 
 class StudentClassesController extends AppBaseController
@@ -115,15 +119,30 @@ class StudentClassesController extends AppBaseController
         $studentClasses = $this->studentClassesRepository->find($id);
 
         if (empty($studentClasses)) {
-            Flash::error('Student Classes not found');
-
-            return redirect(route('studentClasses.index'));
+            return response()->json('Student Classes not found', 404);
         }
 
         $this->studentClassesRepository->delete($id);
 
-        Flash::success('Student Classes deleted successfully.');
+        $class = Classes::find($studentClasses->ClassId);
 
-        return redirect(route('studentClasses.index'));
+        $sy = SchoolYear::find($class != null ? $class->SchoolYearId : '-');
+
+        if ($sy != null) {
+            $payables = Payables::where('StudentId', $studentClasses->StudentId)
+                ->where('SchoolYear', $sy->SchoolYear)
+                ->where('Category', 'Tuition Fees')
+                ->orderByDesc('created_at')
+                ->first();
+
+            if ($payables != null) {
+                TuitionsBreakdown::where('PayableId', $payables->id)
+                    ->delete();
+
+                $payables->delete();
+            }
+        }
+
+        return response()->json($studentClasses, 200);
     }
 }

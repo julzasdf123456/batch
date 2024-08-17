@@ -12,14 +12,16 @@ class PayableInclusions extends Model
         'id',
         'ItemName',
         'Amount',
-        'PayableId'
+        'PayableId',
+        'NotDeductedMonthly'
     ];
 
     protected $casts = [
         'id' => 'string',
         'ItemName' => 'string',
         'Amount' => 'string',
-        'PayableId' => 'string'
+        'PayableId' => 'string',
+        'NotDeductedMonthly' => 'string',
     ];
 
     public static array $rules = [
@@ -27,7 +29,8 @@ class PayableInclusions extends Model
         'Amount' => 'nullable|string',
         'PayableId' => 'nullable|string|max:80',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'NotDeductedMonthly' => 'nullable|string',
     ];
 
     

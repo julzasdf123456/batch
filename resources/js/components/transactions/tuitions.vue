@@ -12,6 +12,7 @@
                         <div style="display: inline-block; height: inherit; vertical-align: middle;">
                             <h4 class="no-pads"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></h4>
                             <span class="text-muted text-sm">ID: <strong>{{ studentData.id }}</strong></span>
+                            <a :href="baseURL + '/students/' + studentId" target="_blank" class="float-right"><i class="fas fa-share"></i></a>
                         </div>
                     </div>
 
@@ -27,11 +28,11 @@
                             </tr>
                             <tr>
                                 <td class="text-muted v-align">From</td>
-                                <td class="v-align"><span class="badge bg-warning">{{ isNull(studentData.FromSchool) ? '-' : (studentData.FromSchool + ' School') }}</span></td>
+                                <td class="v-align"><span class="badge" :class="studentData.FromSchool==='Private' ? 'bg-gray' : 'bg-warning'">{{ isNull(studentData.FromSchool) ? '-' : (studentData.FromSchool + ' School') }}</span></td>
                             </tr>
                             <tr>
                                 <td class="text-muted v-align">ESC Grantee/Scholar</td>
-                                <td class="v-align"><span class="badge bg-warning">{{ isNull(studentData.ESCScholar) ? 'No' : studentData.ESCScholar }}</span></td>
+                                <td class="v-align"><span class="badge" :class="studentData.ESCScholar==='No' ? 'bg-gray' : 'bg-success'">{{ isNull(studentData.ESCScholar) ? 'No' : studentData.ESCScholar }}</span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -51,10 +52,15 @@
                     <table class="table table-sm table-hover">
                         <tbody>
                             <tr v-for="inc in tuitionInclusions">
-                                <td>{{ inc.ItemName }}</td>
+                                <td>
+                                    {{ inc.ItemName }}
+
+                                    <i v-if="inc.NotDeductedMonthly === 'Yes' ? true : false" class="fas fa-exclamation-triangle ico-tab-left-mini text-warning" title="Not distributed monthly, should be paid once."></i>
+                                </td>
                                 <td class="text-right">{{ toMoney(parseFloat(inc.Amount)) }}</td>
-                                <td style="width: 30px;" class="text-right">
-                                    <button @click="removeTuitionInclusion(inc.id)" title="Remove this item from tuition" class="btn btn-link-muted"><i class="fas fa-times"></i></button>
+                                <td style="width: 30px;" class="text-right v-align">
+                                    <button v-if="inc.NotDeductedMonthly === 'Paid' ? false : true" @click="removeTuitionInclusion(inc.id)" title="Remove this item from tuition" class="btn btn-link-muted"><i class="fas fa-times"></i></button>
+                                    <i v-if="inc.NotDeductedMonthly === 'Paid' ? true : false" class="fas fa-check-circle text-muted text-sm pr-3" title="Paid separately"></i>
                                 </td> 
                             </tr>
                         </tbody>
@@ -137,6 +143,10 @@
                                 <td class="text-right">
                                     <strong class="text-danger">{{ toMoney(parseFloat(month.Balance)) }}</strong>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-muted">Total Selected</td>
+                                <td class="text-right text-muted">{{ toMoney(totalSelectedTuitions) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -236,30 +246,19 @@
                     <table class="table table-hover table-borderless table-sm">
                         <tbody>
                             <tr>
-                                <td class="text-muted v-align">TOTAL PAYMENT</td>
-                                <td class="v-align text-right text-success"><h1 class="no-pads">{{ toMoney(totalPayments) }}</h1></td>
-                            </tr>
-                            <!-- <tr>
-                                <td class="text-muted v-align">
-                                    PERIOD PAYABLE
-                                    <br>
-                                    <span class="text-muted text-sm">Change</span>
-                                </td>
-                                <td class="v-align text-right text-muted">
-                                    <h4 class="no-pads">{{ toMoney(periodPayable) }}</h4>
-                                    <span class="text-muted text-sm">{{ toMoney(changeOfPeriod) }}</span>
-                                </td>
-                            </tr> -->
-                            <tr>
-                                <td class="text-muted v-align">
-                                    TOTAL SELECTED PAYABLE
-                                    <!-- <br> -->
-                                    <!-- <span class="text-muted text-sm">Change</span> -->
-                                </td>
+                                <td class="text-muted v-align">MINIMUM PAYABLE</td>
                                 <td class="v-align text-right text-danger">
-                                    <h4 class="no-pads">{{ toMoney(totalSelectedTuitions) }}</h4>
-                                    <!-- <span class="text-info text-sm">{{ toMoney(change) }}</span> -->
+                                    <h4 class="no-pads"><strong>{{ toMoney(minAmountPayable) }}</strong></h4>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted v-align">AMOUNT FOR TUITION</td>
+                                <td class="v-align text-right text-muted">{{ toMoney(tuitionPaymentAmount) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted v-align">TOTAL PAYMENT</td>
+                                <td class="v-align text-right text-success"><h1 class="no-pads"><strong>{{ toMoney(totalPayments) }}</strong></h1></td>
                             </tr>
                         </tbody>
                     </table>
@@ -291,9 +290,15 @@
                         <label for="AmountPublic">Amount</label>
                         <input type="number" step="any" class="form-control" name="AmountPublic" v-model="additionalPayableAmount" id="AmountPublic" style="width: 100%;" required placeholder="0.0">
                     </div>
+                    
+                    <div class="custom-control custom-switch mt-2">
+                        <input type="checkbox" class="custom-control-input" id="distribute" v-model="additionalDistribute">
+                        <label style="font-weight: normal;" class="custom-control-label" for="distribute" id="distributeLabel">Distribute Monthly</label>
+                        <br>
+                        <span class="text-muted text-sm">Turning this ON will split the amount for the next months, otherwise it will only be added in the current payable.</span>
+                    </div>    
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-sm btn-primary" @click="saveTuitionInclusion()"><i class="fas fa-check ico-tab-mini"></i>Proceed Add</button>
                 </div>
             </div>
@@ -366,7 +371,10 @@ export default {
             totalSelectedTuitions : 0.0,
             tuitionInclusions : [],
             additionalPayableItem : '',
-            additionalPayableAmount : 0.0
+            additionalPayableAmount : 0.0,
+            additionalDistribute : false,
+            minAmountPayable : 0.0,
+            tuitionPaymentAmount : 0.0,
         }
     },
     methods : {
@@ -500,6 +508,13 @@ export default {
             })
             .then(response => {
                 this.tuitionInclusions = response.data
+
+                this.minAmountPayable = 0
+                for (let i=0; i<this.tuitionInclusions.length; i++) {
+                    if (this.tuitionInclusions[i].NotDeductedMonthly === 'Yes') {
+                        this.minAmountPayable += parseFloat(this.tuitionInclusions[i].Amount)
+                    } 
+                }
             })
             .catch(error => {
                 console.log(error)
@@ -513,7 +528,7 @@ export default {
             this.totalSelectedTuitions = 0
 
             for(let i=0; i<this.selectedMonths.length; i++) {
-                this.totalSelectedTuitions += parseFloat(this.selectedMonths[i].AmountPayable)
+                this.totalSelectedTuitions += parseFloat(this.selectedMonths[i].Balance)
             }
         },
         getTotalPayments() {
@@ -524,14 +539,25 @@ export default {
             // total payments
             this.totalPayments = cash + check + digital
 
+            if (this.totalPayments > this.getTotalPayables()) {
+                this.totalPayments = this.getTotalPayables()
+            }
+
             // change
             this.change = this.totalPayments - this.totalPayables
             this.changeOfPeriod = this.totalPayments - this.periodPayable
             this.changeOfPeriod = this.changeOfPeriod > 0 ? 0 : this.changeOfPeriod
 
+            // amount for tuition
+            if (this.totalPayments == 0) {
+                this.tuitionPaymentAmount = 0
+            } else {
+                this.tuitionPaymentAmount = this.totalPayments - this.minAmountPayable
+            }
+
             // try preselect tuitions
-            var monthPayable = parseFloat(this.activePayable.AmountPayable) / 10
-            var indices = Math.ceil(this.totalPayments / monthPayable)
+            var monthPayable = parseFloat(this.activePayable.Balance) / this.tuitionMonths.length
+            var indices = Math.ceil(this.tuitionPaymentAmount / monthPayable)
             this.selectedMonths = []
             for (let i=0; i<indices; i++) {
                 this.selectedMonths.push(this.tuitionMonths[i])
@@ -566,98 +592,107 @@ export default {
                             text : 'Please provide an OR Number for this transaction!'
                         })
                     } else {
-                        // get amount paid based on the total paid amount of customer
-                        var amountPaid = 0
-                        if (this.totalPayments > this.totalPayables) {
-                            amountPaid = this.totalPayables
-                            this.remainingBalance = 0
+                        if (this.totalPayments < this.minAmountPayable) {
+                            this.toast.fire({
+                                icon : 'info',
+                                text : 'Please make sure the Amount Tendered is greater than the Minimum Payable Amount!'
+                            })
                         } else {
-                            amountPaid = this.totalPayments
-                            this.remainingBalance = this.totalPayables - this.totalPayments
-                        }
-
-                        // begin transaction
-                        Swal.fire({
-                            title: "Confirm Transaction",
-                            showCancelButton: true,
-                            html: `
-                                <p style='text-align: left;'>Tuition payment summary:</p>
-                                <ul>
-                                    <li style='text-align: left;'>Amount Paid: <h4 class='text-primary'>P ${ this.toMoney(this.totalPayments) }</h4></li>
-                                    <li style='text-align: left;'>Amount Payable: <strong>P ${ this.toMoney(this.totalPayables) }</strong></li>
-                                    <li style='text-align: left;'>Account Balance: <strong>P ${ this.toMoney(this.remainingBalance) }</strong></li>
-                                </ul>
-                                <p class='text-sm text-muted text-left no-pads mt-2'>Input Amount Paid</p>
-                                <input type="number" id="numberInput" class="form-control form-control-lg" aria-label="Amount Paid...">
-                                <p class='text-left mb-3'>CHANGE : <strong class='text-danger' id="change"></strong></p>
-                                <p style='text-align: left;'>Proceed payment transaction?</p>
-                            `,
-                            confirmButtonText: "Yes",
-                            confirmButtonColor : '#3a9971',
-                            didOpen: () => {
-                                const numberInput = Swal.getPopup().querySelector('#numberInput')
-                                const outputParagraph = Swal.getPopup().querySelector('#change')
-
-                                numberInput.focus();
-
-                                numberInput.addEventListener('input', () => {
-                                    let subtractedValue = Number(numberInput.value) - this.totalPayments
-                                    outputParagraph.innerText = `${subtractedValue}`;
-                                });
-
-                                numberInput.addEventListener('keydown', (event) => {
-                                    if (event.key === 'Enter') {
-                                        let subtractedValue = Number(numberInput.value) - this.totalPayments
-
-                                        if (subtractedValue < 0) {
-                                            event.preventDefault()
-                                            this.showSaveFader()
-                                            alert('Amount tendered should not be less than the total amount payable!')
-                                        } else {
-                                            // Trigger the confirm button
-                                            Swal.clickConfirm();
-                                        }
-                                    }
-                                })
-                            },
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                axios.post(`${ this.baseURL }/transactions/transact-tuition`, {
-                                    _token : this.token,
-                                    StudentId : this.studentId,
-                                    PayableId : this.activePayable.id,
-                                    cashAmount : this.cashAmount,
-                                    checkNumber : this.checkNumber,
-                                    checkBank : this.checkBank,
-                                    checkAmount : this.checkAmount,
-                                    digitalNumber : this.digitalNumber,
-                                    digitalBank : this.digitalBank,
-                                    digitalAmount : this.digitalAmount,
-                                    totalPayables : this.totalPayables,
-                                    totalPayments : this.totalPayments,
-                                    ORNumber : this.orNumber,
-                                    Details : this.paymentDetails,
-                                    Period : this.period,
-                                    PaidAmount : amountPaid,
-                                    Balance : this.remainingBalance,
-                                    TuitionBreakdowns : this.selectedMonths,
-                                }) 
-                                .then(response => {
-                                    this.toast.fire({
-                                        icon : 'success',
-                                        text : 'Tuition successfully paid!'
-                                    })
-                                    window.location.href = this.baseURL + '/transactions/print-tuition/' + response.data
-                                })
-                                .catch(error => {
-                                    console.log(error.response)
-                                    Swal.fire({
-                                        icon : 'error',
-                                        text : 'Error performing transaction'
-                                    })
-                                })
+                            // get amount paid based on the total paid amount of customer
+                            var amountPaid = 0
+                            if (this.totalPayments > this.totalPayables) {
+                                amountPaid = this.totalPayables
+                                this.remainingBalance = 0
+                            } else {
+                                amountPaid = this.totalPayments
+                                this.remainingBalance = this.totalPayables - this.totalPayments
                             }
-                        })
+
+                            // begin transaction
+                            Swal.fire({
+                                title: "Confirm Transaction",
+                                showCancelButton: true,
+                                html: `
+                                    <p style='text-align: left;'>Tuition payment summary:</p>
+                                    <ul>
+                                        <li style='text-align: left;'>Amount Paid: <h4 class='text-primary'>P ${ this.toMoney(this.totalPayments) }</h4></li>
+                                        <li style='text-align: left;'>Amount Payable: <strong>P ${ this.toMoney(this.totalPayables) }</strong></li>
+                                        <li style='text-align: left;'>Account Balance: <strong>P ${ this.toMoney(this.remainingBalance) }</strong></li>
+                                    </ul>
+                                    <p class='text-sm text-muted text-left no-pads mt-2'>Input Amount Paid</p>
+                                    <input type="number" id="numberInput" class="form-control form-control-lg" aria-label="Amount Paid...">
+                                    <p class='text-left mb-3'>CHANGE : <strong class='text-danger' id="change"></strong></p>
+                                    <p style='text-align: left;'>Proceed payment transaction?</p>
+                                `,
+                                confirmButtonText: "Yes",
+                                confirmButtonColor : '#3a9971',
+                                didOpen: () => {
+                                    const numberInput = Swal.getPopup().querySelector('#numberInput')
+                                    const outputParagraph = Swal.getPopup().querySelector('#change')
+
+                                    numberInput.focus();
+
+                                    numberInput.addEventListener('input', () => {
+                                        let subtractedValue = Number(numberInput.value) - this.totalPayments
+                                        outputParagraph.innerText = `${subtractedValue}`;
+                                    });
+
+                                    numberInput.addEventListener('keydown', (event) => {
+                                        if (event.key === 'Enter') {
+                                            let subtractedValue = Number(numberInput.value) - this.totalPayments
+
+                                            if (subtractedValue < 0) {
+                                                event.preventDefault()
+                                                this.showSaveFader()
+                                                alert('Amount tendered should not be less than the total amount payable!')
+                                            } else {
+                                                // Trigger the confirm button
+                                                Swal.clickConfirm();
+                                            }
+                                        }
+                                    })
+                                },
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    axios.post(`${ this.baseURL }/transactions/transact-tuition`, {
+                                        _token : this.token,
+                                        StudentId : this.studentId,
+                                        PayableId : this.activePayable.id,
+                                        cashAmount : this.cashAmount,
+                                        checkNumber : this.checkNumber,
+                                        checkBank : this.checkBank,
+                                        checkAmount : this.checkAmount,
+                                        digitalNumber : this.digitalNumber,
+                                        digitalBank : this.digitalBank,
+                                        digitalAmount : this.digitalAmount,
+                                        totalPayables : this.totalPayables,
+                                        totalPayments : this.totalPayments,
+                                        ORNumber : this.orNumber,
+                                        Details : this.paymentDetails,
+                                        Period : this.period,
+                                        PaidAmount : amountPaid,
+                                        Balance : this.remainingBalance,
+                                        TuitionBreakdowns : this.selectedMonths,
+                                        AmountForTuition : this.tuitionPaymentAmount,
+                                        MinimumAmountPayable : this.minAmountPayable,
+                                    }) 
+                                    .then(response => {
+                                        this.toast.fire({
+                                            icon : 'success',
+                                            text : 'Tuition successfully paid!'
+                                        })
+                                        window.location.href = this.baseURL + '/transactions/print-tuition/' + response.data
+                                    })
+                                    .catch(error => {
+                                        console.log(error.response)
+                                        Swal.fire({
+                                            icon : 'error',
+                                            text : 'Error performing transaction'
+                                        })
+                                    })
+                                }
+                            })
+                        }
                     }
                 }
             } 
@@ -727,6 +762,7 @@ export default {
                     ItemName : this.additionalPayableItem,
                     Amount : this.additionalPayableAmount,
                     PayableId : this.activePayable.id,
+                    NotDeductedMonthly : this.additionalDistribute ? null : 'Yes',
                 })
                 .then(response => {
                     this.toast.fire({

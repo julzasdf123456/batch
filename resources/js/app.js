@@ -24,6 +24,7 @@ import ExistingStudentEnroll from "./components/classes/existing-student-enroll.
 import ClassView from "./components/classes/class-view.vue"
 import Transfer from "./components/classes/transfer.vue"
 import EnrollmentTransactions from "./components/transactions/enrollment.vue"
+import EnrollmentFlexible from "./components/transactions/enrollment-flexible.vue"
 import TuitionsSearch from "./components/transactions/tuitions-search.vue"
 import Tuitions from "./components/transactions/tuitions.vue"
 import Miscellaneous from "./components/transactions/miscellaneous.vue"
@@ -36,6 +37,8 @@ import ScholarshipWizzard from "./components/students/scholarship-wizzard.vue"
 import ScanId from "./components/scanning/scan-id.vue"
 import Notifier from "./components/sms/notifier.vue"
 import DashboardIndex from "./components/dashboard/index.vue"
+import AddNew from "./components/students/add-new.vue"
+import AddNewToClass from "./components/students/add-new-to-class.vue"
 
 import MyClasses from "./components/my-acount/my-classes.vue"
 import ViewClass from "./components/my-acount/view-class.vue"
@@ -58,6 +61,7 @@ app.component('existing-student-enroll', ExistingStudentEnroll);
 app.component('class-view', ClassView);
 app.component('transfer', Transfer);
 app.component('enrollment-transactions', EnrollmentTransactions);
+app.component('enrollment-flexible', EnrollmentFlexible);
 app.component('tuitions-search', TuitionsSearch);
 app.component('tuitions', Tuitions);
 app.component('miscellaneous', Miscellaneous);
@@ -70,6 +74,8 @@ app.component('scholarship-wizzard', ScholarshipWizzard);
 app.component('scan-id', ScanId);
 app.component('notifier', Notifier);
 app.component('dashboard-index', DashboardIndex);
+app.component('add-new', AddNew);
+app.component('add-new-to-class', AddNewToClass);
 
 app.component('my-classes', MyClasses);
 app.component('view-class', ViewClass);

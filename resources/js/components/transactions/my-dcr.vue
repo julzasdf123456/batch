@@ -9,7 +9,7 @@
                             <span class="text-muted">Select Date</span>
                             <flat-pickr v-model="collectionDate" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-4">
                             <span class="text-muted">Actions</span>
                             <br>
                             <button class="btn btn-default ico-tab-mini" @click="fetchPayments()"><i class="fas fa-eye ico-tab-mini"></i>View</button>
@@ -281,6 +281,7 @@ export default {
             filePath : axios.defaults.filePath,
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             token : document.querySelector("meta[name='token']").getAttribute('content'),
+            school : document.querySelector("meta[name='school']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -450,13 +451,18 @@ export default {
             })()
         },
         rePrintOR(id, type) {
-            if (type === 'Tuition Fees') {
-                window.location.href = this.baseURL + '/transactions/print-tuition/' + id
-            } else if (type === 'Enrollment') {
-                window.location.href = this.baseURL + '/transactions/print-enrollment/' + id
-            } else {
-                window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + id
+            if (this.school === 'HCA') {
+                if (type === 'Tuition Fees') {
+                    window.location.href = this.baseURL + '/transactions/print-tuition/' + id
+                } else if (type === 'Enrollment') {
+                    window.location.href = this.baseURL + '/transactions/print-enrollment/' + id
+                } else {
+                    window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + id
+                }
+            } else if (this.school === 'SVI') {
+
             }
+            
         },
         editORNumber(paymentData) {
             (async () => {

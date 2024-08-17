@@ -19,7 +19,7 @@
                                     <option v-for="c in cashiers" :key="c.id" :value="c.id">{{ c.name }}</option>
                                 </select>
                             </div>
-                            <div class="col-lg-2">
+                            <div class="col-lg-4">
                                 <span class="text-muted">Actions</span>
                                 <br>
                                 <button class="btn btn-default ico-tab-mini" @click="fetchPayments()"><i class="fas fa-eye ico-tab-mini"></i>View</button>

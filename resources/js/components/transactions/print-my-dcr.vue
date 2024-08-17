@@ -104,7 +104,7 @@ export default {
 
             const [response1] = await Promise.all([dcr])
 
-            this.summary = response1.data
+            this.summary = response1.data.Payments
             
             // sum total summary
             this.summaryTotal = this.summary.reduce((sum, item) => sum + parseFloat(item.TotalAmountPaid), 0)

@@ -164,4 +164,21 @@ class SchoolYearController extends AppBaseController
     public function getSchoolYear(Request $request) {
         return response()->json(SchoolYear::where('SchoolYear', $request['SchoolYear'])->orderByDesc('created_at')->first(), 200);
     }
+
+    public function getClassesInSY(Request $request) {
+        $syId = $request['SchoolYearId'];
+
+        $classes = DB::table('Classes')
+            ->leftJoin('Teachers', 'Classes.Adviser', '=', 'Teachers.id')
+            ->where('Classes.SchoolYearId', $syId)
+            ->select(
+                'Classes.*',
+                'Teachers.FullName',
+                'Teachers.Designation',
+            )
+            ->orderBy('Classes.Year')
+            ->get();
+
+        return response()->json($classes, 200);
+    }
 }
