@@ -206,7 +206,7 @@
             <p style='font-size: 1.2em !important; padding-top: 29px !important; padding-left: 118px !important; text-align: left !important;'>{{ strtoupper(Students::formatNameFormal($student)) }}</p>
 
             {{-- ADDRESS --}}
-            <p style='font-size: 1.2em !important; padding-top: 15px !important; padding-left: 130px !important; text-align: left !important;'>{{ ($student->BarangaySpelled != null ? ($student->BarangaySpelled . ', ') : '') . ($student->TownSpelled != null ? ($student->TownSpelled) : '') }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 15px !important; padding-left: 130px !important; text-align: left !important;'>{{ ($student->BarangaySpelled != null ? ($student->BarangaySpelled . ', ') : '-') . ($student->TownSpelled != null ? ($student->TownSpelled) : '-') }}</p>
             
             {{-- AMOUNT IN WORDS --}}
             <p style='font-size: 1.2em !important; padding-top: 45px !important; padding-left: 50px !important; text-align: left !important;'>{{ $numToWords != null ? (strtoupper($numToWords)) : '-' }}</p>
