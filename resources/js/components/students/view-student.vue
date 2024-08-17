@@ -31,7 +31,7 @@
                         </a>
                       
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
+                            <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + studentId + '/student-view'"><i class="fas fa-pen ico-tab"></i>Edit Details</a>
                             <!-- <a class="dropdown-item" href="#"><i class="fas fa-calendar-alt ico-tab"></i>View Attendance</a> -->
                             
                             <div class="divider"></div>
