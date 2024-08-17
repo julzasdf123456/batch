@@ -460,7 +460,13 @@ export default {
                     window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + id
                 }
             } else if (this.school === 'SVI') {
-
+                if (type === 'Tuition Fees') {
+                    window.location.href = this.baseURL + '/transactions/print-tuition-svi/' + id
+                } else if (type === 'Enrollment') {
+                    window.location.href = this.baseURL + '/transactions/print-enrollment-svi/' + id
+                } else {
+                    window.location.href = this.baseURL + '/transactions/print-miscellaneous-svi/' + id
+                }
             }
             
         },

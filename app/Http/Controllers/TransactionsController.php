@@ -403,6 +403,9 @@ class TransactionsController extends AppBaseController
         return response()->json($id, 200);
     }
 
+    /**
+     * PRINT HCA ENROLLMENT
+     */
     public function printEnrollment($transactionId) {
         $transaction = Transactions::find($transactionId);
 
@@ -421,6 +424,37 @@ class TransactionsController extends AppBaseController
             $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
 
             return view('/transactions/print_enrollment', [
+                'transaction' => $transaction,
+                'student' => $student,
+                'transactionDetails' => $transactionDetails,
+                'classes' => $classes,
+            ]);
+        } else {
+            return abort('No transaction found!', 404);
+        }
+    }
+    
+    /**
+     * PRINT SVI ENROLLMENT
+     */
+    public function printEnrollmentSvi($transactionId) {
+        $transaction = Transactions::find($transactionId);
+
+        if ($transaction != null) {
+            $student = DB::table('Students')
+                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                ->select('Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled')
+                ->first();
+
+            $classes = Classes::find($student->CurrentGradeLevel);
+
+            $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
+
+            return view('/transactions/print_svi_enrollment', [
                 'transaction' => $transaction,
                 'student' => $student,
                 'transactionDetails' => $transactionDetails,
@@ -596,6 +630,9 @@ class TransactionsController extends AppBaseController
         return response()->json($id, 200);
     }
 
+    /**
+     * HCA PRINT TUITION
+     */
     public function printTuition($transactionId) {
         $transaction = Transactions::find($transactionId);
         
@@ -613,6 +650,36 @@ class TransactionsController extends AppBaseController
             $classes = Classes::find($student->CurrentGradeLevel);
 
             return view('/transactions/print_tuition', [
+                'transaction' => $transaction,
+                'student' => $student,
+                'transactionDetails' => $transactionDetails,
+                'classes' => $classes,
+            ]);
+        } else {
+            return abort('No transaction found!', 404);
+        }
+    }
+
+    /**
+     * SVI PRINT TUITION
+     */
+    public function printTuitionSvi($transactionId) {
+        $transaction = Transactions::find($transactionId);
+        
+        if ($transaction != null) {
+            $transactionDetails = TransactionDetails::where('TransactionsId', $transactionId)->get();
+            $student = DB::table('Students')
+                ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                    ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                    ->select('Students.*',
+                        'Towns.Town as TownSpelled',
+                        'Barangays.Barangay as BarangaySpelled')
+                    ->first();
+
+            $classes = Classes::find($student->CurrentGradeLevel);
+
+            return view('/transactions/print_svi_tuition', [
                 'transaction' => $transaction,
                 'student' => $student,
                 'transactionDetails' => $transactionDetails,
@@ -1403,5 +1470,36 @@ class TransactionsController extends AppBaseController
         }
 
         return response()->json('ok', 200);
+    }
+
+    /**
+     * SVI PRINT MISCELLANEOUS
+     */
+    public function printMiscellaneousSvi($transactionId) {
+        $transaction = Transactions::find($transactionId);
+
+        if ($transaction != null) {
+            $student = DB::table('Students')
+                ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                ->select('Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled')
+                ->first();
+
+            $classes = Classes::find($student->CurrentGradeLevel);
+
+            $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
+
+            return view('/transactions/print_svi_miscellaneous', [
+                'transaction' => $transaction,
+                'student' => $student,
+                'transactionDetails' => $transactionDetails,
+                'classes' => $classes,
+            ]);
+        } else {
+            return abort('No transaction found!', 404);
+        }
     }
 }

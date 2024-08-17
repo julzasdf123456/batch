@@ -166,6 +166,7 @@ export default {
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             token : document.querySelector("meta[name='token']").getAttribute('content'),
             userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
+            school : document.querySelector("meta[name='school']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -384,7 +385,12 @@ export default {
                                         icon : 'success',
                                         text : 'Enrollment paid!'
                                     })
-                                    window.location.href = this.baseURL + '/transactions/print-enrollment/' + response.data
+                                    
+                                    if (this.school === 'SVI') {
+                                        window.location.href = this.baseURL + '/transactions/print-enrollment-svi/' + response.data
+                                    } else if (this.school === 'HCA') {
+                                        window.location.href = this.baseURL + '/transactions/print-enrollment/' + response.data
+                                    }
                                 })
                                 .catch(error => {
                                     console.log(error.response)

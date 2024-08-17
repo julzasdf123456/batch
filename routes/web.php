@@ -160,6 +160,9 @@ Route::get('/transactions/get-payable-inclusions', [TransactionsController::clas
 Route::post('/transactions/update-or-number', [TransactionsController::class, 'updateORNumber'])->name('transactions.update-or-number');
 Route::post('/transactions/remove-payable-inclusion', [TransactionsController::class, 'removePayableInclusion'])->name('transactions.remove-payable-inclusion');
 Route::post('/transactions/add-payable-inclusion', [TransactionsController::class, 'addPayableInclusion'])->name('transactions.add-payable-inclusion');
+Route::get('/transactions/print-miscellaneous-svi/{id}', [TransactionsController::class, 'printMiscellaneousSvi'])->name('transactions.print-miscellaneous-svi');
+Route::get('/transactions/print-tuition-svi/{id}', [TransactionsController::class, 'printTuitionSvi'])->name('transactions.print-tuition-svi');
+Route::get('/transactions/print-enrollment-svi/{id}', [TransactionsController::class, 'printEnrollmentSvi'])->name('transactions.print-enrollment-svi');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);

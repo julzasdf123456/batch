@@ -182,8 +182,8 @@ class StudentsController extends AppBaseController
 
         if ($params != null) {
             $data = DB::table('Students')
-            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
-            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
             ->whereRaw("Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
                 (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
@@ -198,8 +198,8 @@ class StudentsController extends AppBaseController
             ->paginate(15);
         } else {
             $data = DB::table('Students')
-                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
-                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
                 ->select('Students.*',
                     'Towns.Town as TownSpelled',

@@ -333,6 +333,7 @@ export default {
             userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
             token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
+            school : document.querySelector("meta[name='school']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -681,7 +682,12 @@ export default {
                                             icon : 'success',
                                             text : 'Tuition successfully paid!'
                                         })
-                                        window.location.href = this.baseURL + '/transactions/print-tuition/' + response.data
+                                        if (this.school === 'SVI') {
+                                            window.location.href = this.baseURL + '/transactions/print-tuition-svi/' + response.data
+                                        } else if (this.school === 'HCA') {
+                                            window.location.href = this.baseURL + '/transactions/print-tuition/' + response.data
+                                        }
+                                        
                                     })
                                     .catch(error => {
                                         console.log(error.response)

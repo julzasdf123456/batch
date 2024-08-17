@@ -507,7 +507,7 @@ export default {
                                         text : 'Tuition successfully paid!'
                                     })
                                     if (this.school === 'SVI') {
-                                        
+                                        window.location.href = this.baseURL + '/transactions/print-miscellaneous-svi/' + response.data
                                     } else if (this.school === 'HCA') {
                                         window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + response.data
                                     }
