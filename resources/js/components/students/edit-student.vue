@@ -483,7 +483,7 @@ export default {
             })
         },
         saveStudent() {
-            if (this.isNull(this.student.LRN) | this.isNull(this.student.FirstName) | this.isNull(this.student.LastName) | this.isNull(this.student.Town) | this.isNull(this.student.Barangay + '') | this.isNull(this.student.Gender) | this.isNull(this.student.Sitio)) {
+            if (this.isNull(this.student.LRN) | this.isNull(this.student.FirstName) | this.isNull(this.student.LastName)/* |  this.isNull(this.student.Town) | this.isNull(this.student.Barangay + '') | this.isNull(this.student.Gender) | this.isNull(this.student.Sitio) */) {
                 this.toast.fire({
                     icon : 'info',
                     text : 'Please supply all non-optional fields!'
