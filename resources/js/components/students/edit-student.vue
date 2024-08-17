@@ -534,7 +534,6 @@ export default {
                         icon : 'success',
                         text : 'Student data updated!!'
                     })
-                    alert(this.from)
                     if (this.from === 'student-view') {
                         window.location.href = this.baseURL + '/students/' + this.studentId
                     } else if (this.from === 'class-view') {
