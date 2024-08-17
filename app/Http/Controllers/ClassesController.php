@@ -1160,7 +1160,8 @@ class ClassesController extends AppBaseController
     public function revalidateSubjects(Request $request) {
         $classId = $request['ClassId'];
 
-        $students = Students::where('CurrentGradeLevel', $classId)->get();
+        $students = Students::whereRaw("id IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+            ->get();
 
         $class = Classes::find($classId);
 
