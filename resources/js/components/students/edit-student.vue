@@ -319,6 +319,7 @@ export default {
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             token : document.querySelector("meta[name='token']").getAttribute('content'),
             studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
+            from : document.querySelector("meta[name='from']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
                 toast: true,
@@ -533,7 +534,13 @@ export default {
                         icon : 'success',
                         text : 'Student data updated!!'
                     })
-                    window.location.href = this.baseURL + '/students/' + this.studentId
+                    alert(this.from)
+                    if (this.from === 'student-view') {
+                        window.location.href = this.baseURL + '/students/' + this.studentId
+                    } else if (this.from === 'class-view') {
+                        window.history.go(-1)
+                    }
+                    
                 })
                 .catch(error => {
                     console.log(error.response)

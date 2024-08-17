@@ -166,8 +166,8 @@ class StudentsController extends AppBaseController
         $id = $request['id'];
 
         $student = DB::table('Students')
-            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
-            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $id . "'")
             ->select('Students.*',
                 'Towns.Town as TownSpelled',
@@ -286,10 +286,11 @@ class StudentsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function editStudent($studentId) {
+    public function editStudent($studentId, $from) {
         if (Auth::user()->hasAnyPermission(['god permission', 'edit student details'])) {
             return view('/students/edit_student', [
                 'studentId' => $studentId,
+                'from' => $from,
             ]);
         } else {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));

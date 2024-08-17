@@ -77,7 +77,7 @@ Route::post('/students/save-student', [StudentsController::class, 'saveStudent']
 Route::get('/students/get-student', [StudentsController::class, 'getStudent'])->name('students.get-student');
 Route::get('/students/search-students-paginated', [StudentsController::class, 'searchStudentsPaginated'])->name('students.search-students-paginated');
 Route::get('/students/get-student-details', [StudentsController::class, 'getStudentDetails'])->name('students.get-student-details');
-Route::get('/students/edit-student/{studentId}', [StudentsController::class, 'editStudent'])->name('students.edit-student');
+Route::get('/students/edit-student/{studentId}/{from}', [StudentsController::class, 'editStudent'])->name('students.edit-student');
 Route::post('/students/update-student', [StudentsController::class, 'updateStudent'])->name('students.update-student');
 Route::get('/students/get-student-class-details', [StudentsController::class, 'getStudentClassDetails'])->name('students.get-student-class-details');
 Route::get('/students/guest-view/{studentId}', [StudentsController::class, 'guestView'])->name('students.guest-view');
