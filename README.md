@@ -11,8 +11,8 @@
 ### New Tables
 
 ### New Columns on Tables
-- PayableInclusions
-    - NotDeductedMonthly (HCA pushed)
+- TransactionDetails
+    - FlushedToTuition
 
 ### New Permissions
 
@@ -20,6 +20,3 @@
 
 
 ### New Config Items
-- ESC_SCHOLARSHIP_ID (HCA pushed)
-- VMS_PUBLIC_SCHOLARSHIP_ID (HCA pushed)
-- VMS_PRIVATE_SCHOLARSHIP_ID (HCA pushed)

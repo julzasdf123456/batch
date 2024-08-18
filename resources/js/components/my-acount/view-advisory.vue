@@ -640,6 +640,10 @@ export default {
         getPaymentData(month, studentId) {
             let dataFound = this.paymentData.find(obj => obj.ForMonth === month && obj.StudentId === studentId)
 
+            if (studentId === '1723965783658') {
+                console.log(dataFound)
+            }
+
             if (this.isNull(dataFound)) {
                 return `<span class="text-sm"><i class="fas fa-exclamation-circle text-gray"></i></span>`
             } else {
@@ -1111,34 +1115,33 @@ export default {
         },
         flushToTuitionData() {
             Swal.fire({
-                    title: "Confirmation",
-                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
-                    showCancelButton: true,
-                    confirmButtonText: "Proceed Marking",
-                    confirmButtonColor : '#e03822'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
-                            _token : this.token,
-                            Students : this.selection,
-                            Option : option
+                title: "Confirmation",
+                text : `Flushing the Tuition Fee payments from the Miscellaneous module will revalidate the Tuition Fee payables of the students. Continue with caution.`,
+                showCancelButton: true,
+                confirmButtonText: "Proceed Flushing",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/classes/flush-misc-to-tuitions`, {
+                        _token : this.token,
+                        ClassId : this.classId,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Miscellaneous tuitions flushed to tuition fees!'
                         })
-                        .then(response => {
-                            this.toast.fire({
-                                icon : 'success',
-                                text : 'Students marked!'
-                            })
-                            location.reload()
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error flushing miscellaneous fees to tuition!'
                         })
-                        .catch(error => {
-                            console.log(error.response)
-                            this.toast.fire({
-                                icon : 'error',
-                                text : 'Error marking students!'
-                            })
-                        })
-                    }
-                })
+                    })
+                }
+            })
         }
     },
     created() {

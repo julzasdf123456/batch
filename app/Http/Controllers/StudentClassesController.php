@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use App\Models\Payables;
 use App\Models\Classes;
 use App\Models\SchoolYear;
+use App\Models\Students;
+use App\Models\StudentSubjects;
 use App\Models\TuitionsBreakdown;
 use Flash;
 
@@ -127,6 +129,14 @@ class StudentClassesController extends AppBaseController
         $class = Classes::find($studentClasses->ClassId);
 
         $sy = SchoolYear::find($class != null ? $class->SchoolYearId : '-');
+
+        Students::where('id', $studentClasses->StudentId)
+            ->update(['CurrentGradeLevel' => null]);
+
+
+        StudentSubjects::where('StudentId', $studentClasses->StudentId)
+            ->where('ClassId', $studentClasses->ClassId)
+            ->delete();
 
         if ($sy != null) {
             $payables = Payables::where('StudentId', $studentClasses->StudentId)

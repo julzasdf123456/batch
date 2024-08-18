@@ -21,6 +21,7 @@ use App\Models\TuitionInclusions;
 use App\Models\Transactions;
 use App\Models\StudentScholarships;
 use App\Models\SubjectClasses;
+use App\Models\TransactionDetails;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -198,6 +199,7 @@ class ClassesController extends AppBaseController
 
         if ($student != null) {
             if ($classesRepo != null) {
+                $semTail = "";
                 // check if class exists in a particular school year
                 $class = Classes::where('SchoolYearId', $syId)
                     ->where('Year', $classesRepo->Year)
@@ -218,8 +220,16 @@ class ClassesController extends AppBaseController
                     $class->Strand = $classesRepo->Strand;
                     $class->Semester = $semester;
                     $class->save();
+                    
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                        $semTail = ' ' . $semester . ' Sem';
+                    }
                 } else { 
                     $classId = $class->id;
+
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                        $semTail = ' ' . $class->Semester . ' Sem';
+                    }
                 }
 
                 // create student inside the class
@@ -255,7 +265,11 @@ class ClassesController extends AppBaseController
                         $payable->save();
                     }
 
-                    // create subjects
+                    /**
+                     * ==========================================================
+                     * CREATE SUBJECTS
+                     * ==========================================================
+                     */
                     foreach($subjects as $item) {
                         if ($item['Selected'] | $item['Selected']==='true') {
                             $studentSubjects = new StudentSubjects;
@@ -266,6 +280,53 @@ class ClassesController extends AppBaseController
                             $studentSubjects->TeacherId = $item['TeacherId'];
                             $studentSubjects->save();
                         }
+                    }
+                    
+                    // also insert 2nd sem subjects if SENIOR_HIGH_SEM_ENROLLMENT=CONTINUOS
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS') {
+                        $classesRepoSecond = ClassesRepo::where('Year', $classesRepo->Year)
+                            ->where('Section', $classesRepo->Section)
+                            ->where('Strand', $classesRepo->Strand)
+                            ->where('Semester', '2nd')
+                            ->first();
+
+                        $classSecond = Classes::where('Year', $classesRepo->Year)
+                            ->where('Section', $classesRepo->Section)
+                            ->where('Strand', $classesRepo->Strand)
+                            ->where('Semester', '2nd')
+                            ->where('SchoolYearId', $syId)
+                            ->first();
+
+                        if ($classesRepoSecond != null && $classSecond != null) {
+                            // insert to second sem class
+                            $enrollee2nd = new StudentClasses;
+                            $enrollee2nd->id = IDGenerator::generateID();
+                            $enrollee2nd->ClassId = $classSecond->id;
+                            $enrollee2nd->StudentId = $studentId;
+                            $enrollee2nd->Status = 'Paid';
+                            $enrollee2nd->Type = $type;
+                            $enrollee2nd->Semester = '2nd';
+                            $enrollee2nd->save();
+
+                            // insert sencond sem subjects
+                            $subjects = DB::table('SubjectClasses')
+                                ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                                ->whereRaw("SubjectClasses.ClassRepoId='" . $classesRepoSecond->id . "'")
+                                ->select(
+                                    'Subjects.*'
+                                )
+                                ->get();
+
+                            foreach ($subjects as $subj) {
+                                $studentSubjects = new StudentSubjects;
+                                $studentSubjects->id = IDGenerator::generateIDandRandString();
+                                $studentSubjects->StudentId = $studentId;
+                                $studentSubjects->SubjectId = $subj->id;
+                                $studentSubjects->ClassId = $classSecond->id;
+                                $studentSubjects->TeacherId = $subj->Teacher;
+                                $studentSubjects->save();
+                            }
+                        } 
                     }
                     
                     // update student current grade level
@@ -294,7 +355,7 @@ class ClassesController extends AppBaseController
                             $tuitionPayable = new Payables;
                             $tuitionPayable->id = $payableId;
                             $tuitionPayable->StudentId = $studentId;
-                            $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
+                            $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? ($sy->SchoolYear . $semTail) : '(no school year declared)');
                             $tuitionPayable->Category = 'Tuition Fees';
                             $tuitionPayable->SchoolYear = $sy->SchoolYear;
                             $tuitionPayable->ClassId = $classId;
@@ -342,6 +403,11 @@ class ClassesController extends AppBaseController
 
                             // create tuitions breakdown
                             if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                // update payable, set to half per sem
+                                $tuitionPayable->Payable = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / 2) : 0;
+                                $tuitionPayable->AmountPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / 2) : 0;
+                                $tuitionPayable->Balance = $tuitionPayable->Balance > 0 ? ($tuitionPayable->Balance / 2) : 0;
+
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
@@ -359,9 +425,10 @@ class ClassesController extends AppBaseController
                                     $tuitionBreakdown->PayableId = $payableId;
     
                                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
+                                    $pyblOriginal = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / $monthsToPay) : 0;
     
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
-                                    $tuitionBreakdown->Payable = $amntPayable;
+                                    $tuitionBreakdown->Payable = $pyblOriginal;
                                     $tuitionBreakdown->Balance = $amntPayable;
                                     $tuitionBreakdown->save();
                                 }
@@ -471,6 +538,7 @@ class ClassesController extends AppBaseController
 
         if ($student != null) {
             if ($classesRepo != null) {
+                $semTail = "";
                 // check if class exists in a particular school year
                 $class = Classes::where('SchoolYearId', $syId)
                     ->where('Year', $classesRepo->Year)
@@ -491,8 +559,16 @@ class ClassesController extends AppBaseController
                     $class->Strand = $classesRepo->Strand;
                     $class->Semester = $semester;
                     $class->save();
+
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                        $semTail = ' ' . $semester . ' Sem';
+                    }
                 } else { 
                     $classId = $class->id;
+
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                        $semTail = ' ' . $class->Semester . ' Sem';
+                    }
                 }
 
                  // create student inside the class
@@ -609,7 +685,7 @@ class ClassesController extends AppBaseController
                             $tuitionPayable = new Payables;
                             $tuitionPayable->id = $payableId;
                             $tuitionPayable->StudentId = $studentId;
-                            $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? $sy->SchoolYear : '(no school year declared)');
+                            $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? ($sy->SchoolYear . $semTail) : '(no school year declared)');
                             $tuitionPayable->Category = 'Tuition Fees';
                             $tuitionPayable->SchoolYear = $sy->SchoolYear;
                             $tuitionPayable->ClassId = $classId;
@@ -1448,18 +1524,98 @@ class ClassesController extends AppBaseController
         $data =  DB::table('StudentClasses')
             ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
             ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
-            ->whereRaw("Students.Status IS NULL")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
             ->select(
                 'Students.*',
                 'StudentClasses.Status as EnrollmentStatus',
                 'StudentClasses.id as StudentClassId',
                 DB::raw("(SELECT SUM(TRY_CAST(td.Amount AS DECIMAL(13,2))) FROM TransactionDetails td
                         LEFT JOIN Transactions t ON t.id=td.TransactionsId
-                    WHERE t.StudentId=Students.id AND td.Particulars LIKE '%Tuition Fee%' AND t.Status IS NULL) AS TuitionMiscPayable")
+                    WHERE t.StudentId=Students.id AND td.Particulars LIKE '%Tuition Fee%' AND t.Status IS NULL AND td.FlushedToTuition IS NULL) AS TuitionMiscPayable")
             )
             ->orderBy('Students.LastName')
             ->get();
 
         return response()->json($data, 200);
+    }
+
+    public function flushMiscToTuitions(Request $request) {
+        $classId = $request['ClassId'];
+
+        $data =  DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
+            ->select(
+                'Students.*',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId',
+                DB::raw("(SELECT SUM(TRY_CAST(td.Amount AS DECIMAL(13,2))) FROM TransactionDetails td 
+                    LEFT JOIN Transactions t ON t.id=td.TransactionsId 
+                    WHERE t.StudentId=Students.id AND td.Particulars LIKE '%Tuition Fee%' AND t.Status IS NULL AND td.FlushedToTuition IS NULL) AS TuitionMiscPayable")
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+
+        foreach($data as $item) {
+            if ($class != null && $sy != null) {
+                // update tuition payable
+                $payable = Payables::where('ClassId', $classId)
+                    ->where('StudentId', $item->id)
+                    ->where('SchoolYear', $sy->SchoolYear)
+                    ->where('Category', 'Tuition Fees')
+                    ->first();
+
+                if ($payable != null) {
+                    $paidAmount = $item->TuitionMiscPayable != null ? $item->TuitionMiscPayable : 0;
+
+                    $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+                    $newAmntPaid = $payableAmntPaid + floatval($paidAmount);
+                    $balance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                    $newBalance = $balance - floatval($paidAmount);
+
+                    $payable->AmountPaid = $newAmntPaid;
+                    $payable->Balance = $newBalance;
+                    $payable->save();
+
+                    // update tuitions breakdown
+                    $tBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
+                    $payment = floatval($paidAmount);
+                    foreach($tBreakdown as $itemx) {
+                        $currentPayable = floatval($itemx->Balance);
+                        if ($payment > 0) {
+                            if ($payment >= $currentPayable) {
+                                $itemx->Balance = 0;
+                                $itemx->AmountPaid = $itemx->AmountPayable;
+                                
+                                $payment = $payment - $currentPayable;
+                            } else {
+                                $itemx->Balance = $currentPayable - $payment;
+                                $itemx->AmountPaid = floatval($itemx->AmountPaid) + $payment;
+
+                                $payment = 0;
+                            }
+                            $itemx->save();
+                        }
+                    }
+
+                    // update Transaction Details
+                    $tDetails = TransactionDetails::whereRaw("id IN (SELECT td.id FROM TransactionDetails td 
+                        LEFT JOIN Transactions t ON t.id=td.TransactionsId 
+                        WHERE t.StudentId='" . $item->id . "' AND td.Particulars LIKE '%Tuition Fee%' AND t.Status IS NULL AND td.FlushedToTuition IS NULL)")
+                        ->get();
+
+                    foreach($tDetails as $itemy) {
+                        TransactionDetails::where('id', $itemy->id)
+                            ->update(['FlushedToTuition' => 'Yes']);
+                    } 
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
     }
 }

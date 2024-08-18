@@ -8,7 +8,9 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\TeachersRepository;
 use Illuminate\Http\Request;
 use App\Models\Teachers;
+use App\Models\Classes;
 use App\Models\StudentSubjects;
+use App\Models\SchoolYear;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -314,36 +316,109 @@ class TeachersController extends AppBaseController
     public function getClassPaymentDetails(Request $request) {
         $classId = $request['ClassId'];
         $schoolYear = $request['SchoolYear'];
-        
+
+        $class = Classes::find($classId);
+        $sy = SchoolYear::where('SchoolYear', $schoolYear)->first();
         $data = [];
-        $data['Months'] = DB::table('TuitionsBreakdown')
-            ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
-            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
-            ->select(
-                'ForMonth'
-            )
-            ->groupBy('ForMonth')
-            ->orderBy('ForMonth')
-            ->get();
+        
+        if ($class != null && ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') && $class->Semester === '2nd' && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS' && env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE') {
+            // get 1st sem class
+            $classFirst = Classes::where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', '1st')
+                ->where('SchoolYearId', $sy != null ? $sy->id : null)
+                ->first();
 
-        $data['PaymentData'] = DB::table('TuitionsBreakdown')
-            ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
-            ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
-            ->select(
-                'ForMonth',
-                'Payables.StudentId',
-                DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPayable AS DECIMAL(12,3))) AS AmountPayable"),
-                DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPaid AS DECIMAL(12,3))) AS AmountPaid"),
-                DB::raw("SUM(TRY_CAST(TuitionsBreakdown.Balance AS DECIMAL(12,3))) AS Balance"),
-            )
-            ->groupBy('ForMonth', 'Payables.StudentId')
-            ->orderBy('Payables.StudentId')
-            ->orderBy('ForMonth')
-            ->get();
+            if ($classFirst != null) {
+                $data['Months'] = DB::table('TuitionsBreakdown')
+                    ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+                    ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classFirst->id . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classFirst->id . "')")
+                    ->select(
+                        'ForMonth'
+                    )
+                    ->groupBy('ForMonth')
+                    ->orderBy('ForMonth')
+                    ->get();
 
-        $data['PayableProfile'] = DB::table('Payables')
+                $data['PaymentData'] = DB::table('TuitionsBreakdown')
+                    ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+                    ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classFirst->id . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classFirst->id . "')")
+                    ->select(
+                        'ForMonth',
+                        'Payables.StudentId',
+                        DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPayable AS DECIMAL(12,3))) AS AmountPayable"),
+                        DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPaid AS DECIMAL(12,3))) AS AmountPaid"),
+                        DB::raw("SUM(TRY_CAST(TuitionsBreakdown.Balance AS DECIMAL(12,3))) AS Balance"),
+                    )
+                    ->groupBy('ForMonth', 'Payables.StudentId')
+                    ->orderBy('Payables.StudentId')
+                    ->orderBy('ForMonth')
+                    ->get();
+
+                $data['PayableProfile'] = DB::table('Payables')
+                    ->whereRaw("SchoolYear='" . $schoolYear . "' AND ClassId='" . $classFirst->id . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classFirst->id . "')")
+                    ->get();
+            } else {
+                $data['Months'] = DB::table('TuitionsBreakdown')
+                    ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+                    ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+                    ->select(
+                        'ForMonth'
+                    )
+                    ->groupBy('ForMonth')
+                    ->orderBy('ForMonth')
+                    ->get();
+
+                $data['PaymentData'] = DB::table('TuitionsBreakdown')
+                    ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+                    ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+                    ->select(
+                        'ForMonth',
+                        'Payables.StudentId',
+                        DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPayable AS DECIMAL(12,3))) AS AmountPayable"),
+                        DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPaid AS DECIMAL(12,3))) AS AmountPaid"),
+                        DB::raw("SUM(TRY_CAST(TuitionsBreakdown.Balance AS DECIMAL(12,3))) AS Balance"),
+                    )
+                    ->groupBy('ForMonth', 'Payables.StudentId')
+                    ->orderBy('Payables.StudentId')
+                    ->orderBy('ForMonth')
+                    ->get();
+
+                $data['PayableProfile'] = DB::table('Payables')
+                    ->whereRaw("SchoolYear='" . $schoolYear . "' AND ClassId='" . $classId . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+                    ->get();
+            }
+        } else {
+            $data['Months'] = DB::table('TuitionsBreakdown')
+                ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+                ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+                ->select(
+                    'ForMonth'
+                )
+                ->groupBy('ForMonth')
+                ->orderBy('ForMonth')
+                ->get();
+
+            $data['PaymentData'] = DB::table('TuitionsBreakdown')
+                ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
+                ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
+                ->select(
+                    'ForMonth',
+                    'Payables.StudentId',
+                    DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPayable AS DECIMAL(12,3))) AS AmountPayable"),
+                    DB::raw("SUM(TRY_CAST(TuitionsBreakdown.AmountPaid AS DECIMAL(12,3))) AS AmountPaid"),
+                    DB::raw("SUM(TRY_CAST(TuitionsBreakdown.Balance AS DECIMAL(12,3))) AS Balance"),
+                )
+                ->groupBy('ForMonth', 'Payables.StudentId')
+                ->orderBy('Payables.StudentId')
+                ->orderBy('ForMonth')
+                ->get();
+
+            $data['PayableProfile'] = DB::table('Payables')
                 ->whereRaw("SchoolYear='" . $schoolYear . "' AND ClassId='" . $classId . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
                 ->get();
+        }
 
         return response()->json($data, 200);
     }
