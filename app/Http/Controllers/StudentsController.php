@@ -15,6 +15,8 @@ use App\Models\Classes;
 use App\Models\Payables;
 use App\Models\PayableInclusions;
 use App\Models\StudentScholarships;
+use App\Models\SchoolYear;
+use App\Models\ClassesRepo;
 use Flash;
 
 class StudentsController extends AppBaseController
@@ -459,5 +461,216 @@ class StudentsController extends AppBaseController
         }
 
         return response()->json($student, 200);
+    }
+
+    public function studentsList(Request $request) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view students', 'view student details'])) {
+            return view('/students/students_list');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        } 
+    }
+
+    public function getStudentsList(Request $request) {
+        $syId = $request['SchoolYearId'];
+        $classRepoId = $request['ClassRepo'];
+        $status = $request['Status'];
+
+        $sy = SchoolYear::find($syId);
+
+        if ($classRepoId === 'All') {
+            if ($status === 'Active') {
+                $students = DB::table('StudentClasses')
+                    ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                    ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                    ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                    ->whereRaw("Students.id IS NOT NULL AND Students.Status IS NULL")
+                    ->select(
+                        'Students.*',
+                        'StudentClasses.Status',
+                        'StudentClasses.Type',
+                        'StudentClasses.created_at AS EnrollmentDate',
+                        'StudentClasses.EnrollmentORDate',
+                        'Towns.Town AS TownSpelled',
+                        'Barangays.Barangay AS BarangaySpelled',
+                    )
+                    ->orderByDesc('Students.Gender')
+                    ->orderBy('Students.LastName')
+                    ->get();
+            } else {
+                $students = DB::table('StudentClasses')
+                    ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                    ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                    ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                    ->whereRaw("Students.id IS NOT NULL AND Students.Status='" . $status . "'")
+                    ->select(
+                        'Students.*',
+                        'StudentClasses.Status',
+                        'StudentClasses.Type',
+                        'StudentClasses.created_at AS EnrollmentDate',
+                        'StudentClasses.EnrollmentORDate',
+                        'Towns.Town AS TownSpelled',
+                        'Barangays.Barangay AS BarangaySpelled',
+                    )
+                    ->orderByDesc('Students.Gender')
+                    ->orderBy('Students.LastName')
+                    ->get();
+            }
+
+            return response()->json($students, 200);
+        } else {
+            $classRepo = ClassesRepo::find($classRepoId);
+            $class = Classes::where('SchoolYearId', $syId)
+                ->where('Year', $classRepo->Year)
+                ->where('Section', $classRepo->Section)
+                ->where('Strand', $classRepo->Strand)
+                ->where('Semester', $classRepo->Semester)
+                ->first();
+
+            if ($class != null) {
+                if ($status === 'Active') {
+                    $students = DB::table('StudentClasses')
+                        ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                        ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                        ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                        ->whereRaw("StudentClasses.ClassId='" . $class->id . "' AND Students.id IS NOT NULL AND Students.Status IS NULL")
+                        ->select(
+                            'Students.*',
+                            'StudentClasses.Status',
+                            'StudentClasses.Type',
+                            'StudentClasses.created_at AS EnrollmentDate',
+                            'StudentClasses.EnrollmentORDate',
+                            'Towns.Town AS TownSpelled',
+                            'Barangays.Barangay AS BarangaySpelled',
+                        )
+                        ->orderByDesc('Students.Gender')
+                        ->orderBy('Students.LastName')
+                        ->get();
+                } else {
+                    $students = DB::table('StudentClasses')
+                        ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                        ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                        ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                        ->whereRaw("StudentClasses.ClassId='" . $class->id . "' AND Students.id IS NOT NULL AND Students.Status='" . $status . "'")
+                        ->select(
+                            'Students.*',
+                            'StudentClasses.Status',
+                            'StudentClasses.Type',
+                            'StudentClasses.created_at AS EnrollmentDate',
+                            'StudentClasses.EnrollmentORDate',
+                            'Towns.Town AS TownSpelled',
+                            'Barangays.Barangay AS BarangaySpelled',
+                        )
+                        ->orderByDesc('Students.Gender')
+                        ->orderBy('Students.LastName')
+                        ->get();
+                }
+                
+                return response()->json($students, 200);
+            } else {
+                return response()->json([], 200);
+            }
+        }
+    }
+
+    public function printStudentsList($syId, $classRepoId, $status) {
+        $sy = SchoolYear::find($syId);
+
+        $students = [];
+        if ($classRepoId === 'All') {
+            $class = 'All';
+            if ($status === 'Active') {
+                $students = DB::table('StudentClasses')
+                    ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                    ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                    ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                    ->whereRaw("Students.id IS NOT NULL AND Students.Status IS NULL")
+                    ->select(
+                        'Students.*',
+                        'StudentClasses.Status',
+                        'StudentClasses.Type',
+                        'StudentClasses.created_at AS EnrollmentDate',
+                        'StudentClasses.EnrollmentORDate',
+                        'Towns.Town AS TownSpelled',
+                        'Barangays.Barangay AS BarangaySpelled',
+                    )
+                    ->orderByDesc('Students.Gender')
+                    ->orderBy('Students.LastName')
+                    ->get();
+            } else {
+                $students = DB::table('StudentClasses')
+                    ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                    ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                    ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                    ->whereRaw("Students.id IS NOT NULL AND Students.Status='" . $status . "'")
+                    ->select(
+                        'Students.*',
+                        'StudentClasses.Status',
+                        'StudentClasses.Type',
+                        'StudentClasses.created_at AS EnrollmentDate',
+                        'StudentClasses.EnrollmentORDate',
+                        'Towns.Town AS TownSpelled',
+                        'Barangays.Barangay AS BarangaySpelled',
+                    )
+                    ->orderByDesc('Students.Gender')
+                    ->orderBy('Students.LastName')
+                    ->get();
+            }
+        } else {
+            $classRepo = ClassesRepo::find($classRepoId);
+            $class = Classes::where('SchoolYearId', $syId)
+                ->where('Year', $classRepo->Year)
+                ->where('Section', $classRepo->Section)
+                ->where('Strand', $classRepo->Strand)
+                ->where('Semester', $classRepo->Semester)
+                ->first();
+
+            if ($class != null) {
+                if ($status === 'Active') {
+                    $students = DB::table('StudentClasses')
+                        ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                        ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                        ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                        ->whereRaw("StudentClasses.ClassId='" . $class->id . "' AND Students.id IS NOT NULL AND Students.Status IS NULL")
+                        ->select(
+                            'Students.*',
+                            'StudentClasses.Status',
+                            'StudentClasses.Type',
+                            'StudentClasses.created_at AS EnrollmentDate',
+                            'StudentClasses.EnrollmentORDate',
+                            'Towns.Town AS TownSpelled',
+                            'Barangays.Barangay AS BarangaySpelled',
+                        )
+                        ->orderByDesc('Students.Gender')
+                        ->orderBy('Students.LastName')
+                        ->get();
+                } else {
+                    $students = DB::table('StudentClasses')
+                        ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+                        ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                        ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                        ->whereRaw("StudentClasses.ClassId='" . $class->id . "' AND Students.id IS NOT NULL AND Students.Status='" . $status . "'")
+                        ->select(
+                            'Students.*',
+                            'StudentClasses.Status',
+                            'StudentClasses.Type',
+                            'StudentClasses.created_at AS EnrollmentDate',
+                            'StudentClasses.EnrollmentORDate',
+                            'Towns.Town AS TownSpelled',
+                            'Barangays.Barangay AS BarangaySpelled',
+                        )
+                        ->orderByDesc('Students.Gender')
+                        ->orderBy('Students.LastName')
+                        ->get();
+                }
+                
+            }
+        }
+
+        return view('/students/print_results', [
+            'sy' => $sy,
+            'students' => $students,
+            'class' => $class,
+        ]);
     }
 }

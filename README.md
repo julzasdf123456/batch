@@ -12,7 +12,7 @@
 
 ### New Columns on Tables
 - TransactionDetails
-    - FlushedToTuition
+    - FlushedToTuition (pushed to HCA)
 
 ### New Permissions
 

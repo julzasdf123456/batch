@@ -5,6 +5,11 @@
             <span class="text-muted">{{ syDetails.SchoolYear }}</span>
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
+
+            <br>
+            <span class="text-muted text-xs mr-2 pointer" title="Male Students Count"><i class="fas fa-venus mr-1"></i>{{ male.length }}</span> • 
+            <span class="text-muted text-xs ml-2 mr-2 pointer" title="Female Students Count"><i class="fas fa-mars mr-1"></i>{{ female.length }}</span> • 
+            <span class="text-muted text-xs ml-2 pointer" title="Total Students Count"><i class="fas fa-venus-mars mr-1"></i>{{( female.length +  male.length) }}</span>
             
             <select v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
                 <option v-for="c in classesInSy" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
@@ -135,6 +140,7 @@
                                                             <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
                                                             <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
                                                             <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button>
+                                                            <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
 
                                                             <div class="divider"></div>
 

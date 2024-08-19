@@ -470,7 +470,7 @@ class ClassesController extends AppBaseController
             ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
             ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
             ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
-            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Students.Status IS NULL")
             ->select(
                 'Students.*',
                 'StudentClasses.Status',

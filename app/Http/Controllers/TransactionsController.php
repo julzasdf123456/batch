@@ -1525,4 +1525,47 @@ class TransactionsController extends AppBaseController
             return abort('No transaction found!', 404);
         }
     }
+
+    public function printTuitionLedger($studentId, $syData) {
+        $student = DB::table('Students')
+            ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
+            ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+            ->leftJoin(DB::raw("Towns tp"), DB::raw("TRY_CAST(Students.PermanentTown AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(tp.id AS VARCHAR(100))"))
+            ->leftJoin(DB::raw("Barangays bp"), DB::raw("TRY_CAST(Students.PermanentBarangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(bp.id AS VARCHAR(100))"))
+            ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
+            ->whereRaw("Students.id='" . $studentId . "'")
+            ->select('Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'tp.Town AS TownSpelledPermanent',
+                'bp.Barangay AS BarangaySpelledPermanent',
+                'Classes.Year',
+                'Classes.Section',
+                'Classes.Semester',
+                'Classes.Strand',
+            )
+            ->first();
+        $sy = SchoolYear::where('SchoolYear', $syData)->first();
+
+        $tuitionPayable = Payables::where('StudentId', $studentId)
+            ->where('Category', 'Tuition Fees')
+            ->where('SchoolYear', $syData)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if ($tuitionPayable != null) {
+            $tuitionBreakdown = TuitionsBreakdown::where('PayableId', $tuitionPayable->id)
+                ->orderBy('ForMonth')
+                ->get();
+
+            return view('/transactions/print_tuition_ledger', [
+                'student' => $student,
+                'sy' => $sy,
+                'tuitionPayable' => $tuitionPayable,
+                'tuitionBreakdown' => $tuitionBreakdown,
+            ]);
+        } else {
+            return abort(404, 'No payable found!');
+        }
+    }
 }

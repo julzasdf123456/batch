@@ -39,6 +39,7 @@ import Notifier from "./components/sms/notifier.vue"
 import DashboardIndex from "./components/dashboard/index.vue"
 import AddNew from "./components/students/add-new.vue"
 import AddNewToClass from "./components/students/add-new-to-class.vue"
+import StudentsList from "./components/students/students-list.vue"
 
 import MyClasses from "./components/my-acount/my-classes.vue"
 import ViewClass from "./components/my-acount/view-class.vue"
@@ -76,6 +77,7 @@ app.component('notifier', Notifier);
 app.component('dashboard-index', DashboardIndex);
 app.component('add-new', AddNew);
 app.component('add-new-to-class', AddNewToClass);
+app.component('students-list', StudentsList);
 
 app.component('my-classes', MyClasses);
 app.component('view-class', ViewClass);
