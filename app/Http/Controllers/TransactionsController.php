@@ -751,6 +751,7 @@ class TransactionsController extends AppBaseController
         $orNumber = $request['ORNumber'];
         $details = $request['Details'];
         $transactionDetails = $request['TransactionDetails'];
+        $orDate = $request['ORDate'];
 
         // determine mode of payment
         $modeOfPayment = '';
@@ -772,7 +773,7 @@ class TransactionsController extends AppBaseController
         $transactions->PaymentFor = $details;
         $transactions->ModeOfPayment = $modeOfPayment;
         $transactions->ORNumber = $orNumber;
-        $transactions->ORDate = date('Y-m-d');
+        $transactions->ORDate = $orDate;
         $transactions->CashAmount = $cashAmount;
         $transactions->CheckAmount = $checkAmount;
         $transactions->DigitalPaymentAmount = $digitalAmount;
@@ -1567,5 +1568,31 @@ class TransactionsController extends AppBaseController
         } else {
             return abort(404, 'No payable found!');
         }
+    }
+
+    public function oldOrEntry(Request $request) {
+        return view('/transactions/old_or_entry');
+    }
+
+    
+    public function searchOldEntryStudents(Request $request) {
+        $params = $request['Search'];
+
+        if (isset($params)) {
+            $data = DB::table('Students')
+                ->whereRaw("(Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
+                    (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
+                    (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%')")
+                ->select('Students.*')
+                ->orderBy('Students.FirstName')
+                ->paginate(18);
+        } else {
+            $data = DB::table('Students')
+                ->select('Students.*')
+                ->orderByDesc('Students.created_at')
+                ->paginate(18);
+        }
+
+        return response()->json($data, 200);
     }
 }

@@ -120,7 +120,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="v-align">ESC Scholar/Grantee<span class="text-muted"></span></td>
+                                <td class="v-align">ESC/VMS Scholar<span class="text-muted"></span></td>
                                 <td>
                                     <div class="input-group-radio-sm">
                                         <input type="radio" id="Yes" value="Yes" v-model="escScholar" class="custom-radio-sm">

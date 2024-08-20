@@ -138,8 +138,8 @@
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
-                                                            <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
-                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button>
+                                                            <!-- <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
+                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button> -->
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
 
                                                             <div class="divider"></div>
@@ -193,6 +193,7 @@
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+                                                            <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
 
                                                             <div class="divider"></div>
 
@@ -1035,7 +1036,7 @@ export default {
             } else {
                 Swal.fire({
                     title: "Confirmation",
-                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
+                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will the current payable and payments for the account. Proceed with caution.`,
                     showCancelButton: true,
                     confirmButtonText: "Proceed Marking",
                     confirmButtonColor : '#e03822'
