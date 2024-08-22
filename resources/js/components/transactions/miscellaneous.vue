@@ -92,20 +92,23 @@
 
         <!-- FORM -->
         <div class="col-lg-3 col-md-12">
-            <!-- <div style="border-bottom: dotted 3px #aeaeae; margin-bottom: 18px; padding-bottom: 10px;">
-                <span class="text-muted">Transact</span>
-                <span class="float-right"><i class="fas fa-dollar-sign text-muted text-right"></i></span>
-            </div> -->
             <div class="card shadow-none">
                 <div class="card-body table-responsive">
                     <div class="card shadow-none m-0">
                         <div class="card-body table-responsive p-0">
                             <table class="table table-sm table-borderless table-hover">
                                 <tbody>
+                                    
                                     <tr>
-                                        <td class="v-align"><strong>ORNumber</strong></td>
+                                        <td class="v-align"><strong>OR Number</strong></td>
                                         <td class="v-align">
                                             <input type="number" class="form-control" placeholder="OR Number..." autofocus v-model="orNumber">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="v-align"><strong>OR Date</strong></td>
+                                        <td class="v-align">
+                                            <flat-pickr v-model="orDate" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
                                         </td>
                                     </tr>
                                     <tr>
@@ -264,6 +267,7 @@ export default {
             paymentDetails : 'Miscellaneous Payments',
             orNumber : '',
             change : 0,
+            orDate : moment().format('YYYY-MM-DD')
         }
     },
     methods : {
@@ -500,6 +504,7 @@ export default {
                                     ORNumber : this.orNumber,
                                     Details : this.paymentDetails,
                                     TransactionDetails : this.payableItems,
+                                    ORDate : this.orDate
                                 }) 
                                 .then(response => {
                                     this.toast.fire({

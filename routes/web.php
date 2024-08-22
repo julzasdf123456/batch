@@ -87,6 +87,9 @@ Route::get('/students/print-inactive-students/{classId}', [StudentsController::c
 Route::get('/students/add-new', [StudentsController::class, 'addNew'])->name('students.add-new');
 Route::get('/students/add-new-to-class/{studentId}', [StudentsController::class, 'addNewToClass'])->name('students.add-new-to-class');
 Route::post('/students/mark-esc', [StudentsController::class, 'markEsc'])->name('students.mark-esc');
+Route::get('/students/students-list', [StudentsController::class, 'studentsList'])->name('students.students-list');
+Route::get('/students/get-students-list', [StudentsController::class, 'getStudentsList'])->name('students.get-students-list');
+Route::get('/students/print-students-list/{syId}/{classRepo}/{status}', [StudentsController::class, 'printStudentsList'])->name('students.print-students-list');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -104,6 +107,7 @@ Route::get('/classes/get-classes-repos', [ClassesController::class, 'getClassesR
 Route::post('/classes/mark-esc-multiple', [ClassesController::class, 'markEscMultiple'])->name('classes.mark-esc-multiple');
 Route::post('/classes/mark-from-school-multiple', [ClassesController::class, 'markFromSchoolMultiple'])->name('classes.mark-from-school-multiple');
 Route::get('/classes/get-miscellaneous-to-tuitions-data', [ClassesController::class, 'getMiscellaneousToTuitionsData'])->name('classes.get-miscellaneous-to-tuitions-data');
+Route::post('/classes/flush-misc-to-tuitions', [ClassesController::class, 'flushMiscToTuitions'])->name('classes.flush-misc-to-tuitions');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -163,6 +167,9 @@ Route::post('/transactions/add-payable-inclusion', [TransactionsController::clas
 Route::get('/transactions/print-miscellaneous-svi/{id}', [TransactionsController::class, 'printMiscellaneousSvi'])->name('transactions.print-miscellaneous-svi');
 Route::get('/transactions/print-tuition-svi/{id}', [TransactionsController::class, 'printTuitionSvi'])->name('transactions.print-tuition-svi');
 Route::get('/transactions/print-enrollment-svi/{id}', [TransactionsController::class, 'printEnrollmentSvi'])->name('transactions.print-enrollment-svi');
+Route::get('/transactions/print-tuition-ledger/{studentId}/{syData}', [TransactionsController::class, 'printTuitionLedger'])->name('transactions.print-tuition-ledger');
+Route::get('/transactions/old-or-entry', [TransactionsController::class, 'oldOrEntry'])->name('transactions.old-or-entry');
+Route::get('/transactions/search-old-entry-students', [TransactionsController::class, 'searchOldEntryStudents'])->name('transactions.search-old-entry-students');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);

@@ -133,6 +133,6 @@ class Students extends Model
     ];
 
     public static function formatNameFormal($student) {
-        return $student->LastName . ', ' . $student->FirstName . ($student->MiddleName != null ? $student->MiddleName . ' ' : '') . ($student->Suffix != null ? $student->Suffix . ' ' : '');
+        return $student->LastName . ', ' . $student->FirstName . ($student->MiddleName != null ? (' ' . $student->MiddleName . ' ') : '') . ($student->Suffix != null ? $student->Suffix . ' ' : '');
     }
 }

@@ -64,7 +64,7 @@ class HomeController extends Controller
                 ->select(
                     'Year',
                     'Section',
-                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section) AS Count")
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND s.Status IS NULL) AS Count")
                 )
                 ->orderBy('Year')
                 ->orderByRaw("CONCAT(Year, ' - ', Section)")
@@ -91,7 +91,7 @@ class HomeController extends Controller
                 ->select(
                     'Year',
                     'Section',
-                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section) AS Count")
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND s.Status IS NULL) AS Count")
                 )
                 ->orderBy('Year')
                 ->orderByRaw("CONCAT(Year, ' - ', Section)")
@@ -140,7 +140,7 @@ class HomeController extends Controller
             $currentDataFirstSemQuery = DB::table('ClassesRepo')
                 ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
                 ->select(
-                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='1st') AS Count")
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='1st' AND s.Status IS NULL) AS Count")
                 )
                 ->groupBy('Year', 'Section', 'Strand')
                 ->orderBy('Year')
@@ -157,7 +157,7 @@ class HomeController extends Controller
             $currentDataSecondSemQuery = DB::table('ClassesRepo')
                 ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
                 ->select(
-                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='2nd') AS Count")
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syCurrent->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='2nd' AND s.Status IS NULL) AS Count")
                 )
                 ->groupBy('Year', 'Section', 'Strand')
                 ->orderBy('Year')
@@ -188,7 +188,7 @@ class HomeController extends Controller
                 ->select(
                     'Year',
                     'Section',
-                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='1st') AS Count")
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='1st' AND s.Status IS NULL) AS Count")
                 )
                 ->groupBy('Year', 'Section', 'Strand')
                 ->orderBy('Year')
@@ -205,7 +205,7 @@ class HomeController extends Controller
             $previousDataSecondSemQuery = DB::table('ClassesRepo')
                 ->whereRaw("Year IN ('Grade 11', 'Grade 12')")
                 ->select(
-                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='2nd') AS Count")
+                    DB::raw("(SELECT COUNT(s.id) AS Count FROM Students s LEFT JOIN Classes c ON s.CurrentGradeLevel = c.id WHERE c.SchoolYearId='" . $syPrevious->id . "' AND c.Year=ClassesRepo.Year AND c.Section=ClassesRepo.Section AND c.Strand=ClassesRepo.Strand AND c.Semester='2nd' AND s.Status IS NULL) AS Count")
                 )
                 ->groupBy('Year', 'Section', 'Strand')
                 ->orderBy('Year')

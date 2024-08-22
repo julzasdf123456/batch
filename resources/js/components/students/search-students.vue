@@ -12,6 +12,8 @@
                         <th class="text-muted">Address</th>
                         <th class="text-muted">Current Grade/Level</th>
                         <th></th>
+                        <th></th>
+                        <th></th>
                     </thead>
                     <tbody>
                         <tr v-for="student in students.data" :key="student.id" style="cursor: pointer;">
@@ -27,8 +29,23 @@
                             </td>
                             <td @click="viewStudent(student.id)" class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
                             <td @click="viewStudent(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + student.Section) }}</td>
+                            <td @click="viewStudent(student.id)" class="v-align">
+                                <span class="badge bg-success" v-if="student.ESCScholar==='Yes' && (student.Year!=='Grade 11' && student.Year!=='Grade 12')">ESC</span>
+                                <span class="badge bg-danger" v-if="student.ESCScholar==='Yes' && (student.Year==='Grade 11' | student.Year==='Grade 12')">VMS</span>
+                            </td>
+                            <td @click="viewStudent(student.id)" class="v-align">
+                                <span class="badge bg-success" v-if="student.FromSchool==='Public' && (student.Year==='Grade 11' | student.Year==='Grade 12')">From Public School</span>
+                            </td>
                             <td class="v-align text-right">
-                                <!-- <a class="btn btn-primary-skinny btn-sm" :href="baseURL + '/transactions/tuitions/' + student.id">More <i class="fas fa-angle-down ico-tab-left-mini"></i></a> -->
+                                <div class="px-3" title="More Options" style="display: inline;">
+                                    <a href="#" role="button" data-toggle="dropdown" aria-expanded="false" class="btn btn-sm btn-link-muted">
+                                      <i class="fas fa-ellipsis-v"></i>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/student-view'">Edit Student</a>
+                                    </div>
+                                </div>
+                                
                             </td>
                         </tr>
                     </tbody>

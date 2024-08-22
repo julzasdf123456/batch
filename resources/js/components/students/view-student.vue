@@ -361,7 +361,7 @@
                     <div>
                         <div class="row">
                             <!-- Total -->
-                            <div class="col-lg-12 mb-4">
+                            <div class="col-lg-12 mb-2">
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <p class="text-muted text-sm no-pads">Net Amount Payable <i class="fas fa-eye"></i></p>
@@ -395,8 +395,14 @@
                                 </div>
                             </div>
 
+                            <!-- options -->
+                            <div class="col-lg-12 pb-2">
+                                <button @click="printTuitionLedger()" class="btn btn-default btn-xs"><i class="fas fa-print ico-tab-mini"></i>Print Tuition Ledger</button>
+                                <!-- <button class="btn btn-default btn-xs ml-1"><i class="fas fa-print ico-tab-mini"></i>Print All Ledger</button> -->
+                            </div>
+
                             <!-- Tuition/Payable Inclusions -->
-                            <div class="col-lg-4 table-responsive">
+                            <div class="col-lg-5 table-responsive">
                                 <span class="text-muted">Payable Breakdown</span>
                                 <table class="table table-sm table-hover">
                                     <thead>
@@ -413,7 +419,7 @@
                             </div>
 
                             <!-- Monthly Breakdown -->
-                            <div class="col-lg-8 table-responsive" v-if="isModalTuition">
+                            <div class="col-lg-7 table-responsive" v-if="isModalTuition">
                                 <span class="text-muted">Tuition Fee Monthly Balance Breakdown</span>
                                 <table class="table table-hover table-sm table-bordered">
                                     <thead>
@@ -772,6 +778,9 @@ export default {
                 }
             })
             
+        },
+        printTuitionLedger() {
+            window.location.href = `${ this.baseURL }/transactions/print-tuition-ledger/${ this.studentId }/${ this.activePayable.SchoolYear }`
         }
     }, 
     created() {

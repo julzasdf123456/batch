@@ -5,6 +5,11 @@
             <span class="text-muted">{{ syDetails.SchoolYear }}</span>
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
+
+            <br>
+            <span class="text-muted text-xs mr-2 pointer" title="Male Students Count"><i class="fas fa-venus mr-1"></i>{{ male.length }}</span> • 
+            <span class="text-muted text-xs ml-2 mr-2 pointer" title="Female Students Count"><i class="fas fa-mars mr-1"></i>{{ female.length }}</span> • 
+            <span class="text-muted text-xs ml-2 pointer" title="Total Students Count"><i class="fas fa-venus-mars mr-1"></i>{{( female.length +  male.length) }}</span>
             
             <select v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
                 <option v-for="c in classesInSy" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
@@ -133,8 +138,9 @@
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
-                                                            <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
-                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button>
+                                                            <!-- <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
+                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button> -->
+                                                            <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
 
                                                             <div class="divider"></div>
 
@@ -187,6 +193,7 @@
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+                                                            <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
 
                                                             <div class="divider"></div>
 
@@ -640,6 +647,10 @@ export default {
         getPaymentData(month, studentId) {
             let dataFound = this.paymentData.find(obj => obj.ForMonth === month && obj.StudentId === studentId)
 
+            if (studentId === '1723965783658') {
+                console.log(dataFound)
+            }
+
             if (this.isNull(dataFound)) {
                 return `<span class="text-sm"><i class="fas fa-exclamation-circle text-gray"></i></span>`
             } else {
@@ -1025,7 +1036,7 @@ export default {
             } else {
                 Swal.fire({
                     title: "Confirmation",
-                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
+                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will the current payable and payments for the account. Proceed with caution.`,
                     showCancelButton: true,
                     confirmButtonText: "Proceed Marking",
                     confirmButtonColor : '#e03822'
@@ -1111,34 +1122,33 @@ export default {
         },
         flushToTuitionData() {
             Swal.fire({
-                    title: "Confirmation",
-                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will change their future payment data. It will not change the current payable since there might already be payments incured to the account. Should you wish to affect the payments, you may do it in the Scholarship Wizzard.`,
-                    showCancelButton: true,
-                    confirmButtonText: "Proceed Marking",
-                    confirmButtonColor : '#e03822'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
-                            _token : this.token,
-                            Students : this.selection,
-                            Option : option
+                title: "Confirmation",
+                text : `Flushing the Tuition Fee payments from the Miscellaneous module will revalidate the Tuition Fee payables of the students. Continue with caution.`,
+                showCancelButton: true,
+                confirmButtonText: "Proceed Flushing",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/classes/flush-misc-to-tuitions`, {
+                        _token : this.token,
+                        ClassId : this.classId,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Miscellaneous tuitions flushed to tuition fees!'
                         })
-                        .then(response => {
-                            this.toast.fire({
-                                icon : 'success',
-                                text : 'Students marked!'
-                            })
-                            location.reload()
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error flushing miscellaneous fees to tuition!'
                         })
-                        .catch(error => {
-                            console.log(error.response)
-                            this.toast.fire({
-                                icon : 'error',
-                                text : 'Error marking students!'
-                            })
-                        })
-                    }
-                })
+                    })
+                }
+            })
         }
     },
     created() {
