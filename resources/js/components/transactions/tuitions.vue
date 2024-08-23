@@ -26,16 +26,20 @@
                                 <td class="text-muted v-align">Grade Level</td>
                                 <td class="v-align">{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}</td>
                             </tr>
-                            <tr>
+                            <tr v-if="studentData.Year==='Grade 11' | studentData.Year==='Grade 12'">
                                 <td class="text-muted v-align">From</td>
                                 <td class="v-align"><span class="badge" :class="studentData.FromSchool==='Private' ? 'bg-gray' : 'bg-warning'">{{ isNull(studentData.FromSchool) ? '-' : (studentData.FromSchool + ' School') }}</span></td>
                             </tr>
                             <tr>
-                                <td class="text-muted v-align">ESC Grantee/Scholar</td>
+                                <td class="text-muted v-align">{{ studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</td>
                                 <td class="v-align"><span class="badge" :class="studentData.ESCScholar==='No' ? 'bg-gray' : 'bg-success'">{{ isNull(studentData.ESCScholar) ? 'No' : studentData.ESCScholar }}</span></td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="card-footer">
+                    <button @click="addEsc()" class="btn btn-xs btn-default">Add {{ studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC' }}</button>
+                    <button class="btn btn-xs btn-default ml-1">Remove {{ studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC' }}</button>
                 </div>
             </div>
 
@@ -783,6 +787,44 @@ export default {
                         icon : 'error',
                         text : 'Error adding tuition inclusions!'
                     })
+                })
+            }
+        },
+        addEsc() {
+            if (this.isNull(this.activePayable)) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select payable particulars first!'
+                })
+            } else {
+                Swal.fire({
+                    title: "Confirmation",
+                    text : `Adding an ESC/VMS grant to this student will change his/her tuition payables. All payment's previously transacted will still be credited. Proceed with caution.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed",
+                    confirmButtonColor : '#3a9971'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            Option : option
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students marked!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error marking students!'
+                            })
+                        })
+                    }
                 })
             }
         }
