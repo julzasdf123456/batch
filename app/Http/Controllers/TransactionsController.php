@@ -1324,6 +1324,7 @@ class TransactionsController extends AppBaseController
                             $payable->Payable = $payable->Payable > 0 ? ($payable->Payable / 2) : 0;
                             $payable->AmountPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / 2) : 0;
                             $payable->Balance = $payable->Balance > 0 ? ($payable->Balance / 2) : 0;
+                            $payable->DiscountAmount = $discount > 0 ? ($discount / 2) : 0;
                             $payable->save();
 
                             // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
@@ -1353,6 +1354,9 @@ class TransactionsController extends AppBaseController
                                 $tuitionBreakdown->save();
                             }
                         } else {
+                            $payable->DiscountAmount = $discount;
+                            $payable->save();
+
                             $monthsToPay = 10;
 
                             for ($i=0; $i<$monthsToPay; $i++) {
@@ -1573,7 +1577,6 @@ class TransactionsController extends AppBaseController
     public function oldOrEntry(Request $request) {
         return view('/transactions/old_or_entry');
     }
-
     
     public function searchOldEntryStudents(Request $request) {
         $params = $request['Search'];

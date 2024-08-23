@@ -430,6 +430,7 @@
                             -->
                             <div class="tab-pane fade" id="flush-payments-content" role="tabpanel" aria-labelledby="flush-payments-tab" v-if="userId === '1' ? true : false">
                                 <div class="mt-2">
+                                    <button @click="flushToEnrollmentData()" class="btn btn-default btn-sm mr-1">Flush to Enrollment</button>
                                     <button @click="flushToTuitionData()" class="btn btn-primary btn-sm">Flush to Tuitions</button>
                                 </div>
                                 <div class="table-responsive mt-2">
@@ -1145,6 +1146,36 @@ export default {
                         this.toast.fire({
                             icon : 'error',
                             text : 'Error flushing miscellaneous fees to tuition!'
+                        })
+                    })
+                }
+            })
+        },
+        flushToEnrollmentData() {
+            Swal.fire({
+                title: "Confirmation",
+                text : `Flushing the Enrollment fees from the Miscellaneous module will revalidate the Tuition Fee payables of the students. Continue with caution.`,
+                showCancelButton: true,
+                confirmButtonText: "Proceed Flushing",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/classes/flush-misc-enrollment-to-tuitions`, {
+                        _token : this.token,
+                        ClassId : this.classId,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Miscellaneous enrollment flushed to tuition fees!'
+                        })
+                        location.reload()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error flushing enrollment miscellaneous fees to tuition!'
                         })
                     })
                 }

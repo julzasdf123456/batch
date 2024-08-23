@@ -2046,4 +2046,122 @@ class ClassesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+    
+    public function flushMiscEnrollmentToTuitions(Request $request) {
+        $classId = $request['ClassId'];
+
+        if (env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE') {
+            $data =  DB::table('StudentClasses')
+                ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+                ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+                ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
+                ->select(
+                    'Students.*',
+                    'StudentClasses.Status as EnrollmentStatus',
+                    'StudentClasses.id as StudentClassId',
+                    DB::raw("(SELECT SUM(TRY_CAST(td.Amount AS DECIMAL(13,2))) FROM TransactionDetails td 
+                        LEFT JOIN Transactions t ON t.id=td.TransactionsId 
+                        WHERE t.StudentId=Students.id AND td.Particulars LIKE '%Enrollment Fees%' AND t.Status IS NULL AND td.FlushedToTuition IS NULL) AS TuitionMiscPayable")
+                )
+                ->orderBy('Students.LastName')
+                ->get();
+
+            $class = Classes::find($classId);
+            $sy = SchoolYear::find($class->SchoolYearId);
+
+            foreach($data as $item) {
+                if ($class != null && $sy != null) {
+                    // update tuition payable
+                    $payable = Payables::where('ClassId', $classId)
+                        ->where('StudentId', $item->id)
+                        ->where('SchoolYear', $sy->SchoolYear)
+                        ->where('Category', 'Tuition Fees')
+                        ->first();
+
+                    if ($payable != null) {
+                        $totalPayments = $item->TuitionMiscPayable != null ? $item->TuitionMiscPayable : 0;
+
+                        $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+                        $newAmntPaid = $payableAmntPaid + floatval($totalPayments);
+                        $discount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
+
+                        $amntPayable = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                        $newAmntPayable = $amntPayable - floatval($totalPayments);
+                        $balance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                        $newBalance = $balance - floatval($totalPayments);
+
+                        $payable->AmountPaid = $newAmntPaid;
+                        $payable->AmountPayable = $newAmntPayable;
+                        $payable->Balance = $newBalance;
+                        $payable->save();
+
+                        TuitionsBreakdown::where('PayableId', $payable->id)->delete();
+                        // create tuitions breakdown
+                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                            // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
+                            $monthsToPay = 5;
+
+                            for ($i=0; $i<$monthsToPay; $i++) {
+                                $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                                $tuitionBreakdown = new TuitionsBreakdown;
+                                $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                                
+                                if ($class->Semester != null && $class->Semester == '2nd') {
+                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
+                                } else {
+                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                                }
+                                
+                                $tuitionBreakdown->PayableId = $payable->id;
+
+                                $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                                $tf = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
+                                $dscntOriginal = $discount > 0 ? (($discount / 2) / $monthsToPay) : 0;
+
+                                $tuitionBreakdown->AmountPayable = $amntPayable;
+                                $tuitionBreakdown->Payable = $tf;
+                                $tuitionBreakdown->Balance = $amntPayable;
+                                $tuitionBreakdown->Discount = $dscntOriginal;
+                                $tuitionBreakdown->save();
+                            }
+                        } else {
+                            // if not SHS and SHS enrollment for semestrals are continuos
+                            $monthsToPay = 10;
+
+                            for ($i=0; $i<$monthsToPay; $i++) {
+                                $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                                $tuitionBreakdown = new TuitionsBreakdown;
+                                $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                                $tuitionBreakdown->PayableId = $payable->id;
+
+                                $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                                $tf = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
+                                $dscntOriginal = $discount > 0 ? ($discount / $monthsToPay) : 0;
+
+                                $tuitionBreakdown->AmountPayable = $amntPayable;
+                                $tuitionBreakdown->Payable = $tf;
+                                $tuitionBreakdown->Balance = $amntPayable;
+                                $tuitionBreakdown->Discount = $dscntOriginal;
+                                $tuitionBreakdown->save();
+                            }
+                        }
+
+                        // update Transaction Details
+                        $tDetails = TransactionDetails::whereRaw("id IN (SELECT td.id FROM TransactionDetails td 
+                            LEFT JOIN Transactions t ON t.id=td.TransactionsId 
+                            WHERE t.StudentId='" . $item->id . "' AND td.Particulars LIKE '%Enrollment Fees%' AND t.Status IS NULL AND td.FlushedToTuition IS NULL)")
+                            ->get();
+
+                        foreach($tDetails as $itemy) {
+                            TransactionDetails::where('id', $itemy->id)
+                                ->update(['FlushedToTuition' => 'Yes']);
+                        } 
+                    }
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
+    }
 }
