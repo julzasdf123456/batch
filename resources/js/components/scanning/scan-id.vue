@@ -183,8 +183,10 @@ export default {
                     text : studentData.FirstName + ' ' + studentData.LastName + ' scanned his/her ID. Sending SMS now...'
                 })
                 this.focusInput()
+                this.idNumber = ''
             })
             .catch(error => {
+                this.idNumber = ''
                 console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
