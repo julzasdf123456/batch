@@ -196,7 +196,7 @@
             <tbody>
                 @foreach ($transactionDetails as $item)
                     <tr>
-                        <td>{{ $classes != null ? ($classes->Year . ' ' . $classes->Grade) : '-' }}</td>
+                        <td>{{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }} {{ $classes != null && $classes->Section != null ? '' : '' }}</td>
                         <td>{{ $item->Particulars != null ? $item->Particulars : '' }}</td>
                         <td>{{ is_numeric($item->Amount) ? number_format($item->Amount, 2) : $item->Amount }}</td>
                         <td class="text-right">{{ $student->id }}</td>
