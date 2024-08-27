@@ -159,7 +159,7 @@ class TransactionsController extends AppBaseController
         $userId = $request['UserId'];
         
         $transactions = Transactions::whereRaw("UserId IS NOT NULL AND UserId='" . $userId . "'")
-            ->orderByDesc('ORDate')
+            ->orderByDesc('created_at')
             ->orderByRaw("TRY_CAST(ORNumber AS INTEGER) DESC")
             ->first();
 
