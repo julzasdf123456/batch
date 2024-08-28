@@ -195,7 +195,7 @@
         <table style="width: 100%;">
             <tbody>
                 <tr>
-                    <td>{{ $classes != null ? ($classes->Year . ' ' . $classes->Grade) : '-' }}</td>
+                    <td>{{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }}</td>
                     <td>{{ $transaction->PaymentFor != null ? $transaction->PaymentFor : '' }}</td>
                     <td>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</td>
                     <td class="text-right">{{ $student->id }}</td>

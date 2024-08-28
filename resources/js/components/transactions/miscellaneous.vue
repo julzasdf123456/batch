@@ -25,6 +25,11 @@
                                 <td class="text-muted v-align">Grade Level</td>
                                 <td class="v-align">{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}</td>
                             </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <button class="btn btn-sm btn-default float-right" @click="showHistory()">View History</button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -208,6 +213,41 @@
             </div>
         </div>
     </div>
+
+    <div ref="modalShowHistory" class="modal fade" id="modal-selection-transfer" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Transaction History</span>
+                </div>
+                <div class="modal-body table-responsive">
+                    <table class="table table-hover table-sm table-bordered">
+                        <thead>
+                            <th>Date</th>
+                            <th>Transaction</th>
+                            <th>OR Number</th>
+                            <th>Payment Medium</th>
+                            <th>Amount Paid</th>
+                            <th>Cashier</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in allTransactions" :key="item.id" style="cursor: pointer;">
+                                <td>{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
+                                <td>{{ item.PaymentFor }}</td>
+                                <td>{{ item.ORNumber }}</td>
+                                <td>{{ item.ModeOfPayment }}</td>
+                                <td class='text-success text-right'><strong>{{ toMoney(parseFloat(item.TotalAmountPaid)) }}</strong></td>
+                                <td>{{ item.name }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -267,7 +307,8 @@ export default {
             paymentDetails : 'Miscellaneous Payments',
             orNumber : '',
             change : 0,
-            orDate : moment().format('YYYY-MM-DD')
+            orDate : moment().format('YYYY-MM-DD'),
+            allTransactions : [],
         }
     },
     methods : {
@@ -530,7 +571,30 @@ export default {
                     }
                 }
             }
-        }
+        },
+        showHistory() {
+            this.getAllTransactions()
+
+            let modalElement = this.$refs.modalShowHistory
+            $(modalElement).modal('show')
+        },        
+        getAllTransactions() {
+            axios.get(`${ this.baseURL }/transactions/get-transaction-history`, {
+                params : {
+                    StudentId : this.studentId,
+                }
+            })
+            .then(response => {
+                this.allTransactions = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting all transaction history data!'
+                })
+            })
+        },
     },
     created() {
     },
