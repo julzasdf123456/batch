@@ -203,10 +203,10 @@
             <p style='font-size: 1.2em !important; padding-top: 28px !important; padding-left: 80px !important;' class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
 
             {{-- NAME --}}
-            <p style='font-size: 1.2em !important; padding-top: 29px !important; padding-left: 118px !important; text-align: left !important;'>{{ strtoupper(Students::formatNameFormal($student)) }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 29px !important; padding-left: 118px !important; text-align: left !important;'>{{ strtoupper($transaction->Payee) }}</p>
 
             {{-- ADDRESS --}}
-            <p style='font-size: 1.2em !important; padding-top: 15px !important; padding-left: 130px !important; text-align: left !important;'>{{ ($student->BarangaySpelled != null ? ($student->BarangaySpelled . ', ') : '-') . ($student->TownSpelled != null ? ($student->TownSpelled) : '-') }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 15px !important; padding-left: 130px !important; text-align: left !important;'>{{ strtoupper($transaction->PayeeAddress != null ? $transaction->PayeeAddress : '--') }}</p>
             
             {{-- AMOUNT IN WORDS --}}
             <p style='font-size: 1.2em !important; padding-top: 45px !important; padding-left: 50px !important; text-align: left !important;'>{{ $numToWords != null ? (strtoupper($numToWords)) : '-' }}</p>
@@ -224,7 +224,6 @@
     window.print();
 
     window.setTimeout(function(){
-        // window.history.go(-1)
-        window.location.href = "{{ route('transactions.miscellaneous-search') }}";
+        window.history.go(-1)
     }, 800);
 </script>

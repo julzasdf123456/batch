@@ -24,7 +24,9 @@ class Transactions extends Model
         'UserId',
         'Period',
         'Status',
-        'TransactionType'
+        'TransactionType',
+        'Payee',
+        'PayeeAddress'
     ];
 
     protected $casts = [
@@ -44,6 +46,8 @@ class Transactions extends Model
         'Period' => 'string',
         'Status' => 'string',
         'TransactionType' => 'string',
+        'Payee' => 'string',
+        'PayeeAddress' => 'string',
     ];
 
     public static array $rules = [
@@ -65,6 +69,8 @@ class Transactions extends Model
         'Period' => 'nullable|string',
         'Status' => 'nullable|string',
         'TransactionType' => 'nullable|string',
+        'Payee' => 'nullable|string',
+        'PayeeAddress' => 'nullable|string',
     ];
 
     

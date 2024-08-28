@@ -171,6 +171,9 @@ Route::get('/transactions/print-enrollment-svi/{id}', [TransactionsController::c
 Route::get('/transactions/print-tuition-ledger/{studentId}/{syData}', [TransactionsController::class, 'printTuitionLedger'])->name('transactions.print-tuition-ledger');
 Route::get('/transactions/old-or-entry', [TransactionsController::class, 'oldOrEntry'])->name('transactions.old-or-entry');
 Route::get('/transactions/search-old-entry-students', [TransactionsController::class, 'searchOldEntryStudents'])->name('transactions.search-old-entry-students');
+Route::get('/transactions/other-payments', [TransactionsController::class, 'otherPayments'])->name('transactions.other-payments');
+Route::post('/transactions/transact-other-payments', [TransactionsController::class, 'transactOtherPayments'])->name('transactions.transact-other-payments');
+Route::get('/transactions/print-other-payments-svi/{id}', [TransactionsController::class, 'printOtherPaymentsSvi'])->name('transactions.print-other-payments-svi');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);

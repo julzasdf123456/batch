@@ -125,6 +125,16 @@
             </a>
         </li>
         
+        @if (env('APP_COMPANY_ABRV') === 'SVI')
+            <li class="nav-item">
+                <a href="{{ route('transactions.other-payments') }}"
+                class="nav-link {{ Request::is('transactions.other-payments*') ? 'active' : '' }}">
+                <i class="fas fa-circle nav-icon"></i>
+                    <p>Other Payments</p>
+                </a>
+            </li>
+        @endif
+        
         <li class="nav-item" title="My Daily Collection Report">
             <a href="{{ route('transactions.my-dcr') }}"
                class="nav-link {{ Request::is('transactions.my-dcr*') ? 'active' : '' }}">

@@ -911,7 +911,9 @@ class TransactionsController extends AppBaseController
                 'Students.FirstName',
                 'Students.LastName',
                 'Transactions.ORNumber',
-                'Students.id AS StudentId'
+                'Students.id AS StudentId',
+                'Transactions.Payee',
+                'Transactions.TransactionType',
             )
             ->orderBy('Transactions.ORNumber')
             ->orderBy('Transactions.created_at')
@@ -1058,6 +1060,8 @@ class TransactionsController extends AppBaseController
                 'Students.FirstName',
                 'Students.LastName',
                 'Transactions.ORNumber',
+                'Transactions.Payee',
+                'Transactions.TransactionType',
                 'Students.id AS StudentId'
             )
             ->orderBy('Transactions.ORNumber')
@@ -1599,4 +1603,80 @@ class TransactionsController extends AppBaseController
 
         return response()->json($data, 200);
     }
+
+    public function otherPayments(Request $request) {
+        return view('/transactions/other_payments');
+    }
+
+    public function transactOtherPayments(Request $request) {
+        $payee = $request['Payee'];
+        $payeeAddress = $request['PayeeAddress'];
+        $cashAmount = $request['cashAmount'];
+        $checkNumber = $request['checkNumber'];
+        $checkBank = $request['checkBank'];
+        $checkAmount = $request['checkAmount'];
+        $digitalNumber = $request['digitalNumber'];
+        $digitalBank = $request['digitalBank'];
+        $digitalAmount = $request['digitalAmount'];
+        $totalPayables = $request['totalPayables'];
+        $totalPayments = $request['totalPayments'];
+        $orNumber = $request['ORNumber'];
+        $details = $request['Details'];
+        $transactionDetails = $request['TransactionDetails'];
+        $orDate = $request['ORDate'];
+
+        $modeOfPayment = '';
+        if ($cashAmount != null) {
+            $modeOfPayment .= 'Cash;';
+        }
+        if ($checkAmount != null) {
+            $modeOfPayment .= 'Check;';
+        }
+        if ($digitalAmount != null) {
+            $modeOfPayment .= 'Digital;';
+        }
+
+        // insert transaction
+        $id = IDGenerator::generateIDandRandString();
+        $transactions = new Transactions;
+        $transactions->id = $id;
+        $transactions->PaymentFor = $details;
+        $transactions->ModeOfPayment = $modeOfPayment;
+        $transactions->ORNumber = $orNumber;
+        $transactions->ORDate = $orDate;
+        $transactions->CashAmount = $cashAmount;
+        $transactions->CheckAmount = $checkAmount;
+        $transactions->DigitalPaymentAmount = $digitalAmount;
+        $transactions->TotalAmountPaid = $totalPayments;
+        $transactions->UserId = Auth::id();
+        $transactions->TransactionType = 'Others';
+        $transactions->Payee = $payee;
+        $transactions->PayeeAddress = $payeeAddress;
+        $transactions->save();
+
+        foreach($transactionDetails as $item) {
+            if ($item['Payable'] != null && $item["TotalAmount"] != null) {
+                $transactionDetails = new TransactionDetails;
+                $transactionDetails->id = IDGenerator::generateIDandRandString();
+                $transactionDetails->TransactionsId = $id;
+                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+                $transactionDetails->Amount = $item['TotalAmount'];
+                $transactionDetails->save();
+            }
+        }
+
+        return response()->json($id, 200);
+    }
+
+    
+    public function printOtherPaymentsSvi($transactionId) {
+        $transaction = Transactions::find($transactionId);
+
+        $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
+
+        return view('/transactions/print_svi_other_payments', [
+            'transaction' => $transaction,
+            'transactionDetails' => $transactionDetails,
+        ]);
+    } 
 }

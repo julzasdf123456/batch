@@ -19,7 +19,8 @@
             <tr v-for="(item, index) in summary" :key="item.id">
                 <td class="v-align">{{ index + 1 }}</td>
                 <td class="v-align">{{ item.ORNumber }}</td>
-                <td class="v-align">{{ item.FirstName + ' ' + item.LastName }}</td>
+                <td v-if="item.TransactionType !== 'Others'" class="v-align">{{ item.FirstName + ' ' + item.LastName }}</td>
+                <td v-if="item.TransactionType === 'Others'" class="v-align">{{ item.Payee }}</td>
                 <td class="v-align">{{ item.PaymentFor }}</td>
                 <td class="v-align">{{ moment(item.created_at).format('hh:mm A') }}</td>
                 <td class="v-align">{{ item.ModeOfPayment }}</td>

@@ -50,7 +50,7 @@
                                     <thead>
                                         <th></th>
                                         <th>OR Number</th>
-                                        <th>Student</th>
+                                        <th>Student/Payor</th>
                                         <th>Payment For</th>
                                         <th>Time</th>
                                         <th>Mode of<br>Payment</th>
@@ -62,7 +62,8 @@
                                             <td class="v-align">{{ index + 1 }}</td>
                                             <td class="v-align">{{ item.ORNumber }}</td>
                                             <td class="v-align">
-                                                <a target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                <a v-if="item.TransactionType !== 'Others'" target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                <a v-if="item.TransactionType === 'Others'">{{ item.Payee }}</a>
                                             </td>
                                             <td class="v-align">{{ item.PaymentFor }}</td>
                                             <td class="v-align">{{ moment(item.created_at).format('hh:mm A') }}</td>
@@ -105,7 +106,7 @@
                                     <thead>
                                         <th></th>
                                         <th>OR Number</th>
-                                        <th>Student</th>
+                                        <th>Student/Payor</th>
                                         <th>Particulars</th>
                                         <th class="text-right">Amount Paid</th>
                                         <th style="width: 40px;"></th>
@@ -115,7 +116,8 @@
                                             <td class="v-align">{{ index + 1 }}</td>
                                             <td class="v-align">{{ item.ORNumber }}</td>
                                             <td class="v-align">
-                                                <a target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                <a v-if="item.TransactionType !== 'Others'" target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                <a v-if="item.TransactionType === 'Others'">{{ item.Payee }}</a>
                                             </td>
                                             <td class="v-align">{{ item.Particulars }}</td>
                                             <td class="v-align text-right">{{ isNull(item.Amount) ? '-' : toMoney(parseFloat(item.Amount)) }}</td>
@@ -139,7 +141,7 @@
                                     <thead>
                                         <th></th>
                                         <th>OR Number</th>
-                                        <th>Student</th>
+                                        <th>Student/Payor</th>
                                         <th>Payment For</th>
                                         <th>Time</th>
                                         <th>Mode of<br>Payment</th>
@@ -152,7 +154,8 @@
                                             <td class="v-align">{{ index + 1 }}</td>
                                             <td class="v-align">{{ item.ORNumber }}</td>
                                             <td class="v-align">
-                                                <a target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                <a v-if="item.TransactionType !== 'Others'" target="_blank" :href="baseURL + '/students/' + item.StudentId">{{ item.FirstName + ' ' + item.LastName }}</a>
+                                                <a v-if="item.TransactionType === 'Others'">{{ item.Payee }}</a>
                                             </td>
                                             <td class="v-align">{{ item.PaymentFor }}</td>
                                             <td class="v-align">{{ moment(item.created_at).format('hh:mm A') }}</td>
@@ -377,6 +380,7 @@ export default {
             })
             .then(response => {
                 this.details = response.data
+                console.log(this.details)
             })
             .catch(error => {
                 console.log(error)
@@ -464,6 +468,8 @@ export default {
                     window.location.href = this.baseURL + '/transactions/print-tuition-svi/' + id
                 } else if (type === 'Enrollment') {
                     window.location.href = this.baseURL + '/transactions/print-enrollment-svi/' + id
+                } else if (type === 'Others') {
+                    window.location.href = this.baseURL + '/transactions/print-other-payments-svi/' + id
                 } else {
                     window.location.href = this.baseURL + '/transactions/print-miscellaneous-svi/' + id
                 }

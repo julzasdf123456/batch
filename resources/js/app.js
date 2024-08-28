@@ -41,6 +41,7 @@ import AddNew from "./components/students/add-new.vue"
 import AddNewToClass from "./components/students/add-new-to-class.vue"
 import StudentsList from "./components/students/students-list.vue"
 import OldOREntry from "./components/transactions/old-or-entry.vue"
+import OtherPayments from "./components/transactions/other-payments.vue"
 
 import MyClasses from "./components/my-acount/my-classes.vue"
 import ViewClass from "./components/my-acount/view-class.vue"
@@ -80,6 +81,7 @@ app.component('add-new', AddNew);
 app.component('add-new-to-class', AddNewToClass);
 app.component('students-list', StudentsList);
 app.component('old-or-entry', OldOREntry);
+app.component('other-payments', OtherPayments);
 
 app.component('my-classes', MyClasses);
 app.component('view-class', ViewClass);
