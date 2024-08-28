@@ -190,6 +190,8 @@ Route::get('/student_scholarships/get-available-sy-payables', [StudentScholarshi
 Route::get('/student_scholarships/get-grants', [StudentScholarshipsController::class, 'getGrants'])->name('studentScholarships.get-grants');
 Route::post('/student_scholarships/apply-scholarship', [StudentScholarshipsController::class, 'applyScholarship'])->name('studentScholarships.apply-scholarship');
 Route::post('/student_scholarships/remove-scholarship', [StudentScholarshipsController::class, 'removeScholarship'])->name('studentScholarships.remove-scholarship');
+Route::post('/student_scholarships/apply-scholarship-from-cashier', [StudentScholarshipsController::class, 'autoApplyScholarshipFromCashier'])->name('studentScholarships.apply-scholarship-from-cashier');
+Route::post('/student_scholarships/remove-scholarship-from-cashier', [StudentScholarshipsController::class, 'removeScholarshipFromCashier'])->name('studentScholarships.remove-scholarship-from-cashier');
 Route::resource('studentScholarships', StudentScholarshipsController::class);
 
 Route::get('/barcode_attendances/punch-student', [BarcodeAttendanceController::class, 'punchStudent'])->name('barcodeAttendances.punch-student');

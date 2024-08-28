@@ -38,8 +38,8 @@
                     </table>
                 </div>
                 <div class="card-footer">
-                    <button @click="addEsc()" class="btn btn-xs btn-default">Add {{ studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC' }}</button>
-                    <button class="btn btn-xs btn-default ml-1">Remove {{ studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC' }}</button>
+                    <button @click="addEsc(studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC')" class="btn btn-xs btn-default">Add {{ studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC' }}</button>
+                    <button @click="removeEsc(studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC')" class="btn btn-xs btn-default ml-1">Remove {{ studentData.Year==='Grade 11' | studentData.Year==='Grade 12' ? 'VMS' : 'ESC' }}</button>
                 </div>
             </div>
 
@@ -437,6 +437,12 @@ export default {
 
                 // clean payables
                 this.payables = this.payables.filter(obj => obj.Balance !== null && parseFloat(obj.Balance) > 0)
+
+                // pre-select first payable
+                if (this.payables.length > 0) {
+                    this.paymentFor = this.payables[0].id
+                    this.getActivePayable(this.payables[0].id)
+                }
             })
             .catch(error => {
                 console.log(error)
@@ -790,7 +796,7 @@ export default {
                 })
             }
         },
-        addEsc() {
+        addEsc(type) {
             if (this.isNull(this.activePayable)) {
                 this.toast.fire({
                     icon : 'warning',
@@ -805,15 +811,17 @@ export default {
                     confirmButtonColor : '#3a9971'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
+                        axios.post(`${ this.baseURL }/student_scholarships/apply-scholarship-from-cashier`, {
                             _token : this.token,
-                            Students : this.selection,
-                            Option : option
+                            PayableId : this.activePayable.id,
+                            StudentId : this.studentId,
+                            SchoolYear : this.activePayable.SchoolYear,
+                            Type : type,
                         })
                         .then(response => {
                             this.toast.fire({
                                 icon : 'success',
-                                text : 'Students marked!'
+                                text : 'Student added ' + type + ' scholarship!'
                             })
                             location.reload()
                         })
@@ -821,7 +829,47 @@ export default {
                             console.log(error.response)
                             this.toast.fire({
                                 icon : 'error',
-                                text : 'Error marking students!'
+                                text : 'Error adding scholarship!'
+                            })
+                        })
+                    }
+                })
+            }
+        },
+        removeEsc(type) {
+            if (this.isNull(this.activePayable)) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select payable particulars first!'
+                })
+            } else {
+                Swal.fire({
+                    title: "Confirmation",
+                    text : `Removing an ESC/VMS grant to this student will change his/her tuition payables. All payment's previously transacted will still be credited. Proceed with caution.`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed",
+                    confirmButtonColor : '#3a9971'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/student_scholarships/remove-scholarship-from-cashier`, {
+                            _token : this.token,
+                            PayableId : this.activePayable.id,
+                            StudentId : this.studentId,
+                            SchoolYear : this.activePayable.SchoolYear,
+                            Type : type,
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : type + ' scholarship grant removed from student!'
+                            })
+                            location.reload()
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error removing scholarship!'
                             })
                         })
                     }
