@@ -2,96 +2,49 @@
     <div class="row">
         <!-- DETAILS -->
         <div class="col-lg-3 col-md-12">
-            <!-- student info -->
             <div class="card shadow-none">
-                <div class="card-body table-responsive">
-                    <div class="mb-3">
-                        <div style="display: inline-block; vertical-align: middle;">
-                            <img :src="imgPath + 'prof-img.png'" style="width: 46px; margin-right: 25px;" class="img-circle" alt="profile">
-                        </div>
-                        <div style="display: inline-block; height: inherit; vertical-align: middle;">
-                            <h4 class="no-pads"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></h4>
-                            <span class="text-muted text-sm">ID: <strong>{{ studentData.id }}</strong></span>
-                        </div>
-                    </div>
-
-                    <table class="table table-hover table-sm">
-                        <tbody>
-                            <tr>
-                                <td class="text-muted v-align">Address</td>
-                                <td class="v-align">{{ (isNull(studentData.Sitio) ? '' : studentData.Sitio) + ', ' + studentData.BarangaySpelled + ', ' + studentData.TownSpelled }}</td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted v-align">Grade Level</td>
-                                <td class="v-align">{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">
-                                    <button class="btn btn-sm btn-default float-right" @click="showHistory()">View History</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-info-circle ico-tab"></i>Payee Information</span>
                 </div>
-            </div>
-
-            <!-- classes -->
-            <div class="card shadow-none">
-                <div class="card-header border-0">
-                    <span class="text-muted">Subjects Taken</span>
-                </div>
-                <div class="card-body table-responsive px-0">
-                    <table class="table table-hover table-sm">
-                        <tbody>
-                           <tr v-for="subject in subjects" :key="subject.id">
-                                <td class="v-align">{{ subject.Subject }}</td>
-                           </tr>
-                        </tbody>
-                    </table>
+                <div class="card-body">
+                    <span class="text-muted">Payee Name</span>
+                    <input v-model="payee" type="text" class="form-control mb-3 mt-1" placeholder="Input Payee Name..." autofocus>
+                    
+                    <span class="text-muted">Payee Address</span>
+                    <input v-model="payeeAddress" type="text" class="form-control mt-1" placeholder="Input Payee Address..." autofocus>
                 </div>
             </div>
         </div>
 
         <!-- PAYABLES -->
         <div class="col-lg-6 col-md-12">
-            <span class="text-muted">Select Miscellaneous Payables</span>
-            <div style="display: flex; gap: 10px;">
-                <select v-model="miscSelected" class="form-control" @change="addPayable">
-                    <option value="Add New">-- Add New --</option>
-                    <option v-for="misc in miscPayables" :value="misc.id">{{ misc.Payable }}</option>
-                </select>
-                <button @click="addPayable()" class="btn btn-primary">Add</button>
-            </div>
-
-            <table class="table table-hover table-bordered mt-3">
-                <thead>
-                    <th>Item</th>
-                    <th>Price</th>
-                    <th>Qty</th>
-                    <th>Total Amount</th>
-                </thead>
-                <tbody>
-                    <tr v-for="item in payableItems" :key="item.id">
-                        <td>
-                            {{ item.Payable }}
-                        </td>
-                        <td>
-                            <input :ref="'payable-' + item.id" class="table-input text-right" :class="tableInputTextColor" v-model="item.Price" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
-                        </td>
-                        <td>
-                            <input class="table-input text-right" :class="tableInputTextColor" v-model="item.Quantity" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
-                        </td>
-                        <td class="text-right">
-                            <strong>{{ toMoney(parseFloat(item.TotalAmount)) }}</strong>
-                            <button class="btn btn-sm" title="Remove" @click="removeItem(item.id)"><i class="fas fa-times-circle text-danger"></i></button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="mt-">
-                <p class="text-muted text-right">Total Amount Due</p>
-                <h2 class="text-danger text-right">P <strong>{{ toMoney(totalAmountDue) }}</strong></h2>
+            <button class="btn btn-default" @click="addNewItem()">Add New Item</button>
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mt-3">
+                    <thead>
+                        <th>Item</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Total Amount</th>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in payableItems" :key="item.id">
+                            <td>
+                                <input :ref="'payable-name-' + item.id" class="table-input" :class="tableInputTextColor" v-model="item.Payable" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="text"/>
+                            </td>
+                            <td>
+                                <input :ref="'payable-' + item.id" class="table-input text-right" :class="tableInputTextColor" v-model="item.Price" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
+                            </td>
+                            <td>
+                                <input class="table-input text-right" :class="tableInputTextColor" v-model="item.Quantity" @keyup="inputEnter(item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Price, item.Quantity, item.id)" type="number" step="any"/>
+                            </td>
+                            <td class="text-right">
+                                <strong>{{ toMoney(parseFloat(item.TotalAmount)) }}</strong>
+                                <button class="btn btn-sm" title="Remove" @click="removeItem(item.id)"><i class="fas fa-times-circle text-danger"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -213,41 +166,6 @@
             </div>
         </div>
     </div>
-
-    <div ref="modalShowHistory" class="modal fade" id="modal-selection-transfer" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Transaction History</span>
-                </div>
-                <div class="modal-body table-responsive">
-                    <table class="table table-hover table-sm table-bordered">
-                        <thead>
-                            <th>Date</th>
-                            <th>Transaction</th>
-                            <th>OR Number</th>
-                            <th>Payment Medium</th>
-                            <th>Amount Paid</th>
-                            <th>Cashier</th>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in allTransactions" :key="item.id" style="cursor: pointer;">
-                                <td>{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
-                                <td>{{ item.PaymentFor }}</td>
-                                <td>{{ item.ORNumber }}</td>
-                                <td>{{ item.ModeOfPayment }}</td>
-                                <td class='text-success text-right'><strong>{{ toMoney(parseFloat(item.TotalAmountPaid)) }}</strong></td>
-                                <td>{{ item.name }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    
-                </div>
-            </div>
-        </div>
-    </div>
 </template>
 
 <script>
@@ -260,7 +178,7 @@ import jquery from 'jquery';
 import Swal from 'sweetalert2';
 
 export default {
-    name : 'Tuitions.tuitions',
+    name : 'OtherPayments.other-payments',
     components : {
         FlatPickr,
         Swal,
@@ -275,7 +193,6 @@ export default {
             imgPath : axios.defaults.imgsPath,
             colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
             userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
-            studentId : document.querySelector("meta[name='student-id']").getAttribute('content'),
             school : document.querySelector("meta[name='school']").getAttribute('content'),
             tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
             toast : Swal.mixin({
@@ -288,9 +205,6 @@ export default {
                 enableTime: false,
                 dateFormat: 'Y-m-d', 
             },
-            studentData : {},
-            subjects : [],
-            payables : [],
             paymentType : 'Cash',
             cashAmount : '',
             checkNumber : '',
@@ -304,11 +218,12 @@ export default {
             payableItems : [],
             totalAmountDue : 0.0,
             totalPayments : 0.0,
-            paymentDetails : 'Miscellaneous Payments',
+            paymentDetails : 'Other Payments',
             orNumber : '',
             change : 0,
             orDate : moment().format('YYYY-MM-DD'),
-            allTransactions : [],
+            payee : '',
+            payeeAddress : ''
         }
     },
     methods : {
@@ -368,28 +283,6 @@ export default {
             }
 
             this.validateTotal()
-        },
-        getStudentDetails() {
-            axios.get(`${ this.baseURL }/students/get-student-details`, {
-                params : {
-                    StudentId : this.studentId,
-                }
-            })
-            .then(response => {
-                this.studentData = response.data.StudentDetails
-                this.subjects = response.data.Subjects
-                this.payables = response.data.TuitionPayables
-
-                // clean payables
-                this.payables = this.payables.filter(obj => obj.Balance !== null && parseFloat(obj.Balance) > 0)
-            })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting student data!'
-                })
-            })
         },
         getMiscPayables() {
             axios.get(`${ this.baseURL }/transactions/get-misc-payables`)
@@ -513,96 +406,98 @@ export default {
                             text : 'Insufficient amount!'
                         })
                     } else {
-                        // begin transaction
-                        Swal.fire({
-                            title: "Confirm Transaction",
-                            showCancelButton: true,
-                            html: `
-                                <p style='text-align: left;'>Miscellaneous payment summary:</p>
-                                <ul>
-                                    <li style='text-align: left;'>Amount Payable: <h2><strong>P ${ this.toMoney(this.totalAmountDue) }</strong></h2></li>
-                                    <li style='text-align: left;'>Amount Paid: <strong>P ${ this.toMoney(this.totalPayments) }</strong></li>
-                                    <li style='text-align: left;'>Change: <strong>P ${ this.toMoney(this.change) }</strong></li>
-                                </ul>
-                                <p style='text-align: left;'>Proceed payment transaction?</p>
-                            `,
-                            confirmButtonText: "Yes",
-                            confirmButtonColor : '#3a9971'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                axios.post(`${ this.baseURL }/transactions/transact-miscellaneous`, {
-                                    _token : this.token,
-                                    StudentId : this.studentId,
-                                    cashAmount : this.cashAmount,
-                                    checkNumber : this.checkNumber,
-                                    checkBank : this.checkBank,
-                                    checkAmount : this.checkAmount,
-                                    digitalNumber : this.digitalNumber,
-                                    digitalBank : this.digitalBank,
-                                    digitalAmount : this.digitalAmount,
-                                    totalPayables : this.totalPayables,
-                                    totalPayments : this.totalAmountDue,
-                                    ORNumber : this.orNumber,
-                                    Details : this.paymentDetails,
-                                    TransactionDetails : this.payableItems,
-                                    ORDate : this.orDate
-                                }) 
-                                .then(response => {
-                                    this.toast.fire({
-                                        icon : 'success',
-                                        text : 'Transction successful!'
-                                    })
-                                    if (this.school === 'SVI') {
-                                        window.location.href = this.baseURL + '/transactions/print-miscellaneous-svi/' + response.data
-                                    } else if (this.school === 'HCA') {
-                                        window.location.href = this.baseURL + '/transactions/print-miscellaneous/' + response.data
-                                    }
-                                    
+                        if (this.payableItems.length < 1) {
+                            this.toast.fire({
+                                icon : 'warning',
+                                text : 'No items added!'
+                            })
+                        } else {
+                            if (this.payee.length < 1 | this.payeeAddress.length < 1) {
+                                this.toast.fire({
+                                    icon : 'warning',
+                                    text : 'Please provide Payee Name and Address!'
                                 })
-                                .catch(error => {
-                                    console.log(error.response)
-                                    Swal.fire({
-                                        icon : 'error',
-                                        text : 'Error performing transaction'
-                                    })
+                            } else {
+                                // begin transaction
+                                Swal.fire({
+                                    title: "Confirm Transaction",
+                                    showCancelButton: true,
+                                    html: `
+                                        <p style='text-align: left;'>Other payment summary:</p>
+                                        <ul>
+                                            <li style='text-align: left;'>Amount Payable: <h2><strong>P ${ this.toMoney(this.totalAmountDue) }</strong></h2></li>
+                                            <li style='text-align: left;'>Amount Paid: <strong>P ${ this.toMoney(this.totalPayments) }</strong></li>
+                                            <li style='text-align: left;'>Change: <strong>P ${ this.toMoney(this.change) }</strong></li>
+                                        </ul>
+                                        <p style='text-align: left;'>NOTE: All empty items will be discarded. Proceed payment transaction?</p>
+                                    `,
+                                    confirmButtonText: "Yes",
+                                    confirmButtonColor : '#3a9971'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        axios.post(`${ this.baseURL }/transactions/transact-other-payments`, {
+                                            _token : this.token,
+                                            cashAmount : this.cashAmount,
+                                            checkNumber : this.checkNumber,
+                                            checkBank : this.checkBank,
+                                            checkAmount : this.checkAmount,
+                                            digitalNumber : this.digitalNumber,
+                                            digitalBank : this.digitalBank,
+                                            digitalAmount : this.digitalAmount,
+                                            totalPayables : this.totalPayables,
+                                            totalPayments : this.totalAmountDue,
+                                            ORNumber : this.orNumber,
+                                            Details : this.paymentDetails,
+                                            TransactionDetails : this.payableItems,
+                                            ORDate : this.orDate,
+                                            Payee : this.payee,
+                                            PayeeAddress : this.payeeAddress,
+                                        }) 
+                                        .then(response => {
+                                            this.toast.fire({
+                                                icon : 'success',
+                                                text : 'Transaction successful!'
+                                            })
+                                            if (this.school === 'SVI') {
+                                                window.location.href = this.baseURL + '/transactions/print-other-payments-svi/' + response.data
+                                            }
+                                            
+                                        })
+                                        .catch(error => {
+                                            console.log(error.response)
+                                            Swal.fire({
+                                                icon : 'error',
+                                                text : 'Error performing transaction'
+                                            })
+                                        })
+                                    }
                                 })
                             }
-                        })
+                        }
                     }
                 }
             }
         },
-        showHistory() {
-            this.getAllTransactions()
-
-            let modalElement = this.$refs.modalShowHistory
-            $(modalElement).modal('show')
-        },        
-        getAllTransactions() {
-            axios.get(`${ this.baseURL }/transactions/get-transaction-history`, {
-                params : {
-                    StudentId : this.studentId,
-                }
+        addNewItem() {
+            const idtmp = this.generateUniqueId()
+            this.payableItems.push({
+                id : idtmp,
+                Payable : '',
+                Price : 0,
+                Quantity : 1,
+                TotalAmount : 0
             })
-            .then(response => {
-                this.allTransactions = response.data
+            this.$nextTick(() => {
+                this.$refs['payable-name-' + idtmp][0].focus()
             })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting all transaction history data!'
-                })
-            })
-        },
+        }
     },
     created() {
     },
     mounted() {
-        this.getStudentDetails()
         this.nextOR()
         this.getMiscPayables()
     }
 }
-
+    
 </script>

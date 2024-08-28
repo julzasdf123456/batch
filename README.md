@@ -11,8 +11,9 @@
 ### New Tables
 
 ### New Columns on Tables
-- TransactionDetails
-    - FlushedToTuition (pushed to HCA)
+- Transactions
+    - Payee
+    - PayeeAddress
 
 ### New Permissions
 
