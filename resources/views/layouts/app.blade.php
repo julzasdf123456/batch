@@ -57,18 +57,43 @@
         </ul>
 
         <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('students.index') }}" title="Student Search">
+                    <i class="fas fa-search"></i>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('schoolYears.index') }}" title="View Classes">
+                    <i class="fas fa-bookmark"></i>
+                </a>
+            </li>
+
+            <li class="nav-item dropdown" title="Cashiering Shortcuts">
+                <a class="nav-link dropdown-toggle" href="#" id="file-menu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-coins"></i></a>
+                <div class="dropdown-menu" aria-labelledby="file-menu">
+                    <a href="{{ route('transactions.enrollment') }}" class="dropdown-item" title="Enrollment Payments">Enrollment</a>
+                    <a href="{{ route('transactions.tuitions-search') }}" class="dropdown-item" title="School Tuition Payments">School Tuitions</a>
+                    <a href="{{ route('transactions.miscellaneous-search') }}" class="dropdown-item" title="Miscellaneous Payments">Miscellaneous</a>
+                    @if (env('APP_COMPANY_ABRV') === 'SVI')
+                        <a href="{{ route('transactions.other-payments') }}" class="dropdown-item" title="Other Payments">Other Payments</a>
+                    @endif
+                    <a href="{{ route('transactions.my-dcr') }}" class="dropdown-item" title="My Daily Collection Report">My DCR</a>
+                </div>
+            </li>
+
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
                     <img src="{{ URL::asset('imgs/logo.png'); }}"
-                         class="user-image img-circle" alt="User Image"> 
+                        class="user-image img-circle" alt="User Image"> 
                     <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <!-- User image -->
                     <li class="user-header">
                         <img src="{{ URL::asset('imgs/logo.png'); }}"
-                             class="img-circle"
-                             alt="User Image"> 
+                            class="img-circle"
+                            alt="User Image"> 
                         <br>
                         <h4 style="margin-top: 10px;"> {{ Auth::check() ? Auth::user()->name : '' }} </h4>
                     </li>

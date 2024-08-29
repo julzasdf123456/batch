@@ -15,6 +15,12 @@
                             <button class="btn btn-default ico-tab-mini" @click="fetchPayments()"><i class="fas fa-eye ico-tab-mini"></i>View</button>
                             <button class="btn btn-primary" @click="printDcr()"><i class="fas fa-print ico-tab-mini"></i>Print</button>
                         </div>
+
+                        <!-- TOTAL -->
+                        <div class="col-lg-6">
+                            <p class="text-muted text-right no-pads">Total Collection</p>
+                            <h2 class="text-right text-success">₱ <strong>{{ toMoney(cancelledTotal) }}</strong></h2>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -231,7 +237,7 @@
                     </div>
 
                     <!-- items/particulars -->
-                     <div class="col-lg-6 table-responsive">
+                    <div class="col-lg-6 table-responsive">
                         <p class="text-muted no-pads">Particulars</p>
                         <table class="table table-sm table-hover">
                             <thead>
@@ -245,7 +251,7 @@
                                 </tr>
                             </tbody>
                         </table>
-                     </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">

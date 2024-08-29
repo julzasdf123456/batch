@@ -137,6 +137,9 @@
                                                 <li class="nav-item">
                                                     <a class="nav-link" id="transaction-history-tab" data-toggle="pill" href="#transaction-history-content" role="tab" aria-controls="transaction-history-content" aria-selected="false">Transaction History</a>
                                                 </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" id="detailed-transactions-tab" data-toggle="pill" href="#detailed-transactions-content" role="tab" aria-controls="detailed-transactions-content" aria-selected="false">Detailed Transactions</a>
+                                                </li>
                                             </ul>
                                             <div class="tab-content" id="custom-tabs-three-tabContent">
                                                 <!-- payable history -->
@@ -175,11 +178,35 @@
                                                             </thead>
                                                             <tbody>
                                                                 <tr v-for="item in allTransactions" :key="item.id" style="cursor: pointer;">
-                                                                    <td>{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
-                                                                    <td>{{ item.PaymentFor }}</td>
+                                                                    <td @click="showTransactionDetails(item.id)">{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
+                                                                    <td @click="showTransactionDetails(item.id)">{{ item.PaymentFor }}</td>
+                                                                    <td @click="showTransactionDetails(item.id)">{{ item.ORNumber }}</td>
+                                                                    <td @click="showTransactionDetails(item.id)">{{ item.ModeOfPayment }}</td>
+                                                                    <td @click="showTransactionDetails(item.id)" class='text-success text-right'><strong>{{ toMoney(parseFloat(item.TotalAmountPaid)) }}</strong></td>
+                                                                    <td @click="showTransactionDetails(item.id)">{{ item.name }}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <!-- detailed transaction history -->
+                                                <div class="tab-pane fade" id="detailed-transactions-content" role="tabpanel" aria-labelledby="detailed-transactions-tab">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-hover table-sm table-bordered">
+                                                            <thead>
+                                                                <th>OR Number</th>
+                                                                <th>Date</th>
+                                                                <th>Particulars</th>
+                                                                <th>Amount Paid</th>
+                                                                <th>Cashier</th>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr v-for="item in detailedTransactions" :key="item.id">
                                                                     <td>{{ item.ORNumber }}</td>
-                                                                    <td>{{ item.ModeOfPayment }}</td>
-                                                                    <td class='text-success text-right'><strong>{{ toMoney(parseFloat(item.TotalAmountPaid)) }}</strong></td>
+                                                                    <td>{{ moment(item.ORDate).format('MMM DD, YYYY') }}</td>
+                                                                    <td>{{ item.Particulars }}</td>
+                                                                    <td class="text-right text-success "><strong>{{ toMoney(parseFloat(item.Amount)) }}</strong></td>
                                                                     <td>{{ item.name }}</td>
                                                                 </tr>
                                                             </tbody>
@@ -487,6 +514,37 @@
             </div>
         </div>
     </div>
+
+    <!-- ALL TRANSACTIONS MODAL -->
+    <div ref="modalAllTransactions" class="modal fade" id="modal-all-transactions" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h4 class="no-pads">
+                            Transaction Details
+                        </h4>
+                    </div>
+                </div>
+                <div class="modal-body table-responsive">
+                    <!-- items/particulars -->
+                    <p class="text-muted no-pads">Particulars</p>
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <th>Particulars</th>
+                            <th class="text-right">Amount</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in transactionDetails" :key="item.id">
+                                <td class="v-align">{{ item.Particulars }}</td>
+                                <td class="v-align text-right">{{ toMoney(parseFloat(item.Amount)) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -558,6 +616,8 @@ export default {
             },
             attendanceData : [],
             scholarships : [],
+            transactionDetails : [],
+            detailedTransactions : [],
         }
     },
     methods : {
@@ -781,6 +841,45 @@ export default {
         },
         printTuitionLedger() {
             window.location.href = `${ this.baseURL }/transactions/print-tuition-ledger/${ this.studentId }/${ this.activePayable.SchoolYear }`
+        },
+        showTransactionDetails(id) {
+            // get transaction details
+            axios.get(`${ this.baseURL }/transactions/fetch-transaction-details`, {
+                params : {
+                    TransactionId : id
+                }
+            })
+            .then(response => {
+                this.transactionDetails = response.data
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting transaction details'
+                })
+            })
+
+            // init modal
+            let modalElement = this.$refs.modalAllTransactions
+            $(modalElement).modal('show')
+        },
+        getDetailedTransactions() {
+            axios.get(`${ this.baseURL }/transactions/fetched-detailed-transactions-per-student`, {
+                params : {
+                    StudentId : this.studentId
+                }
+            })
+            .then(response => {
+                this.detailedTransactions = response.data
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting detailed transactions'
+                })
+            })
         }
     }, 
     created() {
@@ -788,6 +887,7 @@ export default {
     mounted() {
         this.getStudentDetails()
         this.getAllTransactions()
+        this.getDetailedTransactions()
 
         this.getBarcodeAttendace()
     }
