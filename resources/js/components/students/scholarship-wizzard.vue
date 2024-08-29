@@ -305,6 +305,8 @@ export default {
             // find selected school year payable
             this.selectedPayableData = this.availablePayables.find(obj => obj.id === this.selectedPayable)
 
+            console.log(this.selectedPayable)
+
             // validate if has amount
             if (!this.isNull(this.selectedScholarship.Amount)) {
                 this.amount = parseFloat(this.selectedScholarship.Amount)
@@ -329,7 +331,6 @@ export default {
             }
         },
         saveScholarshipGrant() {
-            console.log(this.selectedPayableData)
             axios.post(`${ this.baseURL }/student_scholarships/apply-scholarship`, {
                 _token : this.token,
                 PayableId : this.selectedPayable,
