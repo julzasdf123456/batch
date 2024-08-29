@@ -286,7 +286,7 @@ export default {
                     if (!this.isNull(escPreSelect)) {
                         this.selectedGrant = escPreSelect.id
 
-                        this.selectScholarship()
+                        // this.selectScholarship()
                     }
                 }
             })
@@ -304,8 +304,6 @@ export default {
 
             // find selected school year payable
             this.selectedPayableData = this.availablePayables.find(obj => obj.id === this.selectedPayable)
-
-            alert(this.selectedPayable)
 
             // validate if has amount
             if (!this.isNull(this.selectedScholarship.Amount)) {
