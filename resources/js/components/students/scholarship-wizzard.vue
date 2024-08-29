@@ -329,6 +329,7 @@ export default {
             }
         },
         saveScholarshipGrant() {
+            console.log(this.selectedPayableData)
             axios.post(`${ this.baseURL }/student_scholarships/apply-scholarship`, {
                 _token : this.token,
                 PayableId : this.selectedPayable,
