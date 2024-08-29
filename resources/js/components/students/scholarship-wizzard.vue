@@ -305,7 +305,7 @@ export default {
             // find selected school year payable
             this.selectedPayableData = this.availablePayables.find(obj => obj.id === this.selectedPayable)
 
-            console.log(this.selectedPayable)
+            alert(this.selectedPayable)
 
             // validate if has amount
             if (!this.isNull(this.selectedScholarship.Amount)) {
