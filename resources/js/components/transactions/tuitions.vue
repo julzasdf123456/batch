@@ -46,14 +46,14 @@
 
             <!-- tuition inclusions -->
             <div class="card shadow-none">
-                <div class="card-header">
+                <div class="card-header border-0">
                     <span class="card-title text-muted">Breakdown</span>
 
                     <div class="card-tools">
                         <button class="btn btn-default btn-sm" @click="addPayableBreakdown()">Add</button>
                     </div>
                 </div>
-                <div class="card-body table-responsive">
+                <div class="card-body table-responsive p-0">
                     <table class="table table-sm table-hover">
                         <tbody>
                             <tr v-for="inc in tuitionInclusions">
@@ -95,33 +95,78 @@
 
         <!-- PAYABLES -->
         <div class="col-lg-5 col-md-12">
-            <h4 class="text-muted">Tuition Fee Payables</h4>
+            <!-- TUITION FEE SELECTION -->
+            <div class="card shadow-none">
+                <div class="card-header border-0">
+                    <p class="text-muted no-pads">Select Which Tuition Fee Pay</p>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr v-for="payable in payables" :key="payable.id" class="pointer">
+                                <td class="v-align">
+                                    <input type="radio" :id="payable.id" :value="payable.id" v-model="paymentFor" @change="getActivePayable(paymentFor)" class="custom-radio-sm pointer">
+                                    <label :for="payable.id" class="custom-radio-label-sm pointer no-pads">{{ payable.PaymentFor }}</label>
+                                </td>
+                                <td class="v-align text-right"><strong>{{ toMoney(parseFloat(payable.AmountPayable)) }}</strong></td>
+                                <td class="v-align text-right text-primary"><strong>{{ isNull(payable.AmountPaid) ? '-' : toMoney(parseFloat(payable.AmountPaid)) }}</strong></td>
+                                <td class="v-align text-right text-danger"><strong>{{ toMoney(parseFloat(payable.Balance)) }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="v-align" colspan="3"><strong>TOTAL PAYABLES</strong></td>
+                                <td class="v-align text-right text-danger"><h4><strong>{{ toMoney(getTotalPayables()) }}</strong></h4></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <!-- selection -->
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <th class="text-muted">Particulars</th>
-                        <th class="text-muted text-right">Tuition Fee</th>
-                        <th class="text-muted text-right">Paid Amount</th>
-                        <th class="text-muted text-right">Balance</th>
-                    </thead>
-                    <tbody>
-                        <tr v-for="payable in payables" :key="payable.id" class="pointer">
-                            <td class="v-align">
-                                <input type="radio" :id="payable.id" :value="payable.id" v-model="paymentFor" @change="getActivePayable(paymentFor)" class="custom-radio-sm pointer">
-                                <label :for="payable.id" class="custom-radio-label-sm pointer no-pads">{{ payable.PaymentFor }}</label>
-                            </td>
-                            <td class="v-align text-right"><strong>{{ toMoney(parseFloat(payable.AmountPayable)) }}</strong></td>
-                            <td class="v-align text-right text-primary"><strong>{{ isNull(payable.AmountPaid) ? '-' : toMoney(parseFloat(payable.AmountPaid)) }}</strong></td>
-                            <td class="v-align text-right text-danger"><strong>{{ toMoney(parseFloat(payable.Balance)) }}</strong></td>
-                        </tr>
-                        <tr>
-                            <td class="v-align" colspan="3"><strong>TOTAL PAYABLES</strong></td>
-                            <td class="v-align text-right text-danger"><h4><strong>{{ toMoney(getTotalPayables()) }}</strong></h4></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- MISCELLANEOUS ADDITIONALS -->
+            <div class="card shadow-none">
+                <div class="card-header border-0">
+                    <p class="text-muted no-pads">Add Miscellaneous Payables</p>
+                    <div style="display: flex; gap: 10px;">
+                        <select v-model="miscSelected" class="form-control form-control-sm" @change="addPayable">
+                            <option v-for="misc in miscPayables" :value="misc.id">{{ misc.Payable }}</option>
+                        </select>
+                        <button @click="addPayable()" class="btn btn-primary btn-sm">Add</button>
+                    </div>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover table-sm table-bordered mt-3">
+                        <thead>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Total</th>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in payableItems" :key="item.id">
+                                <td style="word-wrap:break-word;">
+                                    <!-- {{ item.Payable }} -->
+                                    <textarea :ref="'payable-name-' + item.id" class="table-input" :class="tableInputTextColor" v-model="item.Payable" @keyup="inputEnter(item.Payable, item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Payable, item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Payable, item.Price, item.Quantity, item.id)" type="text"></textarea>
+                                </td>
+                                <td style="max-width: 100px;">
+                                    <input :ref="'payable-' + item.id" class="table-input text-right" :class="tableInputTextColor" v-model="item.Price" @keyup="inputEnter(item.Payable, item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Payable, item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Payable, item.Price, item.Quantity, item.id)" type="number" step="any"/>
+                                </td>
+                                <td style="max-width: 60px;">
+                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="item.Quantity" @keyup="inputEnter(item.Payable, item.Price, item.Quantity, item.id)" @keyup.enter="inputEnter(item.Payable, item.Price, item.Quantity, item.id, 'enter')" @blur="inputEnter(item.Payable, item.Price, item.Quantity, item.id)" type="number" step="any"/>
+                                </td>
+                                <td class="text-right" style="max-width: 180px;">
+                                    <strong>{{ toMoney(parseFloat(item.TotalAmount)) }}</strong>
+                                    <button class="btn btn-sm" title="Remove" @click="removeItem(item.id)"><i class="fas fa-times-circle text-danger"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">Total Miscellaneous</td>
+                                <td class="text-right"><strong>{{ toMoney(totalMiscAmount) }}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <span class="text-muted text-sm"><strong>NOTE: </strong>These miscellaneous payments will not be added to the monthly payments of the students. If you wish to add an amount to the monthly payment, use the <strong>ADD</strong> feature in the `Breakdown` card instead.</span>
+                </div>
             </div>
 
             <!-- payable breakdown -->
@@ -253,7 +298,7 @@
                             <tr>
                                 <td class="text-muted v-align">MINIMUM PAYABLE</td>
                                 <td class="v-align text-right text-danger">
-                                    <h4 class="no-pads"><strong>{{ toMoney(minAmountPayable) }}</strong></h4>
+                                    <h4 class="no-pads"><strong>{{ toMoney(totalMinAmountPayable) }}</strong></h4>
                                 </td>
                             </tr>
                             <tr>
@@ -297,12 +342,13 @@
                         <input type="number" step="any" class="form-control" name="AmountPublic" v-model="additionalPayableAmount" id="AmountPublic" style="width: 100%;" required placeholder="0.0">
                     </div>
                     
-                    <div class="custom-control custom-switch mt-2">
+                    <!-- <div class="custom-control custom-switch mt-2">
                         <input type="checkbox" class="custom-control-input" id="distribute" v-model="additionalDistribute">
                         <label style="font-weight: normal;" class="custom-control-label" for="distribute" id="distributeLabel">Distribute Monthly</label>
                         <br>
                         <span class="text-muted text-sm">Turning this ON will split the amount for the next months, otherwise it will only be added in the current payable.</span>
-                    </div>    
+                    </div>     -->
+                    <span class="text-muted text-sm"><strong>NOTE that all items added using this will be deducted monthly automatically. If you wish to add a one-time payment miscellaneous, add it in the `Add Miscellaneous Payables` card instead.</strong></span>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-sm btn-primary" @click="saveTuitionInclusion()"><i class="fas fa-check ico-tab-mini"></i>Proceed Add</button>
@@ -572,6 +618,12 @@ export default {
             payableTransactionHistory : [],
             payableInclusions : [],
             detailedTransactions : [],
+            // MISCELLANEOUS
+            miscPayables : [],
+            miscSelected : '',
+            payableItems : [],
+            totalMiscAmount : 0,
+            totalMinAmountPayable : 0,
         }
     },
     methods : {
@@ -718,6 +770,8 @@ export default {
                         this.minAmountPayable += parseFloat(this.tuitionInclusions[i].Amount)
                     } 
                 }
+
+                this.validateMinPayable()
             })
             .catch(error => {
                 console.log(error)
@@ -755,12 +809,13 @@ export default {
             if (this.totalPayments == 0) {
                 this.tuitionPaymentAmount = 0
             } else {
-                this.tuitionPaymentAmount = this.totalPayments - this.minAmountPayable
+                this.tuitionPaymentAmount = this.totalPayments - this.totalMinAmountPayable
             }
 
             // try preselect tuitions
             var monthPayable = parseFloat(this.activePayable.Balance) / this.tuitionMonths.length
             var indices = Math.ceil(this.tuitionPaymentAmount / monthPayable)
+            console.log(this.activePayable.Balance)
             this.selectedMonths = []
             for (let i=0; i<indices; i++) {
                 this.selectedMonths.push(this.tuitionMonths[i])
@@ -775,8 +830,6 @@ export default {
             }
         },
         transact() {
-            console.log(this.selectedMonths)
-           
             if (this.isNull(this.activePayable)) {
                 this.toast.fire({
                     icon : 'info',
@@ -808,7 +861,7 @@ export default {
                                 this.remainingBalance = 0
                             } else {
                                 amountPaid = this.totalPayments
-                                this.remainingBalance = this.totalPayables - this.totalPayments
+                                this.remainingBalance = this.totalPayables - this.tuitionPaymentAmount
                             }
 
                             // begin transaction
@@ -877,7 +930,8 @@ export default {
                                         Balance : this.remainingBalance,
                                         TuitionBreakdowns : this.selectedMonths,
                                         AmountForTuition : this.tuitionPaymentAmount,
-                                        MinimumAmountPayable : this.minAmountPayable,
+                                        MinimumAmountPayable : this.totalMinAmountPayable,
+                                        AdditionalMiscellaneousItems : this.payableItems,
                                     }) 
                                     .then(response => {
                                         this.toast.fire({
@@ -970,7 +1024,7 @@ export default {
                     ItemName : this.additionalPayableItem,
                     Amount : this.additionalPayableAmount,
                     PayableId : this.activePayable.id,
-                    NotDeductedMonthly : this.additionalDistribute ? null : 'Yes',
+                    NotDeductedMonthly : null,
                 })
                 .then(response => {
                     this.toast.fire({
@@ -1120,13 +1174,90 @@ export default {
                     text : 'Error getting detailed transactions'
                 })
             })
-        }
+        },
+        // MISCELLANEOUS PAYMENTS
+        getMiscPayables() {
+            axios.get(`${ this.baseURL }/transactions/get-misc-payables`)
+            .then(response => {
+                this.miscPayables = response.data
+
+                this.miscPayables = this.miscPayables.filter(obj => !obj.Payable.includes('Tuition Fee'))
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting miscellaneous payables!'
+                })
+            })
+        },
+        addPayable() {
+            const selected = this.miscPayables.find(obj => obj.id === this.miscSelected)
+
+            if (!this.isNull(selected)) {
+                const idtmp = this.generateUniqueId()
+                this.payableItems.push({
+                    id : idtmp,
+                    Payable : selected.Payable,
+                    Price : selected.DefaultAmount,
+                    Quantity : 1,
+                    TotalAmount : isNaN(selected.DefaultAmount) | this.isNull(selected.DefaultAmount) ? 0 : selected.DefaultAmount
+                })
+                this.$nextTick(() => {
+                    this.$refs['payable-' + idtmp][0].focus()
+                })
+            } else {
+                this.toast.fire({
+                    icon : 'info',
+                    text : 'Please select item before adding!'
+                })
+            }
+
+            this.validateTotal()
+        },
+        removeItem(id) {
+            this.payableItems = this.payableItems.filter(obj => obj.id !== id)
+
+            this.toast.fire({
+                icon : 'info',
+                text : 'Item removed!'
+            })
+            this.validateTotal()
+        },
+        validateTotal() {
+            this.totalMiscAmount = 0
+            for (let i=0; i<this.payableItems.length; i++) {
+                this.totalMiscAmount += parseFloat(this.payableItems[i].TotalAmount)
+            }
+
+            this.validateMinPayable()
+        },
+        validateMinPayable() {
+            this.totalMinAmountPayable = this.minAmountPayable + this.totalMiscAmount
+        },
+        inputEnter(payable, price, qty, id, key=null) {
+            var amount = parseFloat(price) * parseFloat(qty)
+
+            this.payableItems = this.payableItems.map(obj => {
+                if (obj.id === id) {
+                    return { ...obj, Payable : payable, Price : price, Quantity : qty, TotalAmount : (isNaN(amount) ? 0 : amount) }
+                }
+                return obj
+            })
+
+            if (!this.isNull(key) && key==='enter') {
+                this.$refs.cashInput.focus()
+            }
+
+            this.validateTotal()
+        },
     },
     created() {
     },
     mounted() {
         this.getStudentDetails()
         this.nextOR()
+        this.getMiscPayables()
     }
 }
 

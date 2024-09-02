@@ -12,8 +12,10 @@
 
 ### New Columns on Tables
 - Transactions
-    - Payee
-    - PayeeAddress
+    - TuitionAmount
+    - MiscellaneousAmount
+
+
 
 ### New Permissions
 

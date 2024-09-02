@@ -281,6 +281,7 @@ class TransactionsController extends AppBaseController
             $transactions->TotalAmountPaid = $totalPayables;
             $transactions->UserId = Auth::id();
             $transactions->TransactionType = 'Enrollment';
+            $transactions->MiscellaneousAmount = $totalPayables;
             $transactions->save();
 
             // insert transaction details
@@ -541,12 +542,16 @@ class TransactionsController extends AppBaseController
         $tuitionBreakdown = $request['TuitionBreakdowns'];
         $amountForTuition = $request['AmountForTuition'];
         $minimumAmountPayable = $request['MinimumAmountPayable'];
+        $additionalMiscellaneousItems = $request['AdditionalMiscellaneousItems'];
+
+        $student = Students::find($studentId);
+        $class = Classes::find($student->CurrentGradeLevel);
 
         // update tuition payable
         $payable = Payables::find($payableId);
         if ($payable != null) {
             $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
-            $newAmntPaid = $payableAmntPaid + floatval($paidAmount);
+            $newAmntPaid = $payableAmntPaid + floatval($amountForTuition);
 
             $payable->AmountPaid = $newAmntPaid;
             $payable->Balance = $balance;
@@ -582,20 +587,60 @@ class TransactionsController extends AppBaseController
         $transactions->UserId = Auth::id();
         $transactions->Period = $period;
         $transactions->TransactionType = 'Tuition Fees';
+        $transactions->TuitionAmount = $amountForTuition;
+        $transactions->MiscellaneousAmount = $minimumAmountPayable;
         $transactions->save();
 
-        // insert transaction details
-        $transactionDetails = new TransactionDetails;
-        $transactionDetails->id = IDGenerator::generateIDandRandString();
-        $transactionDetails->TransactionsId = $id;
-        $transactionDetails->Particulars = $details;
-        $transactionDetails->Amount = $paidAmount;
-        $transactionDetails->save();
+        // insert transaction details for tuition
+        if ($payable != null && $class != null) {
+            // weight payable inclusions to transaction details
+            $payableInclusions = PayableInclusions::where('PayableId', $payableId)->get();
+            if ($payableInclusions != null) {
+                $amntTuitionDistribute = $amountForTuition != null && $amountForTuition > 0 ? floatval($amountForTuition) : 0;
+                $discnt = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
 
-        // update payable inclusions for non-distributed inclusions
-        PayableInclusions::where('PayableId', $payableId)
-            ->where('NotDeductedMonthly', 'Yes')
-            ->update(['NotDeductedMonthly' => 'Paid']);
+                if ($amntTuitionDistribute > 0) {
+                    foreach($payableInclusions as $item) {
+                        $amnt = $item->Amount != null ? floatval($item->Amount) : 0;
+
+                        if ($item->ItemName === 'Tuition Fee') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                $amnt = (($amnt / 2) - $discnt);
+                                $payableAmnt = $payable->Payable != null ? (($payable->Payable - $discnt)) : 0;
+                            } else {
+                                $amnt = $amnt - $discnt;
+                                $payableAmnt = $payable->Payable != null ? ($payable->Payable - $discnt) : 0;
+                            } 
+                            
+                        } else {
+                            $payableAmnt = $payable->AmountPayable != null ? $payable->AmountPayable : 0;
+                        }
+
+                        if ($amnt > 0 && $payableAmnt > 0) {
+                            $percent = round(($amnt / $payableAmnt), 8);
+                            $amountWeight = $amountForTuition * $percent;
+
+                            $transactionDetails = new TransactionDetails;
+                            $transactionDetails->id = IDGenerator::generateIDandRandString();
+                            $transactionDetails->TransactionsId = $id;
+                            $transactionDetails->Particulars = $item->ItemName;
+                            $transactionDetails->Amount = round($amountWeight, 1);                            
+                            $transactionDetails->save();
+                        }
+                    }
+                }
+            }
+        } else {
+            // insert only transaction details
+            if ($amountForTuition != null && $amountForTuition > 0) {
+                $transactionDetails = new TransactionDetails;
+                $transactionDetails->id = IDGenerator::generateIDandRandString();
+                $transactionDetails->TransactionsId = $id;
+                $transactionDetails->Particulars = $details;
+                $transactionDetails->Amount = $amountForTuition;
+                $transactionDetails->save();
+            }
+        }
 
         // update tuitions breakdown
         $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
@@ -619,6 +664,26 @@ class TransactionsController extends AppBaseController
                 $item->save();
             }
         }
+
+        /**
+         * INSERT MISCELLANEOUS ITEMS IF THERE ARE ANY
+         */
+        // update first from miscellaneous selection
+        if ($additionalMiscellaneousItems != null && count($additionalMiscellaneousItems) > 0) {
+            foreach($additionalMiscellaneousItems as $item) {
+                $transactionDetails = new TransactionDetails;
+                $transactionDetails->id = IDGenerator::generateIDandRandString();
+                $transactionDetails->TransactionsId = $id;
+                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+                $transactionDetails->Amount = $item['TotalAmount'];
+                $transactionDetails->save();
+            }
+        }
+
+        // update payable inclusions for non-distributed inclusions
+        PayableInclusions::where('PayableId', $payableId)
+            ->where('NotDeductedMonthly', 'Yes')
+            ->update(['NotDeductedMonthly' => 'Paid']);
 
         // send sms
         $student = Students::find($studentId);
@@ -781,6 +846,7 @@ class TransactionsController extends AppBaseController
         $transactions->TotalAmountPaid = $totalPayments;
         $transactions->UserId = Auth::id();
         $transactions->TransactionType = 'Miscellaneous';
+        $transactions->MiscellaneousAmount = $totalPayments;
         $transactions->save();
 
         // insert transaction details
@@ -952,7 +1018,7 @@ class TransactionsController extends AppBaseController
             $payable = Payables::find($transaction->PayablesId);
 
             if ($payable != null) {
-                $amount = $transaction->TotalAmountPaid != null ? floatval($transaction->TotalAmountPaid) : 0;
+                $amount = $transaction->TuitionAmount != null ? floatval($transaction->TuitionAmount) : 0;
 
                 if ($amount > 0) {
                     // update payable amount
@@ -1667,7 +1733,6 @@ class TransactionsController extends AppBaseController
 
         return response()->json($id, 200);
     }
-
     
     public function printOtherPaymentsSvi($transactionId) {
         $transaction = Transactions::find($transactionId);
