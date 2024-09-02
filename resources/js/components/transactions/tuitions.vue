@@ -1194,6 +1194,8 @@ export default {
         addPayable() {
             const selected = this.miscPayables.find(obj => obj.id === this.miscSelected)
 
+            this.cashAmount = null
+
             if (!this.isNull(selected)) {
                 const idtmp = this.generateUniqueId()
                 this.payableItems.push({
@@ -1246,6 +1248,7 @@ export default {
             })
 
             if (!this.isNull(key) && key==='enter') {
+                this.cashAmount = null
                 this.$refs.cashInput.focus()
             }
 
