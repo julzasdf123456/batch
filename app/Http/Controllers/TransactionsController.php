@@ -1679,4 +1679,24 @@ class TransactionsController extends AppBaseController
             'transactionDetails' => $transactionDetails,
         ]);
     } 
+
+    public function fetchDetailedTransactionsPerStudent(Request $request) {
+        $studentId = $request['StudentId'];
+
+        $data = DB::table('TransactionDetails')
+            ->leftJoin('Transactions', 'Transactions.id', '=', 'TransactionDetails.TransactionsId')
+            ->leftJoin('users', 'Transactions.UserId', '=', 'users.id')
+            ->whereRaw("Transactions.StudentId='" . $studentId . "' AND Transactions.Status IS NULL")
+            ->select(
+                'TransactionDetails.*',
+                'Transactions.ORNumber',
+                'Transactions.Payee',
+                'Transactions.TransactionType',
+                'users.name',
+            )
+            ->orderBy('Transactions.created_at')
+            ->get();
+            
+        return response()->json($data, 200);
+    }
 }

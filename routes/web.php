@@ -174,6 +174,7 @@ Route::get('/transactions/search-old-entry-students', [TransactionsController::c
 Route::get('/transactions/other-payments', [TransactionsController::class, 'otherPayments'])->name('transactions.other-payments');
 Route::post('/transactions/transact-other-payments', [TransactionsController::class, 'transactOtherPayments'])->name('transactions.transact-other-payments');
 Route::get('/transactions/print-other-payments-svi/{id}', [TransactionsController::class, 'printOtherPaymentsSvi'])->name('transactions.print-other-payments-svi');
+Route::get('/transactions/fetched-detailed-transactions-per-student', [TransactionsController::class, 'fetchDetailedTransactionsPerStudent'])->name('transactions.fetched-detailed-transactions-per-student');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
