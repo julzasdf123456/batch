@@ -398,7 +398,7 @@ class TransactionsController extends AppBaseController
         $student = Students::find($studentId);
         if ($student != null) {
             SmsMessages::createSmsWithStudentProvided($student, 
-                "Holy Cross Academy System Notification\n\nENROLLMENT FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayables, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
+                env("APP_COMPANY") . " System Notification\n\nENROLLMENT FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayables, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
                 2);
         } 
 
@@ -689,7 +689,7 @@ class TransactionsController extends AppBaseController
         $student = Students::find($studentId);
         if ($student != null) {
             SmsMessages::createSmsWithStudentProvided($student, 
-                "Holy Cross Academy System Notification\n\nTUITION FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($paidAmount, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
+                env("APP_COMPANY") . " System Notification\n\nTUITION FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($paidAmount, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
                 2);
         }        
 
@@ -866,7 +866,7 @@ class TransactionsController extends AppBaseController
         $student = Students::find($studentId);
         if ($student != null) {
             SmsMessages::createSmsWithStudentProvided($student, 
-                "Holy Cross Academy System Notification\n\MISCELLANEOUS FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ", with the following items: \n\n" . 
+                env("APP_COMPANY") . " System Notification\n\MISCELLANEOUS FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ", with the following items: \n\n" . 
                 $concat, 
                 2);
         } 
