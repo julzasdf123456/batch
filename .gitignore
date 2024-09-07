@@ -2,7 +2,9 @@
 /public/hot
 /public/storage
 public/imgs
+/public/imgs
 public/generated
+/public/generated
 /storage/*.key
 /vendor
 .env

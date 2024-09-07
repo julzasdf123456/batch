@@ -59,37 +59,38 @@ class BarcodeAttendanceController extends AppBaseController
     {
         $input = $request->all();
 
-        // if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
-        //     $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
+        $to = date('Y-m-d H:i:s');
+        $from = date('Y-m-d H:i:s', strtotime($to . " -5 hours"));
 
-        //     // Flash::success('Barcode Attendance saved successfully.');
-    
-        //     // return redirect(route('barcodeAttendances.index'));
-        //     return response()->json($barcodeAttendance, 200);
-        // } else {
-        //     return response()->json('Invalid Contact Number', 200);
-        // }
-        $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
+        $bCodeCheck = DB::table('BarcodeAttendance')
+            ->whereRaw("StudentId='" . $input['StudentId'] . "' AND created_at BETWEEN '" . $from . "' AND '" . $to . "'")
+            ->first();
 
-        // save sms for sending
-        if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
-            //get student
-            $student = Students::find($input['StudentId']);
+        if ($bCodeCheck != null) {
+            return response()->json('Student has already logged ' . $input['PunchType'], 400);
+        } else {
+            $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
 
-            if ($student != null) {
-                SmsMessages::create([
-                    'id' => IDGenerator::generateIDandRandString(),
-                    'ContactNumber' => $input['ContactNumber'],
-                    'Message' => env("APP_COMPANY") . " System Notification\n\n" .
-                        $student->FirstName . " " . $student->LastName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
-                    'AIFacilitator' => 'Reeve',
-                    'Source' => 'batch.ID',
-                    'Priority' => 1,
-                ]);
+            // save sms for sending
+            if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
+                //get student
+                $student = Students::find($input['StudentId']);
+
+                if ($student != null) {
+                    SmsMessages::create([
+                        'id' => IDGenerator::generateIDandRandString(),
+                        'ContactNumber' => $input['ContactNumber'],
+                        'Message' => env("APP_COMPANY") . " System Notification\n\n" .
+                            $student->FirstName . " " . $student->LastName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
+                        'AIFacilitator' => 'Reeve',
+                        'Source' => 'batch.ID',
+                        'Priority' => 1,
+                    ]);
+                }
             }
-        }
 
-        return response()->json($barcodeAttendance, 200);
+            return response()->json($barcodeAttendance, 200);
+        }
     }
 
     /**
