@@ -194,12 +194,25 @@
     <div class="body-data">
         <table style="width: 100%;">
             <tbody>
-                <tr>
-                    <td>{{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }}</td>
-                    <td>{{ $transaction->PaymentFor != null ? $transaction->PaymentFor : '' }}</td>
-                    <td>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</td>
-                    <td class="text-right">{{ $student->id }}</td>
-                </tr>
+                @php
+                    $i = 0;
+                @endphp
+                @foreach ($transactionDetails as $item)
+                    <tr>
+                        <td>
+                            @if ($i == 0)
+                                {{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }} {{ $classes != null && $classes->Section != null ? '' : '' }}
+                            @endif
+                        </td>
+                        <td>{{ $item->Particulars != null ? $item->Particulars : '' }}</td>
+                        <td>{{ is_numeric($item->Amount) ? number_format($item->Amount, 2) : $item->Amount }}</td>
+                        <td class="text-right">{{ $student->id }}</td>
+                    </tr>
+                    @php
+                        $i++;
+                    @endphp
+                @endforeach
+                
                 <tr>
                     <td>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }} | {{ $transaction->ModeOfPayment }} |</td>
                     <td></td>

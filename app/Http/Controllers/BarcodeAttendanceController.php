@@ -80,7 +80,7 @@ class BarcodeAttendanceController extends AppBaseController
                 SmsMessages::create([
                     'id' => IDGenerator::generateIDandRandString(),
                     'ContactNumber' => $input['ContactNumber'],
-                    'Message' => "Holy Cross Academy System Notification\n\n" .
+                    'Message' => env("APP_COMPANY") . " System Notification\n\n" .
                         $student->FirstName . " " . $student->LastName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
                     'AIFacilitator' => 'Reeve',
                     'Source' => 'batch.ID',
@@ -204,7 +204,7 @@ class BarcodeAttendanceController extends AppBaseController
         //     ->whereRaw("SmsSent IS NULL AND BarcodeAttendance.created_at >= '" . date('Y-m-d') . "' AND BarcodeAttendance.ContactNumber IS NOT NULL")
         //     ->select(
         //         'BarcodeAttendance.*',
-        //         DB::raw("(CONCAT('Holy Cross Academy System Notification\n\n', Students.FirstName, ' ', Students.LastName, ' has logged ', BarcodeAttendance.PunchType, ' from/to the campus at ', BarcodeAttendance.created_at)) As Message"),
+        //         DB::raw("(CONCATenv("APP_COMPANY") . (Holy Cross Academy System Notification\n\n', Students.FirstName, ' ', Students.LastName, ' has logged ', BarcodeAttendance.PunchType, ' from/to the campus at ', BarcodeAttendance.created_at)) As Message"),
         //         DB::raw("'batch.ID' AS AIFacilitator"),
         //         DB::raw("'batch.ID' AS Source"),
         //     )

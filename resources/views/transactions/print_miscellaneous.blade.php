@@ -194,13 +194,23 @@
     <div class="body-data">
         <table style="width: 100%;">
             <tbody>
+                @php
+                    $i = 0;
+                @endphp
                 @foreach ($transactionDetails as $item)
                     <tr>
-                        <td>{{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }} {{ $classes != null && $classes->Section != null ? '' : '' }}</td>
+                        <td>
+                            @if ($i == 0)
+                                {{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }} {{ $classes != null && $classes->Section != null ? '' : '' }}
+                            @endif
+                        </td>
                         <td>{{ $item->Particulars != null ? $item->Particulars : '' }}</td>
                         <td>{{ is_numeric($item->Amount) ? number_format($item->Amount, 2) : $item->Amount }}</td>
                         <td class="text-right">{{ $student->id }}</td>
                     </tr>
+                    @php
+                        $i++;
+                    @endphp
                 @endforeach
                 
                 <tr>

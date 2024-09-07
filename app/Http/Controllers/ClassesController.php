@@ -1541,9 +1541,16 @@ class ClassesController extends AppBaseController
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
                     
-                                        $payable->AmountPayable = $pyblAmount - $vmsAmount;
-                                        $payable->Balance = $pyblBalance - $vmsAmount;
-                                        $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                            $payable->AmountPayable = $pyblAmount - ($vmsAmount / 2);
+                                            $payable->Balance = $pyblBalance - ($vmsAmount / 2);
+                                            $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
+                                        } else {
+                                            $payable->AmountPayable = $pyblAmount - $vmsAmount;
+                                            $payable->Balance = $pyblBalance - $vmsAmount;
+                                            $payable->DiscountAmount = ($pyblDiscount + $vmsAmount);
+                                        }
+                                        
         
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)
@@ -1579,9 +1586,15 @@ class ClassesController extends AppBaseController
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
                     
-                                        $payable->AmountPayable = $pyblAmount - $vmsAmount;
-                                        $payable->Balance = $pyblBalance - $vmsAmount;
-                                        $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                            $payable->AmountPayable = $pyblAmount - ($vmsAmount / 2);
+                                            $payable->Balance = $pyblBalance - ($vmsAmount / 2);
+                                            $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
+                                        } else {
+                                            $payable->AmountPayable = $pyblAmount - $vmsAmount;
+                                            $payable->Balance = $pyblBalance - $vmsAmount;
+                                            $payable->DiscountAmount = ($pyblDiscount + $vmsAmount);
+                                        }
         
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)
@@ -1679,7 +1692,7 @@ class ClassesController extends AppBaseController
 
                                     $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
                                     $pyblOriginal = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
-                                    $dscntOriginal = $discount > 0 ? (($discount / 2) / $monthsToPay) : 0;
+                                    $dscntOriginal = $discount > 0 ? ($discount / $monthsToPay) : 0;
 
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
                                     $tuitionBreakdown->Payable = $pyblOriginal;
@@ -1766,9 +1779,16 @@ class ClassesController extends AppBaseController
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
                     
-                                        $payable->AmountPayable = $pyblAmount + $vmsAmount;
-                                        $payable->Balance = $pyblBalance + $vmsAmount;
-                                        $payable->DiscountAmount = ($pyblDiscount - $vmsAmount) / 2;
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                            $payable->AmountPayable = $pyblAmount + ($vmsAmount / 2);
+                                            $payable->Balance = $pyblBalance + ($vmsAmount / 2);
+                                            $payable->DiscountAmount = ($pyblDiscount - ($vmsAmount / 2));
+                                        } else {
+                                            $payable->AmountPayable = $pyblAmount + $vmsAmount;
+                                            $payable->Balance = $pyblBalance + $vmsAmount;
+                                            $payable->DiscountAmount = ($pyblDiscount - $vmsAmount);
+                                        }
+                                        
         
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)
@@ -1792,9 +1812,15 @@ class ClassesController extends AppBaseController
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
                     
-                                        $payable->AmountPayable = $pyblAmount + $vmsAmount;
-                                        $payable->Balance = $pyblBalance + $vmsAmount;
-                                        $payable->DiscountAmount = ($pyblDiscount - $vmsAmount) / 2;
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                            $payable->AmountPayable = $pyblAmount + ($vmsAmount / 2);
+                                            $payable->Balance = $pyblBalance + ($vmsAmount / 2);
+                                            $payable->DiscountAmount = ($pyblDiscount - ($vmsAmount / 2));
+                                        } else {
+                                            $payable->AmountPayable = $pyblAmount + $vmsAmount;
+                                            $payable->Balance = $pyblBalance + $vmsAmount;
+                                            $payable->DiscountAmount = ($pyblDiscount - $vmsAmount);
+                                        }
         
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)

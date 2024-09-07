@@ -57,7 +57,6 @@
             <span class="text-muted">Select Miscellaneous Payables</span>
             <div style="display: flex; gap: 10px;">
                 <select v-model="miscSelected" class="form-control" @change="addPayable">
-                    <option value="Add New">-- Add New --</option>
                     <option v-for="misc in miscPayables" :value="misc.id">{{ misc.Payable }}</option>
                 </select>
                 <button @click="addPayable()" class="btn btn-primary">Add</button>
