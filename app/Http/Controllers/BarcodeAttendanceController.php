@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\URL;
 use App\Models\BarcodeAttendance;
 use App\Models\IDGenerator;
 use App\Models\SmsMessages;
+use App\Models\Teachers;
 use App\Models\Students;
 use DateTime;
 use Flash;
@@ -62,34 +63,76 @@ class BarcodeAttendanceController extends AppBaseController
         $to = date('Y-m-d H:i:s');
         $from = date('Y-m-d H:i:s', strtotime($to . " -5 hours"));
 
-        $bCodeCheck = DB::table('BarcodeAttendance')
-            ->whereRaw("StudentId='" . $input['StudentId'] . "' AND created_at BETWEEN '" . $from . "' AND '" . $to . "'")
-            ->first();
+        if ($input['Type'] === 'Teacher') {
+            /**
+             * TEACHERS
+             */
+            $bCodeCheck = DB::table('BarcodeAttendance')
+                ->whereRaw("StudentId='" . $input['StudentId'] . "' AND BarcodeId='Teacher' AND created_at BETWEEN '" . $from . "' AND '" . $to . "'")
+                ->first();
 
-        if ($bCodeCheck != null) {
-            return response()->json('Student has already logged ' . $input['PunchType'], 400);
-        } else {
-            $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
+            if ($bCodeCheck != null) {
+                return response()->json('Teacher already logged ' . ($input['PunchType'] != null && $input['PunchType']==='IN' ? 'OUT' : 'IN'), 400);
+            } else {
+                $input['BarcodeId'] = $input['Type'];
 
-            // save sms for sending
-            if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
-                //get student
-                $student = Students::find($input['StudentId']);
+                $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
 
-                if ($student != null) {
-                    SmsMessages::create([
-                        'id' => IDGenerator::generateIDandRandString(),
-                        'ContactNumber' => $input['ContactNumber'],
-                        'Message' => env("APP_COMPANY") . " System Notification\n\n" .
-                            $student->FirstName . " " . $student->LastName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
-                        'AIFacilitator' => 'Reeve',
-                        'Source' => 'batch.ID',
-                        'Priority' => 1,
-                    ]);
+                // save sms for sending
+                if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
+                    //get student
+                    $teacher = Teachers::find($input['StudentId']);
+
+                    if ($teacher != null) {
+                        SmsMessages::create([
+                            'id' => IDGenerator::generateIDandRandString(),
+                            'ContactNumber' => $input['ContactNumber'],
+                            'Message' => env("APP_COMPANY") . " System Notification\n\n" .
+                                $teacher->FullName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
+                            'AIFacilitator' => 'Reeve',
+                            'Source' => 'batch.ID',
+                            'Priority' => 1,
+                        ]);
+                    }
                 }
-            }
 
-            return response()->json($barcodeAttendance, 200);
+                return response()->json($barcodeAttendance, 200);
+            }
+        } else {
+            /**
+             * STUDENTS
+             */
+            $bCodeCheck = DB::table('BarcodeAttendance')
+                ->whereRaw("StudentId='" . $input['StudentId'] . "' AND BarcodeId IS NULL AND created_at BETWEEN '" . $from . "' AND '" . $to . "'")
+                ->first();
+
+            if ($bCodeCheck != null) {
+                return response()->json('Student already logged ' . ($input['PunchType'] != null && $input['PunchType']==='IN' ? 'OUT' : 'IN'), 400);
+            } else {
+                $input['BarcodeId'] = null;
+
+                $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
+
+                // save sms for sending
+                if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
+                    //get student
+                    $student = Students::find($input['StudentId']);
+
+                    if ($student != null) {
+                        SmsMessages::create([
+                            'id' => IDGenerator::generateIDandRandString(),
+                            'ContactNumber' => $input['ContactNumber'],
+                            'Message' => env("APP_COMPANY") . " System Notification\n\n" .
+                                $student->FirstName . " " . $student->LastName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
+                            'AIFacilitator' => 'Reeve',
+                            'Source' => 'batch.ID',
+                            'Priority' => 1,
+                        ]);
+                    }
+                }
+
+                return response()->json($barcodeAttendance, 200);
+            }
         }
     }
 
@@ -170,13 +213,14 @@ class BarcodeAttendanceController extends AppBaseController
     public function punchStudent(Request $request) {
         date_default_timezone_set('Asia/Manila');
 
-        $id = $request['StudentId'];
+        $id = $request['StudentId']; // or LRN
         
+        // students
         $student = DB::table('Students')
             ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
             ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
             ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
-            ->whereRaw("Students.id='" . $id . "'")
+            ->whereRaw("(Students.id='" . $id . "' OR (LRN IS NOT NULL AND LEN(LRN) > 3 AND Students.LRN='" . $id . "'))")
             ->select('Students.*',
                 'Towns.Town AS TownSpelled',
                 'Barangays.Barangay AS BarangaySpelled',
@@ -185,15 +229,44 @@ class BarcodeAttendanceController extends AppBaseController
             )
             ->first();
 
-        $latestPunch = DB::table('BarcodeAttendance')
-            ->whereRaw("StudentId='" . $id . "'")
-            ->orderByDesc('created_at')
-            ->first();
+        if ($student != null) {
+            // insert if student is found
+            $latestPunch = DB::table('BarcodeAttendance')
+                ->whereRaw("StudentId='" . $id . "' AND BarcodeId IS NULL")
+                ->orderByDesc('created_at')
+                ->first();
 
-        $data = [
-            'StudentDetails' => $student,
-            'LatestPunch' => $latestPunch,
-        ];
+            $data = [
+                'StudentDetails' => $student,
+                'LatestPunch' => $latestPunch,
+                'Type' => 'Student'
+            ];
+        } else {
+            // check teachers
+            $teacher = Teachers::find($id);
+
+            if ($teacher != null) {
+                $latestPunch = DB::table('BarcodeAttendance')
+                    ->whereRaw("StudentId='" . $id . "' AND BarcodeId='Teacher'")
+                    ->orderByDesc('created_at')
+                    ->first();
+
+                $data = [
+                    'StudentDetails' => [
+                        'FirstName' => $teacher->FullName,
+                        'LastName' => null,
+                        'id' => $teacher->id,
+                        'LRN' => $teacher->id,
+                        'ContactNumber' => null,
+
+                    ],
+                    'LatestPunch' => $latestPunch,
+                    'Type' => 'Teacher'
+                ];
+            } else {
+                $data = [];
+            }
+        }
 
         return response()->json($data, 200);
     }

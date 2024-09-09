@@ -28,9 +28,9 @@
 
                                 <img @click="focusInput()" id="prof-img" style="width: 140px !important; height: 140px !important; object-fit: cover; text-align: center; line-height: 120px;" class="profile-user-img img-fluid img-circle" :src="imgPath + 'student-imgs/' + imgId" alt="No Picture">
 
-                                <p @click="focusInput()" class="no-pads" style="font-size: 2.15em;"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></p>
+                                <p @click="focusInput()" class="no-pads" style="font-size: 2.15em;"><strong>{{ isNull(studentData) ? '' : (isNull(studentData.LastName) ? '' : (studentData.LastName + ', ')) + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></p>
                                 <p @click="focusInput()" class="text-muted no-pads">
-                                    <i class="fas fa-id-badge ico-tab"></i>LRN-{{ studentData.LRN }} 
+                                    <i class="fas fa-id-badge ico-tab"></i>{{ isNull(studentData) ? '' : studentData.LRN }} 
                                 </p>
                                 <p @click="focusInput()" class="text-muted no-pads">
                                     <i class="fas fa-clock ico-tab"></i>{{ moment().format('dddd, MMMM DD, YYYY, hh:mm a') }} 
@@ -143,14 +143,19 @@ export default {
                 }
             })
             .then(response => {
-                this.studentData = response.data.StudentDetails
-                this.imgId = this.studentData.id + '.jpg'
-                if (this.studentData != null) {
-                    // save student data for sms sending
-                    this.saveAttendanceInfo(this.studentData, response.data.LatestPunch)
-                }
-                
                 this.idNumber = ''
+
+                this.studentData = response.data.StudentDetails
+                if (this.studentData != null) {
+                    this.imgId = this.studentData.id + '.jpg'
+                    // save student data for sms sending
+                    this.saveAttendanceInfo(this.studentData, response.data.LatestPunch, response.data.Type)
+                } else {
+                    this.toast.fire({
+                        icon : 'info',
+                        text : 'Barcode not found!'
+                    })
+                }
             })
             .catch(error => {
                 this.idNumber = ''
@@ -174,16 +179,18 @@ export default {
                 message.style.opacity = 0;
             }, 2500);
         },
-        saveAttendanceInfo(studentData, latestPunch) {
+        saveAttendanceInfo(studentData, latestPunch, type) {
+            var mark = this.isNull(latestPunch) ? 'IN' : (latestPunch.PunchType === 'IN' ? 'OUT' : 'IN')
             axios.post(`${ this.baseURL }/barcodeAttendances`, {
                 _token : this.token,
                 id : this.generateUniqueId(),
                 StudentId : studentData.id,
-                PunchType : this.isNull(latestPunch) ? 'IN' : (latestPunch.PunchType === 'IN' ? 'OUT' : 'IN'),
+                PunchType : mark,
                 ContactNumber : studentData.ContactNumber,
+                Type : type==='Student' ? null : type
             })
             .then(response => {
-                this.notifHead = `<i class="fas fa-check ico-tab"></i>Student Marked!`
+                this.notifHead = `<i class="fas fa-check ico-tab"></i>${ type } Marked ${ mark }!`
                 this.notifClass = 'text-success'
                 this.showStudentInfo()
 
@@ -195,7 +202,7 @@ export default {
                 console.log(error.response)
 
                 if (error.response.status === 400 | error.response.status === '400') {
-                    this.notifHead = `<i class="fas fa-exclamation-triangle ico-tab"></i>Student Already Marked!`
+                    this.notifHead = `<i class="fas fa-exclamation-triangle ico-tab"></i>${ error.response.data }!`
                     this.notifClass = 'text-danger'
                     this.showStudentInfo()
                 } else {
