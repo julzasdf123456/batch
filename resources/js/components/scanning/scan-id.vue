@@ -9,7 +9,7 @@
                 
                     <input ref="scanner" type="text" class="form-control form-control-lg mt-3" autofocus placeholder="QR/Barcode..." @keyup.enter="getStudentDetails" v-model="idNumber">
 
-                    <button class="btn btn-danger mt-3" @click="trigger()"><i class="fas fa-shield-alt ico-tab-mini"></i>Trigger</button>
+                    <!-- <button class="btn btn-danger mt-3" @click="trigger()"><i class="fas fa-shield-alt ico-tab-mini"></i>Trigger</button> -->
                 </div>
                 <div class="card-footer" @click="focusInput()">
                     <p class="text-muted text-right text-sm mt-4 mb-3" @click="focusInput()">batch.ID | All Rights Reserved @ Hashed.it</p>
