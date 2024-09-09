@@ -8,8 +8,8 @@
         src: url('/fonts/saxmono.ttf');
     }
     html, body {
-        font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
-        /* font-family: sans-serif; */
+        /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
+        font-family: sans-serif;
         /* font-stretch: condensed; */
         margin: 0;
         font-size: .85em;
@@ -17,8 +17,8 @@
 
     table tbody th,td,
     table thead th {
-        /* font-family: sans-serif; */
-        font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+        font-family: sans-serif;
+        /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
         /* font-stretch: condensed; */
         /* , Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
         font-size: .91em;
@@ -187,14 +187,31 @@
     @php
         $f = new \NumberFormatter("en", \NumberFormatter::SPELLOUT);
         $numToWords = $f->format($transaction->TotalAmountPaid);
+
+        $otherData = "";
+
+        if ($transactionDetails != null) {
+            $i = 0;
+            foreach ($transactionDetails as $item) {
+                if ($i == count($transactionDetails)-1) {
+                    $otherData .= $item->Particulars;
+                } else {
+                    $otherData .= $item->Particulars . ", ";
+                }
+
+                $i++;
+            }
+        }
     @endphp
 
     <div class="thirty">
         <div class="figure-data">
-            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 98px !important; padding-left: 140px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+            <span style='width: 98px !important; float: left !important; display: inline; font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 110px !important; padding-left: 40px !important;'>{{ $otherData }}</span>
+            
+            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 98px !important; padding-left: 150px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
 
             {{-- TOTAL --}}
-            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 88px !important; padding-left: 140px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+            <p style='font-size: 1.1em !important; font-family: sans-serif !important; font-stretch: condensed !important; padding-top: 88px !important; padding-left: 150px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
         </div>
     </div>
 
@@ -224,6 +241,6 @@
     window.print();
 
     window.setTimeout(function(){
-        window.history.go(-1)
+        window.location.href = "{{ route('transactions.other-payments') }}";
     }, 800);
 </script>
