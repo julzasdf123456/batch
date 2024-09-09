@@ -1725,7 +1725,7 @@ class TransactionsController extends AppBaseController
                 $transactionDetails = new TransactionDetails;
                 $transactionDetails->id = IDGenerator::generateIDandRandString();
                 $transactionDetails->TransactionsId = $id;
-                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+                $transactionDetails->Particulars = $item['Payable'] /* . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')' */;
                 $transactionDetails->Amount = $item['TotalAmount'];
                 $transactionDetails->save();
             }

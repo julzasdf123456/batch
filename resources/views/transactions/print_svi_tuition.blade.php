@@ -8,8 +8,8 @@
         src: url('/fonts/saxmono.ttf');
     }
     html, body {
-        font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
-        /* font-family: sans-serif; */
+        /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
+        font-family: sans-serif;
         /* font-stretch: condensed; */
         margin: 0;
         font-size: .85em;
@@ -17,8 +17,8 @@
 
     table tbody th,td,
     table thead th {
-        /* font-family: sans-serif; */
-        font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+        font-family: sans-serif;
+        /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
         /* font-stretch: condensed; */
         /* , Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
         font-size: .91em;
@@ -201,23 +201,23 @@
 
     <div class="seventy">
         <div class="or-data">
-            <p style='font-size: 1.2em !important; padding-top: 68px !important; padding-left: 80px !important;' class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 75px !important; padding-left: 85px !important;' class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
 
             {{-- NAME --}}
-            <p style='font-size: 1.2em !important; padding-top: 29px !important; padding-left: 118px !important; text-align: left !important;'>{{ strtoupper(Students::formatNameFormal($student)) }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 25px !important; padding-left: 120px !important; text-align: left !important;'>{{ strtoupper(Students::formatNameFormal($student)) }}</p>
 
             {{-- ADDRESS --}}
-            <p style='font-size: 1.2em !important; padding-top: 15px !important; padding-left: 130px !important; text-align: left !important;'>{{ ($student->BarangaySpelled != null ? ($student->BarangaySpelled . ', ') : '-') . ($student->TownSpelled != null ? ($student->TownSpelled) : '-') }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 10px !important; padding-left: 130px !important; text-align: left !important;'>{{ ($student->BarangaySpelled != null ? ($student->BarangaySpelled . ', ') : '-') . ($student->TownSpelled != null ? ($student->TownSpelled) : '-') }}</p>
             
             {{-- AMOUNT IN WORDS --}}
-            <p style='font-size: 1.2em !important; padding-top: 50px !important; padding-left: 50px !important; text-align: left !important;'>{{ $numToWords != null ? (strtoupper($numToWords)) : '-' }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 50px !important; padding-left: 52px !important; text-align: left !important;'>{{ $numToWords != null ? (strtoupper($numToWords)) : '-' }}</p>
             
             {{-- AMOUNT --}}
-            <p style='font-size: 1.2em !important; padding-top: 20px !important; padding-left: 66px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+            <p style='font-size: 1.2em !important; padding-top: 15px !important; padding-left: 66px !important; text-align: left !important;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
 
             
             {{-- CASHIER --}}
-            <p style='font-size: 1em !important; padding-top: 20px !important; padding-left: 182px !important; text-align: left !important; font-family: sans-serif !important; font-stretch: condensed !important;'>{{ strtoupper(env('CASHIER_NAME')) }}</p>
+            <p style='font-size: 1em !important; padding-top: 20px !important; padding-left: 195px !important; text-align: left !important; font-family: sans-serif !important; font-stretch: condensed !important;'>{{ strtoupper(env('CASHIER_NAME')) }}</p>
         </div>
     </div>
 </div>
