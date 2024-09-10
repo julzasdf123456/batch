@@ -817,6 +817,7 @@ class TransactionsController extends AppBaseController
         $orNumber = $request['ORNumber'];
         $details = $request['Details'];
         $transactionDetails = $request['TransactionDetails'];
+        $payableId = $request['PayableId'];
         $orDate = $request['ORDate'];
 
         // determine mode of payment
@@ -847,7 +848,6 @@ class TransactionsController extends AppBaseController
         $transactions->UserId = Auth::id();
         $transactions->TransactionType = 'Miscellaneous';
         $transactions->MiscellaneousAmount = $totalPayments;
-        $transactions->save();
 
         // insert transaction details
         $concat = "";
@@ -855,12 +855,66 @@ class TransactionsController extends AppBaseController
             $transactionDetails = new TransactionDetails;
             $transactionDetails->id = IDGenerator::generateIDandRandString();
             $transactionDetails->TransactionsId = $id;
-            $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+            if (str_contains($item['Payable'], 'Tuition Fee')) {
+                $transactionDetails->Particulars = $item['Payable'];
+                $transactionDetails->FlushedToTuition = 'Yes';
+            } else {
+                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+            }
             $transactionDetails->Amount = $item['TotalAmount'];
             $transactionDetails->save();
 
             $concat .= "- " . $item['Payable'] . " (" . $item["Quantity"] . " x P" . $item["Price"] .")\n";
+
+            // insert to tuition if there is a tuition
+            if (str_contains($item['Payable'], 'Tuition Fee')) {
+                // continue saving transactions
+                $transactions->TuitionAmount = $item['TotalAmount'];
+                $transactions->PayablesId = $payableId;
+
+                /**
+                 * TRANSACT PAYABLES
+                 */
+                $amountForTuition = $item['TotalAmount'];
+                $payable = Payables::find($payableId);
+                if ($payable != null) {
+                    $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+                    $newAmntPaid = $payableAmntPaid + floatval($amountForTuition);
+                    
+                    $payableBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                    $balance = $payableBalance - floatval($amountForTuition);
+
+                    $payable->AmountPaid = $newAmntPaid;
+                    $payable->Balance = $balance;
+                    $payable->save();
+
+                    // update tuitions breakdown
+                    $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
+                    $payment = floatval($amountForTuition);
+                    foreach($tBreakdown as $item) {
+                        $currentPayable = floatval($item->Balance);
+                        if ($payment > 0) {
+                            if ($payment >= $currentPayable) {
+                                $item->Balance = 0;
+                                $item->AmountPaid = $item->AmountPayable;
+                                
+                                $payment = $payment - $currentPayable;
+                            } else {
+                                $item->Balance = $currentPayable - $payment;
+                                $item->AmountPaid = floatval($item->AmountPaid) + $payment;
+
+                                $payment = 0;
+                            }
+
+                            $item->TransactionId = $id;
+                            $item->save();
+                        }
+                    }
+                }
+            }
         }
+
+        $transactions->save();
 
         // send sms
         $student = Students::find($studentId);
@@ -1483,6 +1537,10 @@ class TransactionsController extends AppBaseController
             $payable = Payables::find($inc->PayableId);
 
             if ($payable != null) {
+                $student = Students::find($payable->StudentId);
+                $class = Classes::find($student != null && $student->CurrentGradeLevel != null ? $student->CurrentGradeLevel : '');
+                $paidAmount = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+
                 $incAmount = $inc->Amount != null ? floatval($inc->Amount) : 0;
 
                 // update payable
@@ -1495,19 +1553,101 @@ class TransactionsController extends AppBaseController
                 $payable->Balance = $payableBalance - $incAmount;
                 $payable->save();
 
-                // update payable tuitions breakdown
-                if ($inc->NotDeductedMonthly != "Yes") {
-                    $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
-                    if ($tuitionsBreakdown != null) {
-                        $count = count($tuitionsBreakdown);
+                if ($class != null) {
+                    $sy = SchoolYear::find($class->SchoolYearId);
+                    // update payable tuitions breakdown
+                    TuitionsBreakdown::where('PayableId', $payable->id)
+                    ->delete();
 
-                        if ($count > 0) {
-                            $amountDistributable = round(($incAmount / $count), 2);
-                        
-                            foreach($tuitionsBreakdown as $item) {
-                                $item->AmountPayable = floatval($item->AmountPayable) - $amountDistributable;
-                                $item->Balance = $item->AmountPayable;
+                    // recreate tuitions breakdown
+                    $discount = floatval($payable->DiscountAmount);
+                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
+                        $monthsToPay = 5;
+
+                        for ($i=0; $i<$monthsToPay; $i++) {
+                            $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                            $tuitionBreakdown = new TuitionsBreakdown;
+                            $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                            
+                            if ($class->Semester != null && $class->Semester == '2nd') {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
+                            } else {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                            }
+                            
+                            $tuitionBreakdown->PayableId = $payable->id;
+
+                            $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                            $pyblOriginal = $payable->Payable > 0 ? ($payable->Payable / $monthsToPay) : 0;
+                            $dscntOriginal = $discount > 0 ? (($discount / 2) / $monthsToPay) : 0;
+
+                            $tuitionBreakdown->AmountPayable = $amntPayable;
+                            $tuitionBreakdown->Payable = $pyblOriginal;
+                            $tuitionBreakdown->Balance = $amntPayable;
+                            $tuitionBreakdown->Discount = $dscntOriginal;
+                            $tuitionBreakdown->save();
+                        }
+                    } else {
+                        $monthsToPay = 10;
+
+                        for ($i=0; $i<$monthsToPay; $i++) {
+                            $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                            $tuitionBreakdown = new TuitionsBreakdown;
+                            $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                            $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                            $tuitionBreakdown->PayableId = $payable->id;
+
+                            $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
+                            $dscntOriginal = $discount > 0 ? ($discount / $monthsToPay) : 0;
+
+                            $tuitionBreakdown->AmountPayable = $amntPayable;
+                            $tuitionBreakdown->Payable = $amntPayable;
+                            $tuitionBreakdown->Balance = $amntPayable;
+                            $tuitionBreakdown->Discount = $dscntOriginal;
+                            $tuitionBreakdown->save();
+                        }
+                    }
+
+                    // update tutions breakdown payments
+                    if ($paidAmount > 0) {
+                        // update tuitions breakdown
+                        $tBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
+                        $payment = $paidAmount;
+                        foreach($tBreakdown as $item) {
+                            $currentPayable = floatval($item->Balance);
+                            if ($payment > 0) {
+                                if ($payment >= $currentPayable) {
+                                    $item->Balance = 0;
+                                    $item->AmountPaid = $item->AmountPayable;
+                                    
+                                    $payment = $payment - $currentPayable;
+                                } else {
+                                    $item->Balance = $currentPayable - $payment;
+                                    $item->AmountPaid = floatval($item->AmountPaid) + $payment;
+
+                                    $payment = 0;
+                                }
+
                                 $item->save();
+                            }
+                        }
+                    }
+                } else {
+                    // update payable tuitions breakdown
+                    if ($inc->NotDeductedMonthly != "Yes") {
+                        $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
+                        if ($tuitionsBreakdown != null) {
+                            $count = count($tuitionsBreakdown);
+
+                            if ($count > 0) {
+                                $amountDistributable = round(($incAmount / $count), 2);
+                            
+                                foreach($tuitionsBreakdown as $item) {
+                                    $item->AmountPayable = floatval($item->AmountPayable) - $amountDistributable;
+                                    $item->Balance = $item->AmountPayable;
+                                    $item->save();
+                                }
                             }
                         }
                     }
@@ -1763,5 +1903,16 @@ class TransactionsController extends AppBaseController
             ->get();
             
         return response()->json($data, 200);
+    }
+
+    public function getLatestTuitionFee(Request $request) {
+        $studentId = $request['StudentId'];
+
+        $tuitionPayables = Payables::where('StudentId', $studentId)
+            ->where('Category', 'Tuition Fees')
+            ->orderByDesc('created_at')
+            ->first();
+
+        return response()->json($tuitionPayables, 200);
     }
 }
