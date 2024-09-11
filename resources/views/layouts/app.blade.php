@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{{ URL::asset('css/all.css'); }} ">
 
     <link rel="stylesheet" href="{{ URL::asset('css/bootstrap4toggle.css'); }} ">
-          
+
     <link rel="stylesheet" href="{{ URL::asset('css/adminlte.min.css'); }} ">
 
     <link rel="stylesheet" href="{{ URL::asset('css/bootstrapdatetimepicker.min.css'); }} ">

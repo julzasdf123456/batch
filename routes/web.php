@@ -214,4 +214,7 @@ Route::get('/error_messages/error-with-back/{title}/{msg}/{errorCode}', [CatchCo
 Route::get('/sms_messages/sms-notifiers', [SmsMessagesController::class, 'smsNotifiers'])->name('smsMessages.sms-notifiers');
 Route::get('/sms_messages/get-grades', [SmsMessagesController::class, 'getGrades'])->name('smsMessages.get-grades');
 Route::post('/sms_messages/send-sms', [SmsMessagesController::class, 'sendSMS'])->name('smsMessages.send-sms');
+Route::get('/sms_messages/history', [SmsMessagesController::class, 'history'])->name('smsMessages.history');
+Route::get('/sms_messages/get-batch-sms-history', [SmsMessagesController::class, 'getBatchSmsHistory'])->name('smsMessages.get-batch-sms-history');
+Route::get('/sms_messages/get-active-batch-sms', [SmsMessagesController::class, 'getActiveBatchSms'])->name('smsMessages.get-active-batch-sms');
 Route::resource('smsMessages', SmsMessagesController::class);

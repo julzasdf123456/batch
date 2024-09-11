@@ -178,4 +178,40 @@ class SmsMessagesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function history(Request $request) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'create notifiers'])) {
+            return view('/sms_messages/history');
+        } else {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
+    }
+
+    public function getBatchSmsHistory(Request $request) {
+        $data = DB::table('SMSMessages')
+            ->whereRaw("Priority > 1 AND SmsSent IS NOT NULL")
+            ->select('Message', 
+                DB::raw("COUNT(id) AS TotalRecipients")
+            )
+            ->groupBy('Message')
+            ->having(DB::raw("COUNT(id)"), '>', 1)
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
+    public function getActiveBatchSms(Request $request) {
+        $data = DB::table('SMSMessages')
+            ->whereRaw("Priority > 1 AND SmsSent IS NULL")
+            ->select(
+                'Message', 
+                DB::raw("(SELECT COUNT(s.id) FROM SMSMessages s WHERE s.Message=SMSMessages.Message) AS TotalRecipients"),
+                DB::raw("(SELECT COUNT(s.id) FROM SMSMessages s WHERE s.Message=SMSMessages.Message AND s.SmsSent IS NOT NULL) AS TotalSent")
+            )
+            ->groupBy('Message')
+            ->having(DB::raw("COUNT(id)"), '>', 1)
+            ->get();
+
+        return response()->json($data, 200);
+    }
 }

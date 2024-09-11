@@ -56,11 +56,31 @@
 
 {{-- SMS Notifiers --}}
 <li class="nav-item">
-    <a href="{{ route('smsMessages.sms-notifiers') }}" class="nav-link {{ Request::is('smsMessages.sms-notifiers*') ? 'active' : '' }}">
+    <a href="#" class="nav-link">
         <i class="nav-icon fas fa-sms"></i>
-        <p>SMS Notifiers</p>
+        <p>
+            SMS Notifiers
+            <i class="right fas fa-caret-left"></i>
+        </p>
     </a>
+    <ul class="nav nav-treeview">
+
+        <li class="nav-item">
+            <a href="{{ route('smsMessages.sms-notifiers') }}" class="nav-link {{ Request::is('smsMessages.sms-notifiers*') ? 'active' : '' }}">
+                <i class="nav-icon far fa-comments"></i>
+                <p>Compose</p>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a href="{{ route('smsMessages.history') }}" class="nav-link {{ Request::is('smsMessages.history*') ? 'active' : '' }}">
+                <i class="nav-icon fas fa-comments"></i>
+                <p>History</p>
+            </a>
+        </li>
+    </ul>
 </li>
+
 
 {{-- ENROLLMENT SIDE --}}
 <li class="nav-item">
