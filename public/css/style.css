@@ -79,6 +79,21 @@ body.dark-mode .divider {
     margin-left: 10px;
 }
 
+.ellipsize-min {
+    width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ellipsize-max {
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* Number of lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .ellipsize {
     width: 290px;
     white-space: nowrap;

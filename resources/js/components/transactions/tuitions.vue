@@ -84,9 +84,9 @@
                 <div class="card-body table-responsive px-0">
                     <table class="table table-hover table-sm">
                         <tbody>
-                           <tr v-for="subject in subjects" :key="subject.id">
+                            <tr v-for="subject in subjects" :key="subject.id">
                                 <td class="v-align">{{ subject.Subject }}</td>
-                           </tr>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -122,7 +122,7 @@
             </div>
 
             <!-- MISCELLANEOUS ADDITIONALS -->
-            <div class="card shadow-none">
+            <div class="card shadow-none gone">
                 <div class="card-header border-0">
                     <p class="text-muted no-pads">Add Miscellaneous Payables</p>
                     <div style="display: flex; gap: 10px;">
@@ -335,20 +335,20 @@
                     <div class="form-group">
                         <label for="ItemPublic">Item to Include</label>
                         <input type="text" class="form-control" name="ItemPublic" id="ItemPublic" v-model="additionalPayableItem" style="width: 100%;" required placeholder="Tuition Fee, Books, Uniform, etc...">
-                     </div>
-      
-                     <div class="form-group">
+                    </div>
+
+                    <div class="form-group">
                         <label for="AmountPublic">Amount</label>
                         <input type="number" step="any" class="form-control" name="AmountPublic" v-model="additionalPayableAmount" id="AmountPublic" style="width: 100%;" required placeholder="0.0">
                     </div>
                     
-                    <!-- <div class="custom-control custom-switch mt-2">
+                    <div class="custom-control custom-switch mt-2">
                         <input type="checkbox" class="custom-control-input" id="distribute" v-model="additionalDistribute">
                         <label style="font-weight: normal;" class="custom-control-label" for="distribute" id="distributeLabel">Distribute Monthly</label>
                         <br>
                         <span class="text-muted text-sm">Turning this ON will split the amount for the next months, otherwise it will only be added in the current payable.</span>
-                    </div>     -->
-                    <span class="text-muted text-sm"><strong>NOTE that all items added using this will be deducted monthly automatically. If you wish to add a one-time payment miscellaneous, add it in the `Add Miscellaneous Payables` card instead.</strong></span>
+                    </div>    
+                    <!-- <span class="text-muted text-sm"><strong>NOTE that all items added using this will be deducted monthly automatically. If you wish to add a one-time payment miscellaneous, add it in the `Add Miscellaneous Payables` card instead.</strong></span> -->
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-sm btn-primary" @click="saveTuitionInclusion()"><i class="fas fa-check ico-tab-mini"></i>Proceed Add</button>
@@ -774,7 +774,7 @@ export default {
                 this.validateMinPayable()
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error getting payable inclusions!'
@@ -1024,7 +1024,7 @@ export default {
                     ItemName : this.additionalPayableItem,
                     Amount : this.additionalPayableAmount,
                     PayableId : this.activePayable.id,
-                    NotDeductedMonthly : null,
+                    NotDeductedMonthly : this.additionalDistribute ? null : 'Yes',
                 })
                 .then(response => {
                     this.toast.fire({
