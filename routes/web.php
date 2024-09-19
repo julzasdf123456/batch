@@ -109,6 +109,7 @@ Route::post('/classes/mark-from-school-multiple', [ClassesController::class, 'ma
 Route::get('/classes/get-miscellaneous-to-tuitions-data', [ClassesController::class, 'getMiscellaneousToTuitionsData'])->name('classes.get-miscellaneous-to-tuitions-data');
 Route::post('/classes/flush-misc-to-tuitions', [ClassesController::class, 'flushMiscToTuitions'])->name('classes.flush-misc-to-tuitions');
 Route::post('/classes/flush-misc-enrollment-to-tuitions', [ClassesController::class, 'flushMiscEnrollmentToTuitions'])->name('classes.flush-misc-enrollment-to-tuitions');
+Route::get('/classes/print-class-payments/{syId}/{classId}/{teacherId}', [ClassesController::class, 'printClassPayments'])->name('classes.print-class-payments');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

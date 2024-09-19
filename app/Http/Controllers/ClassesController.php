@@ -2190,4 +2190,12 @@ class ClassesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function printClassPayments($syId, $classId, $teacherId) {
+        return view('/classes/print_class_payments', [
+            'schoolYearId' => $syId,
+            'classId' => $classId,
+            'teacherId' => $teacherId,
+        ]);
+    }
 }

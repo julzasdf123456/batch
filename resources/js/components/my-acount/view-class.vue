@@ -144,9 +144,9 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
+                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.StudentId)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
+                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
                                             </tr>
                                             <tr>
                                                 <td :colspan="(4 + (paymentMonths.length))" class="text-muted">Female Students</td>
@@ -160,9 +160,9 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
+                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
                                                 <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.StudentId)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
+                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -433,7 +433,7 @@ export default {
                 this.payablesProfile = response.data.PayableProfile
 
                 // add payables profile to male and female array
-                console.log(this.payablesProfile)
+                console.log(response.data)
                 if (!this.isNull(this.male)) {
                     for(let i=0; i<this.male.length; i++) {
                         let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.male[i].StudentId)

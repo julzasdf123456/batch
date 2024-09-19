@@ -35,6 +35,19 @@
         <div class="col-lg-12 mt-3">
             <div class="card shadow-none">
                 <div class="card-body">
+                    <div class="dropdown">
+                        <a class="btn btn-link-muted btn-xs dropdown-toggle float-right" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
+                            More
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <a :href="baseURL + '/students/print-students/' + classId" class="dropdown-item"  title="Print Students"><i class="fas fa-print ico-tab-mini"></i>Print Students</a>
+
+                            <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="dropdown-item" title="Print Payment Details"><i class="fas fa-print ico-tab-mini"></i> Print Payment Details</a>
+
+                            <button class="dropdown-item" @click="downloadSF2()"><i class="fas fa-file-excel ico-tab-mini"></i>Download SF2</button>
+                        </div>
+                    </div>
                     <div>
                         <!-- TAB HEADS -->
                         <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
@@ -336,6 +349,9 @@
                                 ====================================================================================================================================
                             -->
                             <div class="tab-pane fade" id="payments-content" role="tabpanel" aria-labelledby="payments-tab">
+                                <div class="mt-2">
+                                    <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
+                                </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
