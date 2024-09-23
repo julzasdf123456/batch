@@ -20,9 +20,9 @@
                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                 </td>
-                <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
-                <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.StudentId)"></td>
-                <td class="text-right v-align text-danger"><strong>{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</strong></td>
+                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
+                <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
+                <td class="text-right v-align text-danger"><strong>{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</strong></td>
             </tr>
             <tr>
                 <td :colspan="(4 + (paymentMonths.length))" class="text-muted text-center">Female Students</td>
@@ -33,9 +33,9 @@
                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                 </td>
-                <td class="text-right v-align text-primary">{{ isNull(student.PayableData.AmountPayable) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
-                <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.StudentId)"></td>
-                <td class="text-right v-align text-danger"><strong>{{ isNull(student.PayableData.Balance) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</strong></td>
+                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.AmountPayable)) }}</td>
+                <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
+                <td class="text-right v-align text-danger"><strong>{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</strong></td>
             </tr>
         </tbody>
     </table>
@@ -68,7 +68,6 @@ export default {
             classId : document.querySelector("meta[name='class-id']").getAttribute('content'),
             teacherId : document.querySelector("meta[name='teacher-id']").getAttribute('content'),
             syId : document.querySelector("meta[name='school-year-id']").getAttribute('content'),
-            subjectId : document.querySelector("meta[name='subject-id']").getAttribute('content'),
             classDetails : {},
             syDetails : {},
             male : {},
@@ -111,21 +110,20 @@ export default {
             return moment().valueOf() + "-" + this.generateRandomString(32);
         },
         async fetchAllData() {
-            const classRequest = axios.get(`${ this.baseURL }/teachers/get-class-details`, {
+            const classRequest = axios.get(`${ this.baseURL }/users/get-advisory-details`, {
                     params : {
-                        ClassId : this.classId,
                         TeacherId : this.teacherId,
-                        SubjectId : this.subjectId,
                         SchoolYearId : this.syId,
+                        ClassId : this.classId
                     }
                 })
 
             const [response1] = await Promise.all([classRequest])
 
             this.classDetails = response1.data.Class
-            this.male = response1.data.MaleStudents
-            this.female = response1.data.FemaleStudents
             this.syDetails = response1.data.SchoolYear
+            this.male = response1.data.Male
+            this.female = response1.data.Female
 
             if (!this.isNull(this.male)) {
                 this.visibilityToggle = this.isNull(this.male[0].Visibility) ? false : true
@@ -152,7 +150,7 @@ export default {
             console.log(this.payablesProfile)
             if (!this.isNull(this.male)) {
                 for(let i=0; i<this.male.length; i++) {
-                    let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.male[i].StudentId)
+                    let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.male[i].id)
 
                     if (!this.isNull(dataFound)) {
                         this.male[i].PayableData = dataFound
@@ -164,7 +162,7 @@ export default {
 
             if (!this.isNull(this.female)) {
                 for(let i=0; i<this.female.length; i++) {
-                    let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.female[i].StudentId)
+                    let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.female[i].id)
 
                     if (!this.isNull(dataFound)) {
                         this.female[i].PayableData = dataFound
@@ -184,11 +182,11 @@ export default {
 
                 if (bal > 0) {
                     if (this.isNull(dataFound.AmountPaid)) {
-                        //  `<span class="text-sm" title='Unpaid'><i class="fas fa-exclamation-circle text-gray ico-tab-mini"></i> Unpaid</span><br>` +
-                        return `<span class='text-sm text-muted'>Bal: ` + bal + `</span>`
+                         /*`<span class="text-sm" title='Unpaid'><i class="fas fa-exclamation-circle text-gray ico-tab-mini"></i> Unpaid</span><br>` + */
+                        return        `<span class='text-sm text-muted'>Bal: ` + bal + `</span>`
                     } else {
-                        // `<strong class='text-success'>Partial</strong><br>` +
-                        return `<span class='text-sm text-muted'>Bal: ` + bal + `</span>`
+                         /* `<strong class='text-success'>Partial</strong><br>` + */
+                        return    `<span class='text-sm text-muted'>Bal: ` + bal + `</span>`
                     }
                 } else {
                     return `<strong class='text-success'>✔</strong>`

@@ -917,7 +917,14 @@ class TransactionsController extends AppBaseController
         $transactions->save();
 
         // send sms
-        $student = Students::find($studentId);
+        $student = DB::table('Students')
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("Students.id='" . $studentId . "'")
+            ->select('Students.*',
+                'Towns.Town as TownSpelled',
+                'Barangays.Barangay as BarangaySpelled')
+            ->first();
         if ($student != null) {
             SmsMessages::createSmsWithStudentProvided($student, 
                 env("APP_COMPANY") . " System Notification\n\MISCELLANEOUS FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ", with the following items: \n\n" . 
@@ -933,8 +940,8 @@ class TransactionsController extends AppBaseController
 
         if ($transaction != null) {
             $student = DB::table('Students')
-                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
-                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->whereRaw("Students.id='" . $transaction->StudentId . "'")
                 ->select('Students.*',
                     'Towns.Town as TownSpelled',

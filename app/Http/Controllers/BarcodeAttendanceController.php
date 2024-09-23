@@ -336,6 +336,8 @@ class BarcodeAttendanceController extends AppBaseController
             ->whereRaw("Classes.id='" . $classId . "'")
             ->first();
 
+        $adviser = Teachers::find($class->Adviser);
+
         //get attendance data
         $attendanceData = DB::table('BarcodeAttendance')
             ->whereRaw("StudentId IN (SELECT s.id FROM StudentClasses sc LEFT JOIN Students s ON s.id=sc.StudentId WHERE sc.ClassId='" . $classId . "')")
@@ -421,19 +423,19 @@ class BarcodeAttendanceController extends AppBaseController
         
         // attendance headers
         $totalMonthDays = date('d', strtotime('last day of ' . $monthSpelled));
-        $startOfDay = date('N', strtotime('first day of ' . $monthSpelled));
+        $startOfDay = date('w', strtotime('first day of ' . $monthSpelled));
 
         $startOfDay = intval($startOfDay);
-        $totalMonthDays = intval($totalMonthDays);
+        $totalMonthDays = (intval($totalMonthDays));
 
         $headerDates = BarcodeAttendance::sf2JuniorDateHeaderColumnArray();
-        $headerIndices = ($startOfDay - 1);
-        for ($i=0; $i<$totalMonthDays; $i++) {
+        $headerIndices = ($startOfDay);
+        for ($i=0; $i<=$totalMonthDays; $i++) {
             // skip if sunday
-            if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+            if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
 
             } else {
-                $worksheet->setCellValue($headerDates[$headerIndices], ($i + 1));
+                $worksheet->setCellValue($headerDates[$headerIndices], ($i));
                 $headerIndices += 1;
             }
         }
@@ -453,26 +455,26 @@ class BarcodeAttendanceController extends AppBaseController
             // filter attendance data
             if ($attendanceData != null) {
                 $headerDates = BarcodeAttendance::sf2JuniorDateHeaderColumnArrayNoRowNum();
-                $headerIndices = ($startOfDay - 1);
+                $headerIndices = ($startOfDay);
 
                 $totalPresent = 0;
                 $totalAbsent = 0;
                 $totalDays = 0;
-                for ($i=0; $i<$totalMonthDays; $i++) {
+                for ($i=0; $i<=$totalMonthDays; $i++) {
                     // skip if sunday
-                    if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+                    if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
         
                     } else {
-                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i+1)));
+                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i)));
                         $attData = BarcodeAttendance::getAttendanceProfileFromStudentAndDate($attendanceData, $item->id, $currentDate);
 
                         if ($attData != null && count($attData) > 0) {
                             // return 0.5 or 1 if there is attendance
                             // validate morning in first
-                            $morningInThreshold = new DateTime($currentDate . ' ' . $morningThresholdTime);
+                            $morningInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $morningThresholdTime));
                             $morningData = null;
                             foreach($attData as $itemAtt) {
-                                $morningIn = new DateTime($itemAtt->created_at);
+                                $morningIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($morningIn <= $morningInThreshold) {
                                     if ($morningData == null) {
@@ -482,10 +484,10 @@ class BarcodeAttendanceController extends AppBaseController
                             }
                             
                             // validate afternoon out
-                            $afternoonInThreshold = new DateTime($currentDate . ' ' . $afternoonThresholdTime);
+                            $afternoonInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $afternoonThresholdTime));
                             $afternoonData = null;
                             foreach($attData as $itemAtt) {
-                                $afternoonIn = new DateTime($itemAtt->created_at);
+                                $afternoonIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($afternoonIn >= $afternoonInThreshold) {
                                     if ($afternoonData == null) {
@@ -507,13 +509,17 @@ class BarcodeAttendanceController extends AppBaseController
                             $totalPresent += $attSum;
 
                             if ($attSum == 1) {
-
-                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } elseif ($attSum == .5) {
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
-                            }
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
 
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
+                            }
                         } else {
                             //return 0 if no attendance
                             // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
@@ -539,14 +545,14 @@ class BarcodeAttendanceController extends AppBaseController
 
         // male total
         $headerDates = BarcodeAttendance::sf2JuniorDateHeaderColumnArrayNoRowNum();
-        $headerIndices = ($startOfDay - 1);
+        $headerIndices = ($startOfDay);
 
         $totalPresent = 0;
         $totalAbsent = 0;
         $totalDays = 0;
-        for ($i=0; $i<$totalMonthDays; $i++) {
+        for ($i=0; $i<=$totalMonthDays; $i++) {
             // skip if sunday
-            if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+            if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
 
             } else {
                 $worksheet->setCellValue($headerDates[$headerIndices] . '38', '=SUM(' . $headerDates[$headerIndices] . '8:' . $headerDates[$headerIndices] . '37)');
@@ -567,26 +573,26 @@ class BarcodeAttendanceController extends AppBaseController
             // filter attendance data
             if ($attendanceData != null) {
                 $headerDates = BarcodeAttendance::sf2JuniorDateHeaderColumnArrayNoRowNum();
-                $headerIndices = ($startOfDay - 1);
+                $headerIndices = ($startOfDay);
 
                 $totalPresent = 0;
                 $totalAbsent = 0;
                 $totalDays = 0;
-                for ($i=0; $i<$totalMonthDays; $i++) {
+                for ($i=0; $i<=$totalMonthDays; $i++) {
                     // skip if sunday
-                    if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+                    if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
         
                     } else {
-                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i+1)));
+                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i)));
                         $attData = BarcodeAttendance::getAttendanceProfileFromStudentAndDate($attendanceData, $item->id, $currentDate);
 
                         if ($attData != null && count($attData) > 0) {
                             // return 0.5 or 1 if there is attendance
                             // validate morning in first
-                            $morningInThreshold = new DateTime($currentDate . ' ' . $morningThresholdTime);
+                            $morningInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $morningThresholdTime));
                             $morningData = null;
                             foreach($attData as $itemAtt) {
-                                $morningIn = new DateTime($itemAtt->created_at);
+                                $morningIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($morningIn <= $morningInThreshold) {
                                     if ($morningData == null) {
@@ -596,10 +602,10 @@ class BarcodeAttendanceController extends AppBaseController
                             }
                             
                             // validate afternoon out
-                            $afternoonInThreshold = new DateTime($currentDate . ' ' . $afternoonThresholdTime);
+                            $afternoonInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $afternoonThresholdTime));
                             $afternoonData = null;
                             foreach($attData as $itemAtt) {
-                                $afternoonIn = new DateTime($itemAtt->created_at);
+                                $afternoonIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($afternoonIn >= $afternoonInThreshold) {
                                     if ($afternoonData == null) {
@@ -621,13 +627,17 @@ class BarcodeAttendanceController extends AppBaseController
                             $totalPresent += $attSum;
 
                             if ($attSum == 1) {
-
-                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } elseif ($attSum == .5) {
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
-                            }
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
 
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
+                            }
                         } else {
                             //return 0 if no attendance
                             // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
@@ -653,25 +663,31 @@ class BarcodeAttendanceController extends AppBaseController
 
         // female and combined total
         $headerDates = BarcodeAttendance::sf2JuniorDateHeaderColumnArrayNoRowNum();
-        $headerIndices = ($startOfDay - 1);
+        $headerIndices = ($startOfDay);
 
         $totalPresent = 0;
         $totalAbsent = 0;
         $totalDays = 0;
-        for ($i=0; $i<$totalMonthDays; $i++) {
+        for ($i=0; $i<=$totalMonthDays; $i++) {
             // skip if sunday
-            if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+            if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
 
             } else {
                 // female total
-                $worksheet->setCellValue($headerDates[$headerIndices] . '67', '=SUM(' . $headerDates[$headerIndices] . '39:' . $headerDates[$headerIndices] . '66)');
+                $worksheet->setCellValue($headerDates[$headerIndices] . '69', '=SUM(' . $headerDates[$headerIndices] . '39:' . $headerDates[$headerIndices] . '68)');
 
                 // combined total
-                $worksheet->setCellValue($headerDates[$headerIndices] . '68', '=SUM(' . $headerDates[$headerIndices] . '67,' . $headerDates[$headerIndices] . '38)');
+                $worksheet->setCellValue($headerDates[$headerIndices] . '70', '=SUM(' . $headerDates[$headerIndices] . '69,' . $headerDates[$headerIndices] . '38)');
 
                 $headerIndices += 1;
             }
         }
+
+        // headers footers 
+        $worksheet->setCellValue('F4', env('APP_COMPANY'));
+        $worksheet->setCellValue('F3', env('SCHOOL_CODE'));
+        $worksheet->setCellValue('AS102', env('PRINCIPAL_NAME'));
+        $worksheet->setCellValue('AS96', $adviser != null ? $adviser->FullName : '');
 
         // Save the modified file
         $writer = new Xlsx($spreadsheet);
@@ -680,6 +696,9 @@ class BarcodeAttendanceController extends AppBaseController
         return response()->download(public_path('generated/sf2/SF2_Junior.xls'));
     }
 
+    /**
+     * DOWNLOAD SF2 SENIOR
+     */
     public function downloadSF2Senior($classId, $month, $year) {
         // get class data
         $class = DB::table('Classes')
@@ -690,6 +709,8 @@ class BarcodeAttendanceController extends AppBaseController
             )
             ->whereRaw("Classes.id='" . $classId . "'")
             ->first();
+
+        $adviser = Teachers::find($class->Adviser);
 
         //get attendance data
         $attendanceData = DB::table('BarcodeAttendance')
@@ -772,24 +793,25 @@ class BarcodeAttendanceController extends AppBaseController
         $worksheet->setCellValue('AQ8', $class != null ? ($class->Year != null ? $class->Year : '-') : '-');
         $worksheet->setCellValue('I12', $class != null ? ($class->Section != null ? $class->Section : '-') : '-');
         $worksheet->setCellValue('BG7', $class != null ? ($class->Strand != null ? $class->Strand : '-') : '-');
+        $worksheet->setCellValue('I7', $class != null ? ($class->Semester != null ? $class->Semester : '-') : '-');
         
         $worksheet->setCellValue('BS11', date('F', strtotime($year . '-' . $month . '-01')));
 
         // attendance headers
         $totalMonthDays = date('d', strtotime('last day of ' . $monthSpelled));
-        $startOfDay = date('N', strtotime('first day of ' . $monthSpelled));
+        $startOfDay = date('w', strtotime('first day of ' . $monthSpelled));
 
         $startOfDay = intval($startOfDay);
-        $totalMonthDays = intval($totalMonthDays);
+        $totalMonthDays = (intval($totalMonthDays));
 
         $headerDates = BarcodeAttendance::sf2SeniorDateHeaderColumnArray();
-        $headerIndices = ($startOfDay - 1);
-        for ($i=0; $i<$totalMonthDays; $i++) {
+        $headerIndices = ($startOfDay);
+        for ($i=0; $i<=$totalMonthDays; $i++) {
             // skip if sunday
-            if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+            if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
 
             } else {
-                $worksheet->setCellValue($headerDates[$headerIndices], ($i + 1));
+                $worksheet->setCellValue($headerDates[$headerIndices], ($i));
                 $headerIndices += 1;
             }
         }
@@ -810,26 +832,26 @@ class BarcodeAttendanceController extends AppBaseController
             // filter attendance data
             if ($attendanceData != null) {
                 $headerDates = BarcodeAttendance::sf2SeniorDateHeaderColumnArrayNoRowNum();
-                $headerIndices = ($startOfDay - 1);
+                $headerIndices = ($startOfDay);
 
                 $totalPresent = 0;
                 $totalAbsent = 0;
                 $totalDays = 0;
-                for ($i=0; $i<$totalMonthDays; $i++) {
+                for ($i=0; $i<=$totalMonthDays; $i++) {
                     // skip if sunday
-                    if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+                    if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
         
                     } else {
-                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i+1)));
+                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i)));
                         $attData = BarcodeAttendance::getAttendanceProfileFromStudentAndDate($attendanceData, $item->id, $currentDate);
 
                         if ($attData != null && count($attData) > 0) {
                             // return 0.5 or 1 if there is attendance
                             // validate morning in first
-                            $morningInThreshold = new DateTime($currentDate . ' ' . $morningThresholdTime);
+                            $morningInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $morningThresholdTime));
                             $morningData = null;
                             foreach($attData as $itemAtt) {
-                                $morningIn = new DateTime($itemAtt->created_at);
+                                $morningIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($morningIn <= $morningInThreshold) {
                                     if ($morningData == null) {
@@ -839,10 +861,10 @@ class BarcodeAttendanceController extends AppBaseController
                             }
                             
                             // validate afternoon out
-                            $afternoonInThreshold = new DateTime($currentDate . ' ' . $afternoonThresholdTime);
+                            $afternoonInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $afternoonThresholdTime));
                             $afternoonData = null;
                             foreach($attData as $itemAtt) {
-                                $afternoonIn = new DateTime($itemAtt->created_at);
+                                $afternoonIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($afternoonIn >= $afternoonInThreshold) {
                                     if ($afternoonData == null) {
@@ -862,16 +884,19 @@ class BarcodeAttendanceController extends AppBaseController
                             }
 
                             $totalPresent += $attSum;
-
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
                             
                             if ($attSum == 1) {
-
-                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } elseif ($attSum == .5) {
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
-                            }
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
 
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
+                            }
                         } else {
                             //return 0 if no attendance
                             // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
@@ -898,14 +923,14 @@ class BarcodeAttendanceController extends AppBaseController
 
         // male total
         $headerDates = BarcodeAttendance::sf2SeniorDateHeaderColumnArrayNoRowNum();
-        $headerIndices = ($startOfDay - 1);
+        $headerIndices = ($startOfDay);
 
         $totalPresent = 0;
         $totalAbsent = 0;
         $totalDays = 0;
-        for ($i=0; $i<$totalMonthDays; $i++) {
+        for ($i=0; $i<=$totalMonthDays; $i++) {
             // skip if sunday
-            if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+            if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
 
             } else {
                 $worksheet->setCellValue($headerDates[$headerIndices] . '51', '=SUM(' . $headerDates[$headerIndices] . '18:' . $headerDates[$headerIndices] . '50)');
@@ -926,26 +951,26 @@ class BarcodeAttendanceController extends AppBaseController
             // filter attendance data
             if ($attendanceData != null) {
                 $headerDates = BarcodeAttendance::sf2SeniorDateHeaderColumnArrayNoRowNum();
-                $headerIndices = ($startOfDay - 1);
+                $headerIndices = ($startOfDay);
 
                 $totalPresent = 0;
                 $totalAbsent = 0;
                 $totalDays = 0;
-                for ($i=0; $i<$totalMonthDays; $i++) {
+                for ($i=0; $i<=$totalMonthDays; $i++) {
                     // skip if sunday
-                    if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+                    if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
         
                     } else {
-                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i+1)));
+                        $currentDate = date('Y-m-d', strtotime($year . '-' . $month . '-' . ($i)));
                         $attData = BarcodeAttendance::getAttendanceProfileFromStudentAndDate($attendanceData, $item->id, $currentDate);
 
                         if ($attData != null && count($attData) > 0) {
                             // return 0.5 or 1 if there is attendance
                             // validate morning in first
-                            $morningInThreshold = new DateTime($currentDate . ' ' . $morningThresholdTime);
+                            $morningInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $morningThresholdTime));
                             $morningData = null;
                             foreach($attData as $itemAtt) {
-                                $morningIn = new DateTime($itemAtt->created_at);
+                                $morningIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($morningIn <= $morningInThreshold) {
                                     if ($morningData == null) {
@@ -955,10 +980,10 @@ class BarcodeAttendanceController extends AppBaseController
                             }
                             
                             // validate afternoon out
-                            $afternoonInThreshold = new DateTime($currentDate . ' ' . $afternoonThresholdTime);
+                            $afternoonInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $afternoonThresholdTime));
                             $afternoonData = null;
                             foreach($attData as $itemAtt) {
-                                $afternoonIn = new DateTime($itemAtt->created_at);
+                                $afternoonIn = date('Y-m-d H:i:s', strtotime($itemAtt->created_at));
 
                                 if ($afternoonIn >= $afternoonInThreshold) {
                                     if ($afternoonData == null) {
@@ -980,13 +1005,17 @@ class BarcodeAttendanceController extends AppBaseController
                             $totalPresent += $attSum;
 
                             if ($attSum == 1) {
-
-                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } elseif ($attSum == .5) {
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($diagonalColor);
                                 $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOutHalf);
-                            }
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->getNumberFormat()->setFormatCode(';;;');
 
-                            $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                                $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, $attSum);
+                            } else {
+                                $worksheet->getStyle($headerDates[$headerIndices] . $indexStart)->applyFromArray($crossOut);
+                            }
                         } else {
                             //return 0 if no attendance
                             // $worksheet->setCellValue($headerDates[$headerIndices] . $indexStart, 0);
@@ -1013,25 +1042,31 @@ class BarcodeAttendanceController extends AppBaseController
 
         // female total
         $headerDates = BarcodeAttendance::sf2SeniorDateHeaderColumnArrayNoRowNum();
-        $headerIndices = ($startOfDay - 1);
+        $headerIndices = ($startOfDay);
 
         $totalPresent = 0;
         $totalAbsent = 0;
         $totalDays = 0;
         for ($i=0; $i<$totalMonthDays; $i++) {
             // skip if sunday
-            if (date('D', strtotime($year . '-' . $month . '-' . ($i+1))) === 'Sun') {
+            if (date('D', strtotime($year . '-' . $month . '-' . ($i))) === 'Sun') {
 
             } else {
                 // female total
-                $worksheet->setCellValue($headerDates[$headerIndices] . '83', '=SUM(' . $headerDates[$headerIndices] . '52:' . $headerDates[$headerIndices] . '82)');
+                $worksheet->setCellValue($headerDates[$headerIndices] . '87', '=SUM(' . $headerDates[$headerIndices] . '52:' . $headerDates[$headerIndices] . '86)');
 
                 // combined total
-                $worksheet->setCellValue($headerDates[$headerIndices] . '84', '=SUM(' . $headerDates[$headerIndices] . '51,' . $headerDates[$headerIndices] . '83)');
+                $worksheet->setCellValue($headerDates[$headerIndices] . '88', '=SUM(' . $headerDates[$headerIndices] . '51,' . $headerDates[$headerIndices] . '87)');
 
                 $headerIndices += 1;
             }
         }
+
+        // headers footers 
+        $worksheet->setCellValue('I5', env('APP_COMPANY'));
+        $worksheet->setCellValue('Z5', env('SCHOOL_CODE'));
+        $worksheet->setCellValue('BP129', env('PRINCIPAL_NAME'));
+        $worksheet->setCellValue('BO125', $adviser != null ? $adviser->FullName : '');
 
         // Save the modified file
         $writer = new Xlsx($spreadsheet);

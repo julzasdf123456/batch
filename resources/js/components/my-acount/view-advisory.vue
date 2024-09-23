@@ -35,6 +35,19 @@
         <div class="col-lg-12 mt-3">
             <div class="card shadow-none">
                 <div class="card-body">
+                    <div class="dropdown">
+                        <a class="btn btn-link-muted btn-xs dropdown-toggle float-right" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
+                            More
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <a :href="baseURL + '/students/print-students/' + classId" class="dropdown-item"  title="Print Students"><i class="fas fa-print ico-tab-mini"></i>Print Students</a>
+
+                            <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="dropdown-item" title="Print Payment Details"><i class="fas fa-print ico-tab-mini"></i> Print Payment Details</a>
+
+                            <button class="dropdown-item" @click="downloadSF2()"><i class="fas fa-file-excel ico-tab-mini"></i>Download SF2</button>
+                        </div>
+                    </div>
                     <div>
                         <!-- TAB HEADS -->
                         <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
@@ -291,12 +304,20 @@
                                 ====================================================================================================================================
                             -->
                             <div class="tab-pane fade" id="grades-content" role="tabpanel" aria-labelledby="grades-tab">
+                                <div class="mt-2">
+                                    <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-link-muted btn-sm" title="Print all grades"><i class="fas fa-print"></i></a>
+                                </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
                                             <th></th>
                                             <th class="text-center">Students</th>
-                                            <th class="text-center" v-for="sb in subjects">{{ sb.Subject }}</th>
+                                            <th class="text-center" v-for="sb in subjects">
+                                                {{ sb.Subject }}
+                                                <br>
+                                                <a :href="baseURL + '/classes/print-grades-in-subject-class/' + sb.id + '/' + classId + '/' + sb.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
+                                            </th>
+                                            <th></th>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -311,6 +332,9 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right">
+                                                    <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
@@ -324,6 +348,9 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right">
+                                                    <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -336,6 +363,9 @@
                                 ====================================================================================================================================
                             -->
                             <div class="tab-pane fade" id="payments-content" role="tabpanel" aria-labelledby="payments-tab">
+                                <div class="mt-2">
+                                    <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
+                                </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>

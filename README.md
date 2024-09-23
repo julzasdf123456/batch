@@ -11,9 +11,6 @@
 ### New Tables
 
 ### New Columns on Tables
-- Transactions
-    - TuitionAmount
-    - MiscellaneousAmount
 
 
 
@@ -23,3 +20,8 @@
 
 
 ### New Config Items
+- PRINCIPAL_NAME
+- SCHOOL_CODE
+
+### New Notes
+- Replace SF2 Junior Template in Servers

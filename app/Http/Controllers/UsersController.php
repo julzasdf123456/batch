@@ -349,8 +349,8 @@ class UsersController extends AppBaseController
         $data = DB::table('StudentSubjects')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
             ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-            ->select('Subjects.Subject', 'Subjects.id')
-            ->groupBy('Subjects.Subject', 'Subjects.id')
+            ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId')
+            ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId')
             ->orderBy('Subjects.Subject')
             ->get();
 
