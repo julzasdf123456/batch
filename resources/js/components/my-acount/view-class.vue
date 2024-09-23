@@ -60,19 +60,19 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male')" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male')" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male')" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male')" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Male')" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-0`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Male', 'enter', index)" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Male')" type="number" step="any"/>
                                                 </td>
                                                 <td class="text-right v-align">
                                                     <i class="fas fa-eye text-sm" :class="isNull(student.Visibility) ? 'text-muted' : 'text-success'"></i>
@@ -90,19 +90,19 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female')" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female')" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female')" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female')" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female')" type="number" step="any"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Female')" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-0`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Female', 'enter', index)" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Female')" type="number" step="any"/>
                                                 </td>
                                                 <td class="text-right v-align">
                                                     <i class="fas fa-eye text-sm" :class="isNull(student.Visibility) ? 'text-muted' : 'text-success'"></i>
@@ -190,6 +190,7 @@ import FlatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 import jquery from 'jquery';
 import Swal from 'sweetalert2';
+import { ref, onMounted } from 'vue';
 
 export default {
     name : 'ViewClass.view-class',
@@ -223,6 +224,7 @@ export default {
             paymentMonths : [],
             paymentData : [],
             payablesProfile : [],
+            inputRefs : ref({}),
         }
     },
     methods : {
@@ -301,7 +303,7 @@ export default {
                 message.style.opacity = 0;
             }, 1500);
         },
-        inputEnter(grade, id, gradePosition, gender) {
+        inputEnter(grade, id, gradePosition, gender, key = '', index = -999) {
             // auto compute final grades
             var subjectData = {}
             if (gender === 'Male') {
@@ -364,6 +366,10 @@ export default {
                     }
                     return item;
                 })
+            }
+
+            if (key === 'enter') {
+                this.focusNextRow(gender, index, gradePosition)
             }
 
             axios.post(`${ this.baseURL }/student_subjects/update-grade`, {
@@ -488,6 +494,19 @@ export default {
                         `<strong>` + (this.isNull(dataFound) ? '-' : (this.isNull(dataFound.AmountPaid) ? '-' : this.toMoney(parseFloat(dataFound.AmountPaid)))) + `</strong>` +
                         `<br><span class='text-sm text-muted'>Bal: ` + bal + `</span>`
                 }
+            }
+        },
+        focusNextRow(gender, index, cellIndex) {
+            const nextRowIndex = index + 1;
+
+            const nextInputKey = `${gender + '' + nextRowIndex}-${cellIndex}`;
+
+            const nextInput =  this.inputRefs[nextInputKey]
+            if (nextInput) {
+                nextInput.focus();
+                setTimeout(() => {
+                    nextInput.select();
+                }, 0);
             }
         },
     },
