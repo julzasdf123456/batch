@@ -28,6 +28,8 @@
                             -->
                             <div class="tab-pane fade active show" id="students-list-content" role="tabpanel" aria-labelledby="students-list-tab">
                                 <div class="table-responsive mt-2">
+                                    <a :href="baseURL + '/classes/print-grades-in-subject-class/' + subjectId + '/' + classId + '/' + teacherId" class="btn btn-link-muted btn-sm" title="Print all grades"><i class="fas fa-print"></i></a>
+
                                     <div class="custom-control custom-switch mt-2 mb-2 float-right" style="margin-left: 10px; margin-top: 6px; margin-bottom: 6px;">
                                         <input type="checkbox" class="custom-control-input" id="visibility" v-model="visibilityToggle" @change="toggleGradeVisibility()" title="Turning this ON enables the parents and students to view the grades">
                                         <label style="font-weight: normal;" class="custom-control-label" for="visibility" id="visibilityLabel" title="Turning this ON enables the parents and students to view the grades">

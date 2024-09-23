@@ -110,6 +110,9 @@ Route::get('/classes/get-miscellaneous-to-tuitions-data', [ClassesController::cl
 Route::post('/classes/flush-misc-to-tuitions', [ClassesController::class, 'flushMiscToTuitions'])->name('classes.flush-misc-to-tuitions');
 Route::post('/classes/flush-misc-enrollment-to-tuitions', [ClassesController::class, 'flushMiscEnrollmentToTuitions'])->name('classes.flush-misc-enrollment-to-tuitions');
 Route::get('/classes/print-class-payments/{syId}/{classId}/{teacherId}', [ClassesController::class, 'printClassPayments'])->name('classes.print-class-payments');
+Route::get('/classes/print-single-grade/{studentId}/{classId}', [ClassesController::class, 'printSingleGrade'])->name('classes.print-single-grade');
+Route::get('/classes/print-single-grade-all/{classId}', [ClassesController::class, 'printSingleGradeAll'])->name('classes.print-single-grade-all');
+Route::get('/classes/print-grades-in-subject-class/{subjectId}/{classId}/{teacherId}', [ClassesController::class, 'printGradesInSubjectClass'])->name('classes.print-grades-in-subject-class');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

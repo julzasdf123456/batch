@@ -304,12 +304,20 @@
                                 ====================================================================================================================================
                             -->
                             <div class="tab-pane fade" id="grades-content" role="tabpanel" aria-labelledby="grades-tab">
+                                <div class="mt-2">
+                                    <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-link-muted btn-sm" title="Print all grades"><i class="fas fa-print"></i></a>
+                                </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
                                             <th></th>
                                             <th class="text-center">Students</th>
-                                            <th class="text-center" v-for="sb in subjects">{{ sb.Subject }}</th>
+                                            <th class="text-center" v-for="sb in subjects">
+                                                {{ sb.Subject }}
+                                                <br>
+                                                <a :href="baseURL + '/classes/print-grades-in-subject-class/' + sb.id + '/' + classId + '/' + sb.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
+                                            </th>
+                                            <th></th>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -324,6 +332,9 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right">
+                                                    <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
@@ -337,6 +348,9 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right">
+                                                    <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
