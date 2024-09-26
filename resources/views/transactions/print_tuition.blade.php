@@ -201,7 +201,7 @@
                     <tr>
                         <td>
                             @if ($i == 0)
-                                {{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }} {{ $classes != null && $classes->Section != null ? '' : '' }} {{ $classes != null && $classes->Strand != null ? '' : '' }}
+                                {{ $classes != null ? ($classes->Year . ' ' . $classes->Section) : '-' }} {{ $classes != null && $classes->Strand != null ? $classes->Strand : '' }}
                             @endif
                         </td>
                         <td>{{ $item->Particulars != null ? $item->Particulars : '' }}</td>
