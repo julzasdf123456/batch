@@ -26,7 +26,7 @@
                                 </div>
                             </td>
                             <td @click="fetchPayment(student.id)" class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
-                            <td @click="fetchPayment(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + student.Section) }}</td>
+                            <td @click="fetchPayment(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + student.Section) }} {{ isNull(student.Strand) ? '-' : student.Strand }}</td>
                             <td class="v-align text-right">
                                 <a class="btn btn-primary-skinny btn-sm" :href="baseURL + '/transactions/tuitions/' + student.id">Go <i class="fas fa-angle-right ico-tab-left-mini"></i></a>
                             </td>
