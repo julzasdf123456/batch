@@ -501,6 +501,7 @@ class TransactionsController extends AppBaseController
                     'Barangays.Barangay AS BarangaySpelled',
                     'Classes.Year',
                     'Classes.Section',
+                    'Classes.Strand',
                 )
                 ->orderBy('Students.LastName')
                 ->paginate(13);
@@ -514,6 +515,7 @@ class TransactionsController extends AppBaseController
                     'Barangays.Barangay AS BarangaySpelled',
                     'Classes.Year',
                     'Classes.Section',
+                    'Classes.Strand',
                 )
                 ->orderBy('Students.LastName')
                 ->paginate(13);
