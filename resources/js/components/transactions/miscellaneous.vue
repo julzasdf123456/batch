@@ -26,6 +26,10 @@
                                 <td class="v-align">{{ isNull(studentData.Year) ? '-' : (studentData.Year + ' - ' + studentData.Section) }}</td>
                             </tr>
                             <tr>
+                                <td class="text-muted v-align">Strand</td>
+                                <td class="v-align">{{ isNull(studentData.Strand) ? '-' : studentData.Strand }}</td>
+                            </tr>
+                            <tr>
                                 <td colspan="2">
                                     <a title="View student" :href="baseURL + '/students/' + studentId" target="_blank"><i class="fas fa-share"></i></a>
                                     <button class="btn btn-xs btn-default float-right" @click="showHistory()">Transaction History</button>
