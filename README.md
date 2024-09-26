@@ -20,8 +20,6 @@
 
 
 ### New Config Items
-- PRINCIPAL_NAME
-- SCHOOL_CODE
 
 ### New Notes
 - Replace SF2 Junior Template in Servers

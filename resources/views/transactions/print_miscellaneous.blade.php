@@ -12,7 +12,7 @@
         font-family: sans-serif;
         /* font-stretch: condensed; */
         margin: 0;
-        font-size: .78em;
+        font-size: .85em;
     }
 
     table tbody th,td,
@@ -21,7 +21,7 @@
         /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
         /* font-stretch: condensed; */
         /* , Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
-        font-size: .80em;
+        font-size: .91em;
     }
     @media print {
         @page {
@@ -186,8 +186,8 @@
         </div>
 
         <div class="half">
-           <p class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
-           <p class="text-right">₱ {{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+            <p class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
+            <p class="text-right">₱ {{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
         </div>
     </div>
 
