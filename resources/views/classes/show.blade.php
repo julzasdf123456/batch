@@ -5,6 +5,7 @@
 <meta name="class-id" content="{{ $classId }}">
 <meta name="am-in-threshold" content="{{ env('STUDENT_IN_AM_THRESHOLD') }}">
 <meta name="pm-out-threshold" content="{{ env('STUDENT_OUT_PM_THRESHOLD') }}">
+<meta name="viewed-in" content="admin">
 
 @section('content')
 <div id="app">

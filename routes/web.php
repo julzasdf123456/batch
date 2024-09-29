@@ -59,6 +59,7 @@ Route::get('/users/view-advisory/{adviserId}/{schoolyearid}/{classId}', [UsersCo
 Route::get('/users/get-advisory-details', [UsersController::class, 'getAdvisoryDetaills'])->name('users.get-advisory-details');
 Route::get('/users/get-subjects-from-class', [UsersController::class, 'getSubjectsFromClass'])->name('users.get-subjects-from-class');
 Route::get('/users/get-student-subjects-data-from-class', [UsersController::class, 'getStudentSubjectsDataFromClass'])->name('users.get-student-subjects-data-from-class');
+Route::post('/users/remove-student-subjects', [UsersController::class, 'removeStudentSubjects'])->name('users.remove-student-subjects');
 Route::resource('users', UsersController::class);
 
 Route::get('/roles/add-permissions/{id}', [RolesController::class, 'addPermissions'])->name('roles.add-permissions');
@@ -113,6 +114,7 @@ Route::get('/classes/print-class-payments/{syId}/{classId}/{teacherId}', [Classe
 Route::get('/classes/print-single-grade/{studentId}/{classId}', [ClassesController::class, 'printSingleGrade'])->name('classes.print-single-grade');
 Route::get('/classes/print-single-grade-all/{classId}', [ClassesController::class, 'printSingleGradeAll'])->name('classes.print-single-grade-all');
 Route::get('/classes/print-grades-in-subject-class/{subjectId}/{classId}/{teacherId}', [ClassesController::class, 'printGradesInSubjectClass'])->name('classes.print-grades-in-subject-class');
+Route::post('/classes/add-new-subject-to-class', [ClassesController::class, 'addNewSubjectToClass'])->name('classes.add-new-subject-to-class');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -120,6 +122,7 @@ Route::resource('studentClasses', StudentClassesController::class);
 Route::get('/classes_repos/get-grade-levels', [ClassesRepoController::class, 'getGradeLevels'])->name('classesRepos.get-grade-levels');
 Route::get('/classes_repos/get-subjects-in-class', [ClassesRepoController::class, 'getSubjectsInClass'])->name('classesRepos.get-subjects-in-class');
 Route::get('/classes_repos/view-classes-repo/{year}/{section}/{strand}', [ClassesRepoController::class, 'viewClassRepo'])->name('classesRepos.view-classes-repo');
+Route::get('/classes_repos/get-all-subject-repos', [ClassesRepoController::class, 'getAllSubjectRepos'])->name('classesRepos.get-all-subject-repos');
 Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');

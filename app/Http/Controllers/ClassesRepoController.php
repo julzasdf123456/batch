@@ -238,4 +238,14 @@ class ClassesRepoController extends AppBaseController
             return abort(404, "Classes repository not found!");
         }
     }
+
+    public function getAllSubjectRepos(Request $request) {
+        $subjects = DB::table('Subjects')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+            ->select('Subjects.*', 'Teachers.FullName')
+            ->orderBy('Subjects.Subject')
+            ->get();
+
+        return response()->json($subjects, 200);
+    }
 }

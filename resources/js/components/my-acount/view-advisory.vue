@@ -11,11 +11,11 @@
             <span class="text-muted text-xs ml-2 mr-2 pointer" title="Female Students Count"><i class="fas fa-mars mr-1"></i>{{ female.length }}</span> • 
             <span class="text-muted text-xs ml-2 pointer" title="Total Students Count"><i class="fas fa-venus-mars mr-1"></i>{{( female.length +  male.length) }}</span>
             
-            <select v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
+            <select v-if="viewedIn==='admin'" v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
                 <option v-for="c in classesInSy" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
             </select>
             <div class="dropdown mr-1 float-right" title="More Options" v-if="userId === '1' ? true : false">
-                <a href="#" role="button" data-toggle="dropdown" aria-expanded="false" class="btn btn-default btn-sm">
+                <a v-if="viewedIn==='admin'" href="#" role="button" data-toggle="dropdown" aria-expanded="false" class="btn btn-default btn-sm">
                     <i class="fas fa-shield-alt"></i>
                     Administrative Options
                 </a>
@@ -79,8 +79,8 @@
                             -->
                             <div class="tab-pane fade active show" id="students-list-content" role="tabpanel" aria-labelledby="students-list-tab">
                                 <div class="mt-2">
-                                    <button @click="switchSelectionMode()" title="Select" class="btn btn-link-muted btn-sm"><i class="fas fa-check-circle" :class="selectionButtonIndicator"></i></button>
-                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-link-muted btn-sm" title="Print"><i class="fas fa-print"></i></a>
+                                    <button v-if="viewedIn==='admin'" @click="switchSelectionMode()" title="Select" class="btn btn-default btn-sm"><i class="fas fa-check-circle ico-tab-mini" :class="selectionButtonIndicator"></i>Select Multiple</button>
+                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-default btn-sm ml-2" title="Print"><i class="fas fa-print ico-tab-mini"></i>Print Students List</a>
                                 </div>
                                 <!-- SELECT OPTIONS -->
                                 <div class="pt-3 pb-2" v-if="selectionMode">
@@ -108,7 +108,7 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td colspan="9" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                <td colspan="9" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align" v-if="selectionMode">
@@ -139,31 +139,31 @@
 
                                                     <div class="px-3" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                                                          <i class="fas fa-ellipsis-v"></i>
+                                                            <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <div class="dropdown-menu">
-                                                            <span class="text-muted text-sm px-4">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
+                                                            <span v-if="viewedIn==='admin'" class="text-muted text-sm px-4">Tag as: </span>
+                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
+                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
+                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
 
-                                                            <div class="divider"></div>
+                                                            <div v-if="viewedIn==='admin'" class="divider"></div>
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
-                                                            <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
                                                             <!-- <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
                                                             <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button> -->
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
 
-                                                            <div class="divider"></div>
+                                                            <div v-if="viewedIn==='admin'" class="divider"></div>
 
-                                                            <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
+                                                            <button v-if="viewedIn==='admin'" @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
                                                         </div>
                                                     </div>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td colspan="9" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                <td colspan="9" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align" v-if="selectionMode">
@@ -194,23 +194,23 @@
                                                     
                                                     <div class="px-3" title="More Options" style="display: inline;">
                                                         <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                                                          <i class="fas fa-ellipsis-v"></i>
+                                                            <i class="fas fa-ellipsis-v"></i>
                                                         </a>
                                                         <div class="dropdown-menu">
-                                                            <span class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
-                                                            <button @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
-                                                            <button @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
+                                                            <span v-if="viewedIn==='admin'" class="text-muted text-sm px-2">Tag as: </span>
+                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
+                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
+                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
 
-                                                            <div class="divider"></div>
+                                                            <div  v-if="viewedIn==='admin'" class="divider"></div>
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
-                                                            <a class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
+                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
 
-                                                            <div class="divider"></div>
+                                                            <div v-if="viewedIn==='admin'" class="divider"></div>
 
-                                                            <button @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
+                                                            <button v-if="viewedIn==='admin'" @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -268,7 +268,7 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td :colspan="(4 + (daysInAMonth.length))" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                <td :colspan="(4 + (daysInAMonth.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -281,7 +281,7 @@
                                                 <td class="v-align text-center" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
                                             </tr>
                                             <tr>
-                                                <td :colspan="(4 + (daysInAMonth.length))" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                <td :colspan="(4 + (daysInAMonth.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -304,24 +304,79 @@
                                 ====================================================================================================================================
                             -->
                             <div class="tab-pane fade" id="grades-content" role="tabpanel" aria-labelledby="grades-tab">
-                                <div class="mt-2">
-                                    <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-link-muted btn-sm" title="Print all grades"><i class="fas fa-print"></i></a>
+                                <div class="mt-2" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: start; align-items: center;">
+                                    <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a>
+
+                                    <div v-if="viewedIn==='admin'" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center; width: 90%;">
+                                        <div v-if="addSubjectEnabled" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center;">
+                                            <span class="text-muted text-sm">Select Subject to Add</span>
+                                            <select v-model="addedSubjectId" @change="addSubject()" class="form-control form-control-sm"  name="Subjects" id="Subjects" style="width: 220px;">
+                                                <option value="">-- Select --</option>
+                                                <option v-for="subs in subjectRepos" :value="subs.id">{{ subs.Subject + ' (' + subs.FullName + ')' }}</option>
+                                            </select>
+                                        </div>
+                                        <button v-if="addSubjectEnabled" @click="() => { addSubjectEnabled ? addSubjectEnabled = false : addSubjectEnabled = true }" class="btn btn-link btn-sm text-danger" title="Close"><i class="fas fa-times-circle"></i></button>
+                                        <button v-if="!addSubjectEnabled" @click="() => { addSubjectEnabled ? addSubjectEnabled = false : addSubjectEnabled = true }" class="btn btn-default btn-sm"><i class="fas fa-plus ico-tab-mini"></i>Add Subject</button>
+                                    </div>
                                 </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
-                                            <th></th>
-                                            <th class="text-center">Students</th>
-                                            <th class="text-center" v-for="sb in subjects">
-                                                {{ sb.Subject }}
-                                                <br>
-                                                <a :href="baseURL + '/classes/print-grades-in-subject-class/' + sb.id + '/' + classId + '/' + sb.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
-                                            </th>
-                                            <th></th>
+                                            <tr>
+                                                <th rowspan="2"></th>
+                                                <th rowspan="2" class="text-center">Students</th>
+                                                <th class="text-center" v-for="header in mainSubjects.Headers" 
+                                                    :key="header.Subject" 
+                                                    :rowspan="header.rowspan" 
+                                                    :colspan="header.colspan">
+                                                    {{ header.Subject }}
+                                                    <div v-if="header.hasMenu">
+                                                        <span class="text-xs text-muted">{{ header.FullName }}</span>
+                                                        <br>
+                                                        <div v-if="viewedIn==='admin'" class="divider"></div>
+                                                        <div v-if="viewedIn==='admin'" style="display: flex; width: 100%; flex-direction: row; justify-content: center; align-items: center;">
+                                                            <a :href="baseURL + '/classes/print-grades-in-subject-class/' + header.id + '/' + classId + '/' + header.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
+
+                                                            <button @click="removeSubject(header.id, header.TeacherId)" class="btn btn-link-muted btn-sm" title="Remove this subject from class"><i class="fas fa-times-circle"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </th>
+                                                <th rowspan="2"></th>
+                                            </tr>
+                                            <tr>
+                                                <th class="text-center" v-for="header in mainSubjects.SubHeaders" :key="header.Subject">
+                                                    {{ header.Subject }}
+                                                    <br>
+                                                    <span class="text-xs text-muted">{{ header.FullName }}</span>
+                                                    <br>
+                                                    <div v-if="viewedIn==='admin'" class="divider"></div>
+                                                    <div v-if="viewedIn==='admin'" style="display: flex; width: 100%; flex-direction: row; justify-content: center; align-items: center;">
+                                                        <a :href="baseURL + '/classes/print-grades-in-subject-class/' + header.id + '/' + classId + '/' + header.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
+
+                                                        <button @click="removeSubject(header.id, header.TeacherId)" class="btn btn-link-muted btn-sm" title="Remove this subject from class"><i class="fas fa-times-circle"></i></button>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                            <!-- <tr>
+                                                <th></th>
+                                                <th class="text-center">Students</th>
+                                                <th class="text-center" v-for="sb in subjects">
+                                                    {{ sb.Subject }} <br>
+                                                    <span class="text-xs text-muted">{{ sb.FullName }}</span>
+                                                    <br>
+                                                    <div v-if="viewedIn==='admin'" class="divider"></div>
+                                                    <div v-if="viewedIn==='admin'" style="display: flex; width: 100%; flex-direction: row; justify-content: center; align-items: center;">
+                                                        <a :href="baseURL + '/classes/print-grades-in-subject-class/' + sb.id + '/' + classId + '/' + sb.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
+
+                                                        <button @click="removeSubject(sb.id, sb.TeacherId)" class="btn btn-link-muted btn-sm" title="Remove this subject from class"><i class="fas fa-times-circle"></i></button>
+                                                    </div>
+                                                </th>
+                                                <th></th>
+                                            </tr> -->
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -337,7 +392,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -377,7 +432,7 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -394,7 +449,7 @@
                                                 <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
                                             </tr>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -494,6 +549,7 @@
         </div>
     </div>
 
+    <!-- TRANSFER MODAL -->
     <div ref="modalSelectionTransfer" class="modal fade" id="modal-selection-transfer" aria-hidden="true" style="display: none;">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
@@ -501,12 +557,12 @@
                     <span>Transfer Students To</span>
                 </div>
                 <div class="modal-body table-responsive">
-                     <div class="form-group">
+                    <div class="form-group">
                         <label class="text-muted">Select Class</label>
                         <select v-model="transferedClassSelect" class="form-control">
                             <option v-for="c in classRepos" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
                         </select>
-                     </div>
+                    </div>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-sm btn-primary" @click="saveBatchTransfer()"><i class="fas fa-check ico-tab-mini"></i>Transfer Selection</button>
@@ -549,6 +605,7 @@ export default {
             userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
             amInThreshold : document.querySelector("meta[name='am-in-threshold']").getAttribute('content'),
             pmOutThreshold : document.querySelector("meta[name='pm-out-threshold']").getAttribute('content'),
+            viewedIn : document.querySelector("meta[name='viewed-in']").getAttribute('content'),
             male : [],
             female : [],
             advisory : {},
@@ -571,7 +628,11 @@ export default {
             selection : [],
             transferedClassSelect : '',
             classRepos : [],
-            miscToTuitions : []
+            miscToTuitions : [],
+            addSubjectEnabled : false,
+            subjectRepos : [],
+            addedSubjectId : '',
+            mainSubjects : [],
         }
     },
     methods : {
@@ -705,6 +766,8 @@ export default {
         },
         getSubjects() {
             // GET SUBJECTS
+            this.subjects = []
+            this.mainSubjects = []
             axios.get(`${ this.baseURL }/users/get-subjects-from-class`, {
                 params : {
                     ClassId : this.classId
@@ -713,8 +776,12 @@ export default {
             .then(response => {
                 this.subjects = response.data
 
+                this.mainSubjects = this.processedSubjects()
+                console.log(this.mainSubjects)
+
                 // GET SUBJECT GRADES AND DATA
                 this.getSubjectData()
+                this.getSubjectRepository()
             })
             .catch(error => {
                 console.log(error)
@@ -725,6 +792,7 @@ export default {
             })
         },
         getSubjectData() {
+            this.subjectData = []
             axios.get(`${ this.baseURL }/users/get-student-subjects-data-from-class`, {
                 params : {
                     ClassId : this.classId
@@ -741,13 +809,63 @@ export default {
                 })
             })
         },
+        processedSubjects() {
+            let headers = [];
+            let subHeaders = []
+            let groupedSubjects = {};
+
+            // Separate subjects with null ParentSubject and group by ParentSubject
+            this.subjects.forEach(subject => {
+                if (subject.ParentSubject === null) {
+                    headers.push({
+                        id : subject.id,
+                        Subject: subject.Subject,
+                        TeacherId : subject.TeacherId,
+                        FullName : subject.FullName,
+                        rowspan: 2,
+                        colspan: 1,
+                        children : null,
+                        hasMenu : true,
+                    })
+                } else {
+                    if (!groupedSubjects[subject.ParentSubject]) {
+                        groupedSubjects[subject.ParentSubject] = [];
+                    }
+                    groupedSubjects[subject.ParentSubject].push(subject.Subject)
+
+                    subHeaders.push({
+                        id : subject.id,
+                        Subject: subject.Subject,
+                        TeacherId : subject.TeacherId,
+                        FullName : subject.FullName,
+                        rowspan: 1,
+                        colspan: 1,
+                        children : null,
+                        hasMenu : true,
+                    })
+                }
+            });
+
+            // Add grouped subjects with colspan
+            Object.keys(groupedSubjects).forEach(parent => {
+                headers.push({
+                    Subject: parent,
+                    rowspan: 1,
+                    colspan: groupedSubjects[parent].length,
+                    children: groupedSubjects[parent],
+                    hasMenu : false,
+                });
+            });
+
+            return { Headers : headers, SubHeaders : subHeaders }
+        },
         getFinalGrade(studentId, subjectId) {
             let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId)
 
             if (!this.isNull(gradeData)) {
                 return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
             } else {
-                return '-'
+                return `<i class='text-xs'>Not enrolled</i>`
             }
         },
         getDaysInMonth() {
@@ -1210,6 +1328,83 @@ export default {
                     })
                 }
             })
+        },
+        removeSubject(subjectId, teacherId) {
+            Swal.fire({
+                title: "Subject Removal Confirmation",
+                text : `NOTE that removing this subject will also remove the student's grades. You cannot undo this. Proceed with caution.`,
+                showCancelButton: true,
+                confirmButtonText: "Proceed Removal",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/users/remove-student-subjects`, {
+                        _token : this.token,
+                        ClassId : this.classId,
+                        TeacherId : teacherId,
+                        SubjectId : subjectId,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Subject removed!'
+                        })
+                        // this.subjects = this.subjects.filter(obj => obj.id !== subjectId)
+                        // this.getSubjectRepository()
+                        this.getSubjects()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error removing subject!'
+                        })
+                    })
+                }
+            })
+        },
+        getSubjectRepository() {
+            this.subjectRepos = []
+            axios.get(`${ this.baseURL }/classes_repos/get-all-subject-repos`)
+            .then(response => {
+                this.subjectRepos = response.data
+
+                if (!this.isNull(this.subjectRepos)) {
+                    this.subjectRepos = this.subjectRepos.filter(obj => !this.subjects.some(excludeObj => excludeObj.id === obj.id))
+                }
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting subject repositories!'
+                })
+            })
+        },
+        addSubject() {
+            if (!this.isNull(this.addedSubjectId)) {
+                axios.post(`${ this.baseURL }/classes/add-new-subject-to-class`, {
+                    SubjectId : this.addedSubjectId,
+                    ClassId : this.classId,
+                    _token : this.token,
+                })
+                .then(response => {
+                    this.toast.fire({
+                        icon : 'success',
+                        text : 'Subject added to class!'
+                    })
+                    this.getSubjects()
+                })
+                .catch(error => {
+                    console.log(error.response)
+                    this.toast.fire({
+                        icon : 'error',
+                        text : 'Error adding subject!'
+                    })
+                })
+            }
+            this.addSubjectEnabled = false
+            this.addedSubjectId = ''
         }
     },
     created() {

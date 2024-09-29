@@ -2305,4 +2305,59 @@ class ClassesController extends AppBaseController
             'subject' => $subject
         ]);
     }
+
+    public function addNewSubjectToClass(Request $request) {
+        $subjectId = $request['SubjectId'];
+        $classId = $request['ClassId'];
+
+        $students = DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL")
+            ->select(
+                'Students.*'
+            )
+            ->get();
+
+        $subject = Subjects::find($subjectId);
+        $class = Classes::find($classId);
+
+        foreach($students as $item) {
+            StudentSubjects::create([
+                'id' => IDGenerator::generateIDandRandString(),
+                'StudentId' => $item->id,
+                'SubjectId' => $subjectId,
+                'ClassId' => $classId,
+                'TeacherId' => $subject != null ? $subject->Teacher : null
+            ]);
+        }
+
+        // add subject to SubjectClasses
+        if ($class != null) {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->where('Strand', $class->Strand)
+                    ->where('Semester', $class->Semester)
+                    ->first();
+            } else {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->first();
+            }
+            
+            if ($classRepo != null) {
+                SubjectClasses::create([
+                    'id' => IDGenerator::generateIDandRandString(),
+                    'SubjectId' => $subjectId,
+                    'ClassRepoId' => $classRepo->id,
+                    'UserId' => Auth::id(),
+                ]);
+            }
+        }
+
+        return response()->json('ok', 200);
+    }
 }

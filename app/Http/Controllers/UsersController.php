@@ -10,6 +10,10 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Users;
 use App\Models\Teachers;
+use App\Models\StudentSubjects;
+use App\Models\Classes;
+use App\Models\ClassesRepo;
+use App\Models\SubjectClasses;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -348,10 +352,11 @@ class UsersController extends AppBaseController
 
         $data = DB::table('StudentSubjects')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
             ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-            ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId')
-            ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId')
-            ->orderBy('Subjects.Subject')
+            ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject')
+            ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject')
+            ->orderBy('Subjects.ParentSubject')
             ->get();
 
         return response()->json($data, 200);
@@ -430,5 +435,49 @@ class UsersController extends AppBaseController
             'status' => 'success',
             'message' => 'Password updated successfully.',
         ]);
+    }
+
+    public function removeStudentSubjects(Request $request) {
+        $subjectId = $request['SubjectId'];
+        $classId = $request['ClassId'];
+        $teacherId = $request['TeacherId'];
+
+        $class = Classes::find($classId);
+
+        StudentSubjects::where('SubjectId', $subjectId)
+            ->where('ClassId', $classId)
+            ->where('TeacherId', $teacherId)
+            ->delete();
+
+        // remove also in SubjectClasses
+        if ($class != null) {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->where('Strand', $class->Strand)
+                    ->where('Semester', $class->Semester)
+                    ->first();
+
+                if ($classRepo != null) {
+                    SubjectClasses::where('SubjectId', $subjectId)
+                        ->where('ClassRepoId', $classRepo->id)
+                        ->delete();
+                }
+            } else {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->first();
+
+                if ($classRepo != null) {
+                    SubjectClasses::where('SubjectId', $subjectId)
+                        ->where('ClassRepoId', $classRepo->id)
+                        ->delete();
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
     }
 }

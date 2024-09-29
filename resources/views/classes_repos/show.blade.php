@@ -181,15 +181,15 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                   <label for="Subjects">Select Subject to Add</label>
-                   <select class="custom-select select2"  name="Subjects" id="Subjects" style="width: 100%;" required>
+                    <label for="Subjects">Select Subject to Add</label>
+                    <select class="custom-select select2"  name="Subjects" id="Subjects" style="width: 100%;" required>
                         <option value="">-- Select --</option>
                         @foreach ($subjects as $item)
                             <option value="{{ $item->id }}">{{ $item->Subject }} ({{ $item->FullName }})</option>
                         @endforeach
                     </select>
                 </div>
- 
+
             </div>
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
