@@ -115,6 +115,8 @@ Route::get('/classes/print-single-grade/{studentId}/{classId}', [ClassesControll
 Route::get('/classes/print-single-grade-all/{classId}', [ClassesController::class, 'printSingleGradeAll'])->name('classes.print-single-grade-all');
 Route::get('/classes/print-grades-in-subject-class/{subjectId}/{classId}/{teacherId}', [ClassesController::class, 'printGradesInSubjectClass'])->name('classes.print-grades-in-subject-class');
 Route::post('/classes/add-new-subject-to-class', [ClassesController::class, 'addNewSubjectToClass'])->name('classes.add-new-subject-to-class');
+Route::get('/classes/print-single-grade-hca/{studentId}/{classId}', [ClassesController::class, 'printSingleGradeHca'])->name('classes.print-single-grade-hca');
+Route::get('/classes/print-single-grade-all-hca/{classId}', [ClassesController::class, 'printSingleGradeAllHca'])->name('classes.print-single-grade-all-hca');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

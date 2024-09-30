@@ -305,7 +305,8 @@
                             -->
                             <div class="tab-pane fade" id="grades-content" role="tabpanel" aria-labelledby="grades-tab">
                                 <div class="mt-2" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: start; align-items: center;">
-                                    <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a>
+                                    <!-- <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a> -->
+                                    <button @click="printAllGradeStub()" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</button>
 
                                     <div v-if="viewedIn==='admin'" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center; width: 90%;">
                                         <div v-if="addSubjectEnabled" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center;">
@@ -388,7 +389,8 @@
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
                                                 <td class="v-align text-right">
-                                                    <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a>
+                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a> -->
+                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-link-muted" title="Print grade"><i class="fas fa-print"></i></button>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -404,7 +406,8 @@
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
                                                 <td class="v-align text-right">
-                                                    <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a>
+                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a> -->
+                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-link-muted" title="Print grade"><i class="fas fa-print"></i></button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -606,6 +609,7 @@ export default {
             amInThreshold : document.querySelector("meta[name='am-in-threshold']").getAttribute('content'),
             pmOutThreshold : document.querySelector("meta[name='pm-out-threshold']").getAttribute('content'),
             viewedIn : document.querySelector("meta[name='viewed-in']").getAttribute('content'),
+            school : document.querySelector("meta[name='school']").getAttribute('content'),
             male : [],
             female : [],
             advisory : {},
@@ -1405,6 +1409,20 @@ export default {
             }
             this.addSubjectEnabled = false
             this.addedSubjectId = ''
+        },
+        printSingleStub(studentId) {
+            if (this.school === 'HCA') {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+            } else {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade/${ studentId }/${ this.classId }`
+            }
+        },
+        printAllGradeStub() {
+            if (this.school === 'HCA') {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+            } else {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade-all/${ this.classId }`
+            }
         }
     },
     created() {
