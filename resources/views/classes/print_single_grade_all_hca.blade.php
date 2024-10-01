@@ -140,6 +140,10 @@
         display: inline-table; 
         width: 59.8%;
     }
+    
+    .sub-subject {
+        padding-left: 15px;
+    }
 
 </style>
 
@@ -193,8 +197,26 @@
                 $sumThird = 0;
 
                 $data = $student->GradeData;
+
+                /**
+                 * REORGANIZE SUBJECTS FOR PARENT SUBJECTS
+                 */
+                $groupedSubjects = [];
+                $mainSubjects = [];
+                foreach ($data as $subject) {
+                    if (is_null($subject->ParentSubject)) {
+                        $mainSubjects[] = $subject; // Subjects without ParentSubject
+                    } else {
+                        // Group subjects with the same ParentSubject
+                        if (!isset($groupedSubjects[$subject->ParentSubject])) {
+                            $groupedSubjects[$subject->ParentSubject] = [];
+                        }
+                        $groupedSubjects[$subject->ParentSubject][] = $subject;
+                    }
+                }
+                $mainSubjects[] = $groupedSubjects;
             @endphp
-            @foreach ($data as $item)
+            {{-- @foreach ($data as $item)
                 <tr>
                     <td>{{ strtoupper($item->Subject) }}</td>
                     <td class="text-right">{{ $item->FirstGradingGrade }}</td>
@@ -207,6 +229,76 @@
                     $sumSecond += floatval($item->SecondGradingGrade);
                     $sumThird += floatval($item->ThirdGradingGrade);
                 @endphp
+            @endforeach
+            @php
+                $averageFirst = 0;
+                $averageSecond = 0;
+                $averageThird = 0;
+
+                if ($sumFirst > 0 && count($data) > 0) {
+                    $averageFirst = $sumFirst / count($data);
+                }
+
+                if ($sumSecond > 0 && count($data) > 0) {
+                    $averageSecond = $sumSecond / count($data);
+                }
+
+                if ($sumThird > 0 && count($data) > 0) {
+                    $averageThird = $sumThird / count($data);
+                }
+            @endphp
+            <tr>
+                <td><strong>TOTAL AVERAGE</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageFirst, 2) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageSecond, 2) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageThird, 2) }}</strong></td>
+                <td></td>
+            </tr> --}}
+            @foreach ($mainSubjects as $subject)
+                <!-- Main Subject Row -->
+                @if (is_array($subject))
+                    @foreach ($subject as $key => $item)
+                        <tr>
+                            <!-- Indented sub-subjects -->
+                            <td><strong>{{ $key }}</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <!-- Sub-subjects (children) for each ParentSubject -->
+                        @if (isset($groupedSubjects[$key]))
+                            @foreach ($groupedSubjects[$key] as $subSubject)
+                                <tr>
+                                    <!-- Indented sub-subjects -->
+                                    <td class="sub-subject">{{ $subSubject->Subject }}</td>
+                                    <td class="text-right">{{ $subSubject->FirstGradingGrade }}</td>
+                                    <td class="text-right">{{ $subSubject->SecondGradingGrade }}</td>
+                                    <td class="text-right">{{ $subSubject->ThirdGradingGrade }}</td>
+                                    <td>{{ $subSubject->Notes }}</td>
+                                </tr>
+                                @php
+                                    $sumFirst += floatval($subSubject->FirstGradingGrade);
+                                    $sumSecond += floatval($subSubject->SecondGradingGrade);
+                                    $sumThird += floatval($subSubject->ThirdGradingGrade);
+                                @endphp
+                            @endforeach
+                        @endif
+                    @endforeach
+                @else
+                    <tr>
+                        <td>{{ $subject->Subject }}</td>
+                        <td class="text-right">{{ $subject->FirstGradingGrade }}</td>
+                        <td class="text-right">{{ $subject->SecondGradingGrade }}</td>
+                        <td class="text-right">{{ $subject->ThirdGradingGrade }}</td>
+                        <td>{{ $subject->Notes }}</td>
+                    </tr>
+                    @php
+                        $sumFirst += floatval($subject->FirstGradingGrade);
+                        $sumSecond += floatval($subject->SecondGradingGrade);
+                        $sumThird += floatval($subject->ThirdGradingGrade);
+                    @endphp
+                @endif
             @endforeach
             @php
                 $averageFirst = 0;

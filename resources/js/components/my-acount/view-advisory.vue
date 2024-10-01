@@ -306,7 +306,8 @@
                             <div class="tab-pane fade" id="grades-content" role="tabpanel" aria-labelledby="grades-tab">
                                 <div class="mt-2" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: start; align-items: center;">
                                     <!-- <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a> -->
-                                    <button @click="printAllGradeStub()" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</button>
+                                    <button @click="printAllGradeStub()" class="btn btn-default btn-sm" style="width: 190px;" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</button>
+                                    <button @click="stubConfig()" class="btn btn-default btn-sm" style="width: 190px;" title="Setup Stub Config"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
 
                                     <div v-if="viewedIn==='admin'" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center; width: 90%;">
                                         <div v-if="addSubjectEnabled" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center;">
@@ -781,7 +782,6 @@ export default {
                 this.subjects = response.data
 
                 this.mainSubjects = this.processedSubjects()
-                console.log(this.mainSubjects)
 
                 // GET SUBJECT GRADES AND DATA
                 this.getSubjectData()
@@ -1423,6 +1423,9 @@ export default {
             } else {
                 window.location.href = `${ this.baseURL }/classes/print-single-grade-all/${ this.classId }`
             }
+        },
+        stubConfig() {
+            window.location.href = `${ this.baseURL }/classes/stub-config/${ this.classId }`
         }
     },
     created() {

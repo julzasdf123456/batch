@@ -117,6 +117,8 @@ Route::get('/classes/print-grades-in-subject-class/{subjectId}/{classId}/{teache
 Route::post('/classes/add-new-subject-to-class', [ClassesController::class, 'addNewSubjectToClass'])->name('classes.add-new-subject-to-class');
 Route::get('/classes/print-single-grade-hca/{studentId}/{classId}', [ClassesController::class, 'printSingleGradeHca'])->name('classes.print-single-grade-hca');
 Route::get('/classes/print-single-grade-all-hca/{classId}', [ClassesController::class, 'printSingleGradeAllHca'])->name('classes.print-single-grade-all-hca');
+Route::get('/classes/stub-config/{classId}', [ClassesController::class, 'stubConfig'])->name('classes.stub-config');
+Route::post('/classes/save-grade-stub-config', [ClassesController::class, 'saveGradeStubConfig'])->name('classes.save-grade-stub-config');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

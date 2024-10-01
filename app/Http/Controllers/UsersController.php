@@ -354,8 +354,9 @@ class UsersController extends AppBaseController
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
             ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
             ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-            ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject')
-            ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject')
+            ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
+            ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
+            ->orderBy('StudentSubjects.Heirarchy')
             ->orderBy('Subjects.ParentSubject')
             ->get();
 

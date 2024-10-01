@@ -2368,8 +2368,10 @@ class ClassesController extends AppBaseController
             ->whereRaw("StudentSubjects.StudentId='" . $studentId . "' AND StudentSubjects.ClassId='" . $classId . "'")
             ->select(
                 'StudentSubjects.*',
-                'Subjects.Subject'
+                'Subjects.Subject',
+                'Subjects.ParentSubject'
             )
+            ->orderBy('Heirarchy')
             ->get();
 
         $class = Classes::find($classId);
@@ -2402,7 +2404,7 @@ class ClassesController extends AppBaseController
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
-            ->whereRaw("Students.Status IS NULL")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
             ->select(
                 'Students.*',
                 'Towns.Town AS TownSpelled',
@@ -2420,8 +2422,10 @@ class ClassesController extends AppBaseController
                 ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
                 ->select(
                     'StudentSubjects.*',
-                    'Subjects.Subject'
+                    'Subjects.Subject',
+                    'Subjects.ParentSubject'
                 )
+                ->orderBy('Heirarchy')
                 ->get();
         }
 
@@ -2431,5 +2435,56 @@ class ClassesController extends AppBaseController
             'sy' => $sy,
             'adviser' => $adviser,
         ]);
+    }
+
+    public function stubConfig($classId) {
+        return view('/classes/stub_config', [
+            'classId' => $classId,
+        ]);
+    }
+
+    public function saveGradeStubConfig(Request $request) {
+        $classId = $request['ClassId'];
+        $subjects = $request['Subjects'];
+
+        $class = Classes::find($classId);
+
+        if ($class != null) {
+            /**
+             * save first in SubjectClasses
+             **/
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->where('Strand', $class->Strand)
+                    ->where('Semester', $class->Semester)
+                    ->first();
+            } else {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->first();
+            }
+
+            if ($classRepo != null && $subjects != null) {
+                foreach($subjects as $key => $item) {
+                    SubjectClasses::where('SubjectId', $item['id'])
+                        ->where('ClassRepoId', $classRepo->id)
+                        ->update(['Heirarchy' => $key]);
+                }
+            }
+
+            /**
+             * SAVE NOW StudentSubjects
+             */
+            foreach($subjects as $key => $item) {
+                StudentSubjects::where('SubjectId', $item['id'])
+                    ->where('ClassId', $classId)
+                    ->update(['Heirarchy' => $key]);
+            }
+        }
+
+        return response()->json('ok', 200);
     }
 }

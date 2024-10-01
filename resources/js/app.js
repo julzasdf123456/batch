@@ -44,6 +44,7 @@ import OldOREntry from "./components/transactions/old-or-entry.vue"
 import OtherPayments from "./components/transactions/other-payments.vue"
 import History from "./components/sms/history.vue"
 import PrintClassPayments from "./components/classes/print-class-payments.vue"
+import StubConfig from "./components/classes/stub-config.vue"
 
 import MyClasses from "./components/my-acount/my-classes.vue"
 import ViewClass from "./components/my-acount/view-class.vue"
@@ -86,6 +87,7 @@ app.component('old-or-entry', OldOREntry);
 app.component('other-payments', OtherPayments);
 app.component('history', History);
 app.component('print-class-payments', PrintClassPayments);
+app.component('stub-config', StubConfig);
 
 app.component('my-classes', MyClasses);
 app.component('view-class', ViewClass);

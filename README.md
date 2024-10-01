@@ -11,7 +11,8 @@
 ### New Tables
 
 ### New Columns on Tables
-
+- SubjectClasses.Heirarchy
+- StudentSubjects.Heirarchy
 
 
 ### New Permissions
