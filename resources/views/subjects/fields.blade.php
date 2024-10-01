@@ -25,5 +25,5 @@
 <!-- ParentSubject Field -->
 <div class="form-group col-lg-6">
     {!! Form::label('ParentSubject', 'Parent Subject:') !!}
-    {!! Form::select('ParentSubject', ['MAPEH' => 'MAPEH', 'Special Sciences' => 'Special Sciences'], null, ['class' => 'form-control']) !!}
+    {!! Form::select('ParentSubject', ['' => 'None', 'MAPEH' => 'MAPEH', 'TLE' => 'TLE', 'Special Sciences' => 'Special Sciences'], null, ['class' => 'form-control']) !!}
 </div>
