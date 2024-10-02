@@ -2487,4 +2487,58 @@ class ClassesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function revalidateStudentSubjects(Request $request) {
+        $studentId = $request['StudentId'];
+        $classId = $request['ClassId'];
+        $syId = $request['SchoolYearId'];
+        
+        $class = Classes::find($classId);
+        $student = Students::find($studentId);
+        $sy = SchoolYear::find($syId);
+        
+        if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+            $classRepo = DB::table('ClassesRepo')
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', $class->Semester)
+                ->first();
+        } else {
+            $classRepo = DB::table('ClassesRepo')
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->first();
+        }
+
+        if ($classRepo != null){
+            $subjectClasses = SubjectClasses::where('ClassRepoId', $classRepo->id)->get();
+
+            if ($subjectClasses != null) {
+                foreach($subjectClasses as $item) {
+                    $subject = Subjects::find($item->SubjectId);
+
+                    if ($subject != null) {
+                        $studentSubjects = StudentSubjects::where('StudentId', $studentId)
+                            ->where('ClassId', $classId)
+                            ->where('SubjectId', $subject->id)
+                            ->where('TeacherId', $subject->Teacher)
+                            ->first();
+
+                        if ($studentSubjects == null) {
+                            $studentSubjects = new StudentSubjects;
+                            $studentSubjects->id = IDGenerator::generateIDandRandString();
+                            $studentSubjects->StudentId = $studentId;
+                            $studentSubjects->SubjectId = $subject->id;
+                            $studentSubjects->ClassId = $classId;
+                            $studentSubjects->TeacherId = $subject->Teacher;
+                            $studentSubjects->save();
+                        }
+                    }
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
+    }
 }
