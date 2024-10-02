@@ -2496,6 +2496,11 @@ class ClassesController extends AppBaseController
         $class = Classes::find($classId);
         $student = Students::find($studentId);
         $sy = SchoolYear::find($syId);
+
+        if ($student != null && $student->CurrentGradeLevel === null) {
+            $student->CurrentGradeLevel = $class != null ? $class->id : null;
+            $student->save();
+        }
         
         if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
             $classRepo = DB::table('ClassesRepo')
