@@ -433,6 +433,15 @@ body.dark-mode .btn-link-muted:hover {
     color: #d1d8df !important;
 }
 
+.btn-comment,
+body.dark-mode .btn-comment {
+    color: #898e92 !important;
+    transition: all .4s ease;
+    padding: 3px 5px !important;
+    margin: 0 !important;
+    text-align: left;
+}
+
 /**
 * BOTTOM BUTTONS FLOATING
 */

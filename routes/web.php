@@ -120,6 +120,7 @@ Route::get('/classes/print-single-grade-all-hca/{classId}', [ClassesController::
 Route::get('/classes/stub-config/{classId}', [ClassesController::class, 'stubConfig'])->name('classes.stub-config');
 Route::post('/classes/save-grade-stub-config', [ClassesController::class, 'saveGradeStubConfig'])->name('classes.save-grade-stub-config');
 Route::post('/classes/revalidate-student-subjects', [ClassesController::class, 'revalidateStudentSubjects'])->name('classes.revalidate-student-subjects');
+Route::post('/classes/clear-student-subjects', [ClassesController::class, 'clearStudentSubjects'])->name('classes.clear-student-subjects');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

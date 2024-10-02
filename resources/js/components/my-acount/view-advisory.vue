@@ -326,7 +326,7 @@
                                         <thead>
                                             <tr>
                                                 <th rowspan="2"></th>
-                                                <th rowspan="2" class="text-center">Students</th>
+                                                <th rowspan="2" class="text-center" style="min-width: 230px;">Students</th>
                                                 <th class="text-center" v-for="header in mainSubjects.Headers" 
                                                     :key="header.Subject" 
                                                     :rowspan="header.rowspan" 
@@ -343,7 +343,7 @@
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th rowspan="2"></th>
+                                                <th rowspan="2" style="min-width: 100px;"></th>
                                             </tr>
                                             <tr>
                                                 <th class="text-center" v-for="header in mainSubjects.SubHeaders" :key="header.Subject">
@@ -390,9 +390,10 @@
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
                                                 <td class="v-align text-right">
-                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a> -->
-                                                    <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-link-muted" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
-                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-link-muted" title="Print grade"><i class="fas fa-print"></i></button>
+                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
+                                                    <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
+                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-comment" title="Print grade"><i class="fas fa-print"></i></button>
+                                                    <button @click="clearSubjects(student.id)" class="btn btn-xs btn-comment" style="margin-left: 8px !important;" title="Remove all subjects"><i class="fas fa-times text-danger"></i></button>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -408,9 +409,9 @@
                                                 </td>
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
                                                 <td class="v-align text-right">
-                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a> -->
-                                                    <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-link-muted" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
-                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-link-muted" title="Print grade"><i class="fas fa-print"></i></button>
+                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
+                                                    <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
+                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-comment" title="Print grade"><i class="fas fa-print"></i></button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -1449,6 +1450,37 @@ export default {
                     icon : 'error',
                     text : 'Error adding subjects to student!'
                 })
+            })
+        },
+        clearSubjects(studentId) {
+            Swal.fire({
+                title: "Subject Removal Confirmation",
+                text : `NOTE that removing this subject will also remove the student's grades. You cannot undo this. Proceed with caution.`,
+                showCancelButton: true,
+                confirmButtonText: "Proceed Removal",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post(`${ this.baseURL }/classes/clear-student-subjects`, {
+                        StudentId : studentId,
+                        ClassId : this.classId,
+                        _token : this.token,
+                    })
+                    .then(response => {
+                        this.toast.fire({
+                            icon : 'success',
+                            text : 'Subjects removed from student!'
+                        })
+                        this.getSubjects()
+                    })
+                    .catch(error => {
+                        console.log(error.response)
+                        this.toast.fire({
+                            icon : 'error',
+                            text : 'Error removing subjects from student!'
+                        })
+                    })
+                }
             })
         }
     },

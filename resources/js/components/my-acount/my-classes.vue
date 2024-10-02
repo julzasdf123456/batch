@@ -102,6 +102,7 @@ export default {
             })
             .then(response => {
                 this.schoolYears = response.data.schoolYears
+                console.log(this.schoolYears)
 
                 if (!isNull(this.schoolYears)) {
                     this.sy = this.schoolYears[0].SchoolYear
