@@ -409,6 +409,7 @@
                                                 <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-link-muted"><i class="fas fa-print"></i></a> -->
+                                                    <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-link-muted" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
                                                     <button @click="printSingleStub(student.id)" class="btn btn-xs btn-link-muted" title="Print grade"><i class="fas fa-print"></i></button>
                                                 </td>
                                             </tr>
