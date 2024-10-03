@@ -19,6 +19,7 @@ use App\Http\Controllers\BarcodeAttendanceController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\CatchController;
 use App\Http\Controllers\SmsMessagesController;
+use App\Http\Controllers\QuizScoresController;
 
 /*
 |--------------------------------------------------------------------------
@@ -231,3 +232,8 @@ Route::get('/sms_messages/history', [SmsMessagesController::class, 'history'])->
 Route::get('/sms_messages/get-batch-sms-history', [SmsMessagesController::class, 'getBatchSmsHistory'])->name('smsMessages.get-batch-sms-history');
 Route::get('/sms_messages/get-active-batch-sms', [SmsMessagesController::class, 'getActiveBatchSms'])->name('smsMessages.get-active-batch-sms');
 Route::resource('smsMessages', SmsMessagesController::class);
+
+Route::post('/quiz_scores/save-quiz-sheet', [QuizScoresController::class, 'saveQuizSheet'])->name('quizScores.save-quiz-sheet');
+Route::get('/quiz_scores/get-quiz-headers', [QuizScoresController::class, 'getQuizHeaders'])->name('quizScores.get-quiz-headers');
+Route::post('/quiz_scores/update-score', [QuizScoresController::class, 'updateScore'])->name('quizScores.update-score');
+Route::resource('quizScores', QuizScoresController::class);
