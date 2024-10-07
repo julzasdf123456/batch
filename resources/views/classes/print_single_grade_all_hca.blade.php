@@ -272,9 +272,9 @@
                                 <tr>
                                     <!-- Indented sub-subjects -->
                                     <td class="sub-subject">{{ $subSubject->Subject }}</td>
-                                    <td class="text-right">{{ $subSubject->FirstGradingGrade }}</td>
-                                    <td class="text-right">{{ $subSubject->SecondGradingGrade }}</td>
-                                    <td class="text-right">{{ $subSubject->ThirdGradingGrade }}</td>
+                                    <td class="text-right">{{ number_format($subSubject->FirstGradingGrade) }}</td>
+                                    <td class="text-right">{{ number_format($subSubject->SecondGradingGrade) }}</td>
+                                    <td class="text-right">{{ number_format($subSubject->ThirdGradingGrade) }}</td>
                                     <td>{{ $subSubject->Notes }}</td>
                                 </tr>
                                 @php
@@ -288,9 +288,9 @@
                 @else
                     <tr>
                         <td>{{ $subject->Subject }}</td>
-                        <td class="text-right">{{ $subject->FirstGradingGrade }}</td>
-                        <td class="text-right">{{ $subject->SecondGradingGrade }}</td>
-                        <td class="text-right">{{ $subject->ThirdGradingGrade }}</td>
+                        <td class="text-right">{{ number_format($subject->FirstGradingGrade) }}</td>
+                        <td class="text-right">{{ number_format($subject->SecondGradingGrade) }}</td>
+                        <td class="text-right">{{ number_format($subject->ThirdGradingGrade) }}</td>
                         <td>{{ $subject->Notes }}</td>
                     </tr>
                     @php
@@ -319,9 +319,9 @@
             @endphp
             <tr>
                 <td><strong>TOTAL AVERAGE</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageFirst, 2) }}</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageSecond, 2) }}</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageThird, 2) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
                 <td></td>
             </tr>
         </tbody>

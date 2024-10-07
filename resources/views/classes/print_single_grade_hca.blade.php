@@ -270,24 +270,58 @@
                                 <tr>
                                     <!-- Indented sub-subjects -->
                                     <td class="sub-subject">{{ $subSubject->Subject }}</td>
-                                    <td class="text-right">{{ $subSubject->FirstGradingGrade }}</td>
-                                    <td class="text-right">{{ $subSubject->SecondGradingGrade }}</td>
-                                    <td class="text-right">{{ $subSubject->ThirdGradingGrade }}</td>
+                                    <td class="text-right">{{ number_format($subSubject->FirstGradingGrade) }}</td>
+                                    <td class="text-right">{{ number_format($subSubject->SecondGradingGrade) }}</td>
+                                    <td class="text-right">{{ number_format($subSubject->ThirdGradingGrade) }}</td>
                                     <td>{{ $subSubject->Notes }}</td>
                                 </tr>
+                                @php
+                                    $sumFirst += floatval($subSubject->FirstGradingGrade);
+                                    $sumSecond += floatval($subSubject->SecondGradingGrade);
+                                    $sumThird += floatval($subSubject->ThirdGradingGrade);
+                                @endphp
                             @endforeach
                         @endif
                     @endforeach
                 @else
                     <tr>
                         <td>{{ $subject->Subject }}</td>
-                        <td class="text-right">{{ $subject->FirstGradingGrade }}</td>
-                        <td class="text-right">{{ $subject->SecondGradingGrade }}</td>
-                        <td class="text-right">{{ $subject->ThirdGradingGrade }}</td>
+                        <td class="text-right">{{ number_format($subject->FirstGradingGrade) }}</td>
+                        <td class="text-right">{{ number_format($subject->SecondGradingGrade) }}</td>
+                        <td class="text-right">{{ number_format($subject->ThirdGradingGrade) }}</td>
                         <td>{{ $subject->Notes }}</td>
                     </tr>
+                    @php
+                        $sumFirst += floatval($subject->FirstGradingGrade);
+                        $sumSecond += floatval($subject->SecondGradingGrade);
+                        $sumThird += floatval($subject->ThirdGradingGrade);
+                    @endphp
                 @endif
             @endforeach
+            @php
+                $averageFirst = 0;
+                $averageSecond = 0;
+                $averageThird = 0;
+
+                if ($sumFirst > 0 && count($data) > 0) {
+                    $averageFirst = $sumFirst / count($data);
+                }
+
+                if ($sumSecond > 0 && count($data) > 0) {
+                    $averageSecond = $sumSecond / count($data);
+                }
+
+                if ($sumThird > 0 && count($data) > 0) {
+                    $averageThird = $sumThird / count($data);
+                }
+            @endphp
+            <tr>
+                <td><strong>TOTAL AVERAGE</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
+                <td></td>
+            </tr>
         </tbody>
     </table>
 
