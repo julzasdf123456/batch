@@ -197,107 +197,132 @@
                 $sumThird = 0;
 
                 $data = $student->GradeData;
+                $data = json_decode($data, true);
 
                 /**
                  * REORGANIZE SUBJECTS FOR PARENT SUBJECTS
+                 * ==============================================
                  */
                 $groupedSubjects = [];
                 $mainSubjects = [];
+
+                // Collect ParentSubjects for later insertion
+                $parentSubjects = [];
+
                 foreach ($data as $subject) {
-                    if (is_null($subject->ParentSubject)) {
-                        $mainSubjects[] = $subject; // Subjects without ParentSubject
+                    if (is_null($subject["ParentSubject"])) {
+                        $mainSubjects[] = $subject; // Main subjects (ParentSubject is null)
                     } else {
-                        // Group subjects with the same ParentSubject
-                        if (!isset($groupedSubjects[$subject->ParentSubject])) {
-                            $groupedSubjects[$subject->ParentSubject] = [];
+                        // Group subjects by their ParentSubject
+                        if (!isset($groupedSubjects[$subject["ParentSubject"]])) {
+                            $groupedSubjects[$subject["ParentSubject"]] = [];
                         }
-                        $groupedSubjects[$subject->ParentSubject][] = $subject;
+                        $groupedSubjects[$subject["ParentSubject"]][] = $subject; // Sub-subjects
+
+                        // Track unique ParentSubjects for later insertion
+                        if (!in_array($subject["ParentSubject"], $parentSubjects)) {
+                            $parentSubjects[] = $subject["ParentSubject"];
+                        }
                     }
                 }
-                $mainSubjects[] = $groupedSubjects;
+
+                // Step 2: Add missing ParentSubjects as main subjects (these will be empty placeholders)
+                foreach ($parentSubjects as $parentSubject) {
+                    // add average grades 
+                    $subs = $groupedSubjects[$parentSubject];
+                    $fGradeSum = 0;
+                    $sGradeSum = 0;
+                    $tGradeSum = 0;
+                    $fGradeAve = 0;
+                    $sGradeAve = 0;
+                    $tGradeAve = 0;
+                    if ($subs != null) {
+                        foreach ($subs as $item) {
+                            $fGradeSum += floatval($item['FirstGradingGrade'] != null ? $item['FirstGradingGrade'] : 0);
+                            $sGradeSum += floatval($item['SecondGradingGrade'] != null ? $item['SecondGradingGrade'] : 0);
+                            $tGradeSum += floatval($item['ThirdGradingGrade'] != null ? $item['ThirdGradingGrade'] : 0);
+                        }
+
+                        $fGradeAve = $fGradeSum > 0 ? ($fGradeSum / count($subs)) : 0;
+                        $sGradeAve = $sGradeSum > 0 ? ($sGradeSum / count($subs)) : 0;
+                        $tGradeAve = $tGradeSum > 0 ? ($tGradeSum / count($subs)) : 0;
+                    }
+
+                    $mainSubjects[] = [
+                        "Subject" => $parentSubject,   // The parent name
+                        "FullName" => "",              // Leave blank as there's no teacher for parent
+                        "Heirarchy" => $groupedSubjects[$parentSubject][0]["Heirarchy"], // Sort by first child's Heirarchy
+                        "id" => null,
+                        "StudentId" => null,
+                        "SubjectId" => null,
+                        "ClassId" => null,
+                        "TeacherId" => null,
+                        "FirstGradingGrade" => number_format($fGradeAve),
+                        "SecondGradingGrade" => number_format($sGradeAve),
+                        "ThirdGradingGrade" => number_format($tGradeAve),
+                        "FourthGradingGrade" => null,
+                        "AverageGrade" => null,
+                        "Notes" => null,
+                        "created_at" => null,
+                        "updated_at" => null,
+                        "Visibility" => "FREAKING PARENT",
+                    ];
+                }
+
+                // Step 3: Sort the main subjects by 'Heirarchy'
+                usort($mainSubjects, function($a, $b) {
+                    return $a['Heirarchy'] <=> $b['Heirarchy'];
+                });
+
+                // Step 4: Sort the sub-subjects within each parent group by 'Heirarchy'
+                foreach ($groupedSubjects as &$subSubjects) {
+                    usort($subSubjects, function($a, $b) {
+                        return $a['Heirarchy'] <=> $b['Heirarchy'];
+                    });
+                }
+                unset($subSubjects); // Break the reference
             @endphp
-            {{-- @foreach ($data as $item)
-                <tr>
-                    <td>{{ strtoupper($item->Subject) }}</td>
-                    <td class="text-right">{{ $item->FirstGradingGrade }}</td>
-                    <td class="text-right">{{ $item->SecondGradingGrade }}</td>
-                    <td class="text-right">{{ $item->ThirdGradingGrade }}</td>
-                    <td>{{ $item->Notes }}</td>
-                </tr>
-                @php
-                    $sumFirst += floatval($item->FirstGradingGrade);
-                    $sumSecond += floatval($item->SecondGradingGrade);
-                    $sumThird += floatval($item->ThirdGradingGrade);
-                @endphp
-            @endforeach
-            @php
-                $averageFirst = 0;
-                $averageSecond = 0;
-                $averageThird = 0;
-
-                if ($sumFirst > 0 && count($data) > 0) {
-                    $averageFirst = $sumFirst / count($data);
-                }
-
-                if ($sumSecond > 0 && count($data) > 0) {
-                    $averageSecond = $sumSecond / count($data);
-                }
-
-                if ($sumThird > 0 && count($data) > 0) {
-                    $averageThird = $sumThird / count($data);
-                }
-            @endphp
-            <tr>
-                <td><strong>TOTAL AVERAGE</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageFirst, 2) }}</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageSecond, 2) }}</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageThird, 2) }}</strong></td>
-                <td></td>
-            </tr> --}}
             @foreach ($mainSubjects as $subject)
                 <!-- Main Subject Row -->
-                @if (is_array($subject))
-                    @foreach ($subject as $key => $item)
+                <tr>
+                    @if ($subject['Visibility'] === 'FREAKING PARENT')
+                        <td><strong><i>{{ $subject['Subject'] }}<i></strong></td>
+                        <td class="text-right"><strong><i>{{ number_format($subject['FirstGradingGrade']) }}<i></strong></td>
+                        <td class="text-right"><strong><i>{{ number_format($subject['SecondGradingGrade']) }}<i></strong></td>
+                        <td class="text-right"><strong><i>{{ number_format($subject['ThirdGradingGrade']) }}<i></strong></td>
+                        <td>{{ $subject['Notes'] }}</td>
+                    @else
+                        <td>{{ $subject['Subject'] }}</td>
+                        <td class="text-right">{{ number_format($subject['FirstGradingGrade']) }}</td>
+                        <td class="text-right">{{ number_format($subject['SecondGradingGrade']) }}</td>
+                        <td class="text-right">{{ number_format($subject['ThirdGradingGrade']) }}</td>
+                        <td>{{ $subject['Notes'] }}</td>
+
+                        @php
+                            $sumFirst += floatval($subject['FirstGradingGrade'] != null ? $subject['FirstGradingGrade'] : 0);
+                            $sumSecond += floatval($subject['SecondGradingGrade'] != null ? $subject['SecondGradingGrade'] : 0);
+                            $sumThird += floatval($subject['ThirdGradingGrade'] != null ? $subject['ThirdGradingGrade'] : 0);
+                        @endphp
+                    @endif
+                </tr>
+
+                <!-- Check if the subject has child subjects and display them -->
+                @if (isset($groupedSubjects[$subject['Subject']]))
+                    @foreach ($groupedSubjects[$subject['Subject']] as $subSubject)
                         <tr>
                             <!-- Indented sub-subjects -->
-                            <td><strong>{{ $key }}</strong></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="sub-subject">{{ $subSubject['Subject'] }}</td>
+                            <td class="text-right">{{ number_format($subSubject['FirstGradingGrade']) }}</td>
+                            <td class="text-right">{{ number_format($subSubject['SecondGradingGrade']) }}</td>
+                            <td class="text-right">{{ number_format($subSubject['ThirdGradingGrade']) }}</td>
+                            <td>{{ $subSubject['Notes'] }}</td>
                         </tr>
-                        <!-- Sub-subjects (children) for each ParentSubject -->
-                        @if (isset($groupedSubjects[$key]))
-                            @foreach ($groupedSubjects[$key] as $subSubject)
-                                <tr>
-                                    <!-- Indented sub-subjects -->
-                                    <td class="sub-subject">{{ $subSubject->Subject }}</td>
-                                    <td class="text-right">{{ number_format($subSubject->FirstGradingGrade) }}</td>
-                                    <td class="text-right">{{ number_format($subSubject->SecondGradingGrade) }}</td>
-                                    <td class="text-right">{{ number_format($subSubject->ThirdGradingGrade) }}</td>
-                                    <td>{{ $subSubject->Notes }}</td>
-                                </tr>
-                                @php
-                                    $sumFirst += floatval($subSubject->FirstGradingGrade);
-                                    $sumSecond += floatval($subSubject->SecondGradingGrade);
-                                    $sumThird += floatval($subSubject->ThirdGradingGrade);
-                                @endphp
-                            @endforeach
-                        @endif
+                        @php
+                            $sumFirst += floatval($subSubject['FirstGradingGrade'] != null ? $subSubject['FirstGradingGrade'] : 0);
+                            $sumSecond += floatval($subSubject['SecondGradingGrade'] != null ? $subSubject['SecondGradingGrade'] : 0);
+                            $sumThird += floatval($subSubject['ThirdGradingGrade'] != null ? $subSubject['ThirdGradingGrade'] : 0);
+                        @endphp
                     @endforeach
-                @else
-                    <tr>
-                        <td>{{ $subject->Subject }}</td>
-                        <td class="text-right">{{ number_format($subject->FirstGradingGrade) }}</td>
-                        <td class="text-right">{{ number_format($subject->SecondGradingGrade) }}</td>
-                        <td class="text-right">{{ number_format($subject->ThirdGradingGrade) }}</td>
-                        <td>{{ $subject->Notes }}</td>
-                    </tr>
-                    @php
-                        $sumFirst += floatval($subject->FirstGradingGrade);
-                        $sumSecond += floatval($subject->SecondGradingGrade);
-                        $sumThird += floatval($subject->ThirdGradingGrade);
-                    @endphp
                 @endif
             @endforeach
             @php

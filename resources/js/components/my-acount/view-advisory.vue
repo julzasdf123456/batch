@@ -359,22 +359,6 @@
                                                     </div>
                                                 </th>
                                             </tr>
-                                            <!-- <tr>
-                                                <th></th>
-                                                <th class="text-center">Students</th>
-                                                <th class="text-center" v-for="sb in subjects">
-                                                    {{ sb.Subject }} <br>
-                                                    <span class="text-xs text-muted">{{ sb.FullName }}</span>
-                                                    <br>
-                                                    <div v-if="viewedIn==='admin'" class="divider"></div>
-                                                    <div v-if="viewedIn==='admin'" style="display: flex; width: 100%; flex-direction: row; justify-content: center; align-items: center;">
-                                                        <a :href="baseURL + '/classes/print-grades-in-subject-class/' + sb.id + '/' + classId + '/' + sb.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
-
-                                                        <button @click="removeSubject(sb.id, sb.TeacherId)" class="btn btn-link-muted btn-sm" title="Remove this subject from class"><i class="fas fa-times-circle"></i></button>
-                                                    </div>
-                                                </th>
-                                                <th></th>
-                                            </tr> -->
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -412,6 +396,7 @@
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
                                                     <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
                                                     <button @click="printSingleStub(student.id)" class="btn btn-xs btn-comment" title="Print grade"><i class="fas fa-print"></i></button>
+                                                    <button @click="clearSubjects(student.id)" class="btn btn-xs btn-comment" style="margin-left: 8px !important;" title="Remove all subjects"><i class="fas fa-times text-danger"></i></button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -1414,18 +1399,20 @@ export default {
             this.addedSubjectId = ''
         },
         printSingleStub(studentId) {
-            if (this.school === 'HCA') {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
-            } else {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade/${ studentId }/${ this.classId }`
-            }
+            // if (this.school === 'HCA') {
+            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+            // } else {
+            //     window.location.href = `${ this.baseURL }/classes/print-single-grade/${ studentId }/${ this.classId }`
+            // }
+            window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
         },
         printAllGradeStub() {
-            if (this.school === 'HCA') {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
-            } else {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-all/${ this.classId }`
-            }
+            // if (this.school === 'HCA') {
+            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+            // } else {
+            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-all/${ this.classId }`
+            // }
+            window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
         },
         stubConfig() {
             window.location.href = `${ this.baseURL }/classes/stub-config/${ this.classId }`

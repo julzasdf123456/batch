@@ -1904,6 +1904,7 @@ class TransactionsController extends AppBaseController
             ->select(
                 'TransactionDetails.*',
                 'Transactions.ORNumber',
+                'Transactions.ORDate',
                 'Transactions.Payee',
                 'Transactions.TransactionType',
                 'users.name',
