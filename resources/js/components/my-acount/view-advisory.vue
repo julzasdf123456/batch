@@ -46,6 +46,7 @@
                             <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="dropdown-item" title="Print Payment Details"><i class="fas fa-print ico-tab-mini"></i> Print Payment Details</a>
 
                             <button class="dropdown-item" @click="downloadSF2()"><i class="fas fa-file-excel ico-tab-mini"></i>Download SF2</button>
+                            <button class="dropdown-item" @click="stubConfig()"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
                         </div>
                     </div>
                     <div>
@@ -306,8 +307,9 @@
                             <div class="tab-pane fade" id="grades-content" role="tabpanel" aria-labelledby="grades-tab">
                                 <div class="mt-2" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: start; align-items: center;">
                                     <!-- <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a> -->
-                                    <button @click="printAllGradeStub()" class="btn btn-default btn-sm" style="width: 190px;" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</button>
-                                    <button @click="stubConfig()" class="btn btn-default btn-sm" style="width: 190px;" title="Setup Stub Config"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
+                                    <button @click="rankings()" class="btn btn-default btn-sm" style="width: 180px;" title="View Grade Class Rankings"><i class="fas fa-award ico-tab-mini"></i>Rankings</button>
+                                    <button @click="printAllGradeStub()" class="btn btn-default btn-sm" style="width: 180px;" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</button>
+                                    <button @click="stubConfig()" class="btn btn-default btn-sm" style="width: 180px;" title="Setup Stub Config"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
 
                                     <div v-if="viewedIn==='admin'" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center; width: 90%;">
                                         <div v-if="addSubjectEnabled" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center;">
@@ -562,6 +564,68 @@
             </div>
         </div>
     </div>
+
+    <!-- RANKINGS -->
+    <div ref="modalRankings" class="modal fade" id="modal-rankings" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Class Ranking</span>
+                </div>
+                <div class="modal-body table-responsive">
+                    <h4>{{ activeRankTitle }}</h4>
+                    <button @click='printRanking()' class='btn btn-sm btn-default'><i class="fas fa-print ico-tab-mini"></i>Print</button>
+                    <table class="table table-hover table-sm table-bordered mt-2">
+                        <thead>
+                            <tr>
+                                <th class="text-center" rowspan="2">RANK</th>
+                                <th class="text-center" rowspan="2">Students</th>
+                                <th class="text-center" colspan="4">Average Grades</th>
+                                <th class="text-center" rowspan="2"  :class="activeRankGradeColor==='Average' ? 'bg-success' : ''">
+                                    Total Average<br>Grade
+                                    <br>
+                                    <button @click="sortRanking('Average')" class='btn btn-xs btn-default'>Rank</button>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th :class="activeRankGradeColor==='First' ? 'bg-success' : ''" class="text-center">
+                                    First
+                                    <br>
+                                    <button @click="sortRanking('First')" class='btn btn-xs btn-default'>Rank</button>
+                                </th>
+                                <th :class="activeRankGradeColor==='Second' ? 'bg-success' : ''" class="text-center">
+                                    Second
+                                    <br>
+                                    <button @click="sortRanking('Second')" class='btn btn-xs btn-default'>Rank</button>
+                                </th>
+                                <th :class="activeRankGradeColor==='Third' ? 'bg-success' : ''" class="text-center">
+                                    Third
+                                    <br>
+                                    <button @click="sortRanking('Third')" class='btn btn-xs btn-default'>Rank</button>
+                                </th>
+                                <th :class="activeRankGradeColor==='Fourth' ? 'bg-success' : ''" class="text-center">
+                                    Fourth
+                                    <br>
+                                    <button @click="sortRanking('Fourth')" class='btn btn-xs btn-default'>Rank</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(rank, index) in rankingData" :key="rank.id">
+                                <td>{{ index+1 }}</td>
+                                <td><strong>{{ rank.LastName + ', ' + rank.FirstName + (isNull(rank.MiddleName) ? '' : (' ' + rank.MiddleName + ' ')) + (isNull(rank.Suffix) ? '' : rank.Suffix) }}</strong></td>
+                                <td :class="activeRankGradeColor==='First' ? 'bg-success' : ''">{{ rank.FirstGradingGrade }}</td>
+                                <td :class="activeRankGradeColor==='Second' ? 'bg-success' : ''">{{ rank.SecondGradingGrade }}</td>
+                                <td :class="activeRankGradeColor==='Third' ? 'bg-success' : ''">{{ rank.ThirdGradingGrade }}</td>
+                                <td :class="activeRankGradeColor==='Fourth' ? 'bg-success' : ''">{{ rank.FourthGradingGrade }}</td>
+                                <td :class="activeRankGradeColor==='Average' ? 'bg-success' : ''">{{ rank.AverageGrade }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -626,15 +690,40 @@ export default {
             subjectRepos : [],
             addedSubjectId : '',
             mainSubjects : [],
+            rankingData : [],
+            activeRankGradeColor : 'Average',
+            activeRankTitle : 'Total Average Grade Rankings'
         }
     },
     methods : {
-        isNull (item) {
-            if (jquery.isEmptyObject(item)) {
+        isNull (value) {
+            // Check for null or undefined
+            if (value === null || value === undefined) {
                 return true;
-            } else {
-                return false;
             }
+
+            // Check for empty string
+            if (typeof value === 'string' && value.trim() === '') {
+                return true;
+            }
+
+            // Check for empty array
+            if (Array.isArray(value) && value.length === 0) {
+                return true;
+            }
+
+            // Check for empty object
+            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                return true;
+            }
+
+            // Check for NaN
+            if (typeof value === 'number' && isNaN(value)) {
+                return true;
+            }
+
+            // If none of the above, it's not null, empty, or undefined
+            return false;
         },
         toMoney(value) {
             return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
@@ -1404,7 +1493,11 @@ export default {
             // } else {
             //     window.location.href = `${ this.baseURL }/classes/print-single-grade/${ studentId }/${ this.classId }`
             // }
-            window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
+            } else {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+            }
         },
         printAllGradeStub() {
             // if (this.school === 'HCA') {
@@ -1412,7 +1505,11 @@ export default {
             // } else {
             //     window.location.href = `${ this.baseURL }/classes/print-single-grade-all/${ this.classId }`
             // }
-            window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca-senior/${ this.classId }`
+            } else {
+                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+            }
         },
         stubConfig() {
             window.location.href = `${ this.baseURL }/classes/stub-config/${ this.classId }`
@@ -1469,6 +1566,85 @@ export default {
                     })
                 }
             })
+        },
+        rankings() {
+            this.setupRankingData()
+
+            let modalElement = this.$refs.modalRankings
+            $(modalElement).modal('show')
+        },
+        setupRankingData() {
+            this.rankingData = []
+            this.rankingData = this.male.concat(this.female)
+
+            // insert grades
+            if (!this.isNull(this.rankingData)) {
+                var size = this.rankingData.length
+                for (let i=0; i<size; i++) {
+                    this.rankingData[i]['FirstGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "First"))
+                    this.rankingData[i]['SecondGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Second"))
+                    this.rankingData[i]['ThirdGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Third"))
+                    this.rankingData[i]['FourthGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Fourth"))
+                    this.rankingData[i]['AverageGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Average"))
+                }
+            }
+
+            this.sortRanking('Average')
+        },
+        getTotalAverage(studentId, grading) {
+            let gradeData = this.subjectData.filter(obj => obj.StudentId === studentId)
+            
+            var average = 0
+            var sum = 0
+            if (!this.isNull(gradeData)) {
+                let size = gradeData.length
+
+                for (let i=0; i<size; i++) {
+                    if (grading === 'First') {
+                        sum += (this.isNull(gradeData[i].FirstGradingGrade) ? 0 : parseFloat(gradeData[i].FirstGradingGrade))
+                    } else if (grading === 'Second') {
+                        sum += (this.isNull(gradeData[i].SecondGradingGrade) ? 0 : parseFloat(gradeData[i].SecondGradingGrade))
+                    } else if (grading === 'Third') {
+                        sum += (this.isNull(gradeData[i].ThirdGradingGrade) ? 0 : parseFloat(gradeData[i].ThirdGradingGrade))
+                    } else if (grading === 'Fourth') {
+                        sum += (this.isNull(gradeData[i].FourthGradingGrade) ? 0 : parseFloat(gradeData[i].FourthGradingGrade))
+                    } else {
+                        sum += (this.isNull(gradeData[i].AverageGrade) ? 0 : parseFloat(gradeData[i].AverageGrade))
+                    }
+                }
+                
+                if (sum > 0 && size > 0) {
+                    average = sum / size
+                } else {
+                    average = 0
+                }
+
+                return average
+            } else {
+                return 0
+            }
+        },
+        sortRanking(grading) {
+            this.activeRankGradeColor = grading
+            if (grading === 'First') {
+                this.rankingData.sort((a, b) => b.FirstGradingGrade - a.FirstGradingGrade)
+                this.activeRankTitle = grading + ' Grading Rankings'
+            } else if (grading === 'Second') {
+                this.rankingData.sort((a, b) => b.SecondGradingGrade - a.SecondGradingGrade)
+                this.activeRankTitle = grading + ' Grading Rankings'
+            } else if (grading === 'Third') {
+                this.rankingData.sort((a, b) => b.ThirdGradingGrade - a.ThirdGradingGrade)
+                this.activeRankTitle = grading + ' Grading Rankings'
+            } else if (grading === 'Fourth') {
+                this.rankingData.sort((a, b) => b.FourthGradingGrade - a.FourthGradingGrade)
+                this.activeRankTitle = grading + ' Grading Rankings'
+            } else {
+                this.rankingData.sort((a, b) => b.AverageGrade - a.AverageGrade)
+                this.activeRankTitle = 'Total Average Grade Rankings'
+            }
+        },
+        printRanking() {
+            window.location.href = `${ this.baseURL }/classes/print-ranking/${ this.classId }/${ this.activeRankGradeColor }/${ this.teacherId }/${ this.syId }`
         }
     },
     created() {

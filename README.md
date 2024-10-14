@@ -9,11 +9,8 @@
 - Green - #3a9971
 
 ### New Tables
-- QuizScores
 
 ### New Columns on Tables
-- SubjectClasses.Heirarchy (HCA)
-- StudentSubjects.Heirarchy (HCA)
 
 
 ### New Permissions
