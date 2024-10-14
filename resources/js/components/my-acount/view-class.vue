@@ -16,6 +16,9 @@
                                 <a class="nav-link active" id="students-list-tab" data-toggle="pill" href="#students-list-content" role="tab" aria-controls="students-list-content" aria-selected="false">Grading</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" id="quizzes-tab" data-toggle="pill" href="#quizzes-content" role="tab" aria-controls="quizzes-content" aria-selected="false">Quizzes</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" id="payments-tab" data-toggle="pill" href="#payments-content" role="tab" aria-controls="payments-content" aria-selected="false">Payments</a>
                             </li>
                         </ul>
@@ -117,6 +120,61 @@
 
                             <!-- 
                                 ====================================================================================================================================
+                                QUIZZES 
+                                ====================================================================================================================================
+                            -->
+                            <div class="tab-pane fade active show" id="quizzes-content" role="tabpanel" aria-labelledby="quizzes-tab">
+                                <div class="table-responsive mt-2">
+                                    <!-- <a :href="baseURL + '/classes/print-grades-in-subject-class/' + subjectId + '/' + classId + '/' + teacherId" class="btn btn-link-muted btn-sm" title="Print all grades"><i class="fas fa-print"></i></a> -->
+
+                                    <div class="custom-control custom-switch mt-2 mb-2 float-right" style="margin-left: 10px; margin-top: 6px; margin-bottom: 6px;">
+                                        <button @click="createQuiz()" class="btn btn-sm btn-default"><i class="fas fa-plus ico-tab-mini"></i>Add Quiz</button>
+                                    </div>
+
+                                    <table class="table table-hover table-bordered table-sm">
+                                        <thead>
+                                            <th></th>
+                                            <th class="text-muted">Student</th>
+                                            <th class="text-muted text-center" v-for="head in quizHeaders" :key="head.QuizTitle">{{ head.QuizTitle }}<br>({{ getGradingPeriod(head.GradingPeriod) }})</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="8" class="text-muted">Male Students</td>
+                                            </tr>
+                                            <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
+                                                <td class="v-align">{{ index+1 }}</td>
+                                                <td class="v-align">
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                </td>
+                                                <td class="v-align" v-for="(head, i) in quizHeaders" :key="head.QuizTitle">
+                                                    <input :ref="el => { if (el) inputRefs[`MaleQ${index}-${i}`] = el }" class="table-input text-right" :class="tableInputTextColor" :value="getScorePerStudent(student.StudentId, head.QuizTitle, index, i, 'MaleQ')" @keyup.enter="(event) => saveScore(event, student.StudentId, head.QuizTitle, index, i, 'MaleQ')" @blur="(event) => saveScore(event, student.StudentId, head.QuizTitle)" type="number" step="any"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="8" class="text-muted">Female Students</td>
+                                            </tr>
+                                            <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
+                                                <td class="v-align">{{ index+1 }}</td>
+                                                <td class="v-align">
+                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
+                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                                    </a>
+                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
+                                                </td>
+                                                <td class="v-align" v-for="(head, i) in quizHeaders" :key="head.QuizTitle">
+                                                    <input :ref="el => { if (el) inputRefs[`FemaleQ${index}-${i}`] = el }" class="table-input text-right" :class="tableInputTextColor" :value="getScorePerStudent(student.StudentId, head.QuizTitle, index, i, 'FemaleQ')" @keyup.enter="(event) => saveScore(event, student.StudentId, head.QuizTitle, index, i, 'FemaleQ')" @blur="(event) => saveScore(event, student.StudentId, head.QuizTitle)" type="number" step="any"/>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- 
+                                ====================================================================================================================================
                                 PAYMENTS 
                                 ====================================================================================================================================
                             -->
@@ -183,6 +241,39 @@
     <div class="right-bottom" style="bottom: 0px !important;">
         <p id="msg-display" class="msg-display shadow" style="font-size: .8em;"><i class="fas fa-check-circle ico-tab-mini text-success"></i>saved!</p>
     </div>
+
+    <!-- CREATE QUIZ MODAL -->
+    <div ref="modalCreateQuiz" class="modal fade" id="modal-create-quiz" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Create New Quiz Scoresheet</span>
+                </div>
+                <div class="modal-body table-responsive">
+                    <div class="form-group">
+                        <span class="text-muted">Quiz Name</span>
+                        <input type="text" class="form-control form-control-sm" placeholder="What's the quiz about?" v-model="newQuizName">
+                    </div>
+                    <div class="form-group mt-2">
+                        <span class="text-muted">Total Possible Score</span>
+                        <input type="number" step="any" class="form-control form-control-sm" placeholder="100" v-model="newQuizTotal">
+                    </div>
+                    <div class="form-group mt-2">
+                        <span class="text-muted">Grading Period</span>
+                        <select class="form-control form-control-sm" v-model="newQuizGrading">
+                            <option value="1">First Grading</option>
+                            <option value="2">Second Grading</option>
+                            <option value="3">Third Grading</option>
+                            <option value="4">Fourth Grading</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-sm btn-primary" @click="saveQuizSheet()"><i class="fas fa-check ico-tab-mini"></i>Create Quiz Sheet</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -193,6 +284,8 @@ import 'flatpickr/dist/flatpickr.css';
 import jquery from 'jquery';
 import Swal from 'sweetalert2';
 import { ref, onMounted } from 'vue';
+import { NULL } from 'sass';
+import { event } from 'jquery';
 
 export default {
     name : 'ViewClass.view-class',
@@ -227,15 +320,17 @@ export default {
             paymentData : [],
             payablesProfile : [],
             inputRefs : ref({}),
+            newQuizName : '',
+            newQuizTotal : '',
+            newQuizGrading : '1',
+            quizHeaders : [],
+            quizData : [],
         }
     },
     methods : {
-        isNull (item) {
-            if (jquery.isEmptyObject(item)) {
-                return true;
-            } else {
-                return false;
-            }
+        isNull (obj) {
+            return obj === null || obj === undefined || 
+                (typeof obj === 'object' && Object.keys(obj).length === 0)
         },
         toMoney(value) {
             return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
@@ -284,6 +379,8 @@ export default {
                 if (!this.isNull(this.female)) {
                     this.visibilityToggle = this.isNull(this.female[0].Visibility) ? false : true
                 }
+                
+                this.getQuizHeaders()
             })
             .catch(error => {
                 console.log(error)
@@ -511,6 +608,114 @@ export default {
                 }, 0);
             }
         },
+        createQuiz() {
+            let modalElement = this.$refs.modalCreateQuiz
+            $(modalElement).modal('show')
+        },
+        saveQuizSheet() {
+            if (this.isNull(this.newQuizName) | this.isNull(this.newQuizTotal)) {
+                this.toast.fire({
+                    icon : 'info',
+                    text : 'Please fill in all fields!'
+                })
+            } else {
+                axios.post(`${ this.baseURL }/quiz_scores/save-quiz-sheet`, {
+                    _token : this.token,
+                    ClassId : this.classId,
+                    SubjectId : this.subjectId,
+                    TeacherId : this.teacherId,
+                    QuizTitle : this.newQuizName,
+                    TotalScore : this.newQuizTotal,
+                    GradingPeriod : this.newQuizGrading,
+                })
+                .then(response => {
+                    this.toast.fire({
+                        icon : 'success',
+                        text : 'New quiz score sheet created!'
+                    })
+                    
+                    this.getQuizHeaders()
+
+                    let modalElement = this.$refs.modalCreateQuiz
+                    $(modalElement).modal('hide')
+                })
+                .catch(error => {
+                    console.log(error.response)
+                    this.toast.fire({
+                        icon : 'error',
+                        text : 'Error creating quiz sheet!'
+                    })
+                    
+                    let modalElement = this.$refs.modalCreateQuiz
+                    $(modalElement).modal('hide')
+                })
+            }
+        },
+        getQuizHeaders() {
+            this.quizHeaders = []
+            axios.get(`${ this.baseURL }/quiz_scores/get-quiz-headers`, {
+                params : {
+                    ClassId : this.classId,
+                    SubjectId : this.subjectId,
+                    TeacherId : this.teacherId,
+                }
+            })
+            .then(response => {
+                this.quizHeaders = response.data.Headers
+                this.quizData = response.data.Grades
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting quiz headers and data!'
+                })
+            })
+        },
+        getGradingPeriod(grading) {
+            if (grading === '1') {
+                return '1st Grdng'
+            } else if (grading === '2') {
+                return '2nd Grdng'
+            } else if (grading === '3') {
+                return '3rd Grdng'
+            } else {
+                return '4th Grdng'
+            }
+        },
+        getScorePerStudent(studentId, quizTitle) {
+            let obj = this.quizData.find(obj => obj.StudentId === studentId && obj.QuizTitle === quizTitle)
+
+            if (this.isNull(obj)) {
+                return null
+            } else {
+                return obj.StudentScore
+            }
+        },
+        saveScore(event, studentId, quizTitle, rowIndex, colIndex, gender) {
+            const inputValue = event.target.value
+
+            axios.post(`${ this.baseURL }/quiz_scores/update-score`, {
+                _token : this.token,
+                ClassId : this.classId,
+                SubjectId : this.subjectId,
+                TeacherId : this.teacherId,
+                QuizTitle : quizTitle,
+                Score : inputValue,
+                StudentId : studentId,
+            })
+            .then(response => {
+                this.showSaveFader()
+                this.focusNextRow(gender, rowIndex, colIndex)
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error saving quiz score!'
+                })
+            })
+        }
     },
     created() {
         

@@ -12,14 +12,16 @@ class SubjectClasses extends Model
         'id',
         'SubjectId',
         'ClassRepoId',
-        'UserId'
+        'UserId',
+        'Heirarchy'
     ];
 
     protected $casts = [
         'id' => 'string',
         'SubjectId' => 'string',
         'ClassRepoId' => 'string',
-        'UserId' => 'string'
+        'UserId' => 'string',
+        'Heirarchy' => 'string',
     ];
 
     public static array $rules = [
@@ -28,7 +30,8 @@ class SubjectClasses extends Model
         'ClassRepoId' => 'nullable|string|max:80',
         'UserId' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'Heirarchy' => 'nullable|string',
     ];
 
     

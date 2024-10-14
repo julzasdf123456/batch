@@ -33,6 +33,7 @@ class ClassesRepo extends Model
     ];
 
     public static array $rules = [
+        'id' => 'string',
         'Year' => 'nullable|string|max:50',
         'ClassName' => 'nullable|string|max:50',
         'Section' => 'nullable|string|max:50',

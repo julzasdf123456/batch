@@ -19,6 +19,7 @@ use App\Http\Controllers\BarcodeAttendanceController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\CatchController;
 use App\Http\Controllers\SmsMessagesController;
+use App\Http\Controllers\QuizScoresController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +60,7 @@ Route::get('/users/view-advisory/{adviserId}/{schoolyearid}/{classId}', [UsersCo
 Route::get('/users/get-advisory-details', [UsersController::class, 'getAdvisoryDetaills'])->name('users.get-advisory-details');
 Route::get('/users/get-subjects-from-class', [UsersController::class, 'getSubjectsFromClass'])->name('users.get-subjects-from-class');
 Route::get('/users/get-student-subjects-data-from-class', [UsersController::class, 'getStudentSubjectsDataFromClass'])->name('users.get-student-subjects-data-from-class');
+Route::post('/users/remove-student-subjects', [UsersController::class, 'removeStudentSubjects'])->name('users.remove-student-subjects');
 Route::resource('users', UsersController::class);
 
 Route::get('/roles/add-permissions/{id}', [RolesController::class, 'addPermissions'])->name('roles.add-permissions');
@@ -113,6 +115,13 @@ Route::get('/classes/print-class-payments/{syId}/{classId}/{teacherId}', [Classe
 Route::get('/classes/print-single-grade/{studentId}/{classId}', [ClassesController::class, 'printSingleGrade'])->name('classes.print-single-grade');
 Route::get('/classes/print-single-grade-all/{classId}', [ClassesController::class, 'printSingleGradeAll'])->name('classes.print-single-grade-all');
 Route::get('/classes/print-grades-in-subject-class/{subjectId}/{classId}/{teacherId}', [ClassesController::class, 'printGradesInSubjectClass'])->name('classes.print-grades-in-subject-class');
+Route::post('/classes/add-new-subject-to-class', [ClassesController::class, 'addNewSubjectToClass'])->name('classes.add-new-subject-to-class');
+Route::get('/classes/print-single-grade-hca/{studentId}/{classId}', [ClassesController::class, 'printSingleGradeHca'])->name('classes.print-single-grade-hca');
+Route::get('/classes/print-single-grade-all-hca/{classId}', [ClassesController::class, 'printSingleGradeAllHca'])->name('classes.print-single-grade-all-hca');
+Route::get('/classes/stub-config/{classId}', [ClassesController::class, 'stubConfig'])->name('classes.stub-config');
+Route::post('/classes/save-grade-stub-config', [ClassesController::class, 'saveGradeStubConfig'])->name('classes.save-grade-stub-config');
+Route::post('/classes/revalidate-student-subjects', [ClassesController::class, 'revalidateStudentSubjects'])->name('classes.revalidate-student-subjects');
+Route::post('/classes/clear-student-subjects', [ClassesController::class, 'clearStudentSubjects'])->name('classes.clear-student-subjects');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -120,6 +129,7 @@ Route::resource('studentClasses', StudentClassesController::class);
 Route::get('/classes_repos/get-grade-levels', [ClassesRepoController::class, 'getGradeLevels'])->name('classesRepos.get-grade-levels');
 Route::get('/classes_repos/get-subjects-in-class', [ClassesRepoController::class, 'getSubjectsInClass'])->name('classesRepos.get-subjects-in-class');
 Route::get('/classes_repos/view-classes-repo/{year}/{section}/{strand}', [ClassesRepoController::class, 'viewClassRepo'])->name('classesRepos.view-classes-repo');
+Route::get('/classes_repos/get-all-subject-repos', [ClassesRepoController::class, 'getAllSubjectRepos'])->name('classesRepos.get-all-subject-repos');
 Route::resource('classesRepos', ClassesRepoController::class);
 
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
@@ -222,3 +232,8 @@ Route::get('/sms_messages/history', [SmsMessagesController::class, 'history'])->
 Route::get('/sms_messages/get-batch-sms-history', [SmsMessagesController::class, 'getBatchSmsHistory'])->name('smsMessages.get-batch-sms-history');
 Route::get('/sms_messages/get-active-batch-sms', [SmsMessagesController::class, 'getActiveBatchSms'])->name('smsMessages.get-active-batch-sms');
 Route::resource('smsMessages', SmsMessagesController::class);
+
+Route::post('/quiz_scores/save-quiz-sheet', [QuizScoresController::class, 'saveQuizSheet'])->name('quizScores.save-quiz-sheet');
+Route::get('/quiz_scores/get-quiz-headers', [QuizScoresController::class, 'getQuizHeaders'])->name('quizScores.get-quiz-headers');
+Route::post('/quiz_scores/update-score', [QuizScoresController::class, 'updateScore'])->name('quizScores.update-score');
+Route::resource('quizScores', QuizScoresController::class);

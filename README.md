@@ -9,9 +9,11 @@
 - Green - #3a9971
 
 ### New Tables
+- QuizScores
 
 ### New Columns on Tables
-
+- SubjectClasses.Heirarchy (HCA)
+- StudentSubjects.Heirarchy (HCA)
 
 
 ### New Permissions
@@ -20,8 +22,6 @@
 
 
 ### New Config Items
-- PRINCIPAL_NAME
-- SCHOOL_CODE
 
 ### New Notes
 - Replace SF2 Junior Template in Servers

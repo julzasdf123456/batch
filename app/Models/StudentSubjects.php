@@ -20,7 +20,8 @@ class StudentSubjects extends Model
         'FourthGradingGrade',
         'AverageGrade',
         'Notes',
-        'Visibility'
+        'Visibility',
+        'Heirarchy'
     ];
 
     protected $casts = [
@@ -36,6 +37,7 @@ class StudentSubjects extends Model
         'AverageGrade' => 'decimal:2',
         'Notes' => 'string',
         'Visibility' => 'string',
+        'Heirarchy' => 'string',
     ];
 
     public static array $rules = [
@@ -53,6 +55,7 @@ class StudentSubjects extends Model
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
         'Visibility' => 'nullable|string',
+        'Heirarchy' => 'nullable|string',
     ];
 
     
