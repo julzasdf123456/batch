@@ -85,12 +85,34 @@ export default {
         }
     },
     methods : {
-        isNull (item) {
-            if (jquery.isEmptyObject(item)) {
+        isNull (value) {
+            // Check for null or undefined
+            if (value === null || value === undefined) {
                 return true;
-            } else {
-                return false;
             }
+
+            // Check for empty string
+            if (typeof value === 'string' && value.trim() === '') {
+                return true;
+            }
+
+            // Check for empty array
+            if (Array.isArray(value) && value.length === 0) {
+                return true;
+            }
+
+            // Check for empty object
+            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                return true;
+            }
+
+            // Check for NaN
+            if (typeof value === 'number' && isNaN(value)) {
+                return true;
+            }
+
+            // If none of the above, it's not null, empty, or undefined
+            return false;
         },
         toMoney(value) {
             return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })

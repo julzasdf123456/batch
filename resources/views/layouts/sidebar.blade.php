@@ -21,6 +21,7 @@
                 @if (in_array(Route::currentRouteName(), [
                             'users.my-account-index', 'users.my-classes', 'users.my-advisory', 'users.view-class', 'users.my-advisory', 'users.view-advisory',
                             'students.guest-view',
+                            'classes.stub-config',
                         ]))
                     {{-- MY ACCOUNTS --}}
                     @include('layouts.my_account_menu')

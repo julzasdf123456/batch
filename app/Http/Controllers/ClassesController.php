@@ -2575,4 +2575,113 @@ class ClassesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function getClassRankings(Request $request) {
+        $classId = $request['ClassId'];
+
+        $data['Male'] =  DB::table('StudentClasses')
+                ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+                ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+                ->whereRaw("Students.Status IS NULL")
+                ->select(
+                    'Students.*',
+                    'StudentClasses.Status as EnrollmentStatus',
+                    'StudentClasses.id as StudentClassId'
+                )
+                ->orderBy('Students.LastName')
+                ->get();
+    }
+
+    public function printRanking($classId, $rankGrade, $teacherId, $syId) {
+        $teacher = Teachers::find($teacherId);
+        $class = Classes::find($classId);
+        
+
+        return view('/classes/print_rankings', [
+            'class' => $class,
+            'sy' => $sy,
+            'rankings' => $rankings,
+            'teacher' => $teacher,
+        ]);
+    }
+    
+    public function printSingleGradeHcaSenior($studentId, $classId) {
+        $data = DB::table('StudentSubjects')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+            ->whereRaw("StudentSubjects.StudentId='" . $studentId . "' AND StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                'StudentSubjects.*',
+                'Subjects.Subject',
+                'Subjects.ParentSubject',
+                'Teachers.FullName',
+            )
+            ->orderBy('Heirarchy')
+            ->get();
+
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $student = DB::table('Students')
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("Students.id='" . $studentId . "'")
+            ->select('Students.*',
+                'Towns.Town as TownSpelled',
+                'Barangays.Barangay as BarangaySpelled')
+            ->first();
+
+        return view('/classes/print_single_grade_hca_senior', [
+            'data' => $data,
+            'class' => $class,
+            'student' => $student,
+            'sy' => $sy,
+            'adviser' => $adviser,
+        ]);
+    }
+    
+    public function printSingleGradeAllHcaSenior($classId) {
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $students = DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        foreach($students as $item) {
+            $item->GradeData = DB::table('StudentSubjects')
+                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
+                ->select(
+                    'StudentSubjects.*',
+                    'Subjects.Subject',
+                    'Subjects.ParentSubject',
+                    'Teachers.FullName',
+                )
+                ->orderBy('Heirarchy')
+                ->get();
+        }
+
+        return view('/classes/print_single_grade_all_hca_senior', [
+            'students' => $students,
+            'class' => $class,
+            'sy' => $sy,
+            'adviser' => $adviser,
+        ]);
+    }
 }
