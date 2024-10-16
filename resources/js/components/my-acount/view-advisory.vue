@@ -701,7 +701,7 @@ export default {
             attendanceYear : moment().format('YYYY'),
             daysInAMonth : [],
             barcodeAttendances : [],
-            loaderVisibility : true,
+            loaderVisibility : false,
             inactive : [],
             classesInSy : [],
             classSelect : '',
@@ -777,6 +777,7 @@ export default {
             return moment().valueOf() + "-" + this.generateRandomString(32);
         },
         getAdvisoryData() {
+            this.loaderVisibility = true
             axios.get(`${ this.baseURL }/users/get-advisory-details`, {
                 params : {
                     TeacherId : this.teacherId,
@@ -799,6 +800,7 @@ export default {
                     icon : 'error',
                     text : 'Error getting data!'
                 })
+                this.loaderVisibility = false
             })
         },
         getClassPaymentDetails() {
@@ -837,6 +839,8 @@ export default {
                         }
                     }
                 }
+
+                this.loaderVisibility = false
             })
             .catch(error => {
                 console.log(error)
@@ -844,6 +848,7 @@ export default {
                     icon : 'error',
                     text : 'Error getting payment data!'
                 })
+                this.loaderVisibility = false
             })
         },
         getPaymentData(month, studentId) {
@@ -1006,6 +1011,7 @@ export default {
             })
         },
         getAllAttendanceData() {
+            this.loaderVisibility = true
             this.getDaysInMonth()
             this.getBarcodeAttendances()
         },
