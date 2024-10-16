@@ -343,6 +343,7 @@ class BarcodeAttendanceController extends AppBaseController
 
         $data = DB::table('BarcodeAttendance')
             ->whereRaw("StudentId IN (SELECT s.id FROM StudentClasses sc LEFT JOIN Students s ON s.id=sc.StudentId WHERE sc.ClassId='" . $classId . "')")
+            ->orderBy('created_at')
             ->get();
 
         return response()->json($data, 200);

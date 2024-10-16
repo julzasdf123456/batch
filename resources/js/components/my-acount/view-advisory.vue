@@ -281,7 +281,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-center" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
+                                                <td class="v-align text-center pointer" @click="showAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`, `${ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }`)" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
                                             </tr>
                                             <tr>
                                                 <td :colspan="(4 + (daysInAMonth.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
@@ -294,7 +294,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-center" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
+                                                <td class="v-align text-center pointer" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -628,6 +628,29 @@
             </div>
         </div>
     </div>
+
+    <!-- SHOW BIO ATTENDANCE -->
+    <div ref="modalShowBio" class="modal fade" id="modal-show-bio" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-body table-responsive">
+                    <span class="text">Attendance data of</span>
+                    <br>
+                    <h4>{{ studentSelected }}</h4>
+                    <span>for {{ moment(dateSelectedShown).format("MMMM DD, YYYY") }}</span>
+
+                    <table class="mt-2 table table-hover table-bordered table-sm">
+                        <tbody>
+                            <tr v-for="attData in selectedAttData">
+                                <td>{{ moment(attData.created_at).format("hh:mm A") }}</td>
+                                <td>{{ attData.PunchType }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -694,7 +717,10 @@ export default {
             mainSubjects : [],
             rankingData : [],
             activeRankGradeColor : 'Average',
-            activeRankTitle : 'Total Average Grade Rankings'
+            activeRankTitle : 'Total Average Grade Rankings',
+            dateSelectedShown : null,
+            studentSelected : null,
+            selectedAttData : []
         }
     },
     methods : {
@@ -990,7 +1016,8 @@ export default {
             var timeOut = null
 
             // fetch am first
-            const inThreshold = moment(date + ' ' + this.amInThreshold).format('YYYY-MM-DD HH:mm')
+            // const inThreshold = moment(date + ' ' + this.amInThreshold).format('YYYY-MM-DD HH:mm')
+            const inThreshold = moment(date + ' 11:59').format('YYYY-MM-DD HH:mm')
 
             for (let i=0; i<att.length; i++) {
                 const obj = att[i]
@@ -999,7 +1026,7 @@ export default {
 
                 if (!this.isNull(inTime)) {
                     var xTime = moment(inTime).format('YYYY-MM-DD HH:mm')
-   
+
                     if (moment(xTime).isBefore(moment(inThreshold))) {
                         if (this.isNull(timeIn)) {
                             timeIn = xTime
@@ -1009,7 +1036,8 @@ export default {
             }
 
             // fetch pm out
-            const outThreshold = moment(date + ' ' + this.pmOutThreshold).format('YYYY-MM-DD HH:mm')
+            // const outThreshold = moment(date + ' ' + this.pmOutThreshold).format('YYYY-MM-DD HH:mm')
+            const outThreshold = moment(date + ' 13:00').format('YYYY-MM-DD HH:mm')
 
             for (let i=0; i<att.length; i++) {
                 const obj = att[i]
@@ -1018,7 +1046,7 @@ export default {
 
                 if (!this.isNull(outTime)) {
                     var xTime = moment(outTime).format('YYYY-MM-DD HH:mm')
-   
+
                     if (moment(xTime).isAfter(moment(outThreshold))) {
                         if (this.isNull(timeOut)) {
                             timeOut = xTime
@@ -1030,13 +1058,30 @@ export default {
             // validate time ins and outs
             var returnData = ""
             if (!this.isNull(timeIn)) {
-                returnData += `<span class='text-success' title='Morning In: ${ moment(timeIn).format('hh:mm A') }'><strong>✓</strong></span> | `
+                const inStart = moment(date + ' ' + this.amInThreshold).format('YYYY-MM-DD HH:mm')
+
+                // check if late
+                if (moment(timeIn).isBefore(moment(inStart))) {
+                    returnData += `<span class='text-success' title='Morning In: ${ moment(timeIn).format('hh:mm A') }'><strong>✓</strong></span> | `
+                } else {
+                    // late
+                    returnData += `<span class='text-warning' title='Morning In (LATE): ${ moment(timeIn).format('hh:mm A') }'><strong>!!</strong></span> | `
+                }
             } else {
                 returnData += `<span class='text-danger'>○</span> | `;
             }
 
             if (!this.isNull(timeOut)) {
-                returnData += `<span class='text-success' title='Afternoon Out: ${ moment(timeOut).format('hh:mm A') }'><strong>✓</strong></span>`
+                const outEnd = moment(date + ' ' + this.pmOutThreshold).format('YYYY-MM-DD HH:mm')
+
+                // check if early out
+                if (moment(timeOut).isAfter(moment(outEnd))) {
+                    returnData += `<span class='text-success' title='Afternoon Out: ${ moment(timeOut).format('hh:mm A') }'><strong>✓</strong></span>`
+                } else {
+                    // early out
+                    returnData += `<span class='text-warning' title=Afternoon Out (EARLY OUT): ${ moment(timeOut).format('hh:mm A') }'><strong>!!</strong></span>`
+                }
+                
             } else {
                 returnData += `<span class='text-danger'>○</span>`;
             }
@@ -1647,6 +1692,14 @@ export default {
         },
         printRanking() {
             window.location.href = `${ this.baseURL }/classes/print-ranking/${ this.classId }/${ this.activeRankGradeColor }/${ this.teacherId }/${ this.syId }`
+        },
+        showAttendance(studentId, date, studentName) {
+            this.studentSelected = studentName
+            this.dateSelectedShown = date
+            this.selectedAttData = this.barcodeAttendances.filter(obj => moment(obj.created_at).format('YYYY-MM-D') === date && obj.StudentId === studentId)
+
+            let modalElement = this.$refs.modalShowBio
+            $(modalElement).modal('show')
         }
     },
     created() {
