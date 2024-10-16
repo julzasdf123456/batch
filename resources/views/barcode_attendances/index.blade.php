@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     <meta name="token" content="{{ csrf_token() }}">
+    <meta http-equiv="refresh" content="21600">
     <title>batch.ID</title>
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -12,7 +13,7 @@
     <link rel="stylesheet" href="{{ URL::asset('css/all.css'); }} ">
 
     <link rel="stylesheet" href="{{ URL::asset('css/bootstrap4toggle.css'); }} ">
-          
+
     <link rel="stylesheet" href="{{ URL::asset('css/adminlte.min.css'); }} ">
 
     <link rel="stylesheet" href="{{ URL::asset('css/bootstrapdatetimepicker.min.css'); }} ">

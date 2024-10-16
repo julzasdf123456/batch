@@ -190,7 +190,7 @@ export default {
                 Type : type==='Student' ? null : type
             })
             .then(response => {
-                this.notifHead = `<i class="fas fa-check ico-tab"></i>${ type } Marked ${ mark }!`
+                this.notifHead = `<i class="fas fa-check ico-tab"></i>${ type } Marked ${ response.data.PunchType }!`
                 this.notifClass = 'text-success'
                 this.showStudentInfo()
 
@@ -222,12 +222,12 @@ export default {
         },
         trigger() {
             this.getStudentDetails()
-        }
+        },
     }, 
     created() {
     },
     mounted() {
-    
+        
     }
 }
 
