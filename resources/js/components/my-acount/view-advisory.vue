@@ -82,6 +82,8 @@
                                 <div class="mt-2">
                                     <button v-if="viewedIn==='admin'" @click="switchSelectionMode()" title="Select" class="btn btn-default btn-sm"><i class="fas fa-check-circle ico-tab-mini" :class="selectionButtonIndicator"></i>Select Multiple</button>
                                     <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-default btn-sm ml-2" title="Print"><i class="fas fa-print ico-tab-mini"></i>Print Students List</a>
+
+                                    <a :href="baseURL + '/classes/download-students/' + classId" class="btn btn-primary btn-sm float-right" title="Download in excel file format"><i class="fas fa-download ico-tab-mini"></i>Download Excel</a>
                                 </div>
                                 <!-- SELECT OPTIONS -->
                                 <div class="pt-3 pb-2" v-if="selectionMode">

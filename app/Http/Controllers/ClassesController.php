@@ -25,8 +25,10 @@ use App\Models\SubjectClasses;
 use App\Models\TransactionDetails;
 use App\Models\Teachers;
 use App\Models\Subjects;
+use App\Exports\DynamicExports;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Flash;
 
 class ClassesController extends AppBaseController
@@ -2683,5 +2685,158 @@ class ClassesController extends AppBaseController
             'sy' => $sy,
             'adviser' => $adviser,
         ]);
+    }
+
+    public function downloadStudents($classId) {
+        $class = DB::table('Classes')
+            ->whereRaw("id='" . $classId . "'")
+            ->first();
+
+        $male =  DB::table('StudentClasses')
+            ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Male'")
+            ->select(
+                'Students.id',
+                'Students.FirstName',
+                'Students.MiddleName',
+                'Students.LastName',
+                'Students.Suffix',
+                'Students.Birthdate',
+                'Students.Gender',
+                'Students.Sitio',
+                'Barangays.Barangay AS BarangaySpelled',
+                'Towns.Town AS TownSpelled',
+                'Students.ZipCode',
+                'Students.ContactNumber',
+                'Students.Status',
+                'Students.LRN',
+                'Students.PlaceOfBirth',
+                'Students.Indigenousity',
+                'Students.Beneficiary4PsIDNumber',
+                'Students.FatherFirstName',
+                'Students.FatherMiddleName',
+                'Students.FatherLastName',
+                'Students.FatherContactNumber',
+                'Students.MotherFirstName',
+                'Students.MotherMiddleName',
+                'Students.MotherLastName',
+                'Students.MotherContactNumber',
+                'Students.GuardianFirstName',
+                'Students.GuardianMiddleName',
+                'Students.GuardianLastName',
+                'Students.GuardianContactNumber',
+                'Students.PSABirthCertificateNumber',
+                'Students.ESCScholar',
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $female =  DB::table('StudentClasses')
+            ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "' AND Gender='Female'")
+            ->select(
+                'Students.id',
+                'Students.FirstName',
+                'Students.MiddleName',
+                'Students.LastName',
+                'Students.Suffix',
+                'Students.Birthdate',
+                'Students.Gender',
+                'Students.Sitio',
+                'Barangays.Barangay AS BarangaySpelled',
+                'Towns.Town AS TownSpelled',
+                'Students.ZipCode',
+                'Students.ContactNumber',
+                'Students.Status',
+                'Students.LRN',
+                'Students.PlaceOfBirth',
+                'Students.Indigenousity',
+                'Students.Beneficiary4PsIDNumber',
+                'Students.FatherFirstName',
+                'Students.FatherMiddleName',
+                'Students.FatherLastName',
+                'Students.FatherContactNumber',
+                'Students.MotherFirstName',
+                'Students.MotherMiddleName',
+                'Students.MotherLastName',
+                'Students.MotherContactNumber',
+                'Students.GuardianFirstName',
+                'Students.GuardianMiddleName',
+                'Students.GuardianLastName',
+                'Students.GuardianContactNumber',
+                'Students.PSABirthCertificateNumber',
+                'Students.ESCScholar',
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $data = array_merge($male->toArray(), $female->toArray());
+
+        $headers = [
+            'id',
+            'First Name',
+            'Middle Name',
+            'Last Name',
+            'Suffix',
+            'Birth Date',
+            'Gender',
+            'Sitio',
+            'Barangay',
+            'Town',
+            'Zip Code',
+            'Contact Number',
+            'Status',
+            'LRN',
+            'Place Of Birth',
+            'Indigenousity',
+            '4Ps ID Number',
+            'Father First Name',
+            'Father Middle Name',
+            'Father Last Name',
+            'Father Contact Number',
+            'Mother First Name',
+            'Mother Middle Name',
+            'Mother Last Name',
+            'Mother Contact Number',
+            'Guardian First Name',
+            'Guardian Middle Name',
+            'Guardian Last Name',
+            'Guardian Contact Number',
+            'PSA Birth Certificate Number',
+            'ESC/VMS Scholar',
+        ];
+
+        $styles = [
+            // Style the first row as bold text.
+            1 => [
+                'font' => ['bold' => true],
+                'alignment' => ['horizontal' => 'center'],
+            ],
+            2 => [
+                'alignment' => ['horizontal' => 'center'],
+            ],
+            4 => [
+                'font' => ['bold' => true],
+                'alignment' => ['horizontal' => 'center'],
+            ],
+            8 => [
+                'font' => ['bold' => true],
+                'alignment' => ['horizontal' => 'center'],
+            ],
+        ];
+
+        $export = new DynamicExports($data, 
+                                    $headers, 
+                                    [],
+                                    'A8',
+                                    $styles,
+                                    'STUDENTS DATA FOR ' . ($class != null ? ($class->Year . ' ' . $class->Section . ' ' . $class->Strand) : '-')
+                                );
+    
+        return Excel::download($export, 'All-Students-Data.xlsx');
     }
 }

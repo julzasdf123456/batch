@@ -125,6 +125,7 @@ Route::post('/classes/clear-student-subjects', [ClassesController::class, 'clear
 Route::get('/classes/print-ranking', [ClassesController::class, 'printRanking'])->name('classes.print-ranking');
 Route::get('/classes/print-single-grade-hca-senior/{studentId}/{classId}', [ClassesController::class, 'printSingleGradeHcaSenior'])->name('classes.print-single-grade-hca-senior');
 Route::get('/classes/print-single-grade-all-hca-senior/{classId}', [ClassesController::class, 'printSingleGradeAllHcaSenior'])->name('classes.print-single-grade-all-hca-senior');
+Route::get('/classes/download-students/{classId}', [ClassesController::class, 'downloadStudents'])->name('classes.download-students');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
