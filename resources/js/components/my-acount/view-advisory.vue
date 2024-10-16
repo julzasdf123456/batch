@@ -55,7 +55,7 @@
                             <li class="nav-item">
                                 <a class="nav-link active" id="students-list-tab" data-toggle="pill" href="#students-list-content" role="tab" aria-controls="students-list-content" aria-selected="false">Active Students List</a>
                             </li>
-                            <li class="nav-item">
+                            <li class="nav-item" @click="getAllAttendanceData()">
                                 <a class="nav-link" id="attendance-tab" data-toggle="pill" href="#attendance-content" role="tab" aria-controls="attendance-content" aria-selected="false">Attendance</a>
                             </li>
                             <li class="nav-item">
@@ -1712,7 +1712,7 @@ export default {
         this.getSubjects()
         
         // attendance
-        this.getAllAttendanceData()
+        // this.getAllAttendanceData()
 
         this.getClassesInSY()
         this.getClassesRepo()
