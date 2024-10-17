@@ -126,6 +126,8 @@ Route::get('/classes/print-ranking', [ClassesController::class, 'printRanking'])
 Route::get('/classes/print-single-grade-hca-senior/{studentId}/{classId}', [ClassesController::class, 'printSingleGradeHcaSenior'])->name('classes.print-single-grade-hca-senior');
 Route::get('/classes/print-single-grade-all-hca-senior/{classId}', [ClassesController::class, 'printSingleGradeAllHcaSenior'])->name('classes.print-single-grade-all-hca-senior');
 Route::get('/classes/download-students/{classId}', [ClassesController::class, 'downloadStudents'])->name('classes.download-students');
+Route::get('/classes/merge-to/{studentId}', [ClassesController::class, 'mergeTo'])->name('classes.merge-to');
+Route::post('/classes/do-merger', [ClassesController::class, 'doMerger'])->name('classes.do-merger');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

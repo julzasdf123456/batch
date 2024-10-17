@@ -189,12 +189,13 @@ class StudentsController extends AppBaseController
             ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
             ->whereRaw("Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
                 (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
-                (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%'")
+                (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%' OR Students.LRN LIKE '%" . $params . "%'")
             ->select('Students.*',
                 'Towns.Town as TownSpelled',
                 'Barangays.Barangay as BarangaySpelled',
                 'Classes.Year',
                 'Classes.Section',
+                'Classes.Strand',
             )
             ->orderBy('Students.FirstName')
             ->paginate(15);
@@ -208,6 +209,7 @@ class StudentsController extends AppBaseController
                     'Barangays.Barangay as BarangaySpelled',
                     'Classes.Year',
                     'Classes.Section',
+                    'Classes.Strand',
                 )
                 ->orderBy('Students.FirstName')
                 ->paginate(15);

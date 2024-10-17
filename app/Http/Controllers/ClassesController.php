@@ -2839,4 +2839,85 @@ class ClassesController extends AppBaseController
     
         return Excel::download($export, 'All-Students-Data.xlsx');
     }
+
+    public function mergeTo($studentId) {
+        return view("/classes/merge_to", [
+            'studentId' => $studentId,
+        ]);
+    }
+
+    public function doMerger(Request $request) {
+        $sourceStudentId = $request['SourceStudentId'];
+        $destinationStudentId = $request['DestinationtudentId'];
+
+        $source = Students::find($sourceStudentId);
+        $destination = Students::find($destinationStudentId);
+
+        // transfer other transactions to new student
+        $transactions = Transactions::where('StudentId', $sourceStudentId)
+            ->get();
+        foreach($transactions as $item) {
+            $item->StudentId = $destinationStudentId;
+            $item->save();
+        }
+
+        /**
+         * TRANSACT PAYABLES
+         */
+        // get source payables
+        $sy =  SchoolYear::orderByDesc('created_at')->first();
+        $sourcePayable = Payables::where('StudentId', $sourceStudentId)
+            ->where('SchoolYear', $sy != null ? $sy->SchoolYear : '')
+            ->where('Category', 'Tuition Fees')
+            ->first();
+
+        if ($sourcePayable != null) {
+            $amountAlrPaid = $sourcePayable->AmountPaid != null ? floatval($sourcePayable->AmountPaid) : 0;
+
+
+            $payable = Payables::where('StudentId', $destinationStudentId)
+                ->where('SchoolYear', $sy != null ? $sy->SchoolYear : '')
+                ->where('Category', 'Tuition Fees')
+                ->first();
+            if ($payable != null) {
+                $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+                $newAmntPaid = $payableAmntPaid + floatval($amountAlrPaid);
+                
+                $payableBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                $balance = $payableBalance - floatval($amountAlrPaid);
+
+                $payable->AmountPaid = $newAmntPaid;
+                $payable->Balance = $balance;
+                $payable->save();
+
+                // update tuitions breakdown
+                $tBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
+                $payment = floatval($amountAlrPaid);
+                foreach($tBreakdown as $item) {
+                    $currentPayable = floatval($item->Balance);
+                    if ($payment > 0) {
+                        if ($payment >= $currentPayable) {
+                            $item->Balance = 0;
+                            $item->AmountPaid = $item->AmountPayable;
+                            
+                            $payment = $payment - $currentPayable;
+                        } else {
+                            $item->Balance = $currentPayable - $payment;
+                            $item->AmountPaid = floatval($item->AmountPaid) + $payment;
+
+                            $payment = 0;
+                        }
+                        $item->save();
+                    }
+                }
+            }
+        }
+        
+        // delete data
+        $source->delete();
+        StudentSubjects::where('StudentId', $sourceStudentId)->delete();
+        StudentClasses::where('StudentId', $sourceStudentId)->delete();
+
+        return response()->json('ok', 200);
+    }
 }

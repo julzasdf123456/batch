@@ -154,9 +154,8 @@
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
-                                                            <!-- <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
-                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button> -->
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
+                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
@@ -210,6 +209,7 @@
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
+                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
