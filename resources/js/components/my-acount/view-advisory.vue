@@ -376,7 +376,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
+                                                <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
                                                     <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
@@ -395,7 +395,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
+                                                <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
                                                     <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
@@ -720,7 +720,8 @@ export default {
             activeRankTitle : 'Total Average Grade Rankings',
             dateSelectedShown : null,
             studentSelected : null,
-            selectedAttData : []
+            selectedAttData : [],
+            subjectHeadsRearranged : []
         }
     },
     methods : {
@@ -928,10 +929,23 @@ export default {
             let subHeaders = []
             let groupedSubjects = {};
 
+            this.subjectHeadsRearranged = []
+
             // Separate subjects with null ParentSubject and group by ParentSubject
             this.subjects.forEach(subject => {
                 if (subject.ParentSubject === null) {
                     headers.push({
+                        id : subject.id,
+                        Subject: subject.Subject,
+                        TeacherId : subject.TeacherId,
+                        FullName : subject.FullName,
+                        rowspan: 2,
+                        colspan: 1,
+                        children : null,
+                        hasMenu : true,
+                    })
+
+                    this.subjectHeadsRearranged.push({
                         id : subject.id,
                         Subject: subject.Subject,
                         TeacherId : subject.TeacherId,
@@ -959,6 +973,9 @@ export default {
                     })
                 }
             });
+
+            // merge arrays
+            this.subjectHeadsRearranged.concat(subHeaders)
 
             // Add grouped subjects with colspan
             Object.keys(groupedSubjects).forEach(parent => {
