@@ -376,7 +376,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
                                                     <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
@@ -395,7 +395,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
                                                     <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
@@ -973,8 +973,8 @@ export default {
 
             return { Headers : headers, SubHeaders : subHeaders }
         },
-        getFinalGrade(studentId, subjectId) {
-            let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId && obj.TeacherId === this.teacherId)
+        getFinalGrade(studentId, subjectId, teacherid) {
+            let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId && obj.TeacherId === teacherid)
 
             if (!this.isNull(gradeData)) {
                 return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
