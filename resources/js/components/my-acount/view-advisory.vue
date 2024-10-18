@@ -983,10 +983,9 @@ export default {
                     children: groupedSubjects[parent],
                     hasMenu : false,
                 });
-
-                // merge arrays
-                this.subjectHeadsRearranged.concat(groupedSubjects[parent])
             });
+            // merge arrays
+            Array.prototype.push.apply(this.subjectHeadsRearranged, subHeaders)
 
             return { Headers : headers, SubHeaders : subHeaders }
         },
