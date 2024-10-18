@@ -974,9 +974,6 @@ export default {
                 }
             });
 
-            // merge arrays
-            this.subjectHeadsRearranged.concat(subHeaders)
-
             // Add grouped subjects with colspan
             Object.keys(groupedSubjects).forEach(parent => {
                 headers.push({
@@ -986,6 +983,9 @@ export default {
                     children: groupedSubjects[parent],
                     hasMenu : false,
                 });
+
+                // merge arrays
+                this.subjectHeadsRearranged.concat(groupedSubjects[parent])
             });
 
             return { Headers : headers, SubHeaders : subHeaders }
