@@ -974,7 +974,7 @@ export default {
             return { Headers : headers, SubHeaders : subHeaders }
         },
         getFinalGrade(studentId, subjectId) {
-            let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId)
+            let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId && obj.TeacherId === this.teacherId)
 
             if (!this.isNull(gradeData)) {
                 return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
