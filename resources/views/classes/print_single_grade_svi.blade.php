@@ -208,7 +208,7 @@
                 $sumSecond = 0;
                 $sumThird = 0;
                 $sumFourth = 0;
-                
+
                 $data = json_decode($data, true);
 
                 /**
@@ -246,22 +246,26 @@
                     $sGradeSum = 0;
                     $tGradeSum = 0;
                     $ftGradeSum = 0;
+                    $avgGradeSum = 0;
                     $fGradeAve = 0;
                     $sGradeAve = 0;
                     $tGradeAve = 0;
                     $ftGradeAve = 0;
+                    $avgGradeAve = 0;
                     if ($subs != null) {
                         foreach ($subs as $item) {
                             $fGradeSum += floatval($item['FirstGradingGrade'] != null ? $item['FirstGradingGrade'] : 0);
                             $sGradeSum += floatval($item['SecondGradingGrade'] != null ? $item['SecondGradingGrade'] : 0);
                             $tGradeSum += floatval($item['ThirdGradingGrade'] != null ? $item['ThirdGradingGrade'] : 0);
                             $ftGradeSum += floatval($item['FourthGradingGrade'] != null ? $item['FourthGradingGrade'] : 0);
+                            $avgGradeSum += floatval($item['AverageGrade'] != null ? $item['AverageGrade'] : 0);
                         }
 
                         $fGradeAve = $fGradeSum > 0 ? ($fGradeSum / count($subs)) : 0;
                         $sGradeAve = $sGradeSum > 0 ? ($sGradeSum / count($subs)) : 0;
                         $tGradeAve = $tGradeSum > 0 ? ($tGradeSum / count($subs)) : 0;
                         $ftGradeAve = $ftGradeSum > 0 ? ($ftGradeSum / count($subs)) : 0;
+                        $avgGradeAve = $avgGradeSum > 0 ? ($avgGradeSum / count($subs)) : 0;
                     }
 
                     $mainSubjects[] = [
@@ -278,7 +282,7 @@
                         "SecondGradingGrade" => number_format($sGradeAve),
                         "ThirdGradingGrade" => number_format($tGradeAve),
                         "FourthGradingGrade" => number_format($ftGradeAve),
-                        "AverageGrade" => null,
+                        "AverageGrade" => number_format($avgGradeAve),
                         "Notes" => null,
                         "created_at" => null,
                         "updated_at" => null,
