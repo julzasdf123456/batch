@@ -103,8 +103,8 @@
         
         <li class="nav-item">
             <a href="{{ route('classes.existing-student') }}"
-               class="nav-link {{ Request::is('classes.existing-student*') ? 'active' : '' }}">
-               <i class="fas fa-folder-open nav-icon"></i>
+                class="nav-link {{ Request::is('classes.existing-student*') ? 'active' : '' }}">
+                <i class="fas fa-folder-open nav-icon"></i>
                 <p>Existing Student</p>
             </a>
         </li>

@@ -20,6 +20,7 @@ use App\Http\Controllers\RolesController;
 use App\Http\Controllers\CatchController;
 use App\Http\Controllers\SmsMessagesController;
 use App\Http\Controllers\QuizScoresController;
+use App\Http\Controllers\SubjectsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +129,10 @@ Route::get('/classes/print-single-grade-all-hca-senior/{classId}', [ClassesContr
 Route::get('/classes/download-students/{classId}', [ClassesController::class, 'downloadStudents'])->name('classes.download-students');
 Route::get('/classes/merge-to/{studentId}', [ClassesController::class, 'mergeTo'])->name('classes.merge-to');
 Route::post('/classes/do-merger', [ClassesController::class, 'doMerger'])->name('classes.do-merger');
+Route::get('/classes/print-single-grade-svi/{studentId}/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeSvi'])->name('classes.print-single-grade-svi');
+Route::get('/classes/print-single-grade-all-svi/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeAllSvi'])->name('classes.print-single-grade-all-svi');
+Route::get('/classes/print-single-grade-svi-senior/{studentId}/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeSviSenior'])->name('classes.print-single-grade-svi-senior');
+Route::get('/classes/print-single-grade-all-svi-senior/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeAllSviSenior'])->name('classes.print-single-grade-all-svi-senior');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -199,7 +204,10 @@ Route::get('/transactions/get-latest-tuition-fee', [TransactionsController::clas
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
-Route::resource('subjects', App\Http\Controllers\SubjectsController::class);
+
+Route::get('/subjects/get-parent-subjects', [SubjectsController::class, 'getParentSubjects'])->name('subjects.get-parent-subjects');
+Route::get('/subjects/get-parent-avg-config', [SubjectsController::class, 'getParentAveragingConfig'])->name('subjects.get-parent-avg-config');
+Route::resource('subjects', SubjectsController::class);
 Route::resource('subjectClasses', App\Http\Controllers\SubjectClassesController::class);
 
 Route::post('/student_subjects/update-grade', [StudentSubjectsController::class, 'updateGrade'])->name('studentSubjects.update-grade');
@@ -243,3 +251,4 @@ Route::post('/quiz_scores/save-quiz-sheet', [QuizScoresController::class, 'saveQ
 Route::get('/quiz_scores/get-quiz-headers', [QuizScoresController::class, 'getQuizHeaders'])->name('quizScores.get-quiz-headers');
 Route::post('/quiz_scores/update-score', [QuizScoresController::class, 'updateScore'])->name('quizScores.update-score');
 Route::resource('quizScores', QuizScoresController::class);
+Route::resource('class-subject-parent-avgs', App\Http\Controllers\ClassSubjectParentAvgController::class);

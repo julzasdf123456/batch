@@ -366,7 +366,7 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                <td :colspan="(3 + (subjectHeadsRearranged.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -385,7 +385,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                <td :colspan="(3 + (subjectHeadsRearranged.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -1557,28 +1557,32 @@ export default {
             this.addedSubjectId = ''
         },
         printSingleStub(studentId) {
-            // if (this.school === 'HCA') {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
-            // } else {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade/${ studentId }/${ this.classId }`
-            // }
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
-            } else {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+            if (this.school === 'HCA') {
+                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
+                } else {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+                }
+            } else if (this.school === 'SVI') {
+                this.printSingleGradeSVI(studentId)
+                // if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                //     window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
+                // } else {
+                //     window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }`
+                // }
             }
         },
         printAllGradeStub() {
-            // if (this.school === 'HCA') {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
-            // } else {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-all/${ this.classId }`
-            // }
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca-senior/${ this.classId }`
-            } else {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+            if (this.school === 'HCA') {
+                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca-senior/${ this.classId }`
+                } else {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+                }
+            } else if (this.school === 'SVI') {
+                this.printSingleGradeAllSVI()
             }
+            
         },
         stubConfig() {
             window.location.href = `${ this.baseURL }/classes/stub-config/${ this.classId }`
@@ -1722,6 +1726,117 @@ export default {
 
             let modalElement = this.$refs.modalShowBio
             $(modalElement).modal('show')
+        },
+        printSingleGradeSVI(studentId) {
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                Swal.fire({
+                    title: 'Select Semester to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an semester!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi-senior/${ studentId }/${ this.classId }/${result.value}`
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Select a Grading Period to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an grading period!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }/${result.value}`
+                    }
+                });
+            }
+        },
+        printSingleGradeAllSVI() {
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                Swal.fire({
+                    title: 'Select Semester to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an semester!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi-senior/${ this.classId }/${result.value}`
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Select a Grading Period to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an grading period!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi/${ this.classId }/${result.value}`
+                    }
+                });
+            }
+            
         }
     },
     created() {

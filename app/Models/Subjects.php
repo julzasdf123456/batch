@@ -37,5 +37,14 @@ class Subjects extends Model
         'ParentSubject' => 'nullable|string',
     ];
 
-    
+    public static function parentSubjects() {
+        return [
+            'MAPEH' => 'MAPEH', 
+            'TLE' => 'TLE', 
+            'Applied Subjects' => 'Applied Subjects', 
+            'Core Subjects' => 'Core Subjects', 
+            'Specialized Subjects' => 'Specialized Subjects', 
+            'Other Related Subjects' => 'Other Related Subjects'
+        ];
+    }
 }
