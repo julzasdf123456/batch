@@ -47,4 +47,18 @@ class Subjects extends Model
             'Other Related Subjects' => 'Other Related Subjects'
         ];
     }
+
+    public static function checkPass($grade) {
+        if ($grade != null) {
+            if ($grade > 0 && $grade < 75) {
+                return 'FAIL';
+            } elseif ($grade >= 75) {
+                return 'PASS';
+            } else {
+                return 'INC';
+            }
+        } else {
+            return 'INC';
+        }
+    }
 }
