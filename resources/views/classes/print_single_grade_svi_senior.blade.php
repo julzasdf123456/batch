@@ -322,39 +322,39 @@
                         @if (in_array($subject['Subject'], $avgParents))
                             {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY AVERAGE GRADE --}}
                             @if ($gradingPeriod === 'First')
-                                <td class="text-right"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
-                                <td class='text-right'><strong>-</strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
+                                <td class='text-center'><strong>-</strong></td>
                             @elseif ($gradingPeriod === 'Second')
-                                <td class="text-right"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
-                                <td class='text-right'><strong>-</strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
+                                <td class='text-center'><strong>-</strong></td>
                             @elseif ($gradingPeriod === 'All')
-                                <td class="text-right"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
-                                <td class='text-right'><strong>{{ $subject['AverageGrade'] != null | $subject['AverageGrade'] > 0 ? number_format($subject['AverageGrade']) : '-' }}</strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
+                                <td class='text-center'><strong>{{ $subject['AverageGrade'] != null | $subject['AverageGrade'] > 0 ? number_format($subject['AverageGrade']) : '-' }}</strong></td>
                             @endif
                             
-                            <td>{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
+                            <td class='text-center'>{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
                             <td></td>
                         @else
                             {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY NOTHING IF NOT --}}
                             @if ($gradingPeriod === 'First')
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
                             @elseif ($gradingPeriod === 'Second')
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
                             @elseif ($gradingPeriod === 'All')
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
-                                <td class="text-right"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
+                                <td class="text-center"></td>
                             @endif
 
                             <td></td>
@@ -363,21 +363,21 @@
                     @else
                         <td>{{ $subject['Subject'] }}</td>
                         @if ($gradingPeriod === 'First')
-                            <td class="text-right"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
-                            <td class="text-right"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
-                            <td class='text-right'><strong>-</strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
+                            <td class='text-center'><strong>-</strong></td>
                         @elseif ($gradingPeriod === 'Second')
-                            <td class="text-right"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
-                            <td class="text-right"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
-                            <td class='text-right'><strong>-</strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
+                            <td class='text-center'><strong>-</strong></td>
                         @elseif ($gradingPeriod === 'All')
-                            <td class="text-right"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
-                            <td class="text-right"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
-                            <td class="text-right"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
-                            <td class="text-right"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
-                            <td class='text-right'><strong>{{ $subject['AverageGrade'] != null | $subject['AverageGrade'] > 0 ? number_format($subject['AverageGrade']) : '-' }}</strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['FirstGradingGrade'] != null | $subject['FirstGradingGrade'] > 0 ? number_format($subject['FirstGradingGrade']) : '-' }}<i></strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['SecondGradingGrade'] != null | $subject['SecondGradingGrade'] > 0 ? number_format($subject['SecondGradingGrade']) : '-' }}<i></strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
+                            <td class="text-center"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
+                            <td class='text-center'><strong>{{ $subject['AverageGrade'] != null | $subject['AverageGrade'] > 0 ? number_format($subject['AverageGrade']) : '-' }}</strong></td>
                         @endif
-                        <td>{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
+                        <td class='text-center'>{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
                         <td>{{ $subject['FullName'] }}</td>
 
                         @php
@@ -396,21 +396,21 @@
                             <!-- Indented sub-subjects -->
                             <td class="sub-subject">{{ $subSubject['Subject'] }}</td>
                             @if ($gradingPeriod === 'First')
-                                <td class="text-right"><strong><i>{{ $subSubject['FirstGradingGrade'] != null | $subSubject['FirstGradingGrade'] > 0 ? number_format($subSubject['FirstGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subSubject['SecondGradingGrade'] != null | $subSubject['SecondGradingGrade'] > 0 ? number_format($subSubject['SecondGradingGrade']) : '-' }}<i></strong></td>
-                                <td class='text-right'></td>
+                                <td class="text-center"><strong><i>{{ $subSubject['FirstGradingGrade'] != null | $subSubject['FirstGradingGrade'] > 0 ? number_format($subSubject['FirstGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subSubject['SecondGradingGrade'] != null | $subSubject['SecondGradingGrade'] > 0 ? number_format($subSubject['SecondGradingGrade']) : '-' }}<i></strong></td>
+                                <td class='text-center'></td>
                             @elseif ($gradingPeriod === 'Second')
-                                <td class="text-right"><strong><i>{{ $subSubject['ThirdGradingGrade'] != null | $subSubject['ThirdGradingGrade'] > 0 ? number_format($subSubject['ThirdGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subSubject['FourthGradingGrade'] != null | $subSubject['FourthGradingGrade'] > 0 ? number_format($subSubject['FourthGradingGrade']) : '-' }}<i></strong></td>
-                                <td class='text-right'>-</td>
+                                <td class="text-center"><strong><i>{{ $subSubject['ThirdGradingGrade'] != null | $subSubject['ThirdGradingGrade'] > 0 ? number_format($subSubject['ThirdGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subSubject['FourthGradingGrade'] != null | $subSubject['FourthGradingGrade'] > 0 ? number_format($subSubject['FourthGradingGrade']) : '-' }}<i></strong></td>
+                                <td class='text-center'>-</td>
                             @elseif ($gradingPeriod === 'All')
-                                <td class="text-right"><strong><i>{{ $subSubject['FirstGradingGrade'] != null | $subSubject['FirstGradingGrade'] > 0 ? number_format($subSubject['FirstGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subSubject['SecondGradingGrade'] != null | $subSubject['SecondGradingGrade'] > 0 ? number_format($subSubject['SecondGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subSubject['ThirdGradingGrade'] != null | $subSubject['ThirdGradingGrade'] > 0 ? number_format($subSubject['ThirdGradingGrade']) : '-' }}<i></strong></td>
-                                <td class="text-right"><strong><i>{{ $subSubject['FourthGradingGrade'] != null | $subSubject['FourthGradingGrade'] > 0 ? number_format($subSubject['FourthGradingGrade']) : '-' }}<i></strong></td>
-                                <td class='text-right'><strong>{{ $subSubject['AverageGrade'] != null | $subSubject['AverageGrade'] > 0 ? number_format($subSubject['AverageGrade']) : '-' }}</strong></td>
+                                <td class="text-center"><strong><i>{{ $subSubject['FirstGradingGrade'] != null | $subSubject['FirstGradingGrade'] > 0 ? number_format($subSubject['FirstGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subSubject['SecondGradingGrade'] != null | $subSubject['SecondGradingGrade'] > 0 ? number_format($subSubject['SecondGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subSubject['ThirdGradingGrade'] != null | $subSubject['ThirdGradingGrade'] > 0 ? number_format($subSubject['ThirdGradingGrade']) : '-' }}<i></strong></td>
+                                <td class="text-center"><strong><i>{{ $subSubject['FourthGradingGrade'] != null | $subSubject['FourthGradingGrade'] > 0 ? number_format($subSubject['FourthGradingGrade']) : '-' }}<i></strong></td>
+                                <td class='text-center'><strong>{{ $subSubject['AverageGrade'] != null | $subSubject['AverageGrade'] > 0 ? number_format($subSubject['AverageGrade']) : '-' }}</strong></td>
                             @endif
-                            <td>{{ Subjects::checkPass(floatval($subSubject['AverageGrade'])) }}</td>
+                            <td class='text-center'>{{ Subjects::checkPass(floatval($subSubject['AverageGrade'])) }}</td>
                             <td>{{ $subSubject['FullName'] }}</td>
                         </tr>
                         @php
@@ -447,18 +447,18 @@
             <tr>
                 <td><strong>TOTAL AVERAGE</strong></td>
                 @if ($gradingPeriod === 'First')
-                    <td class="text-right"><strong>-</strong></td>
-                    <td class="text-right"><strong>-</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
                     <td></td>
                 @elseif ($gradingPeriod === 'Second')
-                    <td class="text-right"><strong>-</strong></td>
-                    <td class="text-right"><strong>-</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageThird) }}</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageFourth) }}</strong></td>
                     <td></td>
                 @elseif ($gradingPeriod === 'All')
-                    <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
-                    <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
-                    <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
-                    <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageThird) }}</strong></td>
+                    <td class="text-center"><strong>{{ number_format($averageFourth) }}</strong></td>
                     <td></td>
                 @endif
                 
@@ -480,11 +480,11 @@
         <div class="half" style="display: flex; flex-direction: column; justify-content: end; align-items: center;">
             @if (env('APP_COMPANY_ABRV') === 'SVI')
                 <div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
-                    <img src="{{ URL::asset('imgs/signatures/svi-principal.png'); }}" alt="" style="width: 90px;">
+                    <img src="{{ URL::asset('imgs/signatures/svi-principal.png'); }}" alt="" style="width: 90px; margin-bottom: -20px;">
                 </div>
             @endif
-            <p class="text-center" style="margin: 0px 6px; border-bottom: 1px solid black;"><strong>{{ env("PRINCIPAL_NAME") }}</strong></p>
-            <p class="text-center">Principal</p>
+            <p class="text-center" style="margin: 0px 6px; border-bottom: 1px solid black;"><strong>{{ env("PRINCIPAL_NAME") }}, MA-English</strong></p>
+            <p class="text-center">School Principal</p>
         </div>
     </div>
     
