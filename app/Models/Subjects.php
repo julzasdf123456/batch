@@ -51,9 +51,9 @@ class Subjects extends Model
     public static function checkPass($grade) {
         if ($grade != null) {
             if ($grade > 0 && $grade < 75) {
-                return 'FAIL';
+                return 'FAILED';
             } elseif ($grade >= 75) {
-                return 'PASS';
+                return 'PASSED';
             } else {
                 return 'INC';
             }
