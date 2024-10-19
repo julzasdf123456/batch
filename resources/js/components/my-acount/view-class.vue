@@ -123,7 +123,7 @@
                                 QUIZZES 
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade active show" id="quizzes-content" role="tabpanel" aria-labelledby="quizzes-tab">
+                            <div class="tab-pane fade" id="quizzes-content" role="tabpanel" aria-labelledby="quizzes-tab">
                                 <div class="table-responsive mt-2">
                                     <!-- <a :href="baseURL + '/classes/print-grades-in-subject-class/' + subjectId + '/' + classId + '/' + teacherId" class="btn btn-link-muted btn-sm" title="Print all grades"><i class="fas fa-print"></i></a> -->
 

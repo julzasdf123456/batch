@@ -1,3 +1,13 @@
+@php
+    use App\Models\Subjects;
+
+    $parents = [
+        '' => 'None'
+    ];
+
+    $parents = array_merge($parents, Subjects::parentSubjects());
+@endphp
+
 <!-- Subject Field -->
 <div class="form-group col-sm-6">
     {!! Form::label('Subject', 'Subject:') !!}
@@ -25,5 +35,5 @@
 <!-- ParentSubject Field -->
 <div class="form-group col-lg-6">
     {!! Form::label('ParentSubject', 'Parent Subject:') !!}
-    {!! Form::select('ParentSubject', ['' => 'None', 'MAPEH' => 'MAPEH', 'TLE' => 'TLE', 'Applied Subjects' => 'Applied Subjects', 'Core Subjects' => 'Core Subjects', 'Specialized Subjects' => 'Specialized Subjects', 'Other Related Subjects' => 'Other Related Subjects'], null, ['class' => 'form-control']) !!}
+    {!! Form::select('ParentSubject', $parents, null, ['class' => 'form-control']) !!}
 </div>

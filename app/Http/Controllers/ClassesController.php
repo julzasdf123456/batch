@@ -25,6 +25,7 @@ use App\Models\SubjectClasses;
 use App\Models\TransactionDetails;
 use App\Models\Teachers;
 use App\Models\Subjects;
+use App\Models\ClassSubjectParentAvg;
 use App\Exports\DynamicExports;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -2466,6 +2467,7 @@ class ClassesController extends AppBaseController
     public function saveGradeStubConfig(Request $request) {
         $classId = $request['ClassId'];
         $subjects = $request['Subjects'];
+        $avgSubjectParents = $request['AveragedSubjectParents'];
 
         $class = Classes::find($classId);
 
@@ -2502,6 +2504,18 @@ class ClassesController extends AppBaseController
                 StudentSubjects::where('SubjectId', $item['id'])
                     ->where('ClassId', $classId)
                     ->update(['Heirarchy' => $key]);
+            }
+
+            /**
+             * SAVE Averaged Parent Subject Config
+             */
+            ClassSubjectParentAvg::where('ClassId', $classId)->delete();
+            foreach ($avgSubjectParents as $item) {
+                ClassSubjectParentAvg::create([
+                    'id' => IDGenerator::generateIDandRandString(),
+                    'ClassId' => $classId,
+                    'ParentSubject' => $item
+                ]);
             }
         }
 
@@ -2838,5 +2852,290 @@ class ClassesController extends AppBaseController
                                 );
     
         return Excel::download($export, 'All-Students-Data.xlsx');
+    }
+
+    public function mergeTo($studentId) {
+        return view("/classes/merge_to", [
+            'studentId' => $studentId,
+        ]);
+    }
+
+    public function doMerger(Request $request) {
+        $sourceStudentId = $request['SourceStudentId'];
+        $destinationStudentId = $request['DestinationtudentId'];
+
+        $source = Students::find($sourceStudentId);
+        $destination = Students::find($destinationStudentId);
+
+        // transfer other transactions to new student
+        $transactions = Transactions::where('StudentId', $sourceStudentId)
+            ->get();
+        foreach($transactions as $item) {
+            $item->StudentId = $destinationStudentId;
+            $item->save();
+        }
+
+        /**
+         * TRANSACT PAYABLES
+         */
+        // get source payables
+        $sy =  SchoolYear::orderByDesc('created_at')->first();
+        $sourcePayable = Payables::where('StudentId', $sourceStudentId)
+            ->where('SchoolYear', $sy != null ? $sy->SchoolYear : '')
+            ->where('Category', 'Tuition Fees')
+            ->first();
+
+        if ($sourcePayable != null) {
+            $amountAlrPaid = $sourcePayable->AmountPaid != null ? floatval($sourcePayable->AmountPaid) : 0;
+
+
+            $payable = Payables::where('StudentId', $destinationStudentId)
+                ->where('SchoolYear', $sy != null ? $sy->SchoolYear : '')
+                ->where('Category', 'Tuition Fees')
+                ->first();
+            if ($payable != null) {
+                $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
+                $newAmntPaid = $payableAmntPaid + floatval($amountAlrPaid);
+                
+                $payableBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                $balance = $payableBalance - floatval($amountAlrPaid);
+
+                $payable->AmountPaid = $newAmntPaid;
+                $payable->Balance = $balance;
+                $payable->save();
+
+                // update tuitions breakdown
+                $tBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
+                $payment = floatval($amountAlrPaid);
+                foreach($tBreakdown as $item) {
+                    $currentPayable = floatval($item->Balance);
+                    if ($payment > 0) {
+                        if ($payment >= $currentPayable) {
+                            $item->Balance = 0;
+                            $item->AmountPaid = $item->AmountPayable;
+                            
+                            $payment = $payment - $currentPayable;
+                        } else {
+                            $item->Balance = $currentPayable - $payment;
+                            $item->AmountPaid = floatval($item->AmountPaid) + $payment;
+
+                            $payment = 0;
+                        }
+                        $item->save();
+                    }
+                }
+            }
+        }
+        
+        // delete data
+        $source->delete();
+        StudentSubjects::where('StudentId', $sourceStudentId)->delete();
+        StudentClasses::where('StudentId', $sourceStudentId)->delete();
+
+        return response()->json('ok', 200);
+    }
+
+    public function printSingleGradeSvi($studentId, $classId, $gradingPeriod) {
+        $data = DB::table('StudentSubjects')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+            ->whereRaw("StudentSubjects.StudentId='" . $studentId . "' AND StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                'StudentSubjects.*',
+                'Subjects.Subject',
+                'Subjects.ParentSubject',
+                'Teachers.FullName',
+            )
+            ->orderBy('Heirarchy')
+            ->get();
+
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $student = DB::table('Students')
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("Students.id='" . $studentId . "'")
+            ->select('Students.*',
+                'Towns.Town as TownSpelled',
+                'Barangays.Barangay as BarangaySpelled')
+            ->first();
+
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        }
+
+        return view('/classes/print_single_grade_svi', [
+            'data' => $data,
+            'class' => $class,
+            'student' => $student,
+            'sy' => $sy,
+            'adviser' => $adviser,
+            'gradingPeriod' => $gradingPeriod,
+            'avgParents' => $arr,
+        ]);
+    }
+
+    public function printSingleGradeAllSvi($classId, $gradingPeriod) {
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $students = DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        }
+
+        foreach($students as $item) {
+            $item->GradeData = DB::table('StudentSubjects')
+                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
+                ->select(
+                    'StudentSubjects.*',
+                    'Subjects.Subject',
+                    'Subjects.ParentSubject',
+                    'Teachers.FullName',
+                )
+                ->orderBy('Heirarchy')
+                ->get();
+        }
+
+        return view('/classes/print_single_grade_all_svi', [
+            'students' => $students,
+            'class' => $class,
+            'sy' => $sy,
+            'adviser' => $adviser,
+            'gradingPeriod' => $gradingPeriod,
+            'avgParents' => $arr,
+        ]);
+    }
+
+    public function printSingleGradeSviSenior($studentId, $classId, $gradingPeriod) {
+        $data = DB::table('StudentSubjects')
+            ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+            ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+            ->whereRaw("StudentSubjects.StudentId='" . $studentId . "' AND StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                'StudentSubjects.*',
+                'Subjects.Subject',
+                'Subjects.ParentSubject',
+                'Teachers.FullName',
+            )
+            ->orderBy('Heirarchy')
+            ->get();
+
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $student = DB::table('Students')
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("Students.id='" . $studentId . "'")
+            ->select('Students.*',
+                'Towns.Town as TownSpelled',
+                'Barangays.Barangay as BarangaySpelled')
+            ->first();
+
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        }
+
+        return view('/classes/print_single_grade_svi_senior', [
+            'data' => $data,
+            'class' => $class,
+            'student' => $student,
+            'sy' => $sy,
+            'adviser' => $adviser,
+            'gradingPeriod' => $gradingPeriod,
+            'avgParents' => $arr,
+        ]);
+    }
+    
+    public function printSingleGradeAllSviSenior($classId, $gradingPeriod) {
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $students = DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        }
+
+        foreach($students as $item) {
+            $item->GradeData = DB::table('StudentSubjects')
+                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
+                ->select(
+                    'StudentSubjects.*',
+                    'Subjects.Subject',
+                    'Subjects.ParentSubject',
+                    'Teachers.FullName',
+                )
+                ->orderBy('Heirarchy')
+                ->get();
+        }
+
+        return view('/classes/print_single_grade_all_svi_senior', [
+            'students' => $students,
+            'class' => $class,
+            'sy' => $sy,
+            'adviser' => $adviser,
+            'gradingPeriod' => $gradingPeriod,
+            'avgParents' => $arr,
+        ]);
     }
 }

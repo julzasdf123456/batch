@@ -1,5 +1,6 @@
 <template>
     <div class="row">
+        <!-- Subject Arrangements -->
         <div class="col-lg-6 offset-lg-3 col-md-12">
             <div class="card shadow-none">
                 <div class="card-header">
@@ -25,10 +26,44 @@
                     </table>
                 </div>
                 <div class="card-footer">
-                    <button @click="save()" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Save</button>
+                    <!-- <button @click="save()" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Save</button> -->
                 </div>
             </div>
         </div>
+
+        <!-- Parent subjects -->
+        <div class="col-lg-6 offset-lg-3 col-md-12">
+            <div class="card shadow-none">
+                <div class="card-header">
+                    <p class="card-title text-muted">
+                        Parent Subject Averaging
+                        <br>
+                        <p class="text-muted no-pads text-sm">Each subject component of the following subject parents will be averaged if checked.</p>
+                    </p>
+                    
+                </div>
+                <div class="card-body p-0" style="width: 100% !important;">
+                    <table class="table table-hover" style="width: 100% !important;">
+                        <tbody style="width: 100% !important;">
+                            <tr v-for="parent in parentSubjects">
+                                <td class="v-align" style="width: 30px;">
+                                    <input type="checkbox" v-model="averagedParents" :value="parent" :checked="averagedParents.includes(parent)">
+                                </td>
+                                <td>{{ parent }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <!-- <button @click="save()" class="btn btn-primary float-right"><i class="fas fa-check-circle ico-tab-mini"></i>Save</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="right-bottom">
+        <button @click="save()" class="btn-floating shadow btn-primary">Save Stub Print Config <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
     </div>
 </template>
 
@@ -82,6 +117,8 @@ export default {
             school : document.querySelector("meta[name='school']").getAttribute('content'),
             subjects : [],
             mainSubjects : [],
+            parentSubjects : [],
+            averagedParents : []
         }
     },
     methods : {
@@ -228,6 +265,7 @@ export default {
                 _token : this.token,
                 ClassId : this.classId,
                 Subjects : this.subjects,
+                AveragedSubjectParents : this.averagedParents
             })
             .then(response => {
                 this.toast.fire({
@@ -245,13 +283,51 @@ export default {
                     text : 'Error saving config!'
                 })
             })
-        }
+        },
+        getParentSubjects() {
+            // GET SUBJECTS
+            this.parentSubjects = []
+            axios.get(`${ this.baseURL }/subjects/get-parent-subjects`)
+            .then(response => {
+                this.parentSubjects = response.data
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting parent subjects!'
+                })
+            })
+        },
+        getParentAveragingConfig() {
+            // GET SUBJECTS
+            this.averagedParents = []
+            axios.get(`${ this.baseURL }/subjects/get-parent-avg-config`, {
+                params : {
+                    ClassId : this.classId,
+                }
+            })
+            .then(response => {
+                this.averagedParents = response.data
+
+                console.log(this.averagedParents)
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting parent avergaing config!'
+                })
+            })
+        },
     },
     created() {
         
     },
     mounted() {
         this.getSubjects()
+        this.getParentSubjects()
+        this.getParentAveragingConfig()
     }
 }
 

@@ -154,9 +154,8 @@
 
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
-                                                            <!-- <button @click="markEsc(student.id, 'Yes')" v-if="student.ESCScholar === 'No' ? true : false" class="dropdown-item"><i class="fas fa-check-circle ico-tab"></i>Mark ESC Scholar</button>
-                                                            <button @click="markEsc(student.id, 'No')" v-if="student.ESCScholar === 'Yes' ? true : false" class="dropdown-item"><i class="far fa-check-circle ico-tab"></i>Mark Non-ESC Scholar</button> -->
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
+                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
@@ -210,6 +209,7 @@
                                                             <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
+                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
@@ -366,7 +366,7 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                <td :colspan="(3 + (subjectHeadsRearranged.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -376,7 +376,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
                                                     <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
@@ -385,7 +385,7 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                <td :colspan="(3 + (subjectHeadsRearranged.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                             </tr>
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
@@ -395,7 +395,7 @@
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right" v-for="sb in subjects" v-html="getFinalGrade(student.id, sb.id)"></td>
+                                                <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
                                                     <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
@@ -720,7 +720,8 @@ export default {
             activeRankTitle : 'Total Average Grade Rankings',
             dateSelectedShown : null,
             studentSelected : null,
-            selectedAttData : []
+            selectedAttData : [],
+            subjectHeadsRearranged : []
         }
     },
     methods : {
@@ -928,10 +929,23 @@ export default {
             let subHeaders = []
             let groupedSubjects = {};
 
+            this.subjectHeadsRearranged = []
+
             // Separate subjects with null ParentSubject and group by ParentSubject
             this.subjects.forEach(subject => {
                 if (subject.ParentSubject === null) {
                     headers.push({
+                        id : subject.id,
+                        Subject: subject.Subject,
+                        TeacherId : subject.TeacherId,
+                        FullName : subject.FullName,
+                        rowspan: 2,
+                        colspan: 1,
+                        children : null,
+                        hasMenu : true,
+                    })
+
+                    this.subjectHeadsRearranged.push({
                         id : subject.id,
                         Subject: subject.Subject,
                         TeacherId : subject.TeacherId,
@@ -970,11 +984,13 @@ export default {
                     hasMenu : false,
                 });
             });
+            // merge arrays
+            Array.prototype.push.apply(this.subjectHeadsRearranged, subHeaders)
 
             return { Headers : headers, SubHeaders : subHeaders }
         },
-        getFinalGrade(studentId, subjectId) {
-            let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId)
+        getFinalGrade(studentId, subjectId, teacherid) {
+            let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId && obj.TeacherId === teacherid)
 
             if (!this.isNull(gradeData)) {
                 return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
@@ -1541,28 +1557,32 @@ export default {
             this.addedSubjectId = ''
         },
         printSingleStub(studentId) {
-            // if (this.school === 'HCA') {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
-            // } else {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade/${ studentId }/${ this.classId }`
-            // }
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
-            } else {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+            if (this.school === 'HCA') {
+                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
+                } else {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
+                }
+            } else if (this.school === 'SVI') {
+                this.printSingleGradeSVI(studentId)
+                // if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                //     window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
+                // } else {
+                //     window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }`
+                // }
             }
         },
         printAllGradeStub() {
-            // if (this.school === 'HCA') {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
-            // } else {
-            //     window.location.href = `${ this.baseURL }/classes/print-single-grade-all/${ this.classId }`
-            // }
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca-senior/${ this.classId }`
-            } else {
-                window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+            if (this.school === 'HCA') {
+                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca-senior/${ this.classId }`
+                } else {
+                    window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
+                }
+            } else if (this.school === 'SVI') {
+                this.printSingleGradeAllSVI()
             }
+            
         },
         stubConfig() {
             window.location.href = `${ this.baseURL }/classes/stub-config/${ this.classId }`
@@ -1706,6 +1726,117 @@ export default {
 
             let modalElement = this.$refs.modalShowBio
             $(modalElement).modal('show')
+        },
+        printSingleGradeSVI(studentId) {
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                Swal.fire({
+                    title: 'Select Semester to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an semester!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi-senior/${ studentId }/${ this.classId }/${result.value}`
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Select a Grading Period to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an grading period!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }/${result.value}`
+                    }
+                });
+            }
+        },
+        printSingleGradeAllSVI() {
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                Swal.fire({
+                    title: 'Select Semester to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an semester!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi-senior/${ this.classId }/${result.value}`
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Select a Grading Period to Print',
+                    html: `
+                        <form id="radioForm">
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
+                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        </form>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Submit',
+                    preConfirm: () => {
+                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        if (!selectedOption) {
+                            Swal.showValidationMessage('You need to select an grading period!');
+                            return null;
+                        }
+                        return selectedOption.value;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi/${ this.classId }/${result.value}`
+                    }
+                });
+            }
+            
         }
     },
     created() {

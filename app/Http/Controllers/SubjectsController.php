@@ -8,6 +8,8 @@ use App\Http\Controllers\AppBaseController;
 use App\Repositories\SubjectsRepository;
 use Illuminate\Http\Request;
 use App\Models\Teachers;
+use App\Models\Subjects;
+use App\Models\ClassSubjectParentAvg;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -35,7 +37,7 @@ class SubjectsController extends AppBaseController
                     'Subjects.*',
                     'Teachers.Fullname'
                 )
-                ->paginate(15);
+                ->paginate(100);
 
             return view('subjects.index')
                 ->with('subjects', $subjects);
@@ -159,5 +161,25 @@ class SubjectsController extends AppBaseController
         } else {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
+    }
+
+    public function getParentSubjects(Request $request) {
+        return response()->json(Subjects::parentSubjects(), 200);
+    }
+
+    public function getParentAveragingConfig(Request $request) {
+        $classId = $request['ClassId'];
+
+        $arr = [];
+
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        }
+
+        return response()->json($arr, 200);
     }
 }

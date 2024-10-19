@@ -9,6 +9,7 @@
 - Green - #3a9971
 
 ### New Tables
+- ClassSubjectParentAvg
 
 ### New Columns on Tables
 

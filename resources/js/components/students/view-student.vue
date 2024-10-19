@@ -837,7 +837,6 @@ export default {
                     })
                 }
             })
-            
         },
         printTuitionLedger() {
             window.location.href = `${ this.baseURL }/transactions/print-tuition-ledger/${ this.studentId }/${ this.activePayable.SchoolYear }`
