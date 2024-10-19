@@ -248,22 +248,26 @@
                     $sGradeSum = 0;
                     $tGradeSum = 0;
                     $ftGradeSum = 0;
+                    $avgGradeSum = 0;
                     $fGradeAve = 0;
                     $sGradeAve = 0;
                     $tGradeAve = 0;
                     $ftGradeAve = 0;
+                    $avgGradeAve = 0;
                     if ($subs != null) {
                         foreach ($subs as $item) {
                             $fGradeSum += floatval($item['FirstGradingGrade'] != null ? $item['FirstGradingGrade'] : 0);
                             $sGradeSum += floatval($item['SecondGradingGrade'] != null ? $item['SecondGradingGrade'] : 0);
                             $tGradeSum += floatval($item['ThirdGradingGrade'] != null ? $item['ThirdGradingGrade'] : 0);
                             $ftGradeSum += floatval($item['FourthGradingGrade'] != null ? $item['FourthGradingGrade'] : 0);
+                            $avgGradeSum += floatval($item['AverageGrade'] != null ? $item['AverageGrade'] : 0);
                         }
 
                         $fGradeAve = $fGradeSum > 0 ? ($fGradeSum / count($subs)) : 0;
                         $sGradeAve = $sGradeSum > 0 ? ($sGradeSum / count($subs)) : 0;
                         $tGradeAve = $tGradeSum > 0 ? ($tGradeSum / count($subs)) : 0;
                         $ftGradeAve = $ftGradeSum > 0 ? ($ftGradeSum / count($subs)) : 0;
+                        $avgGradeAve = $avgGradeSum > 0 ? ($avgGradeSum / count($subs)) : 0;
                     }
 
                     $mainSubjects[] = [
@@ -280,7 +284,7 @@
                         "SecondGradingGrade" => number_format($sGradeAve),
                         "ThirdGradingGrade" => number_format($tGradeAve),
                         "FourthGradingGrade" => number_format($ftGradeAve),
-                        "AverageGrade" => null,
+                        "AverageGrade" => number_format($avgGradeAve),
                         "Notes" => null,
                         "created_at" => null,
                         "updated_at" => null,
@@ -324,6 +328,9 @@
                                 <td class="text-center"><strong><i>{{ $subject['ThirdGradingGrade'] != null | $subject['ThirdGradingGrade'] > 0 ? number_format($subject['ThirdGradingGrade']) : '-' }}<i></strong></td>
                                 <td class="text-center"><strong><i>{{ $subject['FourthGradingGrade'] != null | $subject['FourthGradingGrade'] > 0 ? number_format($subject['FourthGradingGrade']) : '-' }}<i></strong></td>
                             @endif
+
+                            <td class="text-center">{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
+                            <td></td>
                         @else
                             {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY NOTHING IF NOT --}}
                             @if ($gradingPeriod === 'First')
@@ -340,10 +347,9 @@
                                 <td class="text-center"></td>
                                 <td class="text-center"></td>
                             @endif
+                            <td></td>
+                            <td></td>
                         @endif
-
-                        <td class="text-center">{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
-                        <td></td>
                     @else
                         <td>{{ $subject['Subject'] }}</td>
                         @if ($gradingPeriod === 'First')
