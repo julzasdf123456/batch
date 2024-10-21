@@ -65,19 +65,19 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-0`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Male', 'enter', index)" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Male')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Male${index}-0`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Male', 'enter', index)" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="text-right v-align">
                                                     <i class="fas fa-eye text-sm" :class="isNull(student.Visibility) ? 'text-muted' : 'text-success'"></i>
@@ -95,19 +95,19 @@
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
-                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-0`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Female', 'enter', index)" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Female')" type="number" step="any"/>
+                                                    <input :ref="el => { if (el) inputRefs[`Female${index}-0`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.AverageGrade" @keyup.enter="inputEnter(student.AverageGrade, student.id, 0, 'Female', 'enter', index)" @blur="inputEnter(student.AverageGrade, student.id, 0, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="text-right v-align">
                                                     <i class="fas fa-eye text-sm" :class="isNull(student.Visibility) ? 'text-muted' : 'text-success'"></i>
@@ -325,12 +325,38 @@ export default {
             newQuizGrading : '1',
             quizHeaders : [],
             quizData : [],
+            charGradeMatrix : [{ Grade : 'A', Value : 4 }, { Grade : 'B', Value : 3 }, { Grade : 'C', Value : 2 }, { Grade : 'D', Value : 1 }],
         }
     },
     methods : {
-        isNull (obj) {
-            return obj === null || obj === undefined || 
-                (typeof obj === 'object' && Object.keys(obj).length === 0)
+        isNull (value) {
+            // Check for null or undefined
+            if (value === null || value === undefined) {
+                return true;
+            }
+
+            // Check for empty string
+            if (typeof value === 'string' && value.trim() === '') {
+                return true;
+            }
+
+            // Check for empty array
+            if (Array.isArray(value) && value.length === 0) {
+                return true;
+            }
+
+            // Check for empty object
+            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                return true;
+            }
+
+            // Check for NaN
+            if (typeof value === 'number' && isNaN(value)) {
+                return true;
+            }
+
+            // If none of the above, it's not null, empty, or undefined
+            return false;
         },
         toMoney(value) {
             return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
@@ -339,7 +365,7 @@ export default {
             return typeof value === 'number';
         },        
         round(value) {
-            return Math.round((value + Number.EPSILON) * 100) / 100;
+            return Math.round((value + Number.EPSILON) * 1000) / 1000;
         },
         generateRandomString(length) {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -411,40 +437,88 @@ export default {
                 subjectData = this.female.find(obj => obj.id === id)
             }
 
+            // COMPUTE NUMERIC
+            // HOMEROOM GUIDANCE COULD BE A, B, C, D grading system
             var finalGrade = null
             if (!this.isNull(subjectData)) {
-                var grades = []
+                if (this.classDetails.GradingType==='ABCD') {
+                    /**
+                     * FOR ABCD GRADES, apropo, Homeroom Guidance
+                     */
+                    var grades = []
 
-                // first grading
-                if (subjectData.FirstGradingGrade) {
-                    grades.push(subjectData.FirstGradingGrade + '')
-                }
-
-                // second grading
-                if (subjectData.SecondGradingGrade) {
-                    grades.push(subjectData.SecondGradingGrade + '')
-                }
-                
-                // third grading
-                if (subjectData.ThirdGradingGrade) {
-                    grades.push(subjectData.ThirdGradingGrade + '')
-                }
-                
-                // fourth grading
-                if (subjectData.FourthGradingGrade) {
-                    grades.push(subjectData.FourthGradingGrade + '')
-                }
-
-                const len = grades.length
-                if (len > 0) {
-                    var sum = 0
-                    for (let i=0; i<len; i++) {
-                        sum += parseFloat(grades[i])
+                    // first grading
+                    if (subjectData.FirstGradingGrade) {
+                        grades.push(this.getGradeMatrixValue(subjectData.FirstGradingGrade) + '')
                     }
 
-                    finalGrade = this.round(sum / len)
+                    // second grading
+                    if (subjectData.SecondGradingGrade) {
+                        grades.push(this.getGradeMatrixValue(subjectData.SecondGradingGrade) + '')
+                    }
+
+                    // third grading
+                    if (subjectData.ThirdGradingGrade) {
+                        grades.push(this.getGradeMatrixValue(subjectData.ThirdGradingGrade) + '')
+                    }
+
+                    // fourth grading
+                    if (subjectData.FourthGradingGrade) {
+                        grades.push(this.getGradeMatrixValue(subjectData.FourthGradingGrade) + '')
+                    }
+
+                    // get average
+                    const len = grades.length
+                    if (len > 0) {
+                        var sum = 0
+                        for (let i=0; i<len; i++) {
+                            sum += parseInt(grades[i])
+                        }
+
+                        finalGrade = this.round(sum / len)
+                        finalGrade = Math.round(finalGrade)
+                    } else {
+                        finalGrade = 0
+                    }
+
+                    finalGrade = finalGrade == 0 ? null : this.getGradeMatrixGrade(finalGrade)
                 } else {
-                    finalGrade = 0
+                    /**
+                     * FOR DECIMAL GRADES
+                     */
+                    var grades = []
+
+                    // first grading
+                    if (subjectData.FirstGradingGrade) {
+                        grades.push(subjectData.FirstGradingGrade + '')
+                    }
+
+                    // second grading
+                    if (subjectData.SecondGradingGrade) {
+                        grades.push(subjectData.SecondGradingGrade + '')
+                    }
+
+                    // third grading
+                    if (subjectData.ThirdGradingGrade) {
+                        grades.push(subjectData.ThirdGradingGrade + '')
+                    }
+
+                    // fourth grading
+                    if (subjectData.FourthGradingGrade) {
+                        grades.push(subjectData.FourthGradingGrade + '')
+                    }
+
+                    const len = grades.length
+                    if (len > 0) {
+                        var sum = 0
+                        for (let i=0; i<len; i++) {
+                            sum += parseFloat(grades[i])
+                        }
+
+                        finalGrade = this.round(sum / len)
+                    } else {
+                        finalGrade = 0
+                    }
                 }
             } else {
                 finalGrade = grade
@@ -482,7 +556,7 @@ export default {
                 this.showSaveFader()
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error updating grade!'
@@ -715,6 +789,15 @@ export default {
                     text : 'Error saving quiz score!'
                 })
             })
+        },
+        getGradeMatrixValue(grade) {
+            let gradeMatrix = this.charGradeMatrix.find(obj => obj.Grade === grade)
+            const gradeMatrixValue = this.isNull(gradeMatrix) ? 0 : gradeMatrix.Value
+            return gradeMatrixValue
+        },
+        getGradeMatrixGrade(val) {
+            let gradeMatrix = this.charGradeMatrix.find(obj => obj.Value === val)
+            return gradeMatrix.Grade
         }
     },
     created() {

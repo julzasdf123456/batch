@@ -2407,12 +2407,22 @@ class ClassesController extends AppBaseController
                 'Barangays.Barangay as BarangaySpelled')
             ->first();
 
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        }  
+
         return view('/classes/print_single_grade_hca', [
             'data' => $data,
             'class' => $class,
             'student' => $student,
             'sy' => $sy,
             'adviser' => $adviser,
+            'avgParents' => $arr,
         ]);
     }
 
@@ -2450,11 +2460,21 @@ class ClassesController extends AppBaseController
                 ->get();
         }
 
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        } 
+
         return view('/classes/print_single_grade_all_hca', [
             'students' => $students,
             'class' => $class,
             'sy' => $sy,
             'adviser' => $adviser,
+            'avgParents' => $arr,
         ]);
     }
 
@@ -2648,12 +2668,22 @@ class ClassesController extends AppBaseController
                 'Barangays.Barangay as BarangaySpelled')
             ->first();
 
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        } 
+
         return view('/classes/print_single_grade_hca_senior', [
             'data' => $data,
             'class' => $class,
             'student' => $student,
             'sy' => $sy,
             'adviser' => $adviser,
+            'avgParents' => $arr,
         ]);
     }
     
@@ -2692,12 +2722,22 @@ class ClassesController extends AppBaseController
                 ->orderBy('Heirarchy')
                 ->get();
         }
+        
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        } 
 
         return view('/classes/print_single_grade_all_hca_senior', [
             'students' => $students,
             'class' => $class,
             'sy' => $sy,
             'adviser' => $adviser,
+            'avgParents' => $arr,
         ]);
     }
 
@@ -3111,7 +3151,7 @@ class ClassesController extends AppBaseController
 
         foreach($parents as $item) {
             array_push($arr, $item->ParentSubject);
-        }
+        } 
 
         foreach($students as $item) {
             $item->GradeData = DB::table('StudentSubjects')

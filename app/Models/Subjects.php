@@ -14,7 +14,8 @@ class Subjects extends Model
         'Description',
         'CourseFee',
         'Teacher',
-        'ParentSubject'
+        'ParentSubject',
+        'GradingType'
     ];
 
     protected $casts = [
@@ -24,6 +25,7 @@ class Subjects extends Model
         'CourseFee' => 'string',
         'Teacher' => 'string',
         'ParentSubject' => 'string',
+        'GradingType' => 'string',
     ];
 
     public static array $rules = [
@@ -35,6 +37,7 @@ class Subjects extends Model
         'CourseFee' => 'nullable|string',
         'Teacher' => 'nullable|string',
         'ParentSubject' => 'nullable|string',
+        'GradingType' => 'nullable|string',
     ];
 
     public static function parentSubjects() {
@@ -50,15 +53,39 @@ class Subjects extends Model
 
     public static function checkPass($grade) {
         if ($grade != null) {
-            if ($grade > 0 && $grade < 75) {
-                return 'FAILED';
-            } elseif ($grade >= 75) {
-                return 'PASSED';
+            if (is_numeric($grade)) {
+                if ($grade > 0 && $grade < 75) {
+                    return 'FAILED';
+                } elseif ($grade >= 75) {
+                    return 'PASSED';
+                } else {
+                    return 'INC';
+                }
             } else {
-                return 'INC';
+                if (in_array($grade, ['A', 'B', 'C'])) {
+                    return 'PASSED';
+                } else {
+                    return 'FAILED';
+                }
             }
         } else {
             return 'INC';
+        }
+    }
+
+    public static function validateGrade($grade) {
+        if ($grade != null) {
+            if (is_numeric($grade)) {
+                if ($grade > 0) {
+                    return number_format($grade);
+                } else {
+                    return '-';
+                }
+            } else {
+                return $grade;
+            }
+        } else {
+            return '-';
         }
     }
 }

@@ -285,21 +285,27 @@
                 <tr>
                     @if ($subject['Visibility'] === 'FREAKING PARENT')
                         <td><strong><i>{{ $subject['Subject'] }}<i></strong></td>
-                        <td class="text-right"><strong><i>{{ number_format($subject['FirstGradingGrade']) }}<i></strong></td>
-                        <td class="text-right"><strong><i>{{ number_format($subject['SecondGradingGrade']) }}<i></strong></td>
-                        <td class="text-right"><strong><i>{{ number_format($subject['ThirdGradingGrade']) }}<i></strong></td>
+                        @if (in_array($subject['Subject'], $avgParents))
+                            <td class="text-right"><strong><i>{{ is_numeric($subject['FirstGradingGrade']) ? number_format($subject['FirstGradingGrade']) : $subject['FirstGradingGrade'] }}<i></strong></td>
+                            <td class="text-right"><strong><i>{{ is_numeric($subject['SecondGradingGrade']) ? number_format($subject['SecondGradingGrade']) : $subject['SecondGradingGrade'] }}<i></strong></td>
+                            <td class="text-right"><strong><i>{{ is_numeric($subject['ThirdGradingGrade']) ? number_format($subject['ThirdGradingGrade']) : $subject['ThirdGradingGrade'] }}<i></strong></td>
+                        @else
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        @endif
                         <td>{{ $subject['Notes'] }}</td>
                     @else
                         <td>{{ $subject['Subject'] }}</td>
-                        <td class="text-right">{{ number_format($subject['FirstGradingGrade']) }}</td>
-                        <td class="text-right">{{ number_format($subject['SecondGradingGrade']) }}</td>
-                        <td class="text-right">{{ number_format($subject['ThirdGradingGrade']) }}</td>
+                        <td class="text-right">{{ is_numeric($subject['FirstGradingGrade']) ? number_format($subject['FirstGradingGrade']) : $subject['FirstGradingGrade'] }}</td>
+                        <td class="text-right">{{ is_numeric($subject['SecondGradingGrade']) ? number_format($subject['SecondGradingGrade']) : $subject['SecondGradingGrade'] }}</td>
+                        <td class="text-right">{{ is_numeric($subject['ThirdGradingGrade']) ? number_format($subject['ThirdGradingGrade']) : $subject['ThirdGradingGrade'] }}</td>
                         <td>{{ $subject['Notes'] }}</td>
 
                         @php
-                            $sumFirst += floatval($subject['FirstGradingGrade'] != null ? $subject['FirstGradingGrade'] : 0);
-                            $sumSecond += floatval($subject['SecondGradingGrade'] != null ? $subject['SecondGradingGrade'] : 0);
-                            $sumThird += floatval($subject['ThirdGradingGrade'] != null ? $subject['ThirdGradingGrade'] : 0);
+                            $sumFirst += floatval($subject['FirstGradingGrade'] != null && is_numeric($subject['FirstGradingGrade']) ? $subject['FirstGradingGrade'] : 0);
+                            $sumSecond += floatval($subject['SecondGradingGrade'] != null && is_numeric($subject['SecondGradingGrade']) ? $subject['SecondGradingGrade'] : 0);
+                            $sumThird += floatval($subject['ThirdGradingGrade'] != null && is_numeric($subject['ThirdGradingGrade']) ? $subject['ThirdGradingGrade'] : 0);
                         @endphp
                     @endif
                 </tr>
@@ -310,15 +316,15 @@
                         <tr>
                             <!-- Indented sub-subjects -->
                             <td class="sub-subject">{{ $subSubject['Subject'] }}</td>
-                            <td class="text-right">{{ number_format($subSubject['FirstGradingGrade']) }}</td>
-                            <td class="text-right">{{ number_format($subSubject['SecondGradingGrade']) }}</td>
-                            <td class="text-right">{{ number_format($subSubject['ThirdGradingGrade']) }}</td>
+                            <td class="text-right">{{ is_numeric($subSubject['FirstGradingGrade']) ? number_format($subSubject['FirstGradingGrade']) : $subSubject['FirstGradingGrade'] }}</td>
+                            <td class="text-right">{{ is_numeric($subSubject['SecondGradingGrade']) ? number_format($subSubject['SecondGradingGrade']) : $subSubject['SecondGradingGrade'] }}</td>
+                            <td class="text-right">{{ is_numeric($subSubject['ThirdGradingGrade']) ? number_format($subSubject['ThirdGradingGrade']) : $subSubject['ThirdGradingGrade'] }}</td>
                             <td>{{ $subSubject['Notes'] }}</td>
                         </tr>
                         @php
-                            $sumFirst += floatval($subSubject['FirstGradingGrade'] != null ? $subSubject['FirstGradingGrade'] : 0);
-                            $sumSecond += floatval($subSubject['SecondGradingGrade'] != null ? $subSubject['SecondGradingGrade'] : 0);
-                            $sumThird += floatval($subSubject['ThirdGradingGrade'] != null ? $subSubject['ThirdGradingGrade'] : 0);
+                            $sumFirst += floatval($subSubject['FirstGradingGrade'] != null && is_numeric($subSubject['FirstGradingGrade']) ? $subSubject['FirstGradingGrade'] : 0);
+                            $sumSecond += floatval($subSubject['SecondGradingGrade'] != null && is_numeric($subSubject['SecondGradingGrade']) ? $subSubject['SecondGradingGrade'] : 0);
+                            $sumThird += floatval($subSubject['ThirdGradingGrade'] != null && is_numeric($subSubject['ThirdGradingGrade']) ? $subSubject['ThirdGradingGrade'] : 0);
                         @endphp
                     @endforeach
                 @endif
