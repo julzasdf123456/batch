@@ -37,3 +37,9 @@
     {!! Form::label('ParentSubject', 'Parent Subject:') !!}
     {!! Form::select('ParentSubject', $parents, null, ['class' => 'form-control']) !!}
 </div>
+
+<!-- GradingType Field -->
+<div class="form-group col-lg-6">
+    {!! Form::label('GradingType', 'GradingType:') !!}
+    {!! Form::select('GradingType', ['' => 'Decimal System', 'ABCD' => 'ABCD'], null, ['class' => 'form-control']) !!}
+</div>

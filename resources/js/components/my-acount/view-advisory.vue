@@ -993,7 +993,8 @@ export default {
             let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId && obj.TeacherId === teacherid)
 
             if (!this.isNull(gradeData)) {
-                return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
+                // return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
+                return this.isNull(gradeData.AverageGrade) ? '-' : ('<strong>' + gradeData.AverageGrade + '</strong>')
             } else {
                 return `<i class='text-xs'>Not enrolled</i>`
             }

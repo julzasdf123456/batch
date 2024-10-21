@@ -244,6 +244,7 @@ class TeachersController extends AppBaseController
                 'Classes.Section',
                 'Subjects.id',
                 'Subjects.Subject',
+                'Subjects.GradingType',
             )
             ->groupBy(
                 'StudentSubjects.ClassId',
@@ -251,6 +252,7 @@ class TeachersController extends AppBaseController
                 'Classes.Section',
                 'Subjects.id',
                 'Subjects.Subject',
+                'Subjects.GradingType',
             )
             ->first();
 
