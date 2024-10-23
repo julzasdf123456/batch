@@ -42,10 +42,14 @@
 
                         <div class="dropdown-menu">
                             <a :href="baseURL + '/students/print-students/' + classId" class="dropdown-item"  title="Print Students"><i class="fas fa-print ico-tab-mini"></i>Print Students</a>
-
+                            <a :href="baseURL + '/classes/download-students/' + classId" class="dropdown-item" title="Download in excel file format"><i class="fas fa-file-excel ico-tab-mini"></i>Download Students</a>
                             <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="dropdown-item" title="Print Payment Details"><i class="fas fa-print ico-tab-mini"></i> Print Payment Details</a>
-
                             <button class="dropdown-item" @click="downloadSF2()"><i class="fas fa-file-excel ico-tab-mini"></i>Download SF2</button>
+
+                            <div class="divider"></div>
+
+                            <button @click="rankings()" class="dropdown-item" title="View Grade Class Rankings"><i class="fas fa-award ico-tab-mini"></i>Rankings</button>
+                            <button @click="printAllGradeStub()" class="dropdown-item" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub</button>
                             <button class="dropdown-item" @click="stubConfig()"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
                         </div>
                     </div>
@@ -616,11 +620,11 @@
                             <tr v-for="(rank, index) in rankingData" :key="rank.id">
                                 <td>{{ index+1 }}</td>
                                 <td><strong>{{ rank.LastName + ', ' + rank.FirstName + (isNull(rank.MiddleName) ? '' : (' ' + rank.MiddleName + ' ')) + (isNull(rank.Suffix) ? '' : rank.Suffix) }}</strong></td>
-                                <td :class="activeRankGradeColor==='First' ? 'bg-success' : ''">{{ rank.FirstGradingGrade }}</td>
-                                <td :class="activeRankGradeColor==='Second' ? 'bg-success' : ''">{{ rank.SecondGradingGrade }}</td>
-                                <td :class="activeRankGradeColor==='Third' ? 'bg-success' : ''">{{ rank.ThirdGradingGrade }}</td>
-                                <td :class="activeRankGradeColor==='Fourth' ? 'bg-success' : ''">{{ rank.FourthGradingGrade }}</td>
-                                <td :class="activeRankGradeColor==='Average' ? 'bg-success' : ''">{{ rank.AverageGrade }}</td>
+                                <td class='text-right' :class="activeRankGradeColor==='First' ? 'bg-success' : ''">{{ roundThree(rank.FirstGradingGrade) }}</td>
+                                <td class='text-right' :class="activeRankGradeColor==='Second' ? 'bg-success' : ''">{{ roundThree(rank.SecondGradingGrade) }}</td>
+                                <td class='text-right' :class="activeRankGradeColor==='Third' ? 'bg-success' : ''">{{ roundThree(rank.ThirdGradingGrade) }}</td>
+                                <td class='text-right' :class="activeRankGradeColor==='Fourth' ? 'bg-success' : ''">{{ roundThree(rank.FourthGradingGrade) }}</td>
+                                <td class='text-right' :class="activeRankGradeColor==='Average' ? 'bg-success' : ''">{{ roundThree(rank.AverageGrade) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -721,7 +725,8 @@ export default {
             dateSelectedShown : null,
             studentSelected : null,
             selectedAttData : [],
-            subjectHeadsRearranged : []
+            subjectHeadsRearranged : [],
+            homeroomSubjects : [],
         }
     },
     methods : {
@@ -762,6 +767,9 @@ export default {
         },        
         round(value) {
             return Math.round((value + Number.EPSILON) * 100) / 100;
+        },     
+        roundThree(value) {
+            return Math.round((value + Number.EPSILON) * 1000) / 1000;
         },
         generateRandomString(length) {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -899,10 +907,30 @@ export default {
                 this.getSubjectRepository()
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 this.toast.fire({
                     icon : 'error',
                     text : 'Error getting subjects!'
+                })
+            })
+
+            // get homeroom subjects for inclusions
+            axios.get(`${ this.baseURL }/users/get-homeroom-subjects`)
+            .then(response => {
+                this.homeroomSubjects = response.data
+
+                var hmrmTmp = []
+                for (let i=0; i<this.homeroomSubjects.length; i++) {
+                    hmrmTmp.push(this.homeroomSubjects[i].id)
+                }
+
+                this.homeroomSubjects = hmrmTmp
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting homeroom subjects!'
                 })
             })
         },
@@ -1666,7 +1694,7 @@ export default {
             this.sortRanking('Average')
         },
         getTotalAverage(studentId, grading) {
-            let gradeData = this.subjectData.filter(obj => obj.StudentId === studentId)
+            let gradeData = this.subjectData.filter(obj => obj.StudentId === studentId && !this.homeroomSubjects.includes(obj.SubjectId))
             
             var average = 0
             var sum = 0

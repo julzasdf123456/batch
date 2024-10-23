@@ -310,7 +310,8 @@
                     @if (in_array($subject['Subject'], $avgParents))
                         <td class="text-right"><strong><i>{{ is_numeric($subject['FirstGradingGrade']) ? number_format($subject['FirstGradingGrade']) : $subject['FirstGradingGrade'] }}<i></strong></td>
                         <td class="text-right"><strong><i>{{ is_numeric($subject['SecondGradingGrade']) ? number_format($subject['SecondGradingGrade']) : $subject['SecondGradingGrade'] }}<i></strong></td>
-                        <td class="text-right"><strong><i>{{ $aveGrade }}<i></strong></td>
+                        {{-- <td class="text-right"><strong><i>{{ $aveGrade }}<i></strong></td> --}}
+                        <td></td>
                     @else
                         <td></td>
                         <td></td>
@@ -322,7 +323,8 @@
                     <td>{{ $subject['Subject'] }}</td>
                     <td class="text-right">{{ is_numeric($subject['FirstGradingGrade']) ? number_format($subject['FirstGradingGrade']) : $subject['FirstGradingGrade'] }}</td>
                     <td class="text-right">{{ is_numeric($subject['SecondGradingGrade']) ? number_format($subject['SecondGradingGrade']) : $subject['SecondGradingGrade'] }}</td>
-                    <td class="text-right">{{ $aveGrade }}</td>
+                    {{-- <td class="text-right">{{ $aveGrade }}</td> --}}
+                    <td></td>
                     <td>{{ $subject['Notes'] }}</td>
                     <td>{{ $subject['FullName'] }}</td>
 
@@ -345,7 +347,8 @@
                         <td class="sub-subject">{{ $subSubject['Subject'] }}</td>
                         <td class="text-right">{{ is_numeric($subSubject['FirstGradingGrade']) ? number_format($subSubject['FirstGradingGrade']) : $subSubject['FirstGradingGrade'] }}</td>
                         <td class="text-right">{{ is_numeric($subSubject['SecondGradingGrade']) ? number_format($subSubject['SecondGradingGrade']) : $subSubject['SecondGradingGrade'] }}</td>
-                        <td class="text-right">{{ $aveGrade }}</td>
+                        {{-- <td class="text-right">{{ $aveGrade }}</td> --}}
+                        <td></td>
                         <td>{{ $subSubject['Notes'] }}</td>
                         <td>{{ $subSubject['FullName'] }}</td>
                     </tr>
@@ -376,9 +379,13 @@
             @endphp
             <tr>
                 <td><strong>GENERAL AVERAGE</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
+                {{-- <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
                 <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td> --}}
+                <td></td>
+                <td></td>
+                <td></td>
+                
                 <td></td>
                 <td></td>
             </tr>

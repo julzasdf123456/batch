@@ -62,6 +62,7 @@ Route::get('/users/get-advisory-details', [UsersController::class, 'getAdvisoryD
 Route::get('/users/get-subjects-from-class', [UsersController::class, 'getSubjectsFromClass'])->name('users.get-subjects-from-class');
 Route::get('/users/get-student-subjects-data-from-class', [UsersController::class, 'getStudentSubjectsDataFromClass'])->name('users.get-student-subjects-data-from-class');
 Route::post('/users/remove-student-subjects', [UsersController::class, 'removeStudentSubjects'])->name('users.remove-student-subjects');
+Route::get('/users/get-homeroom-subjects', [UsersController::class, 'getHomeRoomSubjects'])->name('users.get-homeroom-subjects');
 Route::resource('users', UsersController::class);
 
 Route::get('/roles/add-permissions/{id}', [RolesController::class, 'addPermissions'])->name('roles.add-permissions');
