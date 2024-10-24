@@ -3178,4 +3178,58 @@ class ClassesController extends AppBaseController
             'avgParents' => $arr,
         ]);
     }
+
+    public function printAllGrades($classId, $gradingPeriod) {
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $students = DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $subjectData = StudentSubjects::where('ClassId', $classId)->orderBy('StudentId')->get();
+
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        } 
+
+        $subjects = DB::table('StudentSubjects')
+            ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+            ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
+            ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
+            ->orderBy('StudentSubjects.Heirarchy')
+            ->orderBy('Subjects.ParentSubject')
+            ->get()
+            ->toArray();
+
+        return view('/classes/print_all_grades', [
+            'students' => $students,
+            'class' => $class,
+            'sy' => $sy,
+            'adviser' => $adviser,
+            'gradingPeriod' => $gradingPeriod,
+            'avgParents' => $arr,
+            'subjectData' => $subjectData,
+            'subjects' => json_encode($subjects),
+        ]);
+    }
 }

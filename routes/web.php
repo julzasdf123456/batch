@@ -134,6 +134,7 @@ Route::get('/classes/print-single-grade-svi/{studentId}/{classId}/{gradingPeriod
 Route::get('/classes/print-single-grade-all-svi/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeAllSvi'])->name('classes.print-single-grade-all-svi');
 Route::get('/classes/print-single-grade-svi-senior/{studentId}/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeSviSenior'])->name('classes.print-single-grade-svi-senior');
 Route::get('/classes/print-single-grade-all-svi-senior/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeAllSviSenior'])->name('classes.print-single-grade-all-svi-senior');
+Route::get('/classes/print-all-grades/{classId}/{gradingPeriod}', [ClassesController::class, 'printAllGrades'])->name('classes.print-all-grades');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

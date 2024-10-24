@@ -49,7 +49,8 @@
                             <div class="divider"></div>
 
                             <button @click="rankings()" class="dropdown-item" title="View Grade Class Rankings"><i class="fas fa-award ico-tab-mini"></i>Rankings</button>
-                            <button @click="printAllGradeStub()" class="dropdown-item" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub</button>
+                            <button @click="printAllGradeStub()" class="dropdown-item" title="Print all grading stubb"><i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub</button>
+                            <button @click="printAllGrades()" class="dropdown-item" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grades</button>
                             <button class="dropdown-item" @click="stubConfig()"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
                         </div>
                     </div>
@@ -315,6 +316,7 @@
                                     <!-- <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a> -->
                                     <button @click="rankings()" class="btn btn-default btn-sm" style="width: 180px;" title="View Grade Class Rankings"><i class="fas fa-award ico-tab-mini"></i>Rankings</button>
                                     <button @click="printAllGradeStub()" class="btn btn-default btn-sm" style="width: 180px;" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</button>
+                                    <button @click="printAllGrades()" class="btn btn-default btn-sm" style="width: 220px;" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grades</button>
                                     <button @click="stubConfig()" class="btn btn-default btn-sm" style="width: 180px;" title="Setup Stub Config"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
 
                                     <div v-if="viewedIn==='admin'" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center; width: 90%;">
@@ -1866,6 +1868,34 @@ export default {
                 });
             }
             
+        },
+        printAllGrades() {
+            Swal.fire({
+                title: 'Select a Grading Period to Print',
+                html: `
+                    <form id="radioForm">
+                        <label style='text-align: left;'><input type="radio" name="gradingOption" value="1st"> First</label><br>
+                        <label style='text-align: left;'><input type="radio" name="gradingOption" value="2nd"> Second</label><br>
+                        <label style='text-align: left;'><input type="radio" name="gradingOption" value="3rd"> Third</label><br>
+                        <label style='text-align: left;'><input type="radio" name="gradingOption" value="4th"> Fourth</label><br>
+                        <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> General Average</label>
+                    </form>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                preConfirm: () => {
+                    const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                    if (!selectedOption) {
+                        Swal.showValidationMessage('You need to select an grading period!');
+                        return null;
+                    }
+                    return selectedOption.value;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `${ this.baseURL }/classes/print-all-grades/${ this.classId }/${result.value}`
+                }
+                });
         }
     },
     created() {
