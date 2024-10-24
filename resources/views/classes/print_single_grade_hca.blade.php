@@ -348,9 +348,13 @@
             @endphp
             <tr>
                 <td><strong>TOTAL AVERAGE</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
+                {{-- <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
                 <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
-                <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
+                <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td> --}}
+                <td></td>
+                <td></td>
+                <td></td>
+
                 <td></td>
             </tr>
         </tbody>
