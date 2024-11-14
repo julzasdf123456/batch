@@ -88,4 +88,29 @@ class Subjects extends Model
             return '-';
         }
     }
+
+    public static function getGradeFromArray($studentId, $subjectId, $gradingPeriod, $gradesArray) {
+        if (isset($gradesArray)) {
+            foreach ($gradesArray as $item) {
+                if ($item->StudentId === $studentId && $item->SubjectId === $subjectId) {
+                    if ($gradingPeriod === '1st') {
+                        return $item->FirstGradingGrade;
+                    } elseif ($gradingPeriod === '2nd') {
+                        return $item->SecondGradingGrade;
+                    } elseif ($gradingPeriod === '3rd') {
+                        return $item->ThirdGradingGrade;
+                    } elseif ($gradingPeriod === '4th') {
+                        return $item->FourthGradingGrade;
+                    } elseif ($gradingPeriod === 'All') {
+                        return $item->AverageGrade;
+                    } else {
+                        return '-';
+                    }
+                    break;
+                }
+            }
+        } else {
+            return "-";
+        }
+    }
 }

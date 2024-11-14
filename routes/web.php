@@ -62,6 +62,7 @@ Route::get('/users/get-advisory-details', [UsersController::class, 'getAdvisoryD
 Route::get('/users/get-subjects-from-class', [UsersController::class, 'getSubjectsFromClass'])->name('users.get-subjects-from-class');
 Route::get('/users/get-student-subjects-data-from-class', [UsersController::class, 'getStudentSubjectsDataFromClass'])->name('users.get-student-subjects-data-from-class');
 Route::post('/users/remove-student-subjects', [UsersController::class, 'removeStudentSubjects'])->name('users.remove-student-subjects');
+Route::get('/users/get-homeroom-subjects', [UsersController::class, 'getHomeRoomSubjects'])->name('users.get-homeroom-subjects');
 Route::resource('users', UsersController::class);
 
 Route::get('/roles/add-permissions/{id}', [RolesController::class, 'addPermissions'])->name('roles.add-permissions');
@@ -133,6 +134,7 @@ Route::get('/classes/print-single-grade-svi/{studentId}/{classId}/{gradingPeriod
 Route::get('/classes/print-single-grade-all-svi/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeAllSvi'])->name('classes.print-single-grade-all-svi');
 Route::get('/classes/print-single-grade-svi-senior/{studentId}/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeSviSenior'])->name('classes.print-single-grade-svi-senior');
 Route::get('/classes/print-single-grade-all-svi-senior/{classId}/{gradingPeriod}', [ClassesController::class, 'printSingleGradeAllSviSenior'])->name('classes.print-single-grade-all-svi-senior');
+Route::get('/classes/print-all-grades/{classId}/{gradingPeriod}', [ClassesController::class, 'printAllGrades'])->name('classes.print-all-grades');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

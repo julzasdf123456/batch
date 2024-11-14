@@ -26,7 +26,7 @@
                     <td @click="enroll(student.id)" class="v-align">{{ student.id }}</td>
                     <td @click="enroll(student.id)" class="v-align"><strong>{{ student.FirstName + ' ' + (isNull(student.MiddleName) ? '' : student.MiddleName) + ' ' + student.LastName + ' ' + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong></td>
                     <td @click="enroll(student.id)" class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
-                    <td @click="enroll(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + student.Section) }}</td>
+                    <td @click="enroll(student.id)" class="v-align">{{ isNull(student.Year) ? '-' : ((student.Year + ' - ' + student.Section) + (isNull(student.Strand) ? '' : ' ' + student.Strand)) }}</td>
                     <td class="v-align text-right">
                         <a class="btn btn-primary" :href="baseURL + '/classes/enroll/' + student.id">Enroll <i class="fas fa-arrow-right ico-tab-left-mini"></i></a>
                     </td>

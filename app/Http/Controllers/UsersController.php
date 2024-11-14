@@ -481,4 +481,12 @@ class UsersController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+    public function getHomeRoomSubjects(Request $request) {
+        $data = DB::table('Subjects')
+            ->whereRaw("Subject LIKE '%Homeroom Guidance%'")
+            ->get();
+
+        return response()->json($data, 200);
+    }
 }
