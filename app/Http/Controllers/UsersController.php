@@ -285,6 +285,27 @@ class UsersController extends AppBaseController
             ->first();
 
         $data['Class'] = $class;
+        $data['Adviser'] = Teachers::find($class != null ? $class->Adviser : '0');
+
+        if ($class != null) {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->where('Strand', $class->Strand)
+                    ->where('Semester', $class->Semester)
+                    ->first();
+            } else {
+                $classRepo = DB::table('ClassesRepo')
+                    ->where('Year', $class->Year)
+                    ->where('Section', $class->Section)
+                    ->first();
+            }
+
+            $data['ClassRepo'] = $classRepo;
+        } else {
+            $data['ClassRepo'] = null;
+        }
 
         $data['SchoolYear'] = DB::table('SchoolYear')->where('id', $schoolYearId)->first();
         

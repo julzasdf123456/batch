@@ -30,6 +30,12 @@ use App\Exports\DynamicExports;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Borders;
 use Flash;
 
 class ClassesController extends AppBaseController
@@ -3231,5 +3237,236 @@ class ClassesController extends AppBaseController
             'subjectData' => $subjectData,
             'subjects' => json_encode($subjects),
         ]);
+    }
+
+    public function saveEnrollToSecondSem(Request $request) {
+        $sourceClassId = $request['SourceClassId'];
+        $students = $request['Students'];
+
+        if (env("SENIOR_HIGH_SEM_ENROLLMENT") === 'CONTINUOS') {
+            // get 1st sem class
+            $sourceClass = Classes::find($sourceClassId);
+            // get 2nd sem class
+            if ($sourceClass != null) {
+                // get class repo first
+                $classRepo = ClassesRepo::where('Year', $sourceClass->Year)
+                        ->where('Section', $sourceClass->Section)
+                        ->where('Strand', $sourceClass->Strand)
+                        ->where('Semester', '2nd')
+                        ->first();
+
+                if ($classRepo == null) {
+                    $classRepo = new ClassesRepo;
+                    $classRepo->id = IDGenerator::generateID();
+                    $classRepo->Year = $sourceClass->Year;
+                    $classRepo->Section = $sourceClass->Section;
+                    $classRepo->Adviser = $sourceClass->Adviser;
+                    $classRepo->Strand = $sourceClass->Strand;
+                    $classRepo->Semester = '2nd';
+                    $classRepo->save();
+                }
+
+                // get or save new class
+                $destinationClass = Classes::where('SchoolYearId', $sourceClass->SchoolYearId)
+                    ->where('Year', $sourceClass->Year)
+                    ->where('Section', $sourceClass->Section)
+                    ->where('Strand', $sourceClass->Strand)
+                    ->where('Semester', '2nd')
+                    ->first();
+
+                if ($destinationClass == null) {
+                    $classId = IDGenerator::generateID();
+
+                    $destinationClass = new Classes;
+                    $destinationClass->id = $classId;
+                    $destinationClass->SchoolYearId = $sourceClass->SchoolYearId;
+                    $destinationClass->Year = $sourceClass->Year;
+                    $destinationClass->Section = $sourceClass->Section;
+                    $destinationClass->Adviser = $sourceClass->Adviser;
+                    $destinationClass->Strand = $sourceClass->Strand;
+                    $destinationClass->Semester = '2nd';
+                    $destinationClass->save();
+                } else {
+                    $classId = $destinationClass->id;
+                }
+
+                $sy = SchoolYear::find($sourceClass->SchoolYearId);
+
+                if ($students != null) {
+                    foreach($students as $item) {
+                        $student = Students::find($item['id']);
+                        /**
+                         * =====================================================================
+                         * START ENROLLMENT PROCESS
+                         * =====================================================================
+                         */
+                        // create student inside the class
+                        // check student first if enrolled already in class
+                        $enrollee = StudentClasses::where('ClassId', $classId)
+                            ->where('StudentId', $item['id'])
+                            ->where('Semester', '2nd')
+                            ->first();
+                        
+                        if ($enrollee != null) {
+                            // skip
+                        } else {
+                            // create enrollee/student
+                            $enrollee = new StudentClasses;
+                            $enrollee->id = IDGenerator::generateID();
+                            $enrollee->ClassId = $classId;
+                            $enrollee->StudentId = $item['id'];
+                            $enrollee->Status = 'Paid';
+                            $enrollee->Type = 'Regular';
+                            $enrollee->Semester = '2nd';
+                            $enrollee->PreviousClassId = $sourceClass->id;
+                            $enrollee->Notes = 'Auto-enrollment from Selection';
+                            $enrollee->save();
+
+                            if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
+                                // create payables
+                                $payableId = IDGenerator::generateIDandRandString();
+                                $payable = new Payables;
+                                $payable->id = $payableId;
+                                $payable->StudentId = $item['id'];
+                                $payable->AmountPayable = env('ENROLLMENT_FEE ');
+                                $payable->PaymentFor = 'Enrollment Fees for ' . $sy != null ? $sy->SchoolYear : '';
+                                $payable->Category = 'Enrollment';
+                                $payable->Balance = env('ENROLLMENT_FEE ');
+                                $payable->SchoolYear = $sy != null ? $sy->SchoolYear : '';
+                                $payable->save();
+                            }
+                        }
+
+                        /**
+                         * ==========================================================
+                         * CREATE SUBJECTS
+                         * ==========================================================
+                         */
+                        if ($classRepo != null) {
+                            $subjects = DB::table('SubjectClasses')
+                                    ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                                    ->where('SubjectClasses.ClassRepoId', $classRepo->id)
+                                    ->select(
+                                        'SubjectClasses.*',
+                                        'Subjects.Teacher'
+                                    )
+                                    ->get(); 
+
+                            foreach($subjects as $itemx) {
+                                // check if student has this subject already
+                                $ss = StudentSubjects::where('StudentId', $item['id'])
+                                    ->where('SubjectId', $itemx->SubjectId)
+                                    ->where('ClassId', $classId)
+                                    ->first();
+
+                                if ($ss != null) {
+                                    // skip
+                                } else {
+                                    $studentSubjects = new StudentSubjects;
+                                    $studentSubjects->id = IDGenerator::generateIDandRandString();
+                                    $studentSubjects->StudentId = $item['id'];
+                                    $studentSubjects->SubjectId = $itemx->SubjectId;
+                                    $studentSubjects->Heirarchy = $itemx->Heirarchy;
+                                    $studentSubjects->ClassId = $classId;
+                                    $studentSubjects->TeacherId = $itemx->Teacher;
+                                    $studentSubjects->save();
+                                }
+                            }
+                        }
+                        
+                        // update student current grade level
+                        $student->CurrentGradeLevel = $classId;
+                        $student->save();
+                    }
+                }
+            }
+
+            return response()->json('ok', 200);
+        } else {
+            return response()->json("This feature is not applicable for this school (configuration). Contact support for more information.", 403);
+        }
+    }
+
+    public function downloadSF10($studentId, $classId) {
+        /**
+         * MODIFY EXCEL
+         */
+        $filePath = public_path('templates/SF10_Template.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+        // Access the first worksheet
+        $worksheet = $spreadsheet->getActiveSheet();
+
+        /**
+         * ================================================
+         * START FILLING SHEET
+         * ================================================
+         */
+        $student = Students::find($studentId);
+
+        if ($student != null) {
+            /**
+             * QUERY STUDENT DETAILS
+             */
+            $class = DB::table('Classes')
+                ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
+                ->select(
+                    'Classes.*',
+                    'SchoolYear.SchoolYear'
+                )
+                ->whereRaw("Classes.id='" . $classId . "'")
+                ->first();
+
+            $adviser = Teachers::find($class->Adviser);
+
+            /**
+             * STUDENTS INFO
+             */
+            $worksheet->setCellValue('F8', strtoupper($student->LastName));
+            $worksheet->setCellValue('Y8', strtoupper($student->FirstName));
+            $worksheet->setCellValue('AZ8', strtoupper($student->MiddleName));
+            $worksheet->setCellValue('C9', $student->LRN);
+            $worksheet->setCellValue('AA9', $student->Birthdate != null ? date('m/d/Y', strtotime($student->Birthdate)) : '-');
+            $worksheet->setCellValue('AN9', strtoupper($student->Gender));
+
+            $worksheet->setCellValue('P14', $student->JHSDateGraduated != null ? date('m/d/Y', strtotime($student->JHSDateGraduated)) : '-');
+            $worksheet->setCellValue('Z14', strtoupper($student->JHSSchoolGraduated));
+            $worksheet->setCellValue('AW14', strtoupper($student->JHSSchoolAddress));
+
+            Classes::populateSF10Data($student, $class, $adviser, $worksheet);
+            
+            /**
+             * ==========================================================
+             * GET OTHER CLASS
+             * If $class is 1st Sem, this class should be 2nd sem, vice versa
+             * ==========================================================
+             */
+            if ($class != null) {
+                $sem = $class->Semester === '1st' ? '2nd' : '1st';
+
+                $otherClass = DB::table('Classes')
+                    ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
+                    ->select(
+                        'Classes.*',
+                        'SchoolYear.SchoolYear'
+                    )
+                    ->where('Classes.SchoolYearId', $class->SchoolYearId)
+                    ->where('Classes.Year', $class->Year)
+                    ->where('Classes.Section', $class->Section)
+                    ->where('Classes.Strand', $class->Strand)
+                    ->where('Classes.Semester', $sem)
+                    ->first();
+
+                $otherAdviser = Teachers::find($otherClass->Adviser);
+
+                Classes::populateSF10Data($student, $otherClass, $otherAdviser, $worksheet);
+            }
+        }
+        
+        // Save the modified file
+        $writer = new Xlsx($spreadsheet);
+        $writer->save(public_path('generated/sf2/SF10_' . $studentId . '.xlsx'));
+
+        return response()->download(public_path('generated/sf2/SF10_' . $studentId . '.xlsx'));
     }
 }

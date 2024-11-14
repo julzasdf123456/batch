@@ -3,8 +3,12 @@
         <div class="col-lg-12">
             <h4><i class="fas fa-graduation-cap ico-tab text-muted"></i><span class="text-muted">{{ advisory.Year }} - </span>{{ advisory.Section }}</h4>
             <span class="text-muted">{{ syDetails.SchoolYear }}</span>
+            <span class="text-muted" title="Adviser" v-if="!isNull(adviser)">{{ isNull(adviser) ? '' : (' • ' + adviser.FullName) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
-            <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true">{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</span>
+            <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true"><strong>{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</strong></span>
+
+            <button class="btn btn-xs btn-default ml-3" v-if="advisory.Semester === '2nd'" @click="goToOtherSem('1st')">View 1st Sem <i class="fas fa-share ico-tab-left-mini"></i></button>
+            <button class="btn btn-xs btn-default ml-3" v-if="advisory.Semester === '1st'" @click="goToOtherSem('2nd')">View 2nd Sem <i class="fas fa-share ico-tab-left-mini"></i></button>
 
             <br>
             <span class="text-muted text-xs mr-2 pointer" title="Male Students Count"><i class="fas fa-venus mr-1"></i>{{ male.length }}</span> • 
@@ -52,6 +56,10 @@
                             <button @click="printAllGradeStub()" class="dropdown-item" title="Print all grading stubb"><i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub</button>
                             <button @click="printAllGrades()" class="dropdown-item" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grades</button>
                             <button class="dropdown-item" @click="stubConfig()"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
+
+                            <div v-if="viewedIn==='admin'" class="divider"></div>
+
+                            <button v-if="viewedIn==='admin'" @click="manageClass()" class="dropdown-item" title="Manage class subjects and tuition fees"><i class="fas fa-wrench ico-tab-mini"></i>Manage Class</button>
                         </div>
                     </div>
                     <div>
@@ -91,13 +99,14 @@
                                     <a :href="baseURL + '/classes/download-students/' + classId" class="btn btn-primary btn-sm float-right" title="Download in excel file format"><i class="fas fa-download ico-tab-mini"></i>Download Excel</a>
                                 </div>
                                 <!-- SELECT OPTIONS -->
-                                <div class="pt-3 pb-2" v-if="selectionMode">
+                                <div class="pt-3 pb-2" v-if="selectionMode && viewedIn==='admin'">
                                     <p class="text-muted text-sm">Select Multiple Options</p>
                                     <button @click="batchTransfer()" class="btn btn-sm btn-default mr-1"><i class="fas fa-random ico-tab-mini"></i>Transfer to Another Class</button>
                                     <button @click="markEscMultiple('Yes')" class="btn btn-sm btn-default mr-1"><i class="fas fa-check-circle ico-tab-mini"></i>Mark {{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
                                     <button @click="markEscMultiple('No')" class="btn btn-sm btn-default mr-1"><i class="far fa-check-circle ico-tab-mini"></i>Mark Non-{{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
                                     <button @click="markFromSchool('Private')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-lock ico-tab-mini"></i>Mark from Private</button>
                                     <button @click="markFromSchool('Public')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-check ico-tab-mini"></i>Mark from Public</button>
+                                    <button v-if="checkEnrollableTo2ndSem" @click="enrollToSecondSem()" class="btn btn-sm btn-default mr-1"><i class="fas fa-sign-in-alt ico-tab-mini"></i>Enroll to 2nd Semester</button>
                                     <!-- <button class="btn btn-sm btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Remove/Unenroll</button> -->
                                 </div>
                                 <div class="table-responsive mt-2">
@@ -162,6 +171,10 @@
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
 
+                                                            <div class="divider"></div>
+
+                                                            <button @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
+
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
                                                             <button v-if="viewedIn==='admin'" @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
@@ -215,6 +228,10 @@
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
+
+                                                            <div class="divider"></div>
+
+                                                            <button @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
@@ -385,7 +402,7 @@
                                                 <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
-                                                    <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
+                                                    <button @click="revalidateStudentSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
                                                     <button @click="printSingleStub(student.id)" class="btn btn-xs btn-comment" title="Print grade"><i class="fas fa-print"></i></button>
                                                     <button @click="clearSubjects(student.id)" class="btn btn-xs btn-comment" style="margin-left: 8px !important;" title="Remove all subjects"><i class="fas fa-times text-danger"></i></button>
                                                 </td>
@@ -404,7 +421,7 @@
                                                 <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
                                                 <td class="v-align text-right">
                                                     <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
-                                                    <button @click="revalidateSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
+                                                    <button @click="revalidateStudentSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
                                                     <button @click="printSingleStub(student.id)" class="btn btn-xs btn-comment" title="Print grade"><i class="fas fa-print"></i></button>
                                                     <button @click="clearSubjects(student.id)" class="btn btn-xs btn-comment" style="margin-left: 8px !important;" title="Remove all subjects"><i class="fas fa-times text-danger"></i></button>
                                                 </td>
@@ -698,6 +715,8 @@ export default {
             female : [],
             advisory : {},
             syDetails : {},
+            adviser : {},
+            classRepo : {},
             paymentMonths : [],
             paymentData : [],
             payablesProfile : [],
@@ -729,6 +748,7 @@ export default {
             selectedAttData : [],
             subjectHeadsRearranged : [],
             homeroomSubjects : [],
+            checkEnrollableTo2ndSem : false,
         }
     },
     methods : {
@@ -802,8 +822,11 @@ export default {
                 this.male = response.data.Male
                 this.female = response.data.Female
                 this.inactive = response.data.Inactive
+                this.adviser = response.data.Adviser
+                this.classRepo = response.data.ClassRepo
 
                 this.getClassPaymentDetails()
+                this.runCheckEnrollableTo2ndSem()
             })
             .catch(error => {
                 console.log(error)
@@ -1618,7 +1641,7 @@ export default {
         stubConfig() {
             window.location.href = `${ this.baseURL }/classes/stub-config/${ this.classId }`
         },
-        revalidateSubjects(studentId) {
+        revalidateStudentSubjects(studentId) {
             axios.post(`${ this.baseURL }/classes/revalidate-student-subjects`, {
                 StudentId : studentId,
                 SchoolYearId : this.syId,
@@ -1896,6 +1919,98 @@ export default {
                     window.location.href = `${ this.baseURL }/classes/print-all-grades/${ this.classId }/${result.value}`
                 }
                 });
+        },
+        runCheckEnrollableTo2ndSem() {
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                if (!this.isNull(this.advisory.Semester) && this.advisory.Semester === '1st') {
+                    this.checkEnrollableTo2ndSem = true
+                } else {
+                    this.checkEnrollableTo2ndSem = false
+                }
+            } else {
+                this.checkEnrollableTo2ndSem = false
+            }
+        },
+        enrollToSecondSem() {
+            if (this.selection.length < 1) {
+                this.toast.fire({
+                    icon : 'warning',
+                    text : 'Please select students first!'
+                })
+            } else {
+                Swal.fire({
+                    title: "Enrollment Confirmation",
+                    html : `<p class='text-left'>By enrolling these selected students to 2nd semester directly, you won't be able to collect any enrollment fees. Continue?</p>
+                            <br>
+                            <p class='text-left'>Alternatively, if you wish to collect any enrollment fees, go to <strong>Enrollment</strong> menu.</p>`,
+                    showCancelButton: true,
+                    confirmButtonText: "Proceed 2nd Sem Enrollment",
+                    confirmButtonColor : '#e03822'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post(`${ this.baseURL }/classes/save-enroll-to-second-sem`, {
+                            _token : this.token,
+                            Students : this.selection,
+                            SourceClassId : this.classId
+                        })
+                        .then(response => {
+                            this.toast.fire({
+                                icon : 'success',
+                                text : 'Students enrolled to second semester!'
+                            })
+                            this.selectionMode = false
+                            this.selectionButtonIndicator = 'text-gray'
+                        })
+                        .catch(error => {
+                            console.log(error.response)
+                            this.toast.fire({
+                                icon : 'error',
+                                text : 'Error enrolling students to second semester!'
+                            })
+                            this.selectionMode = false
+                            this.selectionButtonIndicator = 'text-gray'
+                        })
+                    }
+                })
+            }
+        },
+        goToOtherSem(sem) {
+            if (sem === '1st') {
+                const classOther = this.classesInSy.find(obj => obj.Year === this.advisory.Year && obj.Section === this.advisory.Section && obj.Strand === this.advisory.Strand && obj.SchoolYearId === this.syId && obj.Semester === sem)
+                
+                if (this.isNull(classOther)) {
+                    this.toast.fire({
+                        icon : 'info',
+                        text : `No ${ sem } Semester recorded for this class yet!`
+                    })
+                } else {
+                    window.location.href = `${ this.baseURL }/classes/view-class/${ classOther.Adviser }/${ this.syId }/${ classOther.id }`
+                }
+            } else {
+                const classOther = this.classesInSy.find(obj => obj.Year === this.advisory.Year && obj.Section === this.advisory.Section && obj.Strand === this.advisory.Strand && obj.SchoolYearId === this.syId && obj.Semester === sem)
+                
+                if (this.isNull(classOther)) {
+                    this.toast.fire({
+                        icon : 'info',
+                        text : `No ${ sem } Semester recorded for this class yet!`
+                    })
+                } else {
+                    window.location.href = `${ this.baseURL }/classes/view-class/${ classOther.Adviser }/${ this.syId }/${ classOther.id }`
+                }
+            }
+        },
+        manageClass() {
+            if (this.isNull(this.classRepo)) {
+                this.toast.fire({
+                    icon : 'info',
+                    text : 'Unable to manage class! Contact support for more!'
+                })
+            } else {
+                window.location.href = `${ this.baseURL }/classesRepos/${ this.classRepo.id }`
+            }
+        },
+        downloadSF10(studentId) {
+            window.location.href = `${ this.baseURL }/classes/download-sf10/${ studentId }/${ this.classId }`
         }
     },
     created() {

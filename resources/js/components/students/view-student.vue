@@ -313,6 +313,33 @@
                                                         <td class="text-muted v-align">Guardian's Contact Info</td>
                                                         <td class="v-align">{{ studentData.GuardianContactNumber }}</td>
                                                     </tr>
+                                                    <tr>
+                                                        <td colspan="2" class="text-muted text-center"><i>Education History</i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Elementary School Graduated</td>
+                                                        <td class="v-align">{{ studentData.ElementarySchoolGraduated }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Elementary School Address</td>
+                                                        <td class="v-align">{{ studentData.ElementarySchoolAddress }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Date Graduated</td>
+                                                        <td class="v-align">{{ isNull(studentData.ElementaryDateGraduated) ? '' : moment(studentData.ElementaryDateGraduated).format("MMMM DD, YYYY") }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Junior High School Graduated</td>
+                                                        <td class="v-align">{{ studentData.JHSSchoolGraduated }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Junior High School Address</td>
+                                                        <td class="v-align">{{ studentData.JHSSchoolAddress }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="text-muted v-align">Date Graduated</td>
+                                                        <td class="v-align">{{ isNull(studentData.JHSDateGraduated) ? '' : moment(studentData.JHSDateGraduated).format("MMMM DD, YYYY") }}</td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
