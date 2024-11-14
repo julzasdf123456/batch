@@ -1909,7 +1909,7 @@ class TransactionsController extends AppBaseController
                 'Transactions.TransactionType',
                 'users.name',
             )
-            ->orderBy('Transactions.created_at')
+            ->orderBy('Transactions.ORDate')
             ->get();
             
         return response()->json($data, 200);
