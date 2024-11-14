@@ -171,9 +171,9 @@
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
 
-                                                            <div class="divider"></div>
+                                                            <div v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" class="divider"></div>
 
-                                                            <button @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
+                                                            <button v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
@@ -229,9 +229,9 @@
                                                             <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
                                                             <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
 
-                                                            <div class="divider"></div>
+                                                            <div v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" class="divider"></div>
 
-                                                            <button @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
+                                                            <button v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
@@ -2010,7 +2010,9 @@ export default {
             }
         },
         downloadSF10(studentId) {
-            window.location.href = `${ this.baseURL }/classes/download-sf10/${ studentId }/${ this.classId }`
+            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                window.location.href = `${ this.baseURL }/classes/download-sf10/${ studentId }/${ this.classId }`
+            }
         }
     },
     created() {

@@ -3457,9 +3457,11 @@ class ClassesController extends AppBaseController
                     ->where('Classes.Semester', $sem)
                     ->first();
 
-                $otherAdviser = Teachers::find($otherClass->Adviser);
+                if ($otherClass != null) {
+                    $otherAdviser = Teachers::find($otherClass->Adviser);
 
-                Classes::populateSF10Data($student, $otherClass, $otherAdviser, $worksheet);
+                    Classes::populateSF10Data($student, $otherClass, $otherAdviser, $worksheet);
+                }
             }
         }
         
