@@ -131,6 +131,46 @@
                                     </div>
                                 </td>
                             </tr>
+                            <!-- PREVIOUS SCHOOLS -->
+                            <tr>
+                                <td colspan="2" class="tbl-divider"></td>
+                            </tr>
+                            <tr>
+                                <td class="v-align">Elementary School Graduated</td>
+                                <td>
+                                    <input class="form-control" placeholder="Name of Elementary school..." v-model="student.ElementarySchoolGraduated">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="v-align">Elementary School Address</td>
+                                <td>
+                                    <input class="form-control" placeholder="Address of Elementary school..." v-model="student.ElementarySchoolAddress">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="v-align">Date Graduated</td>
+                                <td>
+                                    <flat-pickr v-model="student.ElementaryDateGraduated" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="v-align">Junior High School Graduated</td>
+                                <td>
+                                    <input class="form-control" placeholder="Name of Junior High school..." v-model="student.JHSSchoolGraduated">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="v-align">Junior High School Address</td>
+                                <td>
+                                    <input class="form-control" placeholder="Address of Junior High school..." v-model="student.JHSSchoolAddress">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="v-align">Date Graduated</td>
+                                <td>
+                                    <flat-pickr v-model="student.JHSDateGraduated" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
+                                </td>
+                            </tr>
                             <!-- ADDRESS -->
                             <tr>
                                 <td colspan="2" class="tbl-divider"></td>
@@ -528,6 +568,12 @@ export default {
                     GuardianContactNumber : this.student.GuardianContactNumber,
                     FromSchool : this.student.FromSchool,
                     ESCScholar : this.escScholar,
+                    JHSSchoolGraduated : this.student.JHSSchoolGraduated,
+                    JHSSchoolAddress : this.student.JHSSchoolAddress,
+                    JHSDateGraduated : this.student.JHSDateGraduated,
+                    ElementarySchoolGraduated : this.student.ElementarySchoolGraduated,
+                    ElementarySchoolAddress : this.student.ElementarySchoolAddress,
+                    ElementaryDateGraduated : this.student.ElementaryDateGraduated,
                 }) // IF PORT 80 DIRECT FROM APACHE
                 .then(response => {
                     this.toast.fire({

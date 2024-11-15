@@ -386,7 +386,23 @@ export default {
                 this.transact()
             }
         },
+        getPaymentDetailsConcat() {
+            var pd = ''
+
+            for (let i=0; i<this.payableItems.length; i++) {
+                if (i == (this.payableItems.length-1)) {
+                    pd += this.payableItems[i].Payable
+                } else {
+                    pd += this.payableItems[i].Payable + ', '
+                }
+            }
+
+            return pd
+        },
         transact() {
+            // set payment details
+            this.paymentDetails = this.getPaymentDetailsConcat()
+
             if (this.paymentDetails.length < 1) {
                 this.toast.fire({
                     icon : 'info',

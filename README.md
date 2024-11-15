@@ -12,7 +12,13 @@
 - ClassSubjectParentAvg
 
 ### New Columns on Tables
-
+- Students
+    - JHSSchoolGraduated
+    - JHSSchoolAddress
+    - JHSDateGraduated
+    - ElementarySchoolGraduated
+    - ElementarySchoolAddress
+    - ElementaryDateGraduated
 
 ### New Permissions
 
@@ -20,6 +26,7 @@
 
 
 ### New Config Items
+ENROLLMENT_FEE
 
 ### New Notes
 - Replace SF2 Junior Template in Servers
