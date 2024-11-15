@@ -53,6 +53,7 @@ class Students extends Model
         'ElementarySchoolGraduated',
         'ElementarySchoolAddress',
         'ElementaryDateGraduated',
+        'JHSAverageGrade',
     ];
 
     protected $casts = [
@@ -100,6 +101,7 @@ class Students extends Model
         'ElementarySchoolGraduated' => 'string',
         'ElementarySchoolAddress' => 'string',
         'ElementaryDateGraduated' => 'string',
+        'JHSAverageGrade' => 'string',
     ];
 
     public static array $rules = [
@@ -148,6 +150,7 @@ class Students extends Model
         'ElementarySchoolGraduated' => 'nullable|string',
         'ElementarySchoolAddress' => 'nullable|string',
         'ElementaryDateGraduated' => 'nullable|string',
+        'JHSAverageGrade' => 'nullable|string',
     ];
 
     public static function formatNameFormal($student) {
