@@ -171,6 +171,12 @@
                                     <flat-pickr v-model="student.JHSDateGraduated" :config="pickerOptions" class="form-control" :readonly="false"></flat-pickr>
                                 </td>
                             </tr>
+                            <tr>
+                                <td class="v-align">Average Grade</td>
+                                <td>
+                                    <input class="form-control" type="number" step="any" placeholder="Junio High School Average Grade..." v-model="student.JHSAverageGrade">
+                                </td>
+                            </tr>
                             <!-- ADDRESS -->
                             <tr>
                                 <td colspan="2" class="tbl-divider"></td>
@@ -574,6 +580,7 @@ export default {
                     ElementarySchoolGraduated : this.student.ElementarySchoolGraduated,
                     ElementarySchoolAddress : this.student.ElementarySchoolAddress,
                     ElementaryDateGraduated : this.student.ElementaryDateGraduated,
+                    JHSAverageGrade : this.student.JHSAverageGrade + "",
                 }) // IF PORT 80 DIRECT FROM APACHE
                 .then(response => {
                     this.toast.fire({

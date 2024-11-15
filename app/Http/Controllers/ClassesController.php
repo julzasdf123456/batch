@@ -3394,15 +3394,24 @@ class ClassesController extends AppBaseController
         $filePath = public_path('templates/SF10_Template.xlsx');
         $spreadsheet = IOFactory::load($filePath);
 
-        // Access the first worksheet
-        $worksheet = $spreadsheet->getActiveSheet();
+        /**
+         * ================================================
+         * Access the first worksheet
+         * ================================================
+         */
+        $worksheet = $spreadsheet->getSheetByName("Front");
 
         /**
          * ================================================
-         * START FILLING SHEET
+         * START FILLING FIRST SHEET
          * ================================================
          */
         $student = Students::find($studentId);
+        $class = null;
+        $otherClass = null;
+        $adviser = null;
+        $otherAdviser = null;
+        $sem = null;
 
         if ($student != null) {
             /**
@@ -3416,6 +3425,8 @@ class ClassesController extends AppBaseController
                 )
                 ->whereRaw("Classes.id='" . $classId . "'")
                 ->first();
+
+            $sem = $class->Semester === '1st' ? '2nd' : '1st';
 
             $adviser = Teachers::find($class->Adviser);
 
@@ -3432,8 +3443,10 @@ class ClassesController extends AppBaseController
             $worksheet->setCellValue('P14', $student->JHSDateGraduated != null ? date('m/d/Y', strtotime($student->JHSDateGraduated)) : '-');
             $worksheet->setCellValue('Z14', strtoupper($student->JHSSchoolGraduated));
             $worksheet->setCellValue('AW14', strtoupper($student->JHSSchoolAddress));
+            
+            $worksheet->setCellValue('AH13', strtoupper($student->JHSAverageGrade));
 
-            Classes::populateSF10Data($student, $class, $adviser, $worksheet);
+            Classes::populateSF10DataFront($student, $class, $adviser, $worksheet);
             
             /**
              * ==========================================================
@@ -3442,8 +3455,6 @@ class ClassesController extends AppBaseController
              * ==========================================================
              */
             if ($class != null) {
-                $sem = $class->Semester === '1st' ? '2nd' : '1st';
-
                 $otherClass = DB::table('Classes')
                     ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
                     ->select(
@@ -3460,10 +3471,35 @@ class ClassesController extends AppBaseController
                 if ($otherClass != null) {
                     $otherAdviser = Teachers::find($otherClass->Adviser);
 
-                    Classes::populateSF10Data($student, $otherClass, $otherAdviser, $worksheet);
+                    Classes::populateSF10DataFront($student, $otherClass, $otherAdviser, $worksheet);
                 }
             }
         }
+
+        /**
+         * ================================================
+         * Access the second worksheet
+         * ================================================
+         */
+        $worksheet = $spreadsheet->getSheetByName("Back");
+
+        /**
+         * ================================================
+         * START FILLING SECOND SHEET
+         * ================================================
+         */
+        if ($student != null) {
+            // set current class
+            if ($class != null) {
+                Classes::populateSF10DataBack($student, $class, $adviser, $worksheet);
+            }
+
+            if ($otherClass != null) {
+                Classes::populateSF10DataBack($student, $otherClass, $otherAdviser, $worksheet);
+            }
+        }
+
+        $worksheet = $spreadsheet->getSheetByName("Front");
         
         // Save the modified file
         $writer = new Xlsx($spreadsheet);
