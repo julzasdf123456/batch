@@ -19,7 +19,7 @@
                         <tr v-for="student in students.data" :key="student.id" style="cursor: pointer;">
                             <td @click="viewStudent(student.id)" class="v-align">
                                 <div style="display: inline-block; vertical-align: middle;">
-                                    <img :src="imgPath + 'prof-img.png'" style="width: 40px; margin-right: 25px;" class="img-circle" alt="profile">
+                                    <img :src="`${imgPath}student-imgs/${student.id}.jpg`" @error="handleError" style="width: 40px; height: 40px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="">
                                 </div>
                                 <div style="display: inline-block; height: inherit; vertical-align: middle;">
                                     <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
@@ -153,13 +153,16 @@ export default {
                 this.students = response.data
             })
             .catch(error => {
-                console.log(error)
+                console.log(error.response)
                 // this.toast.fire({
                 //     icon : 'error',
                 //     text : 'Error searching application'
                 // })
             })
         },
+        handleError(event) {
+            event.target.src = `${this.imgPath}prof-img.png`
+        }
     },
     created() {
     },
