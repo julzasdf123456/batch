@@ -675,4 +675,45 @@ class StudentsController extends AppBaseController
             'class' => $class,
         ]);
     }
+
+    public function scout($direction, $studentId) {
+        $student = Students::find($studentId);
+
+        $class = Classes::find($student->CurrentGradeLevel);
+
+        if ($class != null) {
+            if ($direction === 'next') {
+                $studentData = Students::where('CurrentGradeLevel', $class->id)
+                    ->whereRaw("LastName > '" . $student->LastName . "'")
+                    ->orderBy('LastName')
+                    ->first();
+            } else {
+                $studentData = Students::where('CurrentGradeLevel', $class->id)
+                    ->whereRaw("LastName < '" . $student->LastName . "'")
+                    ->orderByDesc('LastName')
+                    ->first();
+            }
+            
+            return redirect(route('students.guest-view', [$studentData->id]));
+        } else {
+            return redirect(route('students.guest-view', [$studentId]));
+        }
+    }
+    
+    public function uploadStudentProfile(Request $request) {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:60048',
+        ]);
+
+        // Store the uploaded image in the 'public/uploads' directory
+        if ($request->file('image')) {
+            $image = $request->file('image');
+            $imageName = $request['id'] . '.jpg';
+            $image->move(public_path() . "/imgs/student-imgs/", $imageName);
+
+            return response()->json(['success' => 'Image uploaded successfully!', 'image' => $imageName]);
+        }
+
+        return response()->json(['error' => 'Image upload failed'], 400);
+    }
 }

@@ -6,7 +6,8 @@
                 <div class="col-lg-8">
                     <div style="display: flex; padding-bottom: 15px;">
                         <div style="width: 88px; display: inline;">
-                            <img id="prof-img" style="width: 65px !important;" class="profile-user-img img-fluid img-circle" :src="imgPath + 'prof-img.png'" alt="User profile picture">
+                            <img @click="uploadPhoto()" id="prof-img" style="width: 65px !important; height: 65px !important; cursor: pointer; object-fit: cover;" title="Change profile photo" class="profile-user-img img-circle" :src="imagePreview" @error="handleImageError">
+                            <input type="file" ref="fileInput" @change="onFileChange" class="gone" />
                         </div>
                         <div>
                             <span>
@@ -396,6 +397,11 @@
         </div>
     </div>
 
+    <div class="right-bottom">
+        <a :href="baseURL + '/students/scout/prev/' + studentId" class="btn-floating shadow btn-default" title="Previous student in this class"><i class="fas fa-backward"></i></a>
+        <a :href="baseURL + '/students/scout/next/' + studentId" class="btn-floating shadow btn-default ml-2" title="Next student in this class"><i class="fas fa-forward"></i></a>
+    </div>
+
     <!-- TRANSACTION HISTORY MODAL -->
     <div ref="modalTransactionHistory" class="modal fade" id="modal-transaction-history" aria-hidden="true" style="display: none;">
         <div class="modal-dialog" style="max-width: 90% !important; margin-top: 30px;">
@@ -645,6 +651,8 @@ export default {
             scholarships : [],
             transactionDetails : [],
             detailedTransactions : [],
+            selectedFile: null,
+            imagePreview : null,
         }
     },
     methods : {
@@ -705,6 +713,8 @@ export default {
                 this.scholarships = response.data.Scholarships
                 // concat other payables
                 this.payables = this.payables.concat(response.data.OtherPayables)
+
+                this.imagePreview = `${ this.imgPath }student-imgs/${ this.studentId }.jpg`
             })
             .catch(error => {
                 console.log(error)
@@ -906,7 +916,56 @@ export default {
                     text : 'Error getting detailed transactions'
                 })
             })
-        }
+        },
+        // upload photo
+        uploadPhoto() {
+            this.$refs.fileInput.click();
+        },
+        onFileChange(event) {
+            this.selectedFile = event.target.files[0];
+
+            // Generate a preview of the image
+            const reader = new FileReader();
+            reader.readAsDataURL(this.selectedFile);
+            reader.onload = e => {
+                this.imagePreview = e.target.result // Update image preview
+            }
+
+            this.uploadImage()
+        },
+        async uploadImage() {
+            if (!this.selectedFile) {
+                alert('Please select a file');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', this.selectedFile)
+            formData.append('id', this.studentId)
+
+            try {
+                const response = await axios.post(`${ this.baseURL }/students/upload-student-profile`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+
+                console.log('Upload successful:', response.data)
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Profile picture uploaded and updated!'
+                })
+            } catch (error) {
+                console.error('Error uploading the file:', error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error uploading profile picture!'
+                })
+            }
+        },
+        handleImageError(event) {
+            this.imagePreview = `${ this.imgPath }prof-img.png`; // Replace with a fallback image URL
+        },
     }, 
     created() {
     },

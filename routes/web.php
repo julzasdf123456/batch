@@ -94,6 +94,8 @@ Route::post('/students/mark-esc', [StudentsController::class, 'markEsc'])->name(
 Route::get('/students/students-list', [StudentsController::class, 'studentsList'])->name('students.students-list');
 Route::get('/students/get-students-list', [StudentsController::class, 'getStudentsList'])->name('students.get-students-list');
 Route::get('/students/print-students-list/{syId}/{classRepo}/{status}', [StudentsController::class, 'printStudentsList'])->name('students.print-students-list');
+Route::get('/students/scout/{direction}/{studentId}', [StudentsController::class, 'scout'])->name('students.scout');
+Route::post('/students/upload-student-profile', [StudentsController::class, 'uploadStudentProfile'])->name('students.upload-student-profile');
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
