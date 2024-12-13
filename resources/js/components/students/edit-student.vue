@@ -580,7 +580,7 @@ export default {
                     ElementarySchoolGraduated : this.student.ElementarySchoolGraduated,
                     ElementarySchoolAddress : this.student.ElementarySchoolAddress,
                     ElementaryDateGraduated : this.student.ElementaryDateGraduated,
-                    JHSAverageGrade : this.student.JHSAverageGrade + "",
+                    JHSAverageGrade : this.isNull(this.student.JHSAverageGrade) ? '0' : this.student.JHSAverageGrade + "",
                 }) // IF PORT 80 DIRECT FROM APACHE
                 .then(response => {
                     this.toast.fire({
