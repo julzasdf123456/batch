@@ -136,6 +136,9 @@
                                                 </td>
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
+                                                    <div style="display: inline-block; vertical-align: middle;">
+                                                        <img @click="showImageProfile(`${imgPath}student-imgs/${student.id}.jpg`)" :src="`${imgPath}student-imgs/${student.id}.jpg`" @error="handleError" style="width: 28px; height: 28px; object-fit: cover; margin-right: 15px; cursor: pointer;" class="img-circle" alt="">
+                                                    </div>
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC/VMS Scholar' : 'Non-ESC/VMS Scholar'"></i></span>
                                                     <strong>{{ student.LastName }}</strong>
@@ -194,6 +197,9 @@
                                                 </td>
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
+                                                    <div style="display: inline-block; vertical-align: middle;">
+                                                        <img @click="showImageProfile(`${imgPath}student-imgs/${student.id}.jpg`)" :src="`${imgPath}student-imgs/${student.id}.jpg`" @error="handleError" style="width: 28px; height: 28px; object-fit: cover; margin-right: 15px; cursor: pointer;" class="img-circle" alt="">
+                                                    </div>
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
                                                     <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC Scholar' : 'Non-ESC Scholar'"></i></span>
                                                     <strong>{{ student.LastName }}</strong>
@@ -347,6 +353,14 @@
                                         <button v-if="addSubjectEnabled" @click="() => { addSubjectEnabled ? addSubjectEnabled = false : addSubjectEnabled = true }" class="btn btn-link btn-sm text-danger" title="Close"><i class="fas fa-times-circle"></i></button>
                                         <button v-if="!addSubjectEnabled" @click="() => { addSubjectEnabled ? addSubjectEnabled = false : addSubjectEnabled = true }" class="btn btn-default btn-sm"><i class="fas fa-plus ico-tab-mini"></i>Add Subject</button>
                                     </div>
+                                </div>
+                                <div class="mt-2" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: start; align-items: center;">
+                                    <p class="no-pads text-sm text-muted">Grading View Options: </p>
+                                    <button class="btn btn-xs" @click="selectViewOptionQ('1st')" v-if="isNull(advisory.Semester) | advisory.Semester === '1st'" :class="viewOptionSelectedQ==='1st' ? 'btn-success' : 'btn-default'">1st Q</button>
+                                    <button class="btn btn-xs" @click="selectViewOptionQ('2nd')" v-if="isNull(advisory.Semester) | advisory.Semester === '1st'" :class="viewOptionSelectedQ==='2nd' ? 'btn-success' : 'btn-default'">2nd Q</button>
+                                    <button class="btn btn-xs" @click="selectViewOptionQ('3rd')" v-if="isNull(advisory.Semester) | advisory.Semester === '2nd'" :class="viewOptionSelectedQ==='3rd' ? 'btn-success' : 'btn-default'">3rd Q</button>
+                                    <button class="btn btn-xs" @click="selectViewOptionQ('4th')" v-if="isNull(advisory.Semester) | advisory.Semester === '2nd'" :class="viewOptionSelectedQ==='4th' ? 'btn-success' : 'btn-default'">4th Q</button>
+                                    <button class="btn btn-xs" @click="selectViewOptionQ('Final')" :class="viewOptionSelectedQ==='Final' ? 'btn-success' : 'btn-default'" title="Final Grade">FG</button>
                                 </div>
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
@@ -694,6 +708,7 @@ export default {
             moment : moment,
             baseURL : axios.defaults.baseURL,
             filePath : axios.defaults.filePath,
+            imgPath : axios.defaults.imgsPath,
             toast : Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -749,6 +764,7 @@ export default {
             subjectHeadsRearranged : [],
             homeroomSubjects : [],
             checkEnrollableTo2ndSem : false,
+            viewOptionSelectedQ: "Final",
         }
     },
     methods : {
@@ -1047,7 +1063,19 @@ export default {
 
             if (!this.isNull(gradeData)) {
                 // return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
-                return this.isNull(gradeData.AverageGrade) ? '-' : ('<strong>' + gradeData.AverageGrade + '</strong>')
+                var displayGrade = ""
+                if (this.viewOptionSelectedQ === '1st') {
+                    displayGrade = gradeData.FirstGradingGrade
+                } else if (this.viewOptionSelectedQ === '2nd') {
+                    displayGrade = gradeData.SecondGradingGrade
+                } else if (this.viewOptionSelectedQ === '3rd') {
+                    displayGrade = gradeData.ThirdGradingGrade
+                } else if (this.viewOptionSelectedQ === '4th') {
+                    displayGrade = gradeData.FourthGradingGrade
+                } else {
+                    displayGrade = gradeData.AverageGrade
+                }
+                return this.isNull(displayGrade) ? '-' : ('<strong>' + displayGrade + '</strong>')
             } else {
                 return `<i class='text-xs'>Not enrolled</i>`
             }
@@ -1138,13 +1166,13 @@ export default {
 
                 // check if late
                 if (moment(timeIn).isBefore(moment(inStart))) {
-                    returnData += `<span class='text-success' title='Morning In: ${ moment(timeIn).format('hh:mm A') }'><strong>✓</strong></span> | `
+                    returnData += `<span class='text-success' title='Morning In: ${ moment(timeIn).format('hh:mm A') }'><strong>✓</strong></span>`
                 } else {
                     // late
-                    returnData += `<span class='text-warning' title='Morning In (LATE): ${ moment(timeIn).format('hh:mm A') }'><strong>!!</strong></span> | `
+                    returnData += `<span class='text-warning' title='Morning In (LATE): ${ moment(timeIn).format('hh:mm A') }'><strong>!!</strong></span>`
                 }
             } else {
-                returnData += `<span class='text-danger'>○</span> | `;
+                returnData += `<span class='text-danger'>○</span>`;
             }
 
             if (!this.isNull(timeOut)) {
@@ -2013,6 +2041,19 @@ export default {
             if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
                 window.location.href = `${ this.baseURL }/classes/download-sf10/${ studentId }/${ this.classId }`
             }
+        },
+        selectViewOptionQ(quarter) {
+            this.viewOptionSelectedQ = quarter
+        },        
+        handleError(event) {
+            event.target.src = `${this.imgPath}prof-img.png`
+        },
+        showImageProfile(path) {
+            const url = path
+            Swal.fire({
+                html : `<img src="${ url }" style="width: 400px; height: 400px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="profile">`,
+                confirmButtonText: 'Close'
+            })
         }
     },
     created() {

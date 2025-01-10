@@ -2,7 +2,8 @@
     <div class="row px-4">
         <div class="col-lg-12">
             <h4><i class="fas fa-book ico-tab text-muted"></i>{{ classDetails.Subject }}</h4>
-            <p class="no-pads text-muted">{{ classDetails.Year + ' - ' + classDetails.Section }} | {{ syDetails.SchoolYear }}</p>
+            <p class="no-pads text-muted">{{ classDetails.Year + ' - ' + classDetails.Section }} | {{ syDetails.SchoolYear }}
+                <span class="text-muted" v-if="isNull(classDetails.Semester) ? false : true"><strong>{{ isNull(classDetails.Semester) ? '' : (' • ' + classDetails.Semester + ' Sem') }}</strong></span></p>
         </div>
 
         <!-- students in class -->
@@ -45,10 +46,10 @@
                                         <thead>
                                             <th></th>
                                             <th class="text-muted">Student</th>
-                                            <th class="text-muted">1st Grading</th>
-                                            <th class="text-muted">2nd Grading</th>
-                                            <th class="text-muted">3rd Grading</th>
-                                            <th class="text-muted">4th Grading</th>
+                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">1st Grading</th>
+                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">2nd Grading</th>
+                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">3rd Grading</th>
+                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">4th Grading</th>
                                             <th class="text-muted">Final Grade</th>
                                             <th style="width: 20px;"></th>
                                         </thead>
@@ -59,21 +60,24 @@
                                             <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
+                                                    <div style="display: inline-block; vertical-align: middle;">
+                                                        <img @click="showImageProfile(`${imgPath}student-imgs/${student.StudentId}.jpg`)" :src="`${imgPath}student-imgs/${student.StudentId}.jpg`" @error="handleError" style="width: 26px; height: 26px; object-fit: cover; margin-right: 15px; cursor: pointer;" class="img-circle" alt="">
+                                                    </div>
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
                                                         <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">
                                                     <input :ref="el => { if (el) inputRefs[`Male${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">
                                                     <input :ref="el => { if (el) inputRefs[`Male${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">
                                                     <input :ref="el => { if (el) inputRefs[`Male${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">
                                                     <input :ref="el => { if (el) inputRefs[`Male${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Male')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
@@ -89,21 +93,24 @@
                                             <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
                                                 <td class="v-align">{{ index+1 }}</td>
                                                 <td class="v-align">
+                                                    <div style="display: inline-block; vertical-align: middle;">
+                                                        <img @click="showImageProfile(`${imgPath}student-imgs/${student.StudentId}.jpg`)" :src="`${imgPath}student-imgs/${student.StudentId}.jpg`" @error="handleError" style="width: 26px; height: 26px; object-fit: cover; margin-right: 15px; cursor: pointer;" class="img-circle" alt="">
+                                                    </div>
                                                     <a target="_blank" :href="baseURL + '/students/guest-view/' + student.StudentId">
                                                         <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
                                                     </a>
                                                     <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.Status==='Pending Enrollment Payment' ? true : false">Pending</span>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">
                                                     <input :ref="el => { if (el) inputRefs[`Female${index}-1`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FirstGradingGrade" @keyup.enter="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female', 'enter', index)" @blur="inputEnter(student.FirstGradingGrade, student.id, 1, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">
                                                     <input :ref="el => { if (el) inputRefs[`Female${index}-2`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.SecondGradingGrade" @keyup.enter="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female', 'enter', index)" @blur="inputEnter(student.SecondGradingGrade, student.id, 2, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">
                                                     <input :ref="el => { if (el) inputRefs[`Female${index}-3`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.ThirdGradingGrade" @keyup.enter="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female', 'enter', index)" @blur="inputEnter(student.ThirdGradingGrade, student.id, 3, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
-                                                <td class="v-align text-right">
+                                                <td class="v-align text-right" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">
                                                     <input :ref="el => { if (el) inputRefs[`Female${index}-4`] = el }" class="table-input text-right" :class="tableInputTextColor" v-model="student.FourthGradingGrade" @keyup.enter="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female', 'enter', index)" @blur="inputEnter(student.FourthGradingGrade, student.id, 4, 'Female')" :type="classDetails.GradingType==='ABCD' ? 'text' : 'number'" :step="classDetails.GradingType==='ABCD' ? '' : 'any'"/>
                                                 </td>
                                                 <td class="v-align text-right">
@@ -298,6 +305,7 @@ export default {
             moment : moment,
             baseURL : axios.defaults.baseURL,
             filePath : axios.defaults.filePath,
+            imgPath : axios.defaults.imgsPath,
             toast : Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -366,6 +374,9 @@ export default {
         },        
         round(value) {
             return Math.round((value + Number.EPSILON) * 1000) / 1000;
+        },
+        roundWhole(value) {
+            return Math.round(value)
         },
         generateRandomString(length) {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -523,6 +534,11 @@ export default {
             } else {
                 finalGrade = grade
             }
+
+            /**
+             * ROUND FINAL GRADE TO WHOLE NUMBER
+             */
+            finalGrade = this.roundWhole(finalGrade)
 
             // update live array data
             if (gender === 'Male') {
@@ -798,6 +814,16 @@ export default {
         getGradeMatrixGrade(val) {
             let gradeMatrix = this.charGradeMatrix.find(obj => obj.Value === val)
             return gradeMatrix.Grade
+        },      
+        handleError(event) {
+            event.target.src = `${this.imgPath}prof-img.png`
+        },
+        showImageProfile(path) {
+            const url = path
+            Swal.fire({
+                html : `<img src="${ url }" style="width: 400px; height: 400px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="profile">`,
+                confirmButtonText: 'Close'
+            })
         }
     },
     created() {
