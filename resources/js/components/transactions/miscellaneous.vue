@@ -7,7 +7,7 @@
                 <div class="card-body table-responsive">
                     <div class="mb-3">
                         <div style="display: inline-block; vertical-align: middle;">
-                            <img :src="imgPath + 'prof-img.png'" style="width: 46px; margin-right: 25px;" class="img-circle" alt="profile">
+                            <img @click="showImageProfile()" :src="imagePreview" @error="handleImageError" style="width: 50px; height: 50px; object-fit: cover; margin-right: 25px; cursor: pointer;" class="img-circle" alt="profile">
                         </div>
                         <div style="display: inline-block; height: inherit; vertical-align: middle;">
                             <h4 class="no-pads"><strong>{{ studentData.LastName + ', ' + studentData.FirstName + (isNull(studentData.MiddleName) ? '' : (' ' + studentData.MiddleName + ' ')) + (isNull(studentData.Suffix) ? '' : studentData.Suffix) }}</strong></h4>
@@ -590,7 +590,8 @@ export default {
             additionalPayableItem : '',
             additionalPayableAmount : 0.0,
             additionalDistribute : false,
-            detailedTransactions : []
+            detailedTransactions : [],
+            imagePreview : null,
         }
     },
     methods : {
@@ -661,6 +662,8 @@ export default {
                 this.studentData = response.data.StudentDetails
                 this.subjects = response.data.Subjects
                 this.payables = response.data.TuitionPayables
+
+                this.imagePreview = `${ this.imgPath }student-imgs/${ this.studentId }.jpg`
 
                 // clean payables
                 this.payables = this.payables.filter(obj => obj.Balance !== null && parseFloat(obj.Balance) > 0)
@@ -1075,6 +1078,16 @@ export default {
                 }
             })
         },
+        handleImageError(event) {
+            this.imagePreview = `${ this.imgPath }prof-img.png`; // Replace with a fallback image URL
+        },
+        showImageProfile() {
+            const url = this.imagePreview
+            Swal.fire({
+                html : `<img src="${ url }" style="width: 400px; height: 400px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="profile">`,
+                confirmButtonText: 'Close'
+            })
+        }
     },
     created() {
     },
