@@ -341,17 +341,25 @@
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subject['FirstGradingGrade']) }}<i></strong>
                                     </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subject['FirstGradingGrade']) }}
+                                    </td>
                                 @elseif ($gradingPeriod === 'Second')
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subject['SecondGradingGrade']) }}<i></strong>
+                                    </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subject['SecondGradingGrade']) }}
                                     </td>
                                 @elseif ($gradingPeriod === 'Third')
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subject['ThirdGradingGrade']) }}<i></strong>
                                     </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subject['ThirdGradingGrade']) }}
+                                    </td>
                                 @elseif ($gradingPeriod === 'Fourth')
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subject['FourthGradingGrade']) }}<i></strong>
+                                    </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subject['FourthGradingGrade']) }}
                                     </td>
                                 @elseif ($gradingPeriod === 'All')
                                     <td class="text-center">
@@ -366,8 +374,8 @@
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subject['FourthGradingGrade']) }}<i></strong>
                                     </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
                                 @endif
-                                <td class="text-center">{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
                             @else
                                 {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY NOTHING IF NOT --}}
                                 @if ($gradingPeriod === 'First')
@@ -393,18 +401,22 @@
                                 <td class="text-center">
                                     <strong><i>{{ Subjects::validateGrade($subject['FirstGradingGrade']) }}<i></strong>
                                 </td>
+                                <td class="text-center">{{ Subjects::checkPass($subject['FirstGradingGrade']) }}</td>
                             @elseif ($gradingPeriod === 'Second')
                                 <td class="text-center">
                                     <strong><i>{{ Subjects::validateGrade($subject['SecondGradingGrade']) }}<i></strong>
                                 </td>
+                                <td class="text-center">{{ Subjects::checkPass($subject['SecondGradingGrade']) }}</td>
                             @elseif ($gradingPeriod === 'Third')
                                 <td class="text-center">
                                     <strong><i>{{ Subjects::validateGrade($subject['ThirdGradingGrade']) }}<i></strong>
                                 </td>
+                                <td class="text-center">{{ Subjects::checkPass($subject['ThirdGradingGrade']) }}</td>
                             @elseif ($gradingPeriod === 'Fourth')
                                 <td class="text-center">
                                     <strong><i>{{ Subjects::validateGrade($subject['FourthGradingGrade']) }}<i></strong>
                                 </td>
+                                <td class="text-center">{{ Subjects::checkPass($subject['FourthGradingGrade']) }}</td>
                             @elseif ($gradingPeriod === 'All')
                                 <td class="text-center">
                                     <strong><i>{{ Subjects::validateGrade($subject['FirstGradingGrade']) }}<i></strong>
@@ -418,8 +430,8 @@
                                 <td class="text-center">
                                     <strong><i>{{ Subjects::validateGrade($subject['FourthGradingGrade']) }}<i></strong>
                                 </td>
+                                <td class="text-center">{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
                             @endif
-                            <td class="text-center">{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
                             <td>{{ $subject['FullName'] }}</td>
 
                             @php
@@ -477,18 +489,26 @@
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subSubject['FirstGradingGrade']) }}<i></strong>
                                     </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subSubject['FirstGradingGrade']) }}
+                                    </td>
                                 @elseif ($gradingPeriod === 'Second')
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subSubject['SecondGradingGrade']) }}<i></strong>
                                     </td>
+                                    <td class="text-center">
+                                        {{ Subjects::checkPass($subSubject['SecondGradingGrade']) }}</td>
                                 @elseif ($gradingPeriod === 'Third')
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subSubject['ThirdGradingGrade']) }}<i></strong>
+                                    </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subSubject['ThirdGradingGrade']) }}
                                     </td>
                                 @elseif ($gradingPeriod === 'Fourth')
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subSubject['FourthGradingGrade']) }}<i></strong>
                                     </td>
+                                    <td class="text-center">
+                                        {{ Subjects::checkPass($subSubject['FourthGradingGrade']) }}</td>
                                 @elseif ($gradingPeriod === 'All')
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subSubject['FirstGradingGrade']) }}<i></strong>
@@ -502,8 +522,8 @@
                                     <td class="text-center">
                                         <strong><i>{{ Subjects::validateGrade($subSubject['FourthGradingGrade']) }}<i></strong>
                                     </td>
+                                    <td class="text-center">{{ Subjects::checkPass($subSubject['AverageGrade']) }}</td>
                                 @endif
-                                <td class="text-center">{{ Subjects::checkPass($subSubject['AverageGrade']) }}</td>
                                 <td>{{ $subSubject['FullName'] }}</td>
                             </tr>
                             @php
