@@ -530,15 +530,15 @@ export default {
                     } else {
                         finalGrade = 0
                     }
+                    
+                    /**
+                     * ROUND FINAL GRADE TO WHOLE NUMBER
+                     */
+                    finalGrade = this.roundWhole(finalGrade)
                 }
             } else {
                 finalGrade = grade
             }
-
-            /**
-             * ROUND FINAL GRADE TO WHOLE NUMBER
-             */
-            finalGrade = this.roundWhole(finalGrade)
 
             // update live array data
             if (gender === 'Male') {
