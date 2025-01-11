@@ -336,6 +336,24 @@
                         <td><strong><i>{{ $subject['Subject'] }}<i></strong></td>
 
                         @if (in_array($subject['Subject'], $avgParents))
+                            @php
+                                $hasInc = false;
+                                if ($subject['FirstGradingGrade'] == null && $periodGradeChecker->First != null) {
+                                    $hasInc = true;
+                                }
+
+                                if ($subject['SecondGradingGrade'] == null && $periodGradeChecker->Second != null) {
+                                    $hasInc = true;
+                                }
+
+                                if ($subject['ThirdGradingGrade'] == null && $periodGradeChecker->Third != null) {
+                                    $hasInc = true;
+                                }
+
+                                if ($subject['FourthGradingGrade'] == null && $periodGradeChecker->Fourth != null) {
+                                    $hasInc = true;
+                                }
+                            @endphp
                             {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY AVERAGE GRADE --}}
                             @if ($gradingPeriod === 'First')
                                 <td class="text-center">
@@ -371,7 +389,8 @@
                                 </td>
                             @endif
 
-                            <td class='text-center'>{{ Subjects::checkPass($subject['AverageGrade']) }}</td>
+                            <td class='text-center'>
+                                {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }}</td>
                             <td></td>
                         @else
                             {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY NOTHING IF NOT --}}
