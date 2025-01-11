@@ -390,7 +390,7 @@
                             @endif
 
                             <td class='text-center'>
-                                {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }}</td>
+                                {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}</td>
                             <td></td>
                         @else
                             {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY NOTHING IF NOT --}}
@@ -467,7 +467,7 @@
                             </td>
                         @endif
                         <td class='text-center'>
-                            {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }}</td>
+                            {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}</td>
                         <td>{{ $subject['FullName'] }}</td>
 
                         @php
