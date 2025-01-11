@@ -447,7 +447,7 @@
                                         <strong><i>{{ Subjects::validateGrade($subject['FourthGradingGrade']) }}<i></strong>
                                     </td>
                                     <td class='text-center'>
-                                        <strong>{{ Subjects::validateGrade($subject['AverageGrade']) }}</strong>
+                                        <strong>{{ $hasInc ? '' : Subjects::validateGrade($subject['AverageGrade']) }}</strong>
                                     </td>
                                 @endif
 
@@ -523,7 +523,7 @@
                                     <strong><i>{{ Subjects::validateGrade($subject['SecondGradingGrade']) }}<i></strong>
                                 </td>
                                 <td class='text-center'>
-                                    <strong>{{ Subjects::validateGrade($subject['AverageGrade']) }}</strong>
+                                    <strong>{{ $hasInc ? '' : Subjects::validateGrade($subject['AverageGrade']) }}</strong>
                                 </td>
                             @elseif ($gradingPeriod === 'Second')
                                 <td class="text-center">
@@ -547,7 +547,7 @@
                                     <strong><i>{{ Subjects::validateGrade($subject['FourthGradingGrade']) }}<i></strong>
                                 </td>
                                 <td class='text-center'>
-                                    <strong>{{ Subjects::validateGrade($subject['AverageGrade']) }}</strong>
+                                    <strong>{{ $hasInc ? '' : Subjects::validateGrade($subject['AverageGrade']) }}</strong>
                                 </td>
                             @endif
                             <td class='text-center'>
@@ -646,7 +646,7 @@
                                         <strong><i>{{ Subjects::validateGrade($subSubject['SecondGradingGrade']) }}<i></strong>
                                     </td>
                                     <td class='text-center'>
-                                        <strong>{{ Subjects::validateGrade($subject['AverageGrade']) }}</strong>
+                                        <strong>{{ $hasInc ? '' : Subjects::validateGrade($subject['AverageGrade']) }}</strong>
                                     </td>
                                 @elseif ($gradingPeriod === 'Second')
                                     <td class="text-center">
@@ -656,7 +656,7 @@
                                         <strong><i>{{ Subjects::validateGrade($subSubject['FourthGradingGrade']) }}<i></strong>
                                     </td>
                                     <td class='text-center'>
-                                        <strong>{{ Subjects::validateGrade($subject['AverageGrade']) }}</strong>
+                                        <strong>{{ $hasInc ? '' : Subjects::validateGrade($subject['AverageGrade']) }}</strong>
                                     </td>
                                 @elseif ($gradingPeriod === 'All')
                                     <td class="text-center">
@@ -672,7 +672,7 @@
                                         <strong><i>{{ Subjects::validateGrade($subSubject['FourthGradingGrade']) }}<i></strong>
                                     </td>
                                     <td class='text-center'>
-                                        <strong>{{ Subjects::validateGrade($subSubject['AverageGrade']) }}</strong>
+                                        <strong>{{ $hasInc ? '' : Subjects::validateGrade($subSubject['AverageGrade']) }}</strong>
                                     </td>
                                 @endif
                                 <td class='text-center'>
