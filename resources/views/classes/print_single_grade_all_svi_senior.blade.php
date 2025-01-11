@@ -355,20 +355,62 @@
                             @if (in_array($subject['Subject'], $avgParents))
                                 @php
                                     $hasInc = false;
-                                    if ($subject['FirstGradingGrade'] == null && $periodGradeChecker->First != null) {
-                                        $hasInc = true;
-                                    }
+                                    if ($gradingPeriod === 'First') {
+                                        if (
+                                            $subSubject['FirstGradingGrade'] == null &&
+                                            $periodGradeChecker->First != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
 
-                                    if ($subject['SecondGradingGrade'] == null && $periodGradeChecker->Second != null) {
-                                        $hasInc = true;
-                                    }
+                                        if (
+                                            $subSubject['SecondGradingGrade'] == null &&
+                                            $periodGradeChecker->Second != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
+                                    } elseif ($gradingPeriod === 'Second') {
+                                        if (
+                                            $subSubject['ThirdGradingGrade'] == null &&
+                                            $periodGradeChecker->Third != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
 
-                                    if ($subject['ThirdGradingGrade'] == null && $periodGradeChecker->Third != null) {
-                                        $hasInc = true;
-                                    }
+                                        if (
+                                            $subSubject['FourthGradingGrade'] == null &&
+                                            $periodGradeChecker->Fourth != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
+                                    } else {
+                                        if (
+                                            $subSubject['FirstGradingGrade'] == null &&
+                                            $periodGradeChecker->First != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
 
-                                    if ($subject['FourthGradingGrade'] == null && $periodGradeChecker->Fourth != null) {
-                                        $hasInc = true;
+                                        if (
+                                            $subSubject['SecondGradingGrade'] == null &&
+                                            $periodGradeChecker->Second != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
+
+                                        if (
+                                            $subSubject['ThirdGradingGrade'] == null &&
+                                            $periodGradeChecker->Third != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
+
+                                        if (
+                                            $subSubject['FourthGradingGrade'] == null &&
+                                            $periodGradeChecker->Fourth != null
+                                        ) {
+                                            $hasInc = true;
+                                        }
                                     }
                                 @endphp
                                 {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY AVERAGE GRADE --}}
@@ -433,20 +475,62 @@
                         @else
                             @php
                                 $hasInc = false;
-                                if ($subject['FirstGradingGrade'] == null && $periodGradeChecker->First != null) {
-                                    $hasInc = true;
-                                }
+                                if ($gradingPeriod === 'First') {
+                                    if (
+                                        $subSubject['FirstGradingGrade'] == null &&
+                                        $periodGradeChecker->First != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
 
-                                if ($subject['SecondGradingGrade'] == null && $periodGradeChecker->Second != null) {
-                                    $hasInc = true;
-                                }
+                                    if (
+                                        $subSubject['SecondGradingGrade'] == null &&
+                                        $periodGradeChecker->Second != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+                                } elseif ($gradingPeriod === 'Second') {
+                                    if (
+                                        $subSubject['ThirdGradingGrade'] == null &&
+                                        $periodGradeChecker->Third != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
 
-                                if ($subject['ThirdGradingGrade'] == null && $periodGradeChecker->Third != null) {
-                                    $hasInc = true;
-                                }
+                                    if (
+                                        $subSubject['FourthGradingGrade'] == null &&
+                                        $periodGradeChecker->Fourth != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+                                } else {
+                                    if (
+                                        $subSubject['FirstGradingGrade'] == null &&
+                                        $periodGradeChecker->First != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
 
-                                if ($subject['FourthGradingGrade'] == null && $periodGradeChecker->Fourth != null) {
-                                    $hasInc = true;
+                                    if (
+                                        $subSubject['SecondGradingGrade'] == null &&
+                                        $periodGradeChecker->Second != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+
+                                    if (
+                                        $subSubject['ThirdGradingGrade'] == null &&
+                                        $periodGradeChecker->Third != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+
+                                    if (
+                                        $subSubject['FourthGradingGrade'] == null &&
+                                        $periodGradeChecker->Fourth != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
                                 }
                             @endphp
                             <td>{{ $subject['Subject'] }}</td>
@@ -511,20 +595,62 @@
                         @foreach ($groupedSubjects[$subject['Subject']] as $subSubject)
                             @php
                                 $hasInc = false;
-                                if ($subSubject['FirstGradingGrade'] == null && $periodGradeChecker->First != null) {
-                                    $hasInc = true;
-                                }
+                                if ($gradingPeriod === 'First') {
+                                    if (
+                                        $subSubject['FirstGradingGrade'] == null &&
+                                        $periodGradeChecker->First != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
 
-                                if ($subSubject['SecondGradingGrade'] == null && $periodGradeChecker->Second != null) {
-                                    $hasInc = true;
-                                }
+                                    if (
+                                        $subSubject['SecondGradingGrade'] == null &&
+                                        $periodGradeChecker->Second != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+                                } elseif ($gradingPeriod === 'Second') {
+                                    if (
+                                        $subSubject['ThirdGradingGrade'] == null &&
+                                        $periodGradeChecker->Third != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
 
-                                if ($subSubject['ThirdGradingGrade'] == null && $periodGradeChecker->Third != null) {
-                                    $hasInc = true;
-                                }
+                                    if (
+                                        $subSubject['FourthGradingGrade'] == null &&
+                                        $periodGradeChecker->Fourth != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+                                } else {
+                                    if (
+                                        $subSubject['FirstGradingGrade'] == null &&
+                                        $periodGradeChecker->First != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
 
-                                if ($subSubject['FourthGradingGrade'] == null && $periodGradeChecker->Fourth != null) {
-                                    $hasInc = true;
+                                    if (
+                                        $subSubject['SecondGradingGrade'] == null &&
+                                        $periodGradeChecker->Second != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+
+                                    if (
+                                        $subSubject['ThirdGradingGrade'] == null &&
+                                        $periodGradeChecker->Third != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
+
+                                    if (
+                                        $subSubject['FourthGradingGrade'] == null &&
+                                        $periodGradeChecker->Fourth != null
+                                    ) {
+                                        $hasInc = true;
+                                    }
                                 }
                             @endphp
                             <tr>
