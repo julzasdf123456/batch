@@ -424,16 +424,26 @@
 
                             @php
                                 $sumFirst += floatval(
-                                    $subject['FirstGradingGrade'] != null ? $subject['FirstGradingGrade'] : 0,
+                                    $subject['FirstGradingGrade'] != null && is_numeric($subject['FirstGradingGrade'])
+                                        ? $subject['FirstGradingGrade']
+                                        : 0,
                                 );
                                 $sumSecond += floatval(
-                                    $subject['SecondGradingGrade'] != null ? $subject['SecondGradingGrade'] : 0,
+                                    $subject['SecondGradingGrade'] != null &&
+                                    is_numeric($subject['SecondGradingGrade']) != null
+                                        ? $subject['SecondGradingGrade']
+                                        : 0,
                                 );
                                 $sumThird += floatval(
-                                    $subject['ThirdGradingGrade'] != null ? $subject['ThirdGradingGrade'] : 0,
+                                    $subject['ThirdGradingGrade'] != null &&
+                                    is_numeric($subject['ThirdGradingGrade']) != null
+                                        ? $subject['ThirdGradingGrade']
+                                        : 0,
                                 );
                                 $sumFourth += floatval(
-                                    $subject['FourthGradingGrade'] != null ? $subject['FourthGradingGrade'] : 0,
+                                    $subject['FourthGradingGrade'] != null && is_numeric($subject['FourthGradingGrade'])
+                                        ? $subject['FourthGradingGrade']
+                                        : 0,
                                 );
 
                                 // get total subject count
@@ -498,16 +508,28 @@
                             </tr>
                             @php
                                 $sumFirst += floatval(
-                                    $subSubject['FirstGradingGrade'] != null ? $subSubject['FirstGradingGrade'] : 0,
+                                    $subSubject['FirstGradingGrade'] != null &&
+                                    is_numeric($subSubject['FirstGradingGrade'])
+                                        ? $subSubject['FirstGradingGrade']
+                                        : 0,
                                 );
                                 $sumSecond += floatval(
-                                    $subSubject['SecondGradingGrade'] != null ? $subSubject['SecondGradingGrade'] : 0,
+                                    $subSubject['SecondGradingGrade'] != null &&
+                                    is_numeric($subSubject['SecondGradingGrade'])
+                                        ? $subSubject['SecondGradingGrade']
+                                        : 0,
                                 );
                                 $sumThird += floatval(
-                                    $subSubject['ThirdGradingGrade'] != null ? $subSubject['ThirdGradingGrade'] : 0,
+                                    $subSubject['ThirdGradingGrade'] != null &&
+                                    is_numeric($subSubject['ThirdGradingGrade'])
+                                        ? $subSubject['ThirdGradingGrade']
+                                        : 0,
                                 );
                                 $sumFourth += floatval(
-                                    $subSubject['FourthGradingGrade'] != null ? $subSubject['FourthGradingGrade'] : 0,
+                                    $subSubject['FourthGradingGrade'] != null &&
+                                    is_numeric($subSubject['FourthGradingGrade'])
+                                        ? $subSubject['FourthGradingGrade']
+                                        : 0,
                                 );
 
                                 // get total subject count
