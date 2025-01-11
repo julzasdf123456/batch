@@ -582,18 +582,18 @@
                 <tr>
                     <td><strong>TOTAL AVERAGE</strong></td>
                     @if ($gradingPeriod === 'First')
-                        <td class="text-center"><strong>{{ number_format($averageFirst, 2) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
                     @elseif ($gradingPeriod === 'Second')
-                        <td class="text-center"><strong>{{ number_format($averageFirst, 2) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
                     @elseif ($gradingPeriod === 'Third')
-                        <td class="text-center"><strong>{{ number_format($averageThird, 2) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageThird) }}</strong></td>
                     @elseif ($gradingPeriod === 'Fourth')
-                        <td class="text-center"><strong>{{ number_format($averageFourth, 2) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageFourth) }}</strong></td>
                     @elseif ($gradingPeriod === 'All')
-                        <td class="text-center"><strong>{{ number_format($averageFirst, 2) }}</strong></td>
-                        <td class="text-center"><strong>{{ number_format($averageSecond, 2) }}</strong></td>
-                        <td class="text-center"><strong>{{ number_format($averageThird, 2) }}</strong></td>
-                        <td class="text-center"><strong>{{ number_format($averageFourth, 2) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageThird) }}</strong></td>
+                        <td class="text-center"><strong>{{ number_format($averageFourth) }}</strong></td>
                     @endif
 
                     <td></td>

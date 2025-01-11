@@ -77,7 +77,7 @@ class Subjects extends Model
         if ($grade != null) {
             if (is_numeric($grade)) {
                 if ($grade > 0) {
-                    return number_format($grade, 2);
+                    return number_format($grade);
                 } else {
                     return '-';
                 }
