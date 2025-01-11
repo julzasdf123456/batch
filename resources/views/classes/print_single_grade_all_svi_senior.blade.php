@@ -414,7 +414,7 @@
                                         }
                                     }
 
-                                    $hasOverallInc = $hasInc;
+                                    $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                 @endphp
                                 {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY AVERAGE GRADE --}}
                                 @if ($gradingPeriod === 'First')
@@ -512,7 +512,7 @@
                                     }
                                 }
 
-                                $hasOverallInc = $hasInc;
+                                $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                             @endphp
                             <td>{{ $subject['Subject'] }}</td>
                             @if ($gradingPeriod === 'First')
@@ -633,7 +633,7 @@
                                         $hasInc = true;
                                     }
                                 }
-                                $hasOverallInc = $hasInc;
+                                $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                             @endphp
                             <tr>
                                 <!-- Indented sub-subjects -->
