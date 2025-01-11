@@ -438,19 +438,19 @@
 
                                 // get total subject count
                                 $countFirst =
-                                    $subject['FirstGradingGrade'] != null || is_numeric($subject['FirstGradingGrade'])
+                                    $subject['FirstGradingGrade'] != null && is_numeric($subject['FirstGradingGrade'])
                                         ? $countFirst + 1
                                         : $countFirst;
                                 $countSecond =
-                                    $subject['SecondGradingGrade'] != null || is_numeric($subject['SecondGradingGrade'])
+                                    $subject['SecondGradingGrade'] != null && is_numeric($subject['SecondGradingGrade'])
                                         ? $countSecond + 1
                                         : $countSecond;
                                 $countThird =
-                                    $subject['ThirdGradingGrade'] != null || is_numeric($subject['ThirdGradingGrade'])
+                                    $subject['ThirdGradingGrade'] != null && is_numeric($subject['ThirdGradingGrade'])
                                         ? $countThird + 1
                                         : $countThird;
                                 $countFourth =
-                                    $subject['FourthGradingGrade'] != null || is_numeric($subject['FourthGradingGrade'])
+                                    $subject['FourthGradingGrade'] != null && is_numeric($subject['FourthGradingGrade'])
                                         ? $countFourth + 1
                                         : $countFourth;
                             @endphp
@@ -512,22 +512,22 @@
 
                                 // get total subject count
                                 $countFirst =
-                                    $subSubject['FirstGradingGrade'] != null ||
+                                    $subSubject['FirstGradingGrade'] != null &&
                                     is_numeric($subSubject['FirstGradingGrade'])
                                         ? $countFirst + 1
                                         : $countFirst;
                                 $countSecond =
-                                    $subSubject['SecondGradingGrade'] != null ||
+                                    $subSubject['SecondGradingGrade'] != null &&
                                     is_numeric($subSubject['SecondGradingGrade'])
                                         ? $countSecond + 1
                                         : $countSecond;
                                 $countThird =
-                                    $subSubject['ThirdGradingGrade'] != null ||
+                                    $subSubject['ThirdGradingGrade'] != null &&
                                     is_numeric($subSubject['ThirdGradingGrade'])
                                         ? $countThird + 1
                                         : $countThird;
                                 $countFourth =
-                                    $subSubject['FourthGradingGrade'] != null ||
+                                    $subSubject['FourthGradingGrade'] != null &&
                                     is_numeric($subSubject['FourthGradingGrade'])
                                         ? $countFourth + 1
                                         : $countFourth;
