@@ -242,6 +242,7 @@
                     $sumSecond = 0;
                     $sumThird = 0;
                     $sumFourth = 0;
+                    $hasOverallInc = false;
 
                     $data = $student->GradeData;
                     $data = json_decode($data, true);
@@ -412,6 +413,8 @@
                                             $hasInc = true;
                                         }
                                     }
+
+                                    $hasOverallInc = $hasInc;
                                 @endphp
                                 {{-- CHECK IF PARENT SUBJECT IS AVERAGED, DISPLAY AVERAGE GRADE --}}
                                 @if ($gradingPeriod === 'First')
@@ -508,6 +511,8 @@
                                         $hasInc = true;
                                     }
                                 }
+
+                                $hasOverallInc = $hasInc;
                             @endphp
                             <td>{{ $subject['Subject'] }}</td>
                             @if ($gradingPeriod === 'First')
@@ -628,6 +633,7 @@
                                         $hasInc = true;
                                     }
                                 }
+                                $hasOverallInc = $hasInc;
                             @endphp
                             <tr>
                                 <!-- Indented sub-subjects -->
@@ -742,20 +748,28 @@
                     @if ($gradingPeriod === 'First')
                         <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
                         <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
-                        <td class="text-center"><strong>{{ number_format($finalGrade) }}</strong></td>
+                        <td class="text-center">
+                            <strong>{{ $hasOverallInc ? '' : number_format($finalGrade) }}</strong>
+                        </td>
                     @elseif ($gradingPeriod === 'Second')
                         <td class="text-center"><strong>{{ number_format($averageThird) }}</strong></td>
                         <td class="text-center"><strong>{{ number_format($averageFourth) }}</strong></td>
-                        <td class="text-center"><strong>{{ number_format($finalGrade) }}</strong></td>
+                        <td class="text-center">
+                            <strong>{{ $hasOverallInc ? '' : number_format($finalGrade) }}</strong>
+                        </td>
                     @elseif ($gradingPeriod === 'All')
                         <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
                         <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
                         <td class="text-center"><strong>{{ number_format($averageThird) }}</strong></td>
                         <td class="text-center"><strong>{{ number_format($averageFourth) }}</strong></td>
-                        <td class="text-center"><strong>{{ number_format($finalGrade) }}</strong></td>
+                        <td class="text-center">
+                            <strong>{{ $hasOverallInc ? '' : number_format($finalGrade) }}</strong>
+                        </td>
                     @endif
 
-                    <td></td>
+                    <td class='text-center'>
+                        {{ $hasOverallInc ? '' : Subjects::checkPass($finalGrade) }}
+                    </td>
                     <td></td>
                 </tr>
             </tbody>
