@@ -2737,6 +2737,16 @@ class ClassesController extends AppBaseController
         foreach($parents as $item) {
             array_push($arr, $item->ParentSubject);
         } 
+        
+        $periodGradeChecker = DB::table('StudentSubjects')
+                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+                ->select(
+                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+                )
+                ->first();
 
         return view('/classes/print_single_grade_all_hca_senior', [
             'students' => $students,
@@ -2744,6 +2754,7 @@ class ClassesController extends AppBaseController
             'sy' => $sy,
             'adviser' => $adviser,
             'avgParents' => $arr,
+            'periodGradeChecker' => $periodGradeChecker,
         ]);
     }
 
