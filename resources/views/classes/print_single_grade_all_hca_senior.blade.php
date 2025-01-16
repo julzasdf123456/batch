@@ -351,8 +351,8 @@
                                         }
 
                                         $aveGrade = Subjects::getAverage([
-                                            Subjects::validateNumber($subject['FirstGradingGrade']),
-                                            Subjects::validateNumber($subject['SecondGradingGrade']),
+                                            round(Subjects::validateNumber($subject['FirstGradingGrade'])),
+                                            round(Subjects::validateNumber($subject['SecondGradingGrade'])),
                                         ]);
                                     } elseif ($class->Semester === '2nd') {
                                         if (
@@ -370,8 +370,8 @@
                                         }
 
                                         $aveGrade = Subjects::getAverage([
-                                            Subjects::validateNumber($subject['ThirdGradingGrade']),
-                                            Subjects::validateNumber($subject['FourthGradingGrade']),
+                                            round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
+                                            round(Subjects::validateNumber($subject['FourthGradingGrade'])),
                                         ]);
                                     }
                                     $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
@@ -410,8 +410,8 @@
                                     }
 
                                     $aveGrade = Subjects::getAverage([
-                                        Subjects::validateNumber($subject['FirstGradingGrade']),
-                                        Subjects::validateNumber($subject['SecondGradingGrade']),
+                                        round(Subjects::validateNumber($subject['FirstGradingGrade'])),
+                                        round(Subjects::validateNumber($subject['SecondGradingGrade'])),
                                     ]);
                                 } elseif ($class->Semester === '2nd') {
                                     if ($subject['ThirdGradingGrade'] == null && $periodGradeChecker->Third != null) {
@@ -423,8 +423,8 @@
                                     }
 
                                     $aveGrade = Subjects::getAverage([
-                                        Subjects::validateNumber($subject['ThirdGradingGrade']),
-                                        Subjects::validateNumber($subject['ThirdGradingGrade']),
+                                        round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
+                                        round(Subjects::validateNumber($subject['FourthGradingGrade'])),
                                     ]);
                                 }
                                 $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
@@ -477,8 +477,8 @@
                                     }
 
                                     $aveGrade = Subjects::getAverage([
-                                        Subjects::validateNumber($subSubject['FirstGradingGrade']),
-                                        Subjects::validateNumber($subSubject['SecondGradingGrade']),
+                                        round(Subjects::validateNumber($subSubject['FirstGradingGrade'])),
+                                        round(Subjects::validateNumber($subSubject['SecondGradingGrade'])),
                                     ]);
                                 } elseif ($class->Semester === '2nd') {
                                     if (
@@ -496,8 +496,8 @@
                                     }
 
                                     $aveGrade = Subjects::getAverage([
-                                        Subjects::validateNumber($subSubject['ThirdGradingGrade']),
-                                        Subjects::validateNumber($subSubject['FourthGradingGrade']),
+                                        round(Subjects::validateNumber($subSubject['ThirdGradingGrade'])),
+                                        round(Subjects::validateNumber($subSubject['FourthGradingGrade'])),
                                     ]);
                                 }
                                 $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
