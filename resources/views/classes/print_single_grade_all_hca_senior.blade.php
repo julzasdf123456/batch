@@ -565,7 +565,7 @@
                     <td><strong>GENERAL AVERAGE</strong></td>
                     <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
                     <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
-                    <td class="text-right"><strong>{{ number_format($genAve) }}</strong></td>
+                    <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
                     <td class='text-center'>
                         {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
