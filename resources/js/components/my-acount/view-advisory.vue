@@ -1814,52 +1814,89 @@ export default {
                 Swal.fire({
                     title: 'Select Semester to Print',
                     html: `
-                        <form id="radioForm">
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        <form id="radioForm" class='row'>
+                            <div class='col-lg-12'>                                
+                                <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            </div>
+
+                            <div class='col-lg-12'>  
+                                <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            </div>
+
+                            <div class='col-lg-12'>  
+                                <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                            </div>
+
+                            <div class='col-lg-12'>  
+                                <div class='divider'></div>
+                                <label style='text-align: left; float: left;'><input class='ico-tab-mini' type="checkbox" name="averageGradePrint" value="Yes"> Also Print Average Grade</label>
+                            </div>
                         </form>
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Submit',
                     preConfirm: () => {
                         const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        const averageGradePrint = document.querySelector('input[name="averageGradePrint"]:checked') ? 'Yes' : 'No';
+
                         if (!selectedOption) {
                             Swal.showValidationMessage('You need to select an semester!');
                             return null;
                         }
-                        return selectedOption.value;
+                        
+                        return {
+                            gradingOption: selectedOption.value,
+                            averageGradePrint: averageGradePrint
+                        };
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi-senior/${ studentId }/${ this.classId }/${result.value}`
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi-senior/${ studentId }/${ this.classId }/${result.value.gradingOption}/${result.value.averageGradePrint}`
                     }
                 });
             } else {
                 Swal.fire({
                     title: 'Select a Grading Period to Print',
                     html: `
-                        <form id="radioForm">
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        <form id="radioForm" class='row'>
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                            </div>
                         </form>
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Submit',
                     preConfirm: () => {
                         const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+
                         if (!selectedOption) {
                             Swal.showValidationMessage('You need to select an grading period!');
                             return null;
                         }
-                        return selectedOption.value;
+                        
+                        return {
+                            gradingOption: selectedOption.value,
+                        };
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }/${result.value}`
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }/${result.value.gradingOption}`
                     }
                 });
             }
@@ -1869,52 +1906,89 @@ export default {
                 Swal.fire({
                     title: 'Select Semester to Print',
                     html: `
-                        <form id="radioForm">
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        <form id="radioForm" class='row'>
+                            <div class='col-lg-12'>                                
+                                <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            </div>
+
+                            <div class='col-lg-12'>  
+                                <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            </div>
+
+                            <div class='col-lg-12'>  
+                                <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                            </div>
+
+                            <div class='col-lg-12'>  
+                                <div class='divider'></div>
+                                <label style='text-align: left; float: left;'><input class='ico-tab-mini' type="checkbox" name="averageGradePrint" value="Yes"> Also Print Average Grade</label>
+                            </div>
                         </form>
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Submit',
                     preConfirm: () => {
                         const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                        const averageGradePrint = document.querySelector('input[name="averageGradePrint"]:checked') ? 'Yes' : 'No';
+
                         if (!selectedOption) {
                             Swal.showValidationMessage('You need to select an semester!');
                             return null;
                         }
-                        return selectedOption.value;
+                        
+                        return {
+                            gradingOption: selectedOption.value,
+                            averageGradePrint: averageGradePrint
+                        };
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi-senior/${ this.classId }/${result.value}`
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi-senior/${ this.classId }/${result.value.gradingOption}/${result.value.averageGradePrint}`
                     }
                 });
             } else {
                 Swal.fire({
                     title: 'Select a Grading Period to Print',
                     html: `
-                        <form id="radioForm">
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
-                            <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                        <form id="radioForm" class='row'>
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
+                            </div>
+
+                            <div class='col-lg-12'> 
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
+                            </div>
                         </form>
                     `,
                     showCancelButton: true,
                     confirmButtonText: 'Submit',
                     preConfirm: () => {
                         const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+
                         if (!selectedOption) {
                             Swal.showValidationMessage('You need to select an grading period!');
                             return null;
                         }
-                        return selectedOption.value;
+
+                        return {
+                            gradingOption: selectedOption.value,
+                        };
                     }
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi/${ this.classId }/${result.value}`
+                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi/${ this.classId }/${result.value.gradingOption}`
                     }
                 });
             }

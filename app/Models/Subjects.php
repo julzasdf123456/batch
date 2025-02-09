@@ -113,4 +113,29 @@ class Subjects extends Model
             return "-";
         }
     }
+
+    public static function validateNumber($data) {
+        if (is_numeric($data)) {
+            return floatval($data);
+        } else {
+            return 0;
+        }
+    }
+
+    public static function getAverage($arr) {
+        $counter = 0;
+        $sum = 0;
+        for($i=0; $i<count($arr); $i++) {
+            if ($arr[$i] != null) {
+                $sum += $arr[$i];
+                $counter += 1;
+            }
+        }
+
+        if ($counter > 0) {
+            return $sum / $counter;
+        } else {
+            return 0;
+        }
+    }
 }
