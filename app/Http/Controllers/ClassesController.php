@@ -3094,7 +3094,7 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printSingleGradeSviSenior($studentId, $classId, $gradingPeriod) {
+    public function printSingleGradeSviSenior($studentId, $classId, $gradingPeriod, $printFinalGrade) {
         $data = DB::table('StudentSubjects')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3149,10 +3149,11 @@ class ClassesController extends AppBaseController
             'gradingPeriod' => $gradingPeriod,
             'avgParents' => $arr,
             'periodGradeChecker' => $periodGradeChecker,
+            'printFinalGrade' => $printFinalGrade,
         ]);
     }
     
-    public function printSingleGradeAllSviSenior($classId, $gradingPeriod) {
+    public function printSingleGradeAllSviSenior($classId, $gradingPeriod, $printFinalGrade) {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3215,6 +3216,7 @@ class ClassesController extends AppBaseController
             'gradingPeriod' => $gradingPeriod,
             'avgParents' => $arr,
             'periodGradeChecker' => $periodGradeChecker,
+            'printFinalGrade' => $printFinalGrade,
         ]);
     }
 
