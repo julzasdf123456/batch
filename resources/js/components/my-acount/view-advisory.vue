@@ -35,8 +35,54 @@
             </div>
         </div>
 
+        <!-- Student Adding Form -->
+        <div class="mt-3 col-lg-4" v-if="addStudentFormActive">
+            <div class="card shadow-none" style="height: 80vh;">
+                <div class="card-header border-0">
+                    <span class="card-title">
+                        Add More Students to This Class
+                    </span>
+
+                    <div class="card-tools">
+                        <button @click="toggleAddStudentsForm" class="btn btn-sm btn-link"><i class="fas fa-times text-danger"></i></button>
+                    </div>
+                </div>
+                <div class="card-body table-responsive">
+                    <p class="no-pads text-sm text-danger"><strong>NOTE </strong> that by directly adding students here, you are bypassing the enrollment processs, and that students will not be collected any enrollment fees.</p>
+                    <div class="row mt-2">
+                        <div class="col-lg-12">
+                            <p class="no-pads text-sm text-muted pb-2">Search Student</p>
+                            <input type="text" @keyup="searchStudent" v-model="addStudentSearch" class="form-control form-control-sm" placeholder="Search ID or name..." autofocus>
+                        </div>
+                        <!-- results -->
+                        <div class="col-lg-12 mt-3">
+                            <table class="table table-sm table-borderless table-hover">
+                                <tbody>
+                                    <tr v-for="student in studentResults.data" :key="student.id">
+                                        <td class="v-align">
+                                            <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
+                                            <br>
+                                            <span class="text-muted text-sm">{{ student.id }}</span>
+                                            <br>
+                                            <span class="text-muted text-sm">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + (isNull(student.Strand) ? '' : (student.Strand + ' ')) + student.Section) }}</span>
+                                        </td>
+                                        <td class="v-align text-right">
+                                            <button @click="addStudentToClass(student.id)" class="btn btn-default" title="Add to this class"><i class="fas fa-user-plus"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <pagination :data="studentResults" :limit="10" @pagination-change-page="searchStudent"></pagination>
+                </div>
+            </div>
+        </div>
+
         <!-- students in class -->
-        <div class="col-lg-12 mt-3">
+        <div class="mt-3" :class="addStudentFormActive ? 'col-lg-8' : 'col-lg-12'">
             <div class="card shadow-none">
                 <div class="card-body">
                     <div class="dropdown">
@@ -95,6 +141,7 @@
                                 <div class="mt-2">
                                     <button v-if="viewedIn==='admin'" @click="switchSelectionMode()" title="Select" class="btn btn-default btn-sm"><i class="fas fa-check-circle ico-tab-mini" :class="selectionButtonIndicator"></i>Select Multiple</button>
                                     <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-default btn-sm ml-2" title="Print"><i class="fas fa-print ico-tab-mini"></i>Print Students List</a>
+                                    <!-- <button @click="toggleAddStudentsForm()" class="btn btn-default btn-sm ml-2"><i class="fas fa-user-plus ico-tab-mini"></i>{{ addStudentFormActive ? 'Close' : 'Add/Enroll Students Here' }}</button> -->
 
                                     <a :href="baseURL + '/classes/download-students/' + classId" class="btn btn-primary btn-sm float-right" title="Download in excel file format"><i class="fas fa-download ico-tab-mini"></i>Download Excel</a>
                                 </div>
@@ -697,11 +744,13 @@ import FlatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
 import jquery from 'jquery';
 import Swal from 'sweetalert2';
+import { Bootstrap4Pagination } from 'laravel-vue-pagination'
 
 export default {
     components : {
         FlatPickr,
         Swal,
+        'pagination' : Bootstrap4Pagination,
     },
     data() {
         return {
@@ -765,6 +814,9 @@ export default {
             homeroomSubjects : [],
             checkEnrollableTo2ndSem : false,
             viewOptionSelectedQ: "Final",
+            addStudentFormActive : false,
+            addStudentSearch : '',
+            studentResults : {}
         }
     },
     methods : {
@@ -2092,9 +2144,45 @@ export default {
                 const classOther = this.classesInSy.find(obj => obj.Year === this.advisory.Year && obj.Section === this.advisory.Section && obj.Strand === this.advisory.Strand && obj.SchoolYearId === this.syId && obj.Semester === sem)
                 
                 if (this.isNull(classOther)) {
-                    this.toast.fire({
-                        icon : 'info',
-                        text : `No ${ sem } Semester recorded for this class yet!`
+                    Swal.fire({
+                        title: "No Second Sem",
+                        html : `No 2nd semester recorded. Do you want to create one?`,
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, Please",
+                        confirmButtonColor : '#e03822'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            axios.post(`${ this.baseURL }/classes/create-new-sem`, {
+                                _token : this.token,
+                                SchoolYearId : this.syDetails.id,
+                                Year : this.advisory.Year,
+                                Section : this.advisory.Section,
+                                Adviser : this.advisory.Adviser,
+                                Strand : this.advisory.Strand,
+                                Sem : "2nd"
+                            })
+                            .then(response => {
+                                Swal.fire({
+                                    title : '2nd Semester Added!',
+                                    icon: 'success',
+                                    text : 'Do you wish to go to 2nd sem?',
+                                    showCancelButton: true,
+                                    confirmButtonText: "Yes",
+                                    confirmButtonColor : '#e03822'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = `${ this.baseURL }/classes/view-class/${ this.advisory.Adviser }/${ this.syId }/${ response.data }`
+                                    }
+                                })
+                            })
+                            .catch(error => {
+                                console.log(error.response)
+                                this.toast.fire({
+                                    icon : 'error',
+                                    text : 'Error adding second sem'
+                                })
+                            })
+                        }
                     })
                 } else {
                     window.location.href = `${ this.baseURL }/classes/view-class/${ classOther.Adviser }/${ this.syId }/${ classOther.id }`
@@ -2127,6 +2215,23 @@ export default {
             Swal.fire({
                 html : `<img src="${ url }" style="width: 400px; height: 400px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="profile">`,
                 confirmButtonText: 'Close'
+            })
+        },
+        toggleAddStudentsForm() {
+            this.addStudentFormActive = this.addStudentFormActive ? false : true;
+        },
+        searchStudent(page = 1) {
+            axios.get(`${ this.baseURL }/students/search-students-paginated`, {
+                params : {
+                    page : page,
+                    SearchParams : this.addStudentSearch,
+                }
+            })
+            .then(response => {
+                this.studentResults = response.data
+            })
+            .catch(error => {
+                console.log(error.response)
             })
         }
     },

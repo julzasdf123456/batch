@@ -3278,148 +3278,272 @@ class ClassesController extends AppBaseController
         $sourceClassId = $request['SourceClassId'];
         $students = $request['Students'];
 
-        if (env("SENIOR_HIGH_SEM_ENROLLMENT") === 'CONTINUOS') {
-            // get 1st sem class
-            $sourceClass = Classes::find($sourceClassId);
-            // get 2nd sem class
-            if ($sourceClass != null) {
-                // get class repo first
-                $classRepo = ClassesRepo::where('Year', $sourceClass->Year)
-                        ->where('Section', $sourceClass->Section)
-                        ->where('Strand', $sourceClass->Strand)
-                        ->where('Semester', '2nd')
-                        ->first();
-
-                if ($classRepo == null) {
-                    $classRepo = new ClassesRepo;
-                    $classRepo->id = IDGenerator::generateID();
-                    $classRepo->Year = $sourceClass->Year;
-                    $classRepo->Section = $sourceClass->Section;
-                    $classRepo->Adviser = $sourceClass->Adviser;
-                    $classRepo->Strand = $sourceClass->Strand;
-                    $classRepo->Semester = '2nd';
-                    $classRepo->save();
-                }
-
-                // get or save new class
-                $destinationClass = Classes::where('SchoolYearId', $sourceClass->SchoolYearId)
-                    ->where('Year', $sourceClass->Year)
+        // if (env("SENIOR_HIGH_SEM_ENROLLMENT") === 'CONTINUOS') {
+            
+        // } else {
+        //     return response()->json("This feature is not applicable for this school (configuration). Contact support for more information.", 403);
+        // }
+        // get 1st sem class
+        $sourceClass = Classes::find($sourceClassId);
+        // get 2nd sem class
+        if ($sourceClass != null) {
+            // get class repo first
+            $classRepo = ClassesRepo::where('Year', $sourceClass->Year)
                     ->where('Section', $sourceClass->Section)
                     ->where('Strand', $sourceClass->Strand)
                     ->where('Semester', '2nd')
                     ->first();
 
-                if ($destinationClass == null) {
-                    $classId = IDGenerator::generateID();
-
-                    $destinationClass = new Classes;
-                    $destinationClass->id = $classId;
-                    $destinationClass->SchoolYearId = $sourceClass->SchoolYearId;
-                    $destinationClass->Year = $sourceClass->Year;
-                    $destinationClass->Section = $sourceClass->Section;
-                    $destinationClass->Adviser = $sourceClass->Adviser;
-                    $destinationClass->Strand = $sourceClass->Strand;
-                    $destinationClass->Semester = '2nd';
-                    $destinationClass->save();
-                } else {
-                    $classId = $destinationClass->id;
-                }
-
-                $sy = SchoolYear::find($sourceClass->SchoolYearId);
-
-                if ($students != null) {
-                    foreach($students as $item) {
-                        $student = Students::find($item['id']);
-                        /**
-                         * =====================================================================
-                         * START ENROLLMENT PROCESS
-                         * =====================================================================
-                         */
-                        // create student inside the class
-                        // check student first if enrolled already in class
-                        $enrollee = StudentClasses::where('ClassId', $classId)
-                            ->where('StudentId', $item['id'])
-                            ->where('Semester', '2nd')
-                            ->first();
-                        
-                        if ($enrollee != null) {
-                            // skip
-                        } else {
-                            // create enrollee/student
-                            $enrollee = new StudentClasses;
-                            $enrollee->id = IDGenerator::generateID();
-                            $enrollee->ClassId = $classId;
-                            $enrollee->StudentId = $item['id'];
-                            $enrollee->Status = 'Paid';
-                            $enrollee->Type = 'Regular';
-                            $enrollee->Semester = '2nd';
-                            $enrollee->PreviousClassId = $sourceClass->id;
-                            $enrollee->Notes = 'Auto-enrollment from Selection';
-                            $enrollee->save();
-
-                            if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
-                                // create payables
-                                $payableId = IDGenerator::generateIDandRandString();
-                                $payable = new Payables;
-                                $payable->id = $payableId;
-                                $payable->StudentId = $item['id'];
-                                $payable->AmountPayable = env('ENROLLMENT_FEE ');
-                                $payable->PaymentFor = 'Enrollment Fees for ' . $sy != null ? $sy->SchoolYear : '';
-                                $payable->Category = 'Enrollment';
-                                $payable->Balance = env('ENROLLMENT_FEE ');
-                                $payable->SchoolYear = $sy != null ? $sy->SchoolYear : '';
-                                $payable->save();
-                            }
-                        }
-
-                        /**
-                         * ==========================================================
-                         * CREATE SUBJECTS
-                         * ==========================================================
-                         */
-                        if ($classRepo != null) {
-                            $subjects = DB::table('SubjectClasses')
-                                    ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
-                                    ->where('SubjectClasses.ClassRepoId', $classRepo->id)
-                                    ->select(
-                                        'SubjectClasses.*',
-                                        'Subjects.Teacher'
-                                    )
-                                    ->get(); 
-
-                            foreach($subjects as $itemx) {
-                                // check if student has this subject already
-                                $ss = StudentSubjects::where('StudentId', $item['id'])
-                                    ->where('SubjectId', $itemx->SubjectId)
-                                    ->where('ClassId', $classId)
-                                    ->first();
-
-                                if ($ss != null) {
-                                    // skip
-                                } else {
-                                    $studentSubjects = new StudentSubjects;
-                                    $studentSubjects->id = IDGenerator::generateIDandRandString();
-                                    $studentSubjects->StudentId = $item['id'];
-                                    $studentSubjects->SubjectId = $itemx->SubjectId;
-                                    $studentSubjects->Heirarchy = $itemx->Heirarchy;
-                                    $studentSubjects->ClassId = $classId;
-                                    $studentSubjects->TeacherId = $itemx->Teacher;
-                                    $studentSubjects->save();
-                                }
-                            }
-                        }
-                        
-                        // update student current grade level
-                        $student->CurrentGradeLevel = $classId;
-                        $student->save();
-                    }
-                }
+            if ($classRepo == null) {
+                $classRepo = new ClassesRepo;
+                $classRepo->id = IDGenerator::generateID();
+                $classRepo->Year = $sourceClass->Year;
+                $classRepo->Section = $sourceClass->Section;
+                $classRepo->Adviser = $sourceClass->Adviser;
+                $classRepo->Strand = $sourceClass->Strand;
+                $classRepo->Semester = '2nd';
+                $classRepo->save();
             }
 
-            return response()->json('ok', 200);
-        } else {
-            return response()->json("This feature is not applicable for this school (configuration). Contact support for more information.", 403);
+            // get or save new class
+            $destinationClass = Classes::where('SchoolYearId', $sourceClass->SchoolYearId)
+                ->where('Year', $sourceClass->Year)
+                ->where('Section', $sourceClass->Section)
+                ->where('Strand', $sourceClass->Strand)
+                ->where('Semester', '2nd')
+                ->first();
+
+            if ($destinationClass == null) {
+                $classId = IDGenerator::generateID();
+
+                $destinationClass = new Classes;
+                $destinationClass->id = $classId;
+                $destinationClass->SchoolYearId = $sourceClass->SchoolYearId;
+                $destinationClass->Year = $sourceClass->Year;
+                $destinationClass->Section = $sourceClass->Section;
+                $destinationClass->Adviser = $sourceClass->Adviser;
+                $destinationClass->Strand = $sourceClass->Strand;
+                $destinationClass->Semester = '2nd';
+                $destinationClass->save();
+            } else {
+                $classId = $destinationClass->id;
+            }
+
+            $sy = SchoolYear::find($sourceClass->SchoolYearId);
+
+            if ($students != null) {
+                foreach($students as $item) {
+                    $student = Students::find($item['id']);
+                    $studentId = $item['id'];
+                    /**
+                     * =====================================================================
+                     * START ENROLLMENT PROCESS
+                     * =====================================================================
+                     */
+                    // create student inside the class
+                    // check student first if enrolled already in class
+                    $enrollee = StudentClasses::where('ClassId', $classId)
+                        ->where('StudentId', $item['id'])
+                        ->where('Semester', '2nd')
+                        ->first();
+                    
+                    if ($enrollee != null) {
+                        // skip
+                    } else {
+                        // create enrollee/student
+                        $enrollee = new StudentClasses;
+                        $enrollee->id = IDGenerator::generateID();
+                        $enrollee->ClassId = $classId;
+                        $enrollee->StudentId = $item['id'];
+                        $enrollee->Status = 'Paid';
+                        $enrollee->Type = 'Regular';
+                        $enrollee->Semester = '2nd';
+                        $enrollee->PreviousClassId = $sourceClass->id;
+                        $enrollee->Notes = 'Auto-enrollment from Selection';
+                        $enrollee->save();
+
+                        if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
+                            // create payables
+                            $payableId = IDGenerator::generateIDandRandString();
+                            $payable = new Payables;
+                            $payable->id = $payableId;
+                            $payable->StudentId = $item['id'];
+                            $payable->AmountPayable = env('ENROLLMENT_FEE ');
+                            $payable->PaymentFor = 'Enrollment Fees for ' . $sy != null ? $sy->SchoolYear : '';
+                            $payable->Category = 'Enrollment';
+                            $payable->Balance = env('ENROLLMENT_FEE ');
+                            $payable->SchoolYear = $sy != null ? $sy->SchoolYear : '';
+                            $payable->save();
+                        }
+                    }
+
+                    /**
+                     * ==========================================================
+                     * CREATE SUBJECTS
+                     * ==========================================================
+                     */
+                    if ($classRepo != null) {
+                        $subjects = DB::table('SubjectClasses')
+                                ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                                ->where('SubjectClasses.ClassRepoId', $classRepo->id)
+                                ->select(
+                                    'SubjectClasses.*',
+                                    'Subjects.Teacher'
+                                )
+                                ->get(); 
+
+                        foreach($subjects as $itemx) {
+                            // check if student has this subject already
+                            $ss = StudentSubjects::where('StudentId', $item['id'])
+                                ->where('SubjectId', $itemx->SubjectId)
+                                ->where('ClassId', $classId)
+                                ->first();
+
+                            if ($ss != null) {
+                                // skip
+                            } else {
+                                $studentSubjects = new StudentSubjects;
+                                $studentSubjects->id = IDGenerator::generateIDandRandString();
+                                $studentSubjects->StudentId = $item['id'];
+                                $studentSubjects->SubjectId = $itemx->SubjectId;
+                                $studentSubjects->Heirarchy = $itemx->Heirarchy;
+                                $studentSubjects->ClassId = $classId;
+                                $studentSubjects->TeacherId = $itemx->Teacher;
+                                $studentSubjects->save();
+                            }
+                        }
+                    }
+
+                    /*
+                     * ======================================================
+                     * ADD TUITION FEE PAYABLES
+                     * ======================================================
+                     */
+                    $class = Classes::find($classId);
+                    if ($class != null) {
+                        $classRepo = ClassesRepo::where('Year', $class->Year)
+                            ->where('Section', $class->Section)
+                            ->where('Strand', $class->Strand)
+                            ->where('Semester', $class->Semester)
+                            ->first();
+                        
+                        $sy = SchoolYear::find($class->SchoolYearId);
+
+                        if ($classRepo != null) {
+                            $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
+
+                            $payableId = IDGenerator::generateIDandRandString();
+                            $tuitionPayable = new Payables;
+                            $tuitionPayable->id = $payableId;
+                            $tuitionPayable->StudentId = $studentId;
+                            $tuitionPayable->PaymentFor = 'Tuition Fee for ' . ($sy != null ? ($sy->SchoolYear . ' 2nd Sem') : '(no school year declared)');
+                            $tuitionPayable->Category = 'Tuition Fees';
+                            $tuitionPayable->SchoolYear = $sy->SchoolYear;
+                            $tuitionPayable->ClassId = $classId;
+
+                            if ($baseTuition != null) {
+                                // copy base tuition fee if declared in classes
+                                $tuitionPayable->Payable = $baseTuition;
+                                $tuitionPayable->AmountPayable = $baseTuition;
+                                $tuitionPayable->Balance = $baseTuition;
+                            } else {
+                                // get tuition per subject if not declared in classes
+                                $totalSubjectTuition = DB::table('SubjectClasses')
+                                    ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                                    ->whereRaw("SubjectClasses.ClassRepoId='" . $classRepo->id . "'")
+                                    ->select(
+                                        DB::raw("SUM(Subjects.CourseFee) AS Total")
+                                    )
+                                    ->first();
+
+                                if ($totalSubjectTuition != null) {
+                                    $tuitionPayable->Payable = $totalSubjectTuition->Total;
+                                    $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
+                                    $tuitionPayable->Balance = $totalSubjectTuition->Total;
+                                } else {
+                                    $tuitionPayable->Payable = 0.0;
+                                    $tuitionPayable->AmountPayable = 0.0;
+                                    $tuitionPayable->Balance = 0.0;
+                                }
+                            }
+
+                            // create payable tuition inclusion
+                            $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
+                                ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
+                                ->get();
+                            if ($tuitionInclusions != null) {
+                                foreach($tuitionInclusions as $item) {
+                                    $payableInclusions = new PayableInclusions;
+                                    $payableInclusions->id = IDGenerator::generateIDandRandString();
+                                    $payableInclusions->PayableId = $payableId;
+                                    $payableInclusions->ItemName = $item->ItemName;
+                                    $payableInclusions->Amount = $item->Amount;
+                                    $payableInclusions->save();
+                                }
+                            }
+
+                            // create tuitions breakdown
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                // update payable, set to half per sem
+                                $tuitionPayable->Payable = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / 2) : 0;
+                                $tuitionPayable->AmountPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / 2) : 0;
+                                $tuitionPayable->Balance = $tuitionPayable->Balance > 0 ? ($tuitionPayable->Balance / 2) : 0;
+
+                                // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
+                                $monthsToPay = 5;
+
+                                for ($i=0; $i<$monthsToPay; $i++) {
+                                    $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                                    $tuitionBreakdown = new TuitionsBreakdown;
+                                    $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                                    
+                                    if ($class->Semester != null && $class->Semester == '2nd') {
+                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
+                                    } else {
+                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                                    }
+                                    
+                                    $tuitionBreakdown->PayableId = $payableId;
+    
+                                    $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
+                                    $pyblOriginal = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / $monthsToPay) : 0;
+    
+                                    $tuitionBreakdown->AmountPayable = $amntPayable;
+                                    $tuitionBreakdown->Payable = $pyblOriginal;
+                                    $tuitionBreakdown->Balance = $amntPayable;
+                                    $tuitionBreakdown->save();
+                                }
+                            } else {
+                                $monthsToPay = 10;
+
+                                for ($i=0; $i<$monthsToPay; $i++) {
+                                    $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
+                                    $tuitionBreakdown = new TuitionsBreakdown;
+                                    $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
+                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
+                                    $tuitionBreakdown->PayableId = $payableId;
+    
+                                    $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
+    
+                                    $tuitionBreakdown->AmountPayable = $amntPayable;
+                                    $tuitionBreakdown->Payable = $amntPayable;
+                                    $tuitionBreakdown->Balance = $amntPayable;
+                                    $tuitionBreakdown->save();
+                                }
+                            }
+
+                            $tuitionPayable->save();
+                        }
+                    }
+                    
+                    // update student current grade level
+                    $student->CurrentGradeLevel = $classId;
+                    $student->save();
+                }
+            }
         }
+
+        return response()->json('ok', 200);
     }
 
     public function downloadSF10($studentId, $classId) {
@@ -3541,5 +3665,36 @@ class ClassesController extends AppBaseController
         $writer->save(public_path('generated/sf2/SF10_' . $studentId . '.xlsx'));
 
         return response()->download(public_path('generated/sf2/SF10_' . $studentId . '.xlsx'));
+    }
+
+    public function createNewSem(Request $request) {
+        $syId = $request['SchoolYearId'];
+        $year = $request['Year'];
+        $section = $request['Section'];
+        $adviser = $request['Adviser'];
+        $strand = $request['Strand'];
+        $sem = $request['Sem'];
+
+        $class = Classes::where('SchoolYearId', $syId)
+            ->where('Year', $year)
+            ->where('Section', $section)
+            ->where('Strand', $strand)
+            ->where('Semester', $sem)
+            ->first();
+
+        $id = IDGenerator::generateID();
+        if ($class == null) {
+            Classes::create([
+                'id' => $id,
+                'SchoolYearId' => $syId,
+                'Year' => $year,
+                'Section' => $section,
+                'Adviser' => $adviser,
+                'Strand' => $strand,
+                'Semester' => $sem
+            ]);
+        }
+
+        return response()->json($id, 200);
     }
 }

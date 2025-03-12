@@ -656,16 +656,34 @@ export default {
         }
     },
     methods : {
-        isNull (item) {
-            if (jquery.isEmptyObject(item)) {
+        isNull (value) {
+            // Check for null or undefined
+            if (value === null || value === undefined) {
                 return true;
-            } else {
-                if (item.length < 1) {
-                    return true;
-                } else {
-                    return false;
-                }
             }
+
+            // Check for empty string
+            if (typeof value === 'string' && value.trim() === '') {
+                return true;
+            }
+
+            // Check for empty array
+            if (Array.isArray(value) && value.length === 0) {
+                return true;
+            }
+
+            // Check for empty object
+            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                return true;
+            }
+
+            // Check for NaN
+            if (typeof value === 'number' && isNaN(value)) {
+                return true;
+            }
+
+            // If none of the above, it's not null, empty, or undefined
+            return false;
         },
         validateNullStrings(string) {
             return this.isNull(string) ? '' : string
@@ -727,7 +745,7 @@ export default {
         getTotalBalance() {
             var total = 0
             for (let i=0; i<this.payables.length; i++) {
-                var balance = this.payables[i].Balance.length < 1 ? 0 : parseFloat(this.payables[i].Balance)
+                var balance = this.isNull(this.payables[i]) ? 0 : (this.isNull(this.payables[i].Balance) ? 0 : (this.payables[i].Balance.length < 1 ? 0 : parseFloat(this.payables[i].Balance)))
                 total += balance
             }
 

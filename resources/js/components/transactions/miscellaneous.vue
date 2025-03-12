@@ -517,6 +517,31 @@
             </div>
         </div>
     </div>
+
+    <div ref="modalSelectTuitionPayable" class="modal fade" id="modal-selection-transfer" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Select Tuition Fee Balance to Pay</span>
+                </div>
+                <div class="modal-body table-responsive">
+                    <table class="table table-hover table-sm table-bordered">
+                        <tbody>
+                            <tr v-for="item in unpaidTuitionFees" :key="item.id">
+                                <td class="v-align">
+                                    <input type="radio" v-model="selectedTuitionBalance" :value="item.id" :id="item.id">
+                                    <label :for="item.id" class="ml-2">{{ item.PaymentFor }}</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button class="btn btn-primary" @click="getLatestTuitionFee">Select Tuition</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -592,6 +617,8 @@ export default {
             additionalDistribute : false,
             detailedTransactions : [],
             imagePreview : null,
+            unpaidTuitionFees : [],
+            selectedTuitionBalance : null,
         }
     },
     methods : {
@@ -692,31 +719,42 @@ export default {
         addPayable() {
             const selected = this.miscPayables.find(obj => obj.id === this.miscSelected)
 
-            if (!this.isNull(selected)) {
-                const idtmp = this.generateUniqueId()
-                this.payableItems.push({
-                    id : idtmp,
-                    Payable : selected.Payable,
-                    Price : selected.DefaultAmount,
-                    Quantity : 1,
-                    TotalAmount : selected.DefaultAmount
+            // remove if there is already tuition fee in queue
+            let itemCheck = this.payableItems.filter(obj => obj.Payable.includes("Tuition Fee"))
+            if (!this.isNull(itemCheck) && selected.Payable.includes('Tuition Fee')) {
+                Swal.fire({
+                    icon : 'warning',
+                    text : "You can't add 2 tuition payables in one transaction."
                 })
-                this.$nextTick(() => {
-                    this.$refs['payable-' + idtmp][0].focus()
-                })
-
-                // assess if tuition fee
-                if (selected.Payable.includes('Tuition Fee')) {
-                    this.getLatestTuitionFee()
-                }
             } else {
-                this.toast.fire({
-                    icon : 'info',
-                    text : 'Please select item before adding!'
-                })
-            }
+                if (!this.isNull(selected)) {
+                    const idtmp = this.generateUniqueId()
+                    this.payableItems.push({
+                        id : idtmp,
+                        Payable : selected.Payable,
+                        Price : selected.DefaultAmount,
+                        Quantity : 1,
+                        TotalAmount : selected.DefaultAmount
+                    })
+                    this.$nextTick(() => {
+                        this.$refs['payable-' + idtmp][0].focus()
+                    })
 
-            this.validateTotal()
+                    // assess if tuition fee
+                    if (selected.Payable.includes('Tuition Fee')) {
+                        // this.getLatestTuitionFee()
+
+                        this.getUnpaidTuitionFees()
+                    }
+                } else {
+                    this.toast.fire({
+                        icon : 'info',
+                        text : 'Please select item before adding!'
+                    })
+                }
+
+                this.validateTotal()
+            }            
         },
         removeItem(id) {
             this.payableItems = this.payableItems.filter(obj => obj.id !== id)
@@ -887,10 +925,50 @@ export default {
                 })
             })
         },
-        getLatestTuitionFee() {
-            axios.get(`${ this.baseURL }/transactions/get-latest-tuition-fee`, {
+        getUnpaidTuitionFees() {
+            axios.get(`${ this.baseURL }/transactions/get-unpaid-tuition-fees`, {
                 params : {
                     StudentId : this.studentId,
+                }
+            })
+            .then(response => {
+                this.unpaidTuitionFees = response.data
+
+                if (!this.isNull(this.unpaidTuitionFees) && this.unpaidTuitionFees.length > 1) {
+                    let modalElement = this.$refs.modalSelectTuitionPayable
+                    $(modalElement).modal('show')
+                } else if (!this.isNull(this.unpaidTuitionFees) && this.unpaidTuitionFees.length == 1) {
+                    this.selectedTuitionBalance = this.unpaidTuitionFees[0].id
+                    this.getLatestTuitionFee()
+                } else {
+                    this.tuitionHeaderCardShown = false
+
+                    this.tuitionInclusions = []
+                    this.tuitionFeePayable = {}
+                    this.payableId = null
+
+                    Swal.fire({
+                        icon : 'warning',
+                        title : 'Warning',
+                        text : 'This student has no recorded Tuition Payables. Proceeding this transaction will not credit any tuition payable. Proceed with caution.'
+                    })
+                }
+            })
+            .catch(error => {
+                console.log(error)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting tuition fee data!'
+                })
+            })
+        },
+        getLatestTuitionFee() {
+            let modalElement = this.$refs.modalSelectTuitionPayable
+            $(modalElement).modal('hide')
+
+            axios.get(`${ this.baseURL }/transactions/get-selected-tuition-payable`, {
+                params : {
+                    id : this.selectedTuitionBalance,
                 }
             })
             .then(response => {

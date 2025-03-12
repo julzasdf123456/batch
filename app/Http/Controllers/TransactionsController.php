@@ -1925,4 +1925,24 @@ class TransactionsController extends AppBaseController
 
         return response()->json($tuitionPayables, 200);
     }
+
+    public function getUnpaidTuitionFees(Request $request) {
+        $studentId = $request['StudentId'];
+
+        $tuitionPayables = Payables::where('StudentId', $studentId)
+            ->where('Category', 'Tuition Fees')
+            ->whereRaw("Balance > 0")
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($tuitionPayables, 200);
+    }
+
+    public function getSelectedTuitionPayable(Request $request) {
+        $id = $request['id'];
+
+        $tuitionPayables = Payables::find($id);
+
+        return response()->json($tuitionPayables, 200);
+    }
 }

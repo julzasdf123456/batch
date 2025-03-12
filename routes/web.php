@@ -139,6 +139,7 @@ Route::get('/classes/print-single-grade-all-svi-senior/{classId}/{gradingPeriod}
 Route::get('/classes/print-all-grades/{classId}/{gradingPeriod}', [ClassesController::class, 'printAllGrades'])->name('classes.print-all-grades');
 Route::post('/classes/save-enroll-to-second-sem', [ClassesController::class, 'saveEnrollToSecondSem'])->name('classes.save-enroll-to-second-sem');
 Route::get('/classes/download-sf10/{studentId}/{classId}', [ClassesController::class, 'downloadSF10'])->name('classes.download-sf10');
+Route::post('/classes/create-new-sem', [ClassesController::class, 'createNewSem'])->name('classes.create-new-sem');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -207,6 +208,8 @@ Route::post('/transactions/transact-other-payments', [TransactionsController::cl
 Route::get('/transactions/print-other-payments-svi/{id}', [TransactionsController::class, 'printOtherPaymentsSvi'])->name('transactions.print-other-payments-svi');
 Route::get('/transactions/fetched-detailed-transactions-per-student', [TransactionsController::class, 'fetchDetailedTransactionsPerStudent'])->name('transactions.fetched-detailed-transactions-per-student');
 Route::get('/transactions/get-latest-tuition-fee', [TransactionsController::class, 'getLatestTuitionFee'])->name('transactions.get-latest-tuition-fee');
+Route::get('/transactions/get-unpaid-tuition-fees', [TransactionsController::class, 'getUnpaidTuitionFees'])->name('transactions.get-unpaid-tuition-fees');
+Route::get('/transactions/get-selected-tuition-payable', [TransactionsController::class, 'getSelectedTuitionPayable'])->name('transactions.get-selected-tuition-payable');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
