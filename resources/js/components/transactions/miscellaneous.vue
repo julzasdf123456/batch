@@ -1165,7 +1165,7 @@ export default {
                 html : `<img src="${ url }" style="width: 400px; height: 400px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="profile">`,
                 confirmButtonText: 'Close'
             })
-        }
+        },
     },
     created() {
     },

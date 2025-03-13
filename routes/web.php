@@ -210,6 +210,8 @@ Route::get('/transactions/fetched-detailed-transactions-per-student', [Transacti
 Route::get('/transactions/get-latest-tuition-fee', [TransactionsController::class, 'getLatestTuitionFee'])->name('transactions.get-latest-tuition-fee');
 Route::get('/transactions/get-unpaid-tuition-fees', [TransactionsController::class, 'getUnpaidTuitionFees'])->name('transactions.get-unpaid-tuition-fees');
 Route::get('/transactions/get-selected-tuition-payable', [TransactionsController::class, 'getSelectedTuitionPayable'])->name('transactions.get-selected-tuition-payable');
+Route::get('/transactions/ledger-management', [TransactionsController::class, 'ledgerManagement'])->name('transactions.ledger-management');
+Route::post('/transactions/update-payable', [TransactionsController::class, 'updatePayable'])->name('transactions.update-payable');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);
@@ -261,3 +263,4 @@ Route::get('/quiz_scores/get-quiz-headers', [QuizScoresController::class, 'getQu
 Route::post('/quiz_scores/update-score', [QuizScoresController::class, 'updateScore'])->name('quizScores.update-score');
 Route::resource('quizScores', QuizScoresController::class);
 Route::resource('class-subject-parent-avgs', App\Http\Controllers\ClassSubjectParentAvgController::class);
+Route::resource('payable-update-logs', App\Http\Controllers\PayableUpdateLogsController::class);

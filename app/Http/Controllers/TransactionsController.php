@@ -23,6 +23,7 @@ use App\Models\TuitionInclusions;
 use App\Models\SmsMessages;
 use App\Models\Scholarships;
 use App\Models\StudentScholarships;
+use App\Models\PayableUpdateLogs;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Flash;
@@ -779,6 +780,13 @@ class TransactionsController extends AppBaseController
             ->where('PayableId', $payableId)
             ->orderBy('ItemName')
             ->get();
+
+        $data['UpdateLogs'] = DB::table('PayableUpdateLogs')
+            ->leftJoin('users', 'PayableUpdateLogs.UserId', '=', 'users.id')
+                ->where('PayableId', $payableId)
+                ->select('PayableUpdateLogs.*', 'users.name')
+                ->orderByDesc('created_at')
+                ->get();
 
         return response()->json($data, 200);
     }
@@ -1944,5 +1952,42 @@ class TransactionsController extends AppBaseController
         $tuitionPayables = Payables::find($id);
 
         return response()->json($tuitionPayables, 200);
+    }
+
+    public function ledgerManagement(Request $request) {
+        return view('/transactions/ledger_management');
+    }
+
+    public function updatePayable(Request $request) {
+        $id = $request['id'];
+        $totalPayable = $request['TotalPayable'];
+        $amountPaid = $request['PaidAmount'];
+        $balance = $request['Balance'];
+
+        $payable = Payables::find($id);
+
+        if ($payable != null) {
+            $ogPayable = $payable;
+
+            $payable->AmountPayable = $totalPayable;
+            $payable->AmountPaid = $amountPaid;
+            $payable->Balance = $balance;
+            $payable->save();
+
+            // add update logs
+            PayableUpdateLogs::create([
+                'id' => IDGenerator::generateID(),
+                'UserId' => Auth::id(),
+                'PayableId' => $id,
+                'OGTotalPayable' => $ogPayable->AmountPayable,
+                'OGPaidAmount' => $ogPayable->AmountPaid,
+                'OGBalance' => $ogPayable->Balance,
+                'NewTotalPayable' => $totalPayable,
+                'NewPaidAmount' => $amountPaid,
+                'NewBalance' => $balance
+            ]);
+        }
+
+        return response()->json($payable, 200);
     }
 }

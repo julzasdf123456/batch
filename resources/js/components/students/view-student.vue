@@ -543,6 +543,35 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- MANUAL UPDATE HISTORY LOGS --> 
+                    <div class="table-responsive">
+                        <span class="text-muted">Manual Updating Logs</span>
+                        <table class="table table-hover table-sm table-bordered">
+                            <thead>
+                                <th class="text-muted">Timestamp</th>
+                                <th class="text-muted">User</th>
+                                <th class="text-muted">Previous Amnt. Payable</th>
+                                <th class="text-muted">Previous Paid Amount</th>
+                                <th class="text-muted">Previous Balance</th>
+                                <th class="text-muted">New Amnt. Payable</th>
+                                <th class="text-muted">New Paid Amount</th>
+                                <th class="text-muted">New Balance</th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="log in updateLogs" :key="log.id">
+                                    <td class="v-align">{{ log.created_at.length < 1 ? '-' : moment(log.ORDate).format('MMM DD, YYYY HH:mm A') }}</td>
+                                    <td class="v-align">{{ log.name }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.OGTotalPayable) ? '-' : toMoney(parseFloat(log.OGTotalPayable)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.OGPaidAmount) ? '-' : toMoney(parseFloat(log.OGPaidAmount)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.OGBalance) ? '-' : toMoney(parseFloat(log.OGBalance)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.NewTotalPayable) ? '-' : toMoney(parseFloat(log.NewTotalPayable)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.NewPaidAmount) ? '-' : toMoney(parseFloat(log.NewPaidAmount)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.NewBalance) ? '-' : toMoney(parseFloat(log.NewBalance)) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -653,6 +682,7 @@ export default {
             detailedTransactions : [],
             selectedFile: null,
             imagePreview : null,
+            updateLogs : []
         }
     },
     methods : {
@@ -774,6 +804,7 @@ export default {
                 this.tuitionsBreakdown = response.data.TuitionLogs
                 this.payableTransactionHistory = response.data.Transactions
                 this.payableInclusions = response.data.PayableInclusions
+                this.updateLogs = response.data.UpdateLogs
             })
             .catch(error => {
                 console.log(error)
