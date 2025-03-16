@@ -543,6 +543,35 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- MANUAL UPDATE HISTORY LOGS --> 
+                    <div class="table-responsive">
+                        <span class="text-muted">Manual Updating Logs</span>
+                        <table class="table table-hover table-sm table-bordered">
+                            <thead>
+                                <th class="text-muted">Timestamp</th>
+                                <th class="text-muted">User</th>
+                                <th class="text-muted">Previous Amnt. Payable</th>
+                                <th class="text-muted">Previous Paid Amount</th>
+                                <th class="text-muted">Previous Balance</th>
+                                <th class="text-muted">New Amnt. Payable</th>
+                                <th class="text-muted">New Paid Amount</th>
+                                <th class="text-muted">New Balance</th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="log in updateLogs" :key="log.id">
+                                    <td class="v-align">{{ log.created_at.length < 1 ? '-' : moment(log.ORDate).format('MMM DD, YYYY HH:mm A') }}</td>
+                                    <td class="v-align">{{ log.name }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.OGTotalPayable) ? '-' : toMoney(parseFloat(log.OGTotalPayable)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.OGPaidAmount) ? '-' : toMoney(parseFloat(log.OGPaidAmount)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.OGBalance) ? '-' : toMoney(parseFloat(log.OGBalance)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.NewTotalPayable) ? '-' : toMoney(parseFloat(log.NewTotalPayable)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.NewPaidAmount) ? '-' : toMoney(parseFloat(log.NewPaidAmount)) }}</td>
+                                    <td class="v-align text-right">{{ isNull(log.NewBalance) ? '-' : toMoney(parseFloat(log.NewBalance)) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -653,19 +682,38 @@ export default {
             detailedTransactions : [],
             selectedFile: null,
             imagePreview : null,
+            updateLogs : []
         }
     },
     methods : {
-        isNull (item) {
-            if (jquery.isEmptyObject(item)) {
+        isNull (value) {
+            // Check for null or undefined
+            if (value === null || value === undefined) {
                 return true;
-            } else {
-                if (item.length < 1) {
-                    return true;
-                } else {
-                    return false;
-                }
             }
+
+            // Check for empty string
+            if (typeof value === 'string' && value.trim() === '') {
+                return true;
+            }
+
+            // Check for empty array
+            if (Array.isArray(value) && value.length === 0) {
+                return true;
+            }
+
+            // Check for empty object
+            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+                return true;
+            }
+
+            // Check for NaN
+            if (typeof value === 'number' && isNaN(value)) {
+                return true;
+            }
+
+            // If none of the above, it's not null, empty, or undefined
+            return false;
         },
         validateNullStrings(string) {
             return this.isNull(string) ? '' : string
@@ -727,7 +775,7 @@ export default {
         getTotalBalance() {
             var total = 0
             for (let i=0; i<this.payables.length; i++) {
-                var balance = this.payables[i].Balance.length < 1 ? 0 : parseFloat(this.payables[i].Balance)
+                var balance = this.isNull(this.payables[i]) ? 0 : (this.isNull(this.payables[i].Balance) ? 0 : (this.payables[i].Balance.length < 1 ? 0 : parseFloat(this.payables[i].Balance)))
                 total += balance
             }
 
@@ -756,6 +804,7 @@ export default {
                 this.tuitionsBreakdown = response.data.TuitionLogs
                 this.payableTransactionHistory = response.data.Transactions
                 this.payableInclusions = response.data.PayableInclusions
+                this.updateLogs = response.data.UpdateLogs
             })
             .catch(error => {
                 console.log(error)

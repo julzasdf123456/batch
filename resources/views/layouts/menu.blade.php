@@ -170,6 +170,14 @@
                 <p>All DCR</p>
             </a>
         </li>
+
+        <li class="nav-item" title="Ledger Mangement">
+            <a href="{{ route('transactions.ledger-management') }}"
+               class="nav-link {{ Request::is('transactions.ledger-management*') ? 'active' : '' }}">
+               <i class="fas fa-file nav-icon"></i>
+                <p>Ledger Management</p>
+            </a>
+        </li>
     </ul>
 </li>
 
