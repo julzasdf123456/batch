@@ -198,9 +198,15 @@
                 <th style="font-size: .68em !important;" class="text-center" rowspan="2">SUBJECT<br>TEACHER</th>
             </tr>
             <tr>
-                <th style="font-size: .68em !important;" class="text-center">1st</th>
-                <th style="font-size: .68em !important;" class="text-center">2nd</th>
-                <th style="font-size: .5em !important;" class="text-center">Semi Final<br>Grade</th>
+                @if ($class->Semester === '1st')
+                    <th style="font-size: .68em !important;" class="text-center">1st</th>
+                    <th style="font-size: .68em !important;" class="text-center">2nd</th>
+                    <th style="font-size: .5em !important;" class="text-center">Semi Final<br>Grade</th>
+                @else
+                    <th style="font-size: .68em !important;" class="text-center">3rd</th>
+                    <th style="font-size: .68em !important;" class="text-center">4th</th>
+                    <th style="font-size: .5em !important;" class="text-center">Final<br>Grade</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -339,8 +345,21 @@
                         <tr>
                             <!-- Indented sub-subjects -->
                             <td class="sub-subject">{{ $subSubject['Subject'] }}</td>
-                            <td class="text-right">{{ is_numeric($subSubject['FirstGradingGrade']) ? number_format($subSubject['FirstGradingGrade']) : $subSubject['FirstGradingGrade'] }}</td>
-                            <td class="text-right">{{ is_numeric($subSubject['SecondGradingGrade']) ? number_format($subSubject['SecondGradingGrade']) : $subSubject['SecondGradingGrade'] }}</td>
+                            @if ($class->Semester === '1st')
+                                <td class="text-right">
+                                    {{ is_numeric($subSubject['FirstGradingGrade']) ? number_format($subSubject['FirstGradingGrade']) : $subSubject['FirstGradingGrade'] }}
+                                </td>
+                                <td class="text-right">
+                                    {{ is_numeric($subSubject['SecondGradingGrade']) ? number_format($subSubject['SecondGradingGrade']) : $subSubject['SecondGradingGrade'] }}
+                                </td>
+                            @else
+                                <td class="text-right">
+                                    {{ is_numeric($subSubject['ThirdGradingGrade']) ? number_format($subSubject['ThirdGradingGrade']) : $subSubject['ThirdGradingGrade'] }}
+                                </td>
+                                <td class="text-right">
+                                    {{ is_numeric($subSubject['FourthGradingGrade']) ? number_format($subSubject['FourthGradingGrade']) : $subSubject['FourthGradingGrade'] }}
+                                </td>
+                            @endif
                             {{-- <td class="text-right">{{ $aveGrade }}</td> --}}
                             <td></td>
                             <td>{{ $subSubject['Notes'] }}</td>
