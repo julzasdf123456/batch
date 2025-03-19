@@ -499,25 +499,59 @@ export default {
                      */
                     var grades = []
 
-                    // first grading
-                    if (subjectData.FirstGradingGrade) {
-                        grades.push(subjectData.FirstGradingGrade + '')
-                    }
+                    /** 
+                     * CHECK IF NOT GRADE 11 OR GRADE 12
+                     */
+                    if (this.classDetails.Year === 'Grade 11' | this.classDetails.Year === 'Grade 12') {
+                        /**
+                         * CHECK WHAT SEM
+                         */
+                        if (this.classDetails.Semester === '1st') {
+                            // first grading
+                            if (subjectData.FirstGradingGrade) {
+                                grades.push(subjectData.FirstGradingGrade + '')
+                            }
 
-                    // second grading
-                    if (subjectData.SecondGradingGrade) {
-                        grades.push(subjectData.SecondGradingGrade + '')
-                    }
+                            // second grading
+                            if (subjectData.SecondGradingGrade) {
+                                grades.push(subjectData.SecondGradingGrade + '')
+                            }
+                        } else if (this.classDetails.Semester === '2nd') {
+                            // third grading
+                            if (subjectData.ThirdGradingGrade) {
+                                grades.push(subjectData.ThirdGradingGrade + '')
+                            }
 
-                    // third grading
-                    if (subjectData.ThirdGradingGrade) {
-                        grades.push(subjectData.ThirdGradingGrade + '')
-                    }
+                            // fourth grading
+                            if (subjectData.FourthGradingGrade) {
+                                grades.push(subjectData.FourthGradingGrade + '')
+                            }
+                        }
+                    } else {
+                        /**
+                         * COMPUTE FROM 1st to 4th GRADING
+                         */
+                        // first grading
+                        if (subjectData.FirstGradingGrade) {
+                            grades.push(subjectData.FirstGradingGrade + '')
+                        }
 
-                    // fourth grading
-                    if (subjectData.FourthGradingGrade) {
-                        grades.push(subjectData.FourthGradingGrade + '')
+                        // second grading
+                        if (subjectData.SecondGradingGrade) {
+                            grades.push(subjectData.SecondGradingGrade + '')
+                        }
+
+                        // third grading
+                        if (subjectData.ThirdGradingGrade) {
+                            grades.push(subjectData.ThirdGradingGrade + '')
+                        }
+
+                        // fourth grading
+                        if (subjectData.FourthGradingGrade) {
+                            grades.push(subjectData.FourthGradingGrade + '')
+                        }
                     }
+                    
 
                     const len = grades.length
                     if (len > 0) {
