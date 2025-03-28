@@ -23,7 +23,7 @@
                                 <span class="text-muted">Actions</span>
                                 <br>
                                 <button class="btn btn-default ico-tab-mini" @click="fetchPayments()"><i class="fas fa-eye ico-tab-mini"></i>View</button>
-                                <!-- <button class="btn btn-primary" @click="printDcr()"><i class="fas fa-print ico-tab-mini"></i>Print</button> -->
+                                <button class="btn btn-primary" @click="printDcr()"><i class="fas fa-print ico-tab-mini"></i>Print</button>
                             </div>
                         </div>
                     </div>
@@ -424,7 +424,7 @@ export default {
             $(modalElement).modal('show')
         },
         printDcr() {
-            window.location.href = this.baseURL + '/transactions/print-my-dcr/' + this.collectionDate
+            window.location.href = this.baseURL + '/transactions/print-all-dcr/' + this.from + '/' + this.to + '/' + this.cashier
         },
         getCashiers() {
             axios.get(`${ this.baseURL }/transactions/get-cashiers`)

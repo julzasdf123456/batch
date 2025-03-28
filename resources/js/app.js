@@ -47,6 +47,7 @@ import PrintClassPayments from "./components/classes/print-class-payments.vue"
 import StubConfig from "./components/classes/stub-config.vue"
 import MergeTo from "./components/classes/merge-to.vue"
 import LedgerManagement from "./components/transactions/ledger-management.vue"
+import PrintAllDCR from "./components/transactions/print-all-dcr.vue"
 
 import MyClasses from "./components/my-acount/my-classes.vue"
 import ViewClass from "./components/my-acount/view-class.vue"
@@ -92,6 +93,7 @@ app.component('print-class-payments', PrintClassPayments);
 app.component('stub-config', StubConfig);
 app.component('merge-to', MergeTo);
 app.component('ledger-management', LedgerManagement);
+app.component('print-all-dcr', PrintAllDCR);
 
 app.component('my-classes', MyClasses);
 app.component('view-class', ViewClass);

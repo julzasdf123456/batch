@@ -1025,6 +1025,38 @@ class TransactionsController extends AppBaseController
         return response()->json($data, 200);
     }
 
+    public function fetchPaymentsFromRange(Request $request) {
+        $from = $request['From'];
+        $to = $request['To'];
+        $userId = $request['UserId'];
+
+        $data['Payments'] = DB::table('Transactions')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("(Transactions.ORDate BETWEEN '" . $from . "' AND '" . $to . "') AND Transactions.Status IS NULL AND Transactions.UserId='" . $userId . "'")
+            ->select(
+                'Transactions.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.created_at')
+            ->get();
+
+        $data['Cancelled'] = DB::table('Transactions')
+            ->leftJoin('Students', 'Transactions.StudentId', '=', 'Students.id')
+            ->whereRaw("(Transactions.ORDate BETWEEN '" . $from . "' AND '" . $to . "') AND Transactions.Status='CANCELLED' AND Transactions.UserId='" . $userId . "'")
+            ->select(
+                'Transactions.*',
+                'Students.FirstName',
+                'Students.LastName',
+                'Students.id AS StudentId'
+            )
+            ->orderBy('Transactions.created_at')
+            ->get();
+
+        return response()->json($data, 200);
+    }
+
     public function fetchTransactionDetails(Request $request) {
         $transactionId = $request['TransactionId'];
 
@@ -1062,6 +1094,14 @@ class TransactionsController extends AppBaseController
     public function printMyDcr($date) {
         return view('/transactions/print_my_dcr', [
             'date' => $date
+        ]);
+    }
+
+    public function printMyDcrAll($from, $to, $userId) {
+        return view('/transactions/print-all-dcr', [
+            'from' => $from,
+            'to' => $to,
+            'userId' => $userId
         ]);
     }
 

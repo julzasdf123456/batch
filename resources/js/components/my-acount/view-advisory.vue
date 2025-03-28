@@ -99,8 +99,9 @@
                             <div class="divider"></div>
 
                             <button @click="rankings()" class="dropdown-item" title="View Grade Class Rankings"><i class="fas fa-award ico-tab-mini"></i>Rankings</button>
-                            <button @click="printAllGradeStub()" class="dropdown-item" title="Print all grading stubb"><i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub</button>
+                            <button @click="printAllGradeStub()" class="dropdown-item" title="Print all grading stub"><i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub</button>
                             <button @click="printAllGrades()" class="dropdown-item" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grades</button>
+                            <button @click="printReportCard()" class="dropdown-item" title="Print or download SF10"><i class="fas fa-print ico-tab-mini"></i>Print/Download Report Card</button>
                             <button class="dropdown-item" @click="stubConfig()"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
 
                             <div v-if="viewedIn==='admin'" class="divider"></div>
@@ -2233,6 +2234,15 @@ export default {
             .catch(error => {
                 console.log(error.response)
             })
+        },
+        printReportCard() {
+            if (this.school === 'HCA') {
+                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+                    window.location.href = `${ this.baseURL }/classes/print-report-card-hca-senior-all/${ this.classId }/Yes`
+                } else {
+
+                }
+            }
         }
     },
     created() {
