@@ -3791,4 +3791,72 @@ class ClassesController extends AppBaseController
             'periodGradeChecker' => $periodGradeChecker,
         ]);
     }
+
+    public function printReportCardHcaAll($classId, $printFinalGrade) {
+        $class = Classes::find($classId);
+        $sy = SchoolYear::find($class->SchoolYearId);
+        $adviser = Teachers::find($class->Adviser);
+        $students = DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
+            ->select(
+                'Students.*',
+                'Towns.Town AS TownSpelled',
+                'Barangays.Barangay AS BarangaySpelled',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
+
+        $arr = [];
+        $parents = ClassSubjectParentAvg::where('ClassId', $classId)
+            ->select('ParentSubject')
+            ->get();
+
+        foreach($parents as $item) {
+            array_push($arr, $item->ParentSubject);
+        } 
+
+        foreach($students as $item) {
+            $item->GradeData = DB::table('StudentSubjects')
+                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
+                ->select(
+                    'StudentSubjects.*',
+                    'Subjects.Subject',
+                    'Subjects.ParentSubject',
+                    'Teachers.FullName',
+                )
+                ->orderBy('Heirarchy')
+                ->get();
+        }
+
+        $periodGradeChecker = DB::table('StudentSubjects')
+                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+                ->select(
+                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+                )
+                ->first();
+
+
+        return view('/classes/print_report_card_hca_all', [
+            'classId' => $classId,
+            'printFinalGrade' => $printFinalGrade,
+            'students' => $students,
+            'class' => $class,
+            'sy' => $sy,
+            'adviser' => $adviser,
+            'avgParents' => $arr,
+            'periodGradeChecker' => $periodGradeChecker,
+        ]);
+    }
 }

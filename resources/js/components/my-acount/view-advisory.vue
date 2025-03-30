@@ -2240,7 +2240,7 @@ export default {
                 if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
                     window.location.href = `${ this.baseURL }/classes/print-report-card-hca-senior-all/${ this.classId }/Yes`
                 } else {
-
+                    window.location.href = `${ this.baseURL }/classes/print-report-card-hca-all/${ this.classId }/Yes`
                 }
             }
         }

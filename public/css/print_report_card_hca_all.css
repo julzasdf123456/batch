@@ -28,7 +28,7 @@ html, body {
     /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
     font-family: sans-serif;
     /* font-stretch: condensed; */
-    font-size: .90em !important;
+    font-size: .84em !important;
 }
 
 table tbody th, 
@@ -269,7 +269,7 @@ p, h2 {
 }
 
 td, tr {
-    padding: 4px 6px;
+    padding: 2px 6px;
 }
 
 .text-center {
@@ -319,8 +319,16 @@ td, tr {
     font-size: .7em;
 }
 
+.text-md {
+    font-size: .9em !important;
+}
+
 .text-lg {
     font-size: 1.1em;
+}
+
+.text-xl {
+    font-size: 1.3em;
 }
 
 .bg-gray {
