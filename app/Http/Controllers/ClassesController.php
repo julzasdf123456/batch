@@ -3728,12 +3728,19 @@ class ClassesController extends AppBaseController
             array_push($arr, $item->ParentSubject);
         } 
 
+        $classSecondSem = Classes::where('SchoolYearId', $class->SchoolYearId)
+            ->where('Year', $class->Year)
+            ->where('Section', $class->Section)
+            ->where('Strand', $class->Strand)
+            ->where('Semester', '2nd')
+            ->first();
+
         foreach($students as $item) {
-            $item->GradeData = DB::table('StudentSubjects')
+            $item->FirstSemGradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                 ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
+                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "' AND Classes.Semester='1st'")
                 ->select(
                     'StudentSubjects.*',
                     'Subjects.Subject',
@@ -3742,6 +3749,24 @@ class ClassesController extends AppBaseController
                 )
                 ->orderBy('Heirarchy')
                 ->get();
+
+            if ($classSecondSem != null) {
+                $item->SecondSemGradeData = DB::table('StudentSubjects')
+                    ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                    ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                    ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classSecondSem->id . "' AND Classes.Semester='2nd'")
+                    ->select(
+                        'StudentSubjects.*',
+                        'Subjects.Subject',
+                        'Subjects.ParentSubject',
+                        'Teachers.FullName',
+                    )
+                    ->orderBy('Heirarchy')
+                    ->get();
+            } else {
+                $item->SecondSemGradeData = [];
+            }
         }
 
         $periodGradeChecker = DB::table('StudentSubjects')

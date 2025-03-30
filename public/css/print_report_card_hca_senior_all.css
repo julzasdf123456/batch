@@ -1,0 +1,330 @@
+@font-face {
+    font-family: 'Baskerville';
+    src: url('/fonts/LibreBaskerville-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'BaskervilleBold';
+    src: url('/fonts/LibreBaskerville-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: bold;
+}
+
+@font-face {
+    font-family: 'BaskervilleItalic';
+    src: url('/fonts/LibreBaskerville-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Oswald';
+    src: url('/fonts/Oswald-VariableFont_wght.ttf') format('truetype');
+}
+
+html, body {
+    /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
+    font-family: sans-serif;
+    /* font-stretch: condensed; */
+    font-size: .90em !important;
+}
+
+table tbody th, 
+table tbody td,
+table thead th {
+    /* font-family: sans-serif; */
+    /* font-family: sax-mono, Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
+    /* font-stretch: condensed; */
+    /* , Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif; */
+    font-size: .75em !important;
+}
+
+.content {
+    page-break-before: always; /* Old syntax */
+    break-before: page;
+    width: 94%;
+    display: flex;
+    flex-direction: row;
+    padding: 20px 30px;
+}
+
+.half {
+    width: 48.8%;
+}
+
+/**
+* START NOT ON PRINT
+*/
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.v-center {
+    align-items: center;
+}
+
+.h-center {
+    justify-content: center;
+}
+
+.vh-center {
+    align-items: center;
+    justify-content: center;
+}
+
+.gap-2 {
+    gap: 2px;
+}
+
+.gap-5 {
+    gap: 5px;
+}
+
+.gap-10 {
+    gap: 10px;
+}
+
+.gap-15 {
+    gap: 15px;
+}
+
+.gap-20 {
+    gap: 20px;
+}
+
+.gap-30 {
+    gap: 30px;
+}
+
+.gap-40 {
+    gap: 40px;
+}
+
+.gap-50 {
+    gap: 50px;
+}
+
+.gap-60 {
+    gap: 60px;
+}
+
+.gap-70 {
+    gap: 70px;
+}
+
+.gap-80 {
+    gap: 80px;
+}
+
+.record-header {
+    font-family: 'BaskervilleBold', Times, serif;
+    font-size: 1em;
+    font-weight: 800 !important;
+}
+
+.record-header-normal {
+    font-family: 'Baskerville', Times, serif;
+    font-size: 1em;
+    font-weight: normal;
+}
+
+.baskerville {
+    font-family: 'Baskerville' !important;
+}
+
+.baskerville-bold {
+    font-weight: 800 !important;
+    font-family: 'BaskervilleBold' !important;
+}
+
+.baskerville-italic {
+    font-family: 'BaskervilleItalic' !important;
+}
+
+.oswald {
+    font-family: 'Oswald', sans-serif;
+}
+
+.mt-1 {
+    margin-top: 6px;
+}
+
+.mt-2 {
+    margin-top: 10px;
+}
+
+.mt-3 {
+    margin-top: 16px;
+}
+
+.mt-4 {
+    margin-top: 24px;
+}
+
+.mt-5 {
+    margin-top: 32px;
+}
+
+.mt-50 {
+    margin-top: 52px;
+}
+
+.pt-1 {
+    padding-top: 6px;
+}
+
+.pt-2 {
+    padding-top: 10px;
+}
+
+.pt-3 {
+    padding-top: 16px;
+}
+
+.pt-4 {
+    padding-top: 24px;
+}
+
+.pt-5 {
+    padding-top: 32px;
+}
+
+.border-bottom {
+    border-bottom: 1px solid black;
+}
+
+.w-20 {
+    width: 20%;
+}
+
+.w-30 {
+    width: 30%;
+}
+
+.w-40 {
+    width: 40%;
+}
+
+.w-50 {
+    width: 50%;
+}
+
+
+.w-60 {
+    width: 60%;
+}
+
+.w-70 {
+    width: 70%;
+}
+
+.w-80 {
+    width: 80%;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.bold {
+    font-weight: bolder !important;
+    font-style: bold !important;
+}
+
+/**
+* END NOT ON PRINT
+*/
+
+.divider {
+    width: 100%;
+    margin: 10px auto;
+    height: 1px;
+    background-color: #dedede;
+} 
+
+h2 {
+    font-size: .86em;
+    font-weight: normal;
+}
+
+p, h2 {
+    padding: 0px !important;
+    margin: 0px;
+}
+
+td, tr {
+    padding: 4px 6px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-md {
+    width: 60%;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+.table-bordered td,
+.table-bordered th {
+    border: 1px solid black;
+}
+
+.table-borderless td,
+.table-borderless tr,
+.table-borderless th {
+    border: none;
+    outline: none;
+}
+
+.indent-1 {
+    text-indent: 4em;
+}
+
+.text-sm {
+    font-size: .7em;
+}
+
+.text-lg {
+    font-size: 1.1em;
+}
+
+.bg-gray {
+    background-color: #cdcdcd !important;
+}
+
+@media print {
+    .bg-gray {
+        background-color: #cdcdcd !important;
+        print-color-adjust: exact; /* Chrome */
+        -webkit-print-color-adjust: exact; /* Safari */
+        -moz-print-color-adjust: exact; /* Firefox */
+        -o-print-color-adjust: exact; /* Opera */
+    }
+}
