@@ -4,7 +4,7 @@
     use App\Models\Subjects;
 @endphp
 
-<link rel="stylesheet" href="{{ URL::asset('css/print_report_card_hca_senior_all.css') }}">
+<link rel="stylesheet" href="{{ URL::asset('css/print_report_card_svi_senior_all.css') }}">
 
 @foreach ($students as $student)
 <div id="print-area">
@@ -140,55 +140,30 @@
         <div class="half column">
             {{-- HEAD --}}
             <div class="row space-between gap-20 v-center">
-                <img style="width: 80px; height: 80px; object-fit: cover;" src="{{ URL::asset('imgs/deped-logo.svg'); }}" alt="">
+                <img style="width: 80px; height: 80px; object-fit: cover;" src="{{ URL::asset('imgs/logo.png'); }}" alt="">
 
                 <div class="column h-center v-center">
-                    <h2 class="oswald" style="font-weight: bold; font-size: .94em; padding: 0; margin: 0;">BOHOL ASSOCIATION OF CATHOLIC SCHOOLS</h2>
-                    <h2 style="font-size: .94em; padding: 0; margin: 0;">DIOCESE OF TAGBILARAN</h2>
-                    <h2 class="oswald" style="font-weight: bold; font-size: 1.1em; padding: 0; margin: 0;">HOLY CROSS ACADEMY OF TUBIGON, INC.</h2>
-                    <h2 style="font-size: .94em; padding: 0; margin: 0;">Tubigon, Bohol</h2>
-                    <h2 style="font-weight: bold; font-size: .94em; padding: 0; margin: 0;">{{ $sy->SchoolYear }}</h2>
+                    <h2 style="font-size: .94em; padding: 0; margin: 0;">Republic of The Philippines</h2>
+                    <h2 style="font-size: .94em; padding: 0; margin: 0;">DEPARTMENT OF EDUCATION</h2>
+                    <h2 style="font-weight: bold; font-size: 1.4em; padding: 0; margin: 0;">SAINT VINCENT INSTITUTE</h2>
+                    <h2 style="font-size: .94em; padding: 0; margin: 0;">Poblacion, Maribojoc, Bohol</h2>
+                    <h2 style="font-size: .75em; padding: 0; margin: 0; text-align: center;">Member: Bohol Association of Catholic Schools, Tagbilaran</h2>
                 </div>
 
-                <img style="width: 80px; height: 80px; object-fit: cover;" src="{{ URL::asset('imgs/logo.png'); }}" alt="">
+                <img style="width: 80px; height: 80px; object-fit: cover;" src="{{ URL::asset('imgs/deped-logo.svg'); }}" alt="">
             </div>
 
             {{-- STUDENT PROFILE --}}
-            <div class="column gap-10 mt-5">
+            <div class="column gap-5 mt-5">
                 <div class="row gap-10">
-                    <div class="row w-60 gap-10">
+                    <div class="row w-70 gap-10">
                         <h2 class="bold">NAME:</h2>
                         <div class="border-bottom w-100">
                             <h2 class="bold">{{ $student->LastName }}, {{ $student->FirstName }}</h2>
                         </div>
                     </div>
-    
+
                     <div class="row w-40 gap-10">
-                        <h2 class="bold">LRN:</h2>
-                        <div class="border-bottom w-100">
-                            <h2 class="bold">{{ $student->LRN }}</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row gap-10">
-                    <div class="row w-60 gap-10">
-                        <div class="w-100">
-                            <h2 class="bold">Grade & Section:</h2>
-                        </div>
-                        <div class="border-bottom w-100">
-                            <h2 class="bold">{{ $class->Year }} - {{ $class->Section }}</h2>
-                        </div>
-                    </div>
-    
-                    <div class="row w-20 gap-10">
-                        <h2 class="bold">Age:</h2>
-                        <div class="border-bottom w-100">
-                            
-                        </div>
-                    </div>
-
-                    <div class="row w-20 gap-10">
                         <h2 class="bold">Sex:</h2>
                         <div class="border-bottom w-100">
                             <h2 class="bold">{{ $student->Gender }}</h2>
@@ -197,8 +172,48 @@
                 </div>
 
                 <div class="row gap-10">
-                    <div class="row w-100 gap-10">
-                        <h2 class="bold">Track/Strand:</h2>
+                    <div class="row w-20 gap-10">
+                        <h2 class="bold">Age:</h2>
+                        <div class="border-bottom w-100">
+                            
+                        </div>
+                    </div>
+    
+                    <div class="row w-80 gap-10">
+                        <h2 class="bold">LRN:</h2>
+                        <div class="border-bottom w-100">
+                            <h2 class="bold">{{ $student->LRN }}</h2>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row gap-10">
+                    <div class="w-60 gap-10" style="display: flex; justify-content: start;">
+                        <h2 class="bold">Grade & Section:</h2>
+                        <div class="border-bottom" style="flex: 1">
+                            <h2 class="bold">{{ $class->Year }} - {{ $class->Section }}</h2>
+                        </div>
+                    </div>
+
+                    <div class="row w-40 gap-10">
+                        <h2 class="bold">SY:</h2>
+                        <div class="border-bottom w-100">
+                            <h2 class="bold">{{ $sy->SchoolYear }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row gap-10">
+                    <div class="row w-40 gap-10">
+                        <h2 class="bold">Track:</h2>
+                        <div class="border-bottom w-100">
+                            <h2 class="bold"></h2>
+                        </div>
+                    </div>
+
+                    <div class="row w-60 gap-10">
+                        <h2 class="bold">Strand:</h2>
                         <div class="border-bottom w-100">
                             <h2 class="bold">{{ $class->Strand }}</h2>
                         </div>
@@ -208,30 +223,49 @@
 
             {{-- DEAR PARENTS --}}
             <div class="column mt-5">
-                <p class="baskerville-italic">
+                <p>
                     Dear Parents,
                 </p>
 
-                <p class="baskerville-italic indent-1 mt-3">
-                    This report card shows the ability and progress your child
-                    has made in the different learning areas as well as his/her core
-                    values.
+                <p class="indent-1 mt-1">
+                    <i>
+                        Education is a cooperative venture of the home and the school. The school cannot do much in the educational growth of the child without the cooperation of the parents. Thus, this report card is issued to the parents three (3) times during the school year.
+                    </i>
                 </p>
                 
-                <p class="baskerville-italic indent-1 mt-3">
-                    The school welcomes you should you desire to know more
-                    about your child’s progress.
+                <p class="indent-1 mt-1">
+                    <i>
+                        Please take note of the child’s progress. Your cooperation is desired in our effort to develop them as well-rounded Catholic Christian Filipino citizen.
+                    </i>
+                </p>
+
+                <p class="indent-1 mt-1">
+                    <i>
+                        We would appreciate very much your coming to talk things over with us regarding their progress in school.
+                    </i>
+                </p>
+
+                <p class="indent-1 mt-1">
+                    <i>
+                        Unsatisfactory grade is a warning that the student may not be able to graduate or be promoted. Parents or guardians of students who have unsatisfactory grade are requested to confer with the principal and the class adviser of their children.
+                    </i>
+                </p>
+
+                <p class="indent-1 mt-1">
+                    <i>
+                        Let us join efforts for the total formation of your child.
+                    </i>
                 </p>
             </div>
 
             {{-- SIGNATORIES --}}
-            <div class="row gap-20 mt-4">
+            <div class="row gap-20 mt-3">
                 {{-- PRINCIPAL --}}
-                <div class="column w-50 pt-5">
+                <div class="column w-50 pt-4">
                     <div class="border-bottom">
                         <h2 class="bold text-center">{{ env("PRINCIPAL_NAME") }}</h2>
                     </div>
-                    <p class="text-center baskerville text-sm">Principal</p>
+                    <p class="text-center text-sm">Principal</p>
                 </div>
 
                 {{-- ADVISER --}}
@@ -239,12 +273,12 @@
                     <div class="border-bottom">
                         <h2 class="bold text-center">{{ $adviser->FullName }}</h2>
                     </div>
-                    <p class="text-center baskerville text-sm">Adviser</p>
+                    <p class="text-center text-sm">Adviser</p>
                 </div>
             </div>
 
             {{-- CERTIFICATE OF TRANSFER --}}
-            <div class="column mt-4 gap-2">
+            <div class="column mt-4 gap-1">
                 <h2 class="text-center record-header">CERTIFICATE OF TRANSFER</h2>
                 <div class="row gap-10 mt-3">
                     <div class="row w-60 gap-10">
@@ -264,7 +298,7 @@
                     </div>
                 </div>
 
-                <div class="row gap-10 mt-3">
+                <div class="row gap-10 mt-2">
                     <div class="row w-100 gap-10">
                         <div class="w-100">
                             <p>Eligible for Admission to Grade:</p>
@@ -275,13 +309,15 @@
                     </div>
                 </div>
 
-                <div class="row gap-20 mt-4">
+                <p class="bold mt-3">Approved:</p>
+
+                <div class="row gap-20 mt-3">
                     {{-- PRINCIPAL --}}
-                    <div class="column w-50 pt-5">
+                    <div class="column w-50">
                         <div class="border-bottom">
                             <h2 class="bold text-center">{{ env("PRINCIPAL_NAME") }}</h2>
                         </div>
-                        <p class="text-center baskerville text-sm">Principal</p>
+                        <p class="text-center text-sm">Principal</p>
                     </div>
     
                     {{-- ADVISER --}}
@@ -289,13 +325,13 @@
                         <div class="border-bottom">
                             <h2 class="bold text-center">{{ $adviser->FullName }}</h2>
                         </div>
-                        <p class="text-center baskerville text-sm">Adviser</p>
+                        <p class="text-center text-sm">Adviser</p>
                     </div>
                 </div>
             </div>
             
             {{-- CANCELLATION OF ELLIGIBILITY --}}
-            <div class="column mt-4 gap-2">
+            <div class="column mt-4 gap-1">
                 <h2 class="text-center record-header">Cancellation of Eligibility to Transfer</h2>
 
                 <div class="row gap-70">
@@ -311,7 +347,7 @@
                             </div>
                         </div>
 
-                        <div class="row gap-10 mt-3">
+                        <div class="row gap-10 mt-1">
                             <div class="row w-100 gap-10">
                                 <div class="w-100">
                                     <p>Dated:</p>
@@ -329,7 +365,7 @@
                             <div class="border-bottom">
                                 
                             </div>
-                            <p class="text-center baskerville text-sm">Principal</p>
+                            <p class="text-center text-sm">Principal</p>
                         </div>
                     </div>
                 </div>
@@ -962,10 +998,10 @@
 @endforeach
 
 <script type="text/javascript">
-    window.print();
+    // window.print();
 
-    window.setTimeout(function(){
-        window.history.go(-1)
-        // window.location.href = "{{ route('transactions.miscellaneous-search') }}";
-    }, 800);
+    // window.setTimeout(function(){
+    //     window.history.go(-1)
+    //     // window.location.href = "{{ route('transactions.miscellaneous-search') }}";
+    // }, 800);
 </script>

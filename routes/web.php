@@ -142,6 +142,7 @@ Route::get('/classes/download-sf10/{studentId}/{classId}', [ClassesController::c
 Route::post('/classes/create-new-sem', [ClassesController::class, 'createNewSem'])->name('classes.create-new-sem');
 Route::get('/classes/print-report-card-hca-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaSeniorAll'])->name('classes.print-report-card-hca-senior-all');
 Route::get('/classes/print-report-card-hca-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaAll'])->name('classes.print-report-card-hca-all');
+Route::get('/classes/print-report-card-svi-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardSviSeniorAll'])->name('classes.print-report-card-svi-senior-all');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

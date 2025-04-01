@@ -815,10 +815,10 @@
 @endforeach
 
 <script type="text/javascript">
-    // window.print();
+    window.print();
 
-    // window.setTimeout(function(){
-    //     window.history.go(-1)
-    //     // window.location.href = "{{ route('transactions.miscellaneous-search') }}";
-    // }, 800);
+    window.setTimeout(function(){
+        window.history.go(-1)
+        // window.location.href = "{{ route('transactions.miscellaneous-search') }}";
+    }, 800);
 </script>
