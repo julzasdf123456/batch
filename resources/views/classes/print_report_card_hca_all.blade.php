@@ -112,7 +112,7 @@
                         </tr>
 
                         <tr>
-                            <td class="v-align">4. Industry</td>
+                            <td class="v-align">5. Industry</td>
                             <td class="v-align">Demonstrates diligence and initiative in doing tasks in school and in the community</td>
                             <td></td>
                             <td></td>
@@ -290,8 +290,11 @@
 
         {{-- RIGHT --}}
         <div class="half column">
+            <div class="row space-between">
+                <span class="text-sm">Form 138</span>
+            </div>
             {{-- HEAD --}}
-            <div class="row space-between gap-20 v-center">
+            <div class="row space-between gap-20 v-center mt-1">
                 <img style="width: 60px; height: 60px; object-fit: cover;" src="{{ URL::asset('imgs/deped-logo.svg'); }}" alt="">
 
                 <div class="column h-center v-center">
@@ -687,7 +690,7 @@
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
                             <td class='text-center'>
-                                {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
+                                {{ $hasOverallInc ? 'INC' : Subjects::checkPassCard($genAve) }}
                             </td>
                         </tr>
                     </tbody>

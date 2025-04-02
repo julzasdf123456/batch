@@ -73,6 +73,28 @@ class Subjects extends Model
         }
     }
 
+    public static function checkPassCard($grade) {
+        if ($grade != null) {
+            if (is_numeric($grade)) {
+                if ($grade > 0 && $grade < 75) {
+                    return 'FAILED';
+                } elseif ($grade >= 75) {
+                    return 'PROMOTED';
+                } else {
+                    return 'INC';
+                }
+            } else {
+                if (in_array($grade, ['A', 'B', 'C'])) {
+                    return 'PROMOTED';
+                } else {
+                    return 'FAILED';
+                }
+            }
+        } else {
+            return 'INC';
+        }
+    }
+
     public static function validateGrade($grade) {
         if ($grade != null) {
             if (is_numeric($grade)) {
