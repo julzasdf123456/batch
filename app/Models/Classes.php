@@ -96,7 +96,7 @@ class Classes extends Model
             }
             
             $worksheet->setCellValue('BD43', '=ROUND(AVERAGE(BD'.$fsRowOGStart.':BD'.($fsRowStart-1).'),0)');
-            $worksheet->setCellValue('BI43', '=IF(BD43>=75,"PASSED","FAILED")');
+            $worksheet->setCellValue('BI43', '=IF(BD43>=75,"PROMOTED","FAILED")');
 
             /**
              * ADVISER AND PRINCIPAL
@@ -155,7 +155,7 @@ class Classes extends Model
             }
             
             $worksheet->setCellValue('BD90', '=ROUND(AVERAGE(BD'.$fsRowOGStart.':BD'.($fsRowStart-1).'),0)');
-            $worksheet->setCellValue('BI90', '=IF(BD90>=75,"PASSED","FAILED")');
+            $worksheet->setCellValue('BI90', '=IF(BD90>=75,"PROMOTED","FAILED")');
 
             /**
              * ADVISER AND PRINCIPAL
@@ -218,7 +218,7 @@ class Classes extends Model
             }
             
             $worksheet->setCellValue('BD23', '=ROUND(AVERAGE(BD'.$fsRowOGStart.':BD'.($fsRowStart-1).'),0)');
-            $worksheet->setCellValue('BI23', '=IF(BD23>=75,"PASSED","FAILED")');
+            $worksheet->setCellValue('BI23', '=IF(BD23>=75,"PROMOTED","FAILED")');
 
             /**
              * ADVISER AND PRINCIPAL
@@ -277,7 +277,7 @@ class Classes extends Model
             }
             
             $worksheet->setCellValue('BD66', '=ROUND(AVERAGE(BD'.$fsRowOGStart.':BD'.($fsRowStart-1).'),0)');
-            $worksheet->setCellValue('BI66', '=IF(BD66>=75,"PASSED","FAILED")');
+            $worksheet->setCellValue('BI66', '=IF(BD66>=75,"PROMOTED","FAILED")');
 
             /**
              * ADVISER AND PRINCIPAL
