@@ -112,7 +112,7 @@
                         </tr>
 
                         <tr>
-                            <td class="v-align">4. Industry</td>
+                            <td class="v-align">5. Industry</td>
                             <td class="v-align">Demonstrates diligence and initiative in doing tasks in school and in the community</td>
                             <td></td>
                             <td></td>
