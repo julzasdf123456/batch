@@ -140,6 +140,9 @@ Route::get('/classes/print-all-grades/{classId}/{gradingPeriod}', [ClassesContro
 Route::post('/classes/save-enroll-to-second-sem', [ClassesController::class, 'saveEnrollToSecondSem'])->name('classes.save-enroll-to-second-sem');
 Route::get('/classes/download-sf10/{studentId}/{classId}', [ClassesController::class, 'downloadSF10'])->name('classes.download-sf10');
 Route::post('/classes/create-new-sem', [ClassesController::class, 'createNewSem'])->name('classes.create-new-sem');
+Route::get('/classes/print-report-card-hca-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaSeniorAll'])->name('classes.print-report-card-hca-senior-all');
+Route::get('/classes/print-report-card-hca-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaAll'])->name('classes.print-report-card-hca-all');
+Route::get('/classes/print-report-card-svi-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardSviSeniorAll'])->name('classes.print-report-card-svi-senior-all');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -212,6 +215,8 @@ Route::get('/transactions/get-unpaid-tuition-fees', [TransactionsController::cla
 Route::get('/transactions/get-selected-tuition-payable', [TransactionsController::class, 'getSelectedTuitionPayable'])->name('transactions.get-selected-tuition-payable');
 Route::get('/transactions/ledger-management', [TransactionsController::class, 'ledgerManagement'])->name('transactions.ledger-management');
 Route::post('/transactions/update-payable', [TransactionsController::class, 'updatePayable'])->name('transactions.update-payable');
+Route::get('/transactions/fetch-payments-from-range', [TransactionsController::class, 'fetchPaymentsFromRange'])->name('transactions.fetch-payments-from-range');
+Route::get('/transactions/print-all-dcr/{from}/{to}/{userid}', [TransactionsController::class, 'printMyDcrAll'])->name('transactions.print-all-dcr');
 Route::resource('transactions', TransactionsController::class);
 
 Route::resource('transactionDetails', App\Http\Controllers\TransactionDetailsController::class);

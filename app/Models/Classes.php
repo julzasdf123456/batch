@@ -287,4 +287,103 @@ class Classes extends Model
             $worksheet->setCellValue('AZ72', strtoupper(date('m/d/Y')));
         }
     }
+
+    public static function categorizeParentSubjects($data) {
+        /**
+         * REORGANIZE SUBJECTS FOR PARENT SUBJECTS
+         * ==============================================
+         */
+        $groupedSubjects = [];
+        $mainSubjects = [];
+
+        // Collect ParentSubjects for later insertion
+        $parentSubjects = [];
+
+        foreach ($data as $subject) {
+            if (is_null($subject['ParentSubject'])) {
+                $mainSubjects[] = $subject; // Main subjects (ParentSubject is null)
+            } else {
+                // Group subjects by their ParentSubject
+                if (!isset($groupedSubjects[$subject['ParentSubject']])) {
+                    $groupedSubjects[$subject['ParentSubject']] = [];
+                }
+                $groupedSubjects[$subject['ParentSubject']][] = $subject; // Sub-subjects
+
+                // Track unique ParentSubjects for later insertion
+                if (!in_array($subject['ParentSubject'], $parentSubjects)) {
+                    $parentSubjects[] = $subject['ParentSubject'];
+                }
+            }
+        }
+
+        // Step 2: Add missing ParentSubjects as main subjects (these will be empty placeholders)
+        foreach ($parentSubjects as $parentSubject) {
+            // add average grades
+            $subs = $groupedSubjects[$parentSubject];
+            $fGradeSum = 0;
+            $sGradeSum = 0;
+            $tGradeSum = 0;
+            $frGradeSum = 0;
+            $fGradeAve = 0;
+            $sGradeAve = 0;
+            $tGradeAve = 0;
+            $frGradeAve = 0;
+            if ($subs != null) {
+                foreach ($subs as $item) {
+                    $fGradeSum += floatval(
+                        $item['FirstGradingGrade'] != null ? $item['FirstGradingGrade'] : 0,
+                    );
+                    $sGradeSum += floatval(
+                        $item['SecondGradingGrade'] != null ? $item['SecondGradingGrade'] : 0,
+                    );
+                    $tGradeSum += floatval(
+                        $item['ThirdGradingGrade'] != null ? $item['ThirdGradingGrade'] : 0,
+                    );
+                    $frGradeSum += floatval(
+                        $item['FourthGradingGrade'] != null ? $item['FourthGradingGrade'] : 0,
+                    );
+                }
+
+                $fGradeAve = $fGradeSum > 0 ? $fGradeSum / count($subs) : 0;
+                $sGradeAve = $sGradeSum > 0 ? $sGradeSum / count($subs) : 0;
+                $tGradeAve = $tGradeSum > 0 ? $tGradeSum / count($subs) : 0;
+                $frGradeAve = $frGradeSum > 0 ? $frGradeSum / count($subs) : 0;
+            }
+
+            $mainSubjects[] = [
+                'Subject' => $parentSubject, // The parent name
+                'FullName' => '', // Leave blank as there's no teacher for parent
+                'Heirarchy' => $groupedSubjects[$parentSubject][0]['Heirarchy'], // Sort by first child's Heirarchy
+                'id' => null,
+                'StudentId' => null,
+                'SubjectId' => null,
+                'ClassId' => null,
+                'TeacherId' => null,
+                'FirstGradingGrade' => number_format($fGradeAve),
+                'SecondGradingGrade' => number_format($sGradeAve),
+                'ThirdGradingGrade' => number_format($tGradeAve),
+                'FourthGradingGrade' => number_format($frGradeAve),
+                'AverageGrade' => null,
+                'Notes' => null,
+                'created_at' => null,
+                'updated_at' => null,
+                'Visibility' => 'FREAKING PARENT',
+            ];
+        }
+
+        // Step 3: Sort the main subjects by 'Heirarchy'
+        usort($mainSubjects, function ($a, $b) {
+            return $a['Heirarchy'] <=> $b['Heirarchy'];
+        });
+
+        // Step 4: Sort the sub-subjects within each parent group by 'Heirarchy'
+        foreach ($groupedSubjects as &$subSubjects) {
+            usort($subSubjects, function ($a, $b) {
+                return $a['Heirarchy'] <=> $b['Heirarchy'];
+            });
+        }
+        unset($subSubjects); // Break the reference
+
+        return ['MainSubjects' => $mainSubjects, 'GroupSubjects' => $groupedSubjects];
+    }
 }
