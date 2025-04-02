@@ -3728,27 +3728,44 @@ class ClassesController extends AppBaseController
             array_push($arr, $item->ParentSubject);
         } 
 
-        $classSecondSem = Classes::where('SchoolYearId', $class->SchoolYearId)
-            ->where('Year', $class->Year)
-            ->where('Section', $class->Section)
-            ->where('Strand', $class->Strand)
-            ->where('Semester', '2nd')
-            ->first();
+        if ($class->Semester == '1st') {
+            $classFirstSem = $class;
+
+            $classSecondSem = Classes::where('SchoolYearId', $class->SchoolYearId)
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', '2nd')
+                ->first();
+        } else {
+            $classSecondSem = $class;
+
+            $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', '1st')
+                ->first();
+        }
 
         foreach($students as $item) {
-            $item->FirstSemGradeData = DB::table('StudentSubjects')
-                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
-                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
-                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "' AND Classes.Semester='1st'")
-                ->select(
-                    'StudentSubjects.*',
-                    'Subjects.Subject',
-                    'Subjects.ParentSubject',
-                    'Teachers.FullName',
-                )
-                ->orderBy('Heirarchy')
-                ->get();
+            if ($classFirstSem != null) {
+                $item->FirstSemGradeData = DB::table('StudentSubjects')
+                    ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                    ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                    ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classFirstSem->id . "' AND Classes.Semester='1st'")
+                    ->select(
+                        'StudentSubjects.*',
+                        'Subjects.Subject',
+                        'Subjects.ParentSubject',
+                        'Teachers.FullName',
+                    )
+                    ->orderBy('Heirarchy')
+                    ->get();
+            } else {
+                $item->FirstSemGradeData = [];
+            }
 
             if ($classSecondSem != null) {
                 $item->SecondSemGradeData = DB::table('StudentSubjects')
@@ -3889,27 +3906,44 @@ class ClassesController extends AppBaseController
             array_push($arr, $item->ParentSubject);
         } 
 
-        $classSecondSem = Classes::where('SchoolYearId', $class->SchoolYearId)
-            ->where('Year', $class->Year)
-            ->where('Section', $class->Section)
-            ->where('Strand', $class->Strand)
-            ->where('Semester', '2nd')
-            ->first();
+        if ($class->Semester == '1st') {
+            $classFirstSem = $class;
+
+            $classSecondSem = Classes::where('SchoolYearId', $class->SchoolYearId)
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', '2nd')
+                ->first();
+        } else {
+            $classSecondSem = $class;
+
+            $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', '1st')
+                ->first();
+        }
 
         foreach($students as $item) {
-            $item->FirstSemGradeData = DB::table('StudentSubjects')
-                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
-                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
-                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "' AND Classes.Semester='1st'")
-                ->select(
-                    'StudentSubjects.*',
-                    'Subjects.Subject',
-                    'Subjects.ParentSubject',
-                    'Teachers.FullName',
-                )
-                ->orderBy('Heirarchy')
-                ->get();
+            if ($classFirstSem != null) {
+                $item->FirstSemGradeData = DB::table('StudentSubjects')
+                    ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                    ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                    ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classFirstSem->id . "' AND Classes.Semester='1st'")
+                    ->select(
+                        'StudentSubjects.*',
+                        'Subjects.Subject',
+                        'Subjects.ParentSubject',
+                        'Teachers.FullName',
+                    )
+                    ->orderBy('Heirarchy')
+                    ->get();
+            } else {
+                $item->FirstSemGradeData = [];
+            }
 
             if ($classSecondSem != null) {
                 $item->SecondSemGradeData = DB::table('StudentSubjects')
