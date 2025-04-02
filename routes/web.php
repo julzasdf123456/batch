@@ -143,6 +143,7 @@ Route::post('/classes/create-new-sem', [ClassesController::class, 'createNewSem'
 Route::get('/classes/print-report-card-hca-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaSeniorAll'])->name('classes.print-report-card-hca-senior-all');
 Route::get('/classes/print-report-card-hca-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaAll'])->name('classes.print-report-card-hca-all');
 Route::get('/classes/print-report-card-svi-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardSviSeniorAll'])->name('classes.print-report-card-svi-senior-all');
+Route::get('/classes/print-report-card-svi-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardSviAll'])->name('classes.print-report-card-svi-all');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
