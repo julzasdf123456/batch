@@ -18,118 +18,103 @@
         <div class="half column">
             {{-- REPORT ON ATTENDANCE --}}
             <div class="column">
-                <h2 class="text-center record-header">REPORT ON ATTENDANCE</h2>
-                <table class="table table-bordered baskerville mt-2">
+                <h2 class="text-center record-header-lg">REPORT ON ATTENDANCE</h2>
+                <table class="table table-bordered mt-2">
                     <tbody>
                         <tr>
                             <td></td>
-                            <td class="baskerville text-center">Aug</td>
-                            <td class="baskerville text-center">Sept</td>
-                            <td class="baskerville text-center">Oct</td>
-                            <td class="baskerville text-center">Nov</td>
-                            <td class="baskerville text-center">Dec</td>
-                            <td class="baskerville text-center">Jan</td>
-                            <td class="baskerville text-center">Feb</td>
-                            <td class="baskerville text-center">Mar</td>
-                            <td class="baskerville text-center">Apr</td>
-                            <td class="baskerville text-center">May</td>
-                            <td class="baskerville text-center">Total</td>
+                            <td class="text-center">Aug</td>
+                            <td class="text-center">Sept</td>
+                            <td class="text-center">Oct</td>
+                            <td class="text-center">Nov</td>
+                            <td class="text-center">Dec</td>
+                            <td class="text-center">Jan</td>
+                            <td class="text-center">Feb</td>
+                            <td class="text-center">Mar</td>
+                            <td class="text-center">Apr</td>
+                            <td class="text-center">May</td>
+                            <td class="text-center">Total</td>
                         </tr>
                         <tr>
-                            <td class="baskerville">No. of
+                            <td class="text-center">No. of
                                 school
                                 days</td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
-                            <td class="baskerville">No. of
+                            <td class="text-center">No. of
                                 days
                                 present</td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                         <tr>
-                            <td class="baskerville">No. of
+                            <td class="text-center">No. of
                                 days
                                 absent</td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
-                            <td class="baskerville"></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
-
-                <div class="column w-80">
-                    <div style="display: flex; flex-direction: row; justify-content: start;">
-                        <p class="baskerville mt-4">Lack unit/s in:</p>
-                        <div class="border-bottom" style="flex: 1;"></div>
-                    </div>
-                    <div style="display: flex; justify-content: start;">
-                        <p class="baskerville mt-2">Advance unit/s in:</p>
-                        <div class="border-bottom" style="flex: 1;"></div>
-                    </div>
-                    <div style="display: flex; justify-content: start;">
-                        <p class="baskerville mt-2">Eligible for transfer to:</p>
-                        <div class="border-bottom" style="flex: 1;"></div>
-                    </div>
-                </div>
             </div>
 
             {{-- PARENT/GUARDIAN SIGNATURE --}}
             <div class="column mt-50">
-                <h2 class="text-center record-header">PARENT / GUARDIAN SIGNATURE</h2>
+                <h2 class="text-center record-header-lg">PARENT / GUARDIAN SIGNATURE</h2>
 
-                <div class="row gap-20">
+                <div class="row gap-20 mt-5">
                     <div style="flex: none;">
-                        <p class="record-header-normal">1<sup>st</sup> Quarter</p>
+                        <p class="record-header-normal">1<sup>st</sup> Quarter : </p>
                     </div>
                     <div class="border-bottom" style="height: 100%; flex: 1;"></div>
                 </div>
 
-                <div class="row gap-20 mt-3">
+                <div class="row gap-20 mt-5">
                     <div style="flex: none;">
-                        <p class="record-header-normal">2<sup>nd</sup> Quarter</p>
+                        <p class="record-header-normal">2<sup>nd</sup> Quarter : </p>
                     </div>
                     <div class="border-bottom" style="height: 100%; flex: 1;"></div>
                 </div>
 
-                <div class="row gap-20 mt-3">
+                <div class="row gap-20 mt-5">
                     <div style="flex: none;">
-                        <p class="record-header-normal">3<sup>rd</sup> Quarter</p>
+                        <p class="record-header-normal">3<sup>rd</sup> Quarter : </p>
                     </div>
                     <div class="border-bottom" style="height: 100%; flex: 1;"></div>
                 </div>
 
-                <div class="row gap-20 mt-3">
+                <div class="row gap-20 mt-5">
                     <div style="flex: none;">
-                        <p class="record-header-normal">4<sup>th</sup> Quarter</p>
+                        <p class="record-header-normal">4<sup>th</sup> Quarter : </p>
                     </div>
                     <div class="border-bottom" style="height: 100%; flex: 1;"></div>
                 </div>
@@ -139,7 +124,11 @@
         {{-- RIGHT --}}
         <div class="half column">
             {{-- HEAD --}}
-            <div class="row space-between gap-20 v-center">
+            <div class="row space-between">
+                <span class="text-sm">DepEd FORM No. 138 – A</span>
+                <span class="text-sm">Government Permit No. 292 S. 2015</span>
+            </div>
+            <div class="row space-between gap-20 v-center mt-3">
                 <img style="width: 80px; height: 80px; object-fit: cover;" src="{{ URL::asset('imgs/logo.png'); }}" alt="">
 
                 <div class="column h-center v-center">
@@ -385,8 +374,8 @@
             {{-- REPORT ON LEARNING PROGRESS AND ACHIEVEMENT --}}
             {{-- FIRST SEM --}}
             <div class="column">
-                <h2 class="text-center record-header">REPORT ON LEARNING PROGRESS AND ACHIEVEMENT</h2>
-                <h2 class="bold mt-2">First Semester</h2>
+                <h2 class="text-center text-xl bold">REPORT ON LEARNING PROGRESS AND ACHIEVEMENT</h2>
+                <h2 class="text-center record-header mt-2">FIRST SEMESTER</h2>
 
                 @php
                     $sumFirst = 0;
@@ -407,14 +396,13 @@
                 <table class="table table-bordered text-sm" style="margin-top: 2px;">
                     <thead>
                         <tr>
-                            <th style="font-size: .68em !important;" class="bg-gray text-center" rowspan="2">SUBJECTS</th>
-                            <th style="font-size: .68em !important;" class="bg-gray text-center" colspan="3">QUARTER</th>
-                            <th style="font-size: .68em !important; width: 50px;" class="bg-gray text-center" rowspan="2">REMARKS</th>
+                            <th style="font-size: 1.4em !important;" class="text-center" rowspan="2">SUBJECTS</th>
+                            <th style="font-size: .68em !important;" class="text-center" colspan="2">QUARTER</th>
+                            <th style="font-size: .68em !important; width: 50px;" class="text-center" rowspan="2">Semester Final Grade</th>
                         </tr>
                         <tr>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">1st</th>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">2nd</th>
-                            <th style="font-size: .4em !important; width: 30px;" class="bg-gray text-center">Final<br>Grade</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">1</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">2</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -427,7 +415,7 @@
                                     : $subject['AverageGrade'];
                             @endphp
                             @if ($subject['Visibility'] === 'FREAKING PARENT')
-                                <td class="bg-gray"><strong><i>{{ $subject['Subject'] }}<i></strong></td>
+                                <td class="text-center text-xl" colspan="4"><strong>{{ $subject['Subject'] }}</strong></td>
                                 @if (in_array($subject['Subject'], $avgParents))
                                     @php
                                         $hasInc = false;
@@ -451,25 +439,22 @@
                                         ]);
                                         $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                     @endphp
-                                    <td class="bg-gray text-right">
+                                    <td class="text-right">
                                         <strong><i>{{ is_numeric($subject['FirstGradingGrade']) ? number_format($subject['FirstGradingGrade']) : $subject['FirstGradingGrade'] }}<i></strong>
                                     </td>
-                                    <td class="bg-gray text-right">
+                                    <td class="text-right">
                                         <strong><i>{{ is_numeric($subject['SecondGradingGrade']) ? number_format($subject['SecondGradingGrade']) : $subject['SecondGradingGrade'] }}<i></strong>
                                     </td>
 
-                                    <td class='bg-gray text-center'>
+                                    <td class='text-center'>
                                         <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                     </td>
-                                    <td class='bg-gray text-center'>
+                                    <td class='text-center'>
                                         {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
                                     </td>
-                                    <td class="bg-gray"></td>
+                                    {{-- <td class="bg-gray"></td> --}}
                                 @else
-                                    <td class="bg-gray"></td>
-                                    <td class="bg-gray"></td>
-                                    <td class="bg-gray"></td>
-                                    <td class="bg-gray"></td>
+                                    {{-- <td class="bg-gray"></td> --}}
                                 @endif
                             @else
                                 @php
@@ -499,9 +484,9 @@
                                 <td class='text-center'>
                                     <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                 </td>
-                                <td class='text-center'>
+                                {{-- <td class='text-center'>
                                     {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
-                                </td>
+                                </td> --}}
 
                                 @php
                                     // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
@@ -558,9 +543,9 @@
                                     <td class='text-center'>
                                         <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                     </td>
-                                    <td class='text-center'>
+                                    {{-- <td class='text-center'>
                                         {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }}
-                                    </td>
+                                    </td> --}}
                                 </tr>
                                 @php
                                     // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
@@ -598,14 +583,14 @@
 
                         @endphp
                         <tr>
-                            <td style="text-align: right; border: none !important;"><strong>General Average for the Semester</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
+                            <td style="text-align: right;" colspan="3"><strong>Average for the Semester</strong></td>
+                            {{-- <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
+                            <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td> --}}
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
-                            <td class='text-center'>
+                            {{-- <td class='text-center'>
                                 {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
-                            </td>
+                            </td> --}}
                         </tr>
                     </tbody>
                 </table>
@@ -613,7 +598,7 @@
 
             {{-- SECOND SEM --}}
             <div class="column">
-                <h2 class="bold mt-2">Second Semester</h2>
+                <h2 class="text-center record-header mt-2">SECOND SEMESTER</h2>
 
                 @php
                     $sumThird = 0;
@@ -632,14 +617,13 @@
                 <table class="table table-bordered text-sm" style="margin-top: 2px;">
                     <thead>
                         <tr>
-                            <th style="font-size: .68em !important;" class="bg-gray text-center" rowspan="2">SUBJECTS</th>
-                            <th style="font-size: .68em !important;" class="bg-gray text-center" colspan="3">QUARTER</th>
-                            <th style="font-size: .68em !important; width: 50px;" class="bg-gray text-center" rowspan="2">REMARKS</th>
+                            <th style="font-size: 1.4em !important;" class="text-center" rowspan="2">SUBJECTS</th>
+                            <th style="font-size: .68em !important;" class="text-center" colspan="2">QUARTER</th>
+                            <th style="font-size: .68em !important; width: 50px;" class="text-center" rowspan="2">Semester Final Grade</th>
                         </tr>
                         <tr>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">3rd</th>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">4th</th>
-                            <th style="font-size: .4em !important; width: 30px;" class="bg-gray text-center">Final<br>Grade</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">3</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">4</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -652,7 +636,7 @@
                                     : $subject['AverageGrade'];
                             @endphp
                             @if ($subject['Visibility'] === 'FREAKING PARENT')
-                                <td class="bg-gray"><strong><i>{{ $subject['Subject'] }}<i></strong></td>
+                                <td colspan="4" class="text-xl text-center"><strong>{{ $subject['Subject'] }}</strong></td>
                                 @if (in_array($subject['Subject'], $avgParents))
                                     @php
                                         $hasInc = false;
@@ -677,25 +661,24 @@
                                         ]);
                                         $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                     @endphp
-                                    <td class="bg-gray text-right">
+                                    <td class=" text-right">
                                         <strong><i>{{ is_numeric($subject['ThirdGradingGrade']) ? number_format($subject['ThirdGradingGrade']) : $subject['ThirdGradingGrade'] }}<i></strong>
                                     </td>
-                                    <td class="bg-gray text-right">
+                                    <td class=" text-right">
                                         <strong><i>{{ is_numeric($subject['FourthGradingGrade']) ? number_format($subject['FourthGradingGrade']) : $subject['FourthGradingGrade'] }}<i></strong>
                                     </td>
 
-                                    <td class='bg-gray text-center'>
+                                    <td class=' text-center'>
                                         <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                     </td>
-                                    <td class='bg-gray text-center'>
+                                    <td class=' text-center'>
                                         {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
                                     </td>
-                                    <td class="bg-gray"></td>
                                 @else
-                                    <td class="bg-gray"></td>
-                                    <td class="bg-gray"></td>
-                                    <td class="bg-gray"></td>
-                                    <td class="bg-gray"></td>
+                                    {{-- <td class=""></td>
+                                    <td class=""></td>
+                                    <td class=""></td>
+                                    <td class=""></td> --}}
                                 @endif
                             @else
                                 @php
@@ -725,9 +708,9 @@
                                 <td class='text-center'>
                                     <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                 </td>
-                                <td class='text-center'>
+                                {{-- <td class='text-center'>
                                     {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
-                                </td>
+                                </td> --}}
 
                                 @php
                                     // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
@@ -784,9 +767,9 @@
                                     <td class='text-center'>
                                         <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                     </td>
-                                    <td class='text-center'>
+                                    {{-- <td class='text-center'>
                                         {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }}
-                                    </td>
+                                    </td> --}}
                                 </tr>
                                 @php
                                     // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
@@ -824,14 +807,14 @@
 
                         @endphp
                         <tr>
-                            <td style="text-align: right; border: none !important;"><strong>General Average for the Semester</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td>
+                            <td style="text-align: right;" colspan="3"><strong>General Average</strong></td>
+                            {{-- <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
+                            <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td> --}}
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
-                            <td class='text-center'>
+                            {{-- <td class='text-center'>
                                 {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
-                            </td>
+                            </td> --}}
                         </tr>
                     </tbody>
                 </table>
@@ -843,18 +826,18 @@
             <div class="column">
                 <h2 class="text-center record-header">REPORT ON LEARNER’S OBSERVED VALUES</h2>
 
-                <table class="table table-bordered baskerville mt-2">
+                <table class="table table-bordered mt-2">
                     <thead>
                         <tr>
-                            <th style="font-size: .68em !important;" class="bg-gray text-center" rowspan="2">Core Values</th>
-                            <th style="font-size: .68em !important;" class="bg-gray text-center" rowspan="2">Behavior Statements</th>
-                            <th style="font-size: .68em !important;" class="bg-gray text-center" colspan="4">Quarter</th>
+                            <th style="font-size: .68em !important;" class=" text-center" rowspan="2">Core Values</th>
+                            <th style="font-size: .68em !important;" class=" text-center" rowspan="2">Behavior Statements</th>
+                            <th style="font-size: .68em !important;" class="text-center" colspan="4">Quarter</th>
                         </tr>
                         <tr>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">1</th>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">2</th>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">3</th>
-                            <th style="font-size: .68em !important; width: 25px;" class="bg-gray text-center">4</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">1</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">2</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">3</th>
+                            <th style="font-size: .68em !important; width: 25px;" class="text-center">4</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -938,25 +921,25 @@
 
                 <div class="row mt-4">
                     <div class="column w-50">
-                        <p class="baskerville-bold text-center">Marking</p>
-                        <p class="baskerville text-center">AO</p>
-                        <p class="baskerville text-center">SO</p>
-                        <p class="baskerville text-center">RO</p>
-                        <p class="baskerville text-center">NO</p>
+                        <p class="text-center">Marking</p>
+                        <p class=" text-center">AO</p>
+                        <p class=" text-center">SO</p>
+                        <p class=" text-center">RO</p>
+                        <p class=" text-center">NO</p>
                     </div>
 
                     <div class="column w-50">
-                        <p class="baskerville-bold">Non-numerical Rating</p>
-                        <p class="baskerville">Always Observed</p>
-                        <p class="baskerville">Sometimes Observed</p>
-                        <p class="baskerville">Rarely Observed</p>
-                        <p class="baskerville">Not Observed</p>
+                        <p>Non-numerical Rating</p>
+                        <p>Always Observed</p>
+                        <p>Sometimes Observed</p>
+                        <p>Rarely Observed</p>
+                        <p>Not Observed</p>
                     </div>
                 </div>
 
                 <div class="column mt-4">
-                    <p class="baskerville-italic"><strong>Descriptors, Grading Scale, and Remarks</strong></p>
-                    <table class="table table-bordered baskerville mt-1">
+                    <p class="text-center"><strong>Learner Progress and Achievement</strong></p>
+                    <table class="table table-borderless mt-2">
                         <thead>
                             <th class="text-left">Descriptors</th>
                             <th>Grading Scale</th>
@@ -998,10 +981,9 @@
 @endforeach
 
 <script type="text/javascript">
-    // window.print();
+    window.print();
 
-    // window.setTimeout(function(){
-    //     window.history.go(-1)
-    //     // window.location.href = "{{ route('transactions.miscellaneous-search') }}";
-    // }, 800);
+    window.setTimeout(function(){
+        window.history.go(-1)
+    }, 800);
 </script>

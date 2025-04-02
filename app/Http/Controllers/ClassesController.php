@@ -3878,9 +3878,7 @@ class ClassesController extends AppBaseController
                 'StudentClasses.id as StudentClassId'
             )
             ->orderBy('Students.LastName')
-            // ->get();
-            ->first();
-        $students = collect([$students]);
+            ->get();
 
         $arr = [];
         $parents = ClassSubjectParentAvg::where('ClassId', $classId)

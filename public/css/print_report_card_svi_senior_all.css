@@ -137,6 +137,11 @@ table thead th {
     font-weight: 800 !important;
 }
 
+.record-header-lg {
+    font-size: 1.46em;
+    font-weight: 800 !important;
+}
+
 .record-header-normal {
     font-size: 1em;
     font-weight: normal;
@@ -326,7 +331,7 @@ td, tr {
 }
 
 .text-xl {
-    font-size: 1.3em;
+    font-size: 1.3em !important;
 }
 
 .bg-gray {
