@@ -568,7 +568,7 @@
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
                             <td class='text-center'>
-                                {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
+                                {{ $hasOverallInc ? 'INC' : Subjects::checkPassCard($genAve) }}
                             </td>
                         </tr>
                     </tbody>
@@ -794,7 +794,7 @@
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
                             <td class='text-center'>
-                                {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
+                                {{ $hasOverallInc ? 'INC' : Subjects::checkPassCard($genAve) }}
                             </td>
                         </tr>
                     </tbody>

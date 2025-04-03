@@ -270,3 +270,4 @@ Route::post('/quiz_scores/update-score', [QuizScoresController::class, 'updateSc
 Route::resource('quizScores', QuizScoresController::class);
 Route::resource('class-subject-parent-avgs', App\Http\Controllers\ClassSubjectParentAvgController::class);
 Route::resource('payable-update-logs', App\Http\Controllers\PayableUpdateLogsController::class);
+Route::resource('observed-values', App\Http\Controllers\ObservedValuesController::class);
