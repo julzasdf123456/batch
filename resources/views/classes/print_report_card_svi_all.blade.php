@@ -23,6 +23,7 @@
                     <tbody>
                         <tr>
                             <td></td>
+                            <td class="text-center">July</td>
                             <td class="text-center">Aug</td>
                             <td class="text-center">Sept</td>
                             <td class="text-center">Oct</td>
@@ -32,7 +33,6 @@
                             <td class="text-center">Feb</td>
                             <td class="text-center">Mar</td>
                             <td class="text-center">Apr</td>
-                            <td class="text-center">May</td>
                             <td class="text-center">Total</td>
                         </tr>
                         <tr>
