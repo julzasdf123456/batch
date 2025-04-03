@@ -521,7 +521,11 @@
                                     {{ is_numeric($subject['FourthGradingGrade']) ? number_format($subject['FourthGradingGrade']) : $subject['FourthGradingGrade'] }}
                                 </td>
                                 <td class='text-center'>
-                                    <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
+                                    @if ($subject['GradingType'] === 'ABCD')
+                                        <strong>{{ $hasInc ? '' : $subject['AverageGrade'] }}</strong>
+                                    @else
+                                        <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
+                                    @endif
                                 </td>
                                 {{-- <td class='text-center'>
                                     {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
@@ -608,7 +612,11 @@
                                     </td>
                                     
                                     <td class='text-center'>
-                                        <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
+                                        @if ($subSubject['GradingType'] === 'ABCD')
+                                            <strong>{{ $hasInc ? '' : $subSubject['AverageGrade'] }}</strong>
+                                        @else
+                                            <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
+                                        @endif
                                     </td>
                                     {{-- <td class='text-center'>
                                         {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }}

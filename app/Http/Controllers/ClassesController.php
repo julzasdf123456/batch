@@ -3937,6 +3937,7 @@ class ClassesController extends AppBaseController
                     ->select(
                         'StudentSubjects.*',
                         'Subjects.Subject',
+                        'Subjects.GradingType',
                         'Subjects.ParentSubject',
                         'Teachers.FullName',
                     )
@@ -3955,6 +3956,7 @@ class ClassesController extends AppBaseController
                     ->select(
                         'StudentSubjects.*',
                         'Subjects.Subject',
+                        'Subjects.GradingType',
                         'Subjects.ParentSubject',
                         'Teachers.FullName',
                     )
@@ -4027,6 +4029,7 @@ class ClassesController extends AppBaseController
                     'StudentSubjects.*',
                     'Subjects.Subject',
                     'Subjects.ParentSubject',
+                    'Subjects.GradingType',
                     'Teachers.FullName',
                 )
                 ->orderBy('Heirarchy')
