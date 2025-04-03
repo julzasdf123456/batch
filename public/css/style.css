@@ -1102,3 +1102,31 @@ body.dark-mode .tbl-divider {
 .print-table-bordered th {
     border: 1px solid #343a40;
 }
+
+.bold {
+    font-weight: 800 !important;
+}
+
+.normal {
+    font-weight: normal !important;
+}
+
+.bg-select {
+    background-color: #f5f5f5 !important;
+}
+
+.dark-mode .bg-select {
+    background-color: #3f464d !important;
+}
+
+.table-select {
+    border: none !important;
+    outline: none !important;
+    min-width: 50px !important;
+}
+
+.table-select:focus, 
+.table-select:active {
+    border: none !important;
+    outline: none !important;
+}

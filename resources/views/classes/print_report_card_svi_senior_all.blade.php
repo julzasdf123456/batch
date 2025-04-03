@@ -148,7 +148,7 @@
                     <div class="row w-70 gap-10">
                         <h2 class="bold">NAME:</h2>
                         <div class="border-bottom w-100">
-                            <h2 class="bold">{{ $student->LastName }}, {{ $student->FirstName }}</h2>
+                            <h2 class="bold">{{ $student->LastName }}, {{ $student->FirstName }} {{ $student->MiddleName != null ? (substr($student->MiddleName, 0, 1) . ".") : '' }}</h2>
                         </div>
                     </div>
 
@@ -393,10 +393,10 @@
                     $hasOverallInc = false;
                 @endphp
 
-                <table class="table table-bordered text-sm" style="margin-top: 2px;">
+                <table class="table table-bordered" style="margin-top: 2px;">
                     <thead>
                         <tr>
-                            <th style="font-size: 1.4em !important;" class="text-center" rowspan="2">SUBJECTS</th>
+                            <th style="font-size: .7em !important;" class="text-center" rowspan="2">SUBJECTS</th>
                             <th style="font-size: .68em !important;" class="text-center" colspan="2">QUARTER</th>
                             <th style="font-size: .68em !important; width: 50px;" class="text-center" rowspan="2">Semester Final Grade</th>
                         </tr>
@@ -415,7 +415,7 @@
                                     : $subject['AverageGrade'];
                             @endphp
                             @if ($subject['Visibility'] === 'FREAKING PARENT')
-                                <td class="text-center text-xl" colspan="4"><strong>{{ $subject['Subject'] }}</strong></td>
+                                <td class="text-lg text-center" colspan="4"><strong>{{ $subject['Subject'] }}</strong></td>
                                 @if (in_array($subject['Subject'], $avgParents))
                                     @php
                                         $hasInc = false;
@@ -614,10 +614,10 @@
                     $hasOverallInc = false;
                 @endphp
 
-                <table class="table table-bordered text-sm" style="margin-top: 2px;">
+                <table class="table table-bordered" style="margin-top: 2px;">
                     <thead>
                         <tr>
-                            <th style="font-size: 1.4em !important;" class="text-center" rowspan="2">SUBJECTS</th>
+                            <th style="font-size: .7em !important;" class="text-center" rowspan="2">SUBJECTS</th>
                             <th style="font-size: .68em !important;" class="text-center" colspan="2">QUARTER</th>
                             <th style="font-size: .68em !important; width: 50px;" class="text-center" rowspan="2">Semester Final Grade</th>
                         </tr>
@@ -636,7 +636,7 @@
                                     : $subject['AverageGrade'];
                             @endphp
                             @if ($subject['Visibility'] === 'FREAKING PARENT')
-                                <td colspan="4" class="text-xl text-center"><strong>{{ $subject['Subject'] }}</strong></td>
+                                <td colspan="4" class="text-lg text-center"><strong>{{ $subject['Subject'] }}</strong></td>
                                 @if (in_array($subject['Subject'], $avgParents))
                                     @php
                                         $hasInc = false;

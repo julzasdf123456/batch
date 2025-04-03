@@ -122,6 +122,9 @@
                                 <a class="nav-link" id="grades-tab" data-toggle="pill" href="#grades-content" role="tab" aria-controls="grades-content" aria-selected="false">Grades</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" id="observed-tab" data-toggle="pill" href="#observed-content" role="tab" aria-controls="observed-content" aria-selected="false">Observed Values</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" id="payments-tab" data-toggle="pill" href="#payments-content" role="tab" aria-controls="payments-content" aria-selected="false">Payments</a>
                             </li>
                             <li class="nav-item">
@@ -495,6 +498,173 @@
 
                             <!-- 
                                 ====================================================================================================================================
+                                OBSERVED VALUES 
+                                ====================================================================================================================================
+                            -->
+                            <div class="tab-pane fade" id="observed-content" role="tabpanel" aria-labelledby="observed-tab">
+                                <div class="row">
+                                    <!-- STUDENTS LIST -->
+                                    <div class="col-lg-4 table-responsive" style="height: 80vh; padding-top: 18px;">
+                                        <table class="table table-hover table-borderless">
+                                            <tbody>
+                                                <tr>
+                                                    <td colspan="2" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
+                                                </tr>
+                                                <tr v-for="(student, index) in male" :key="student.StudentSubjectId" @click="editObservedValues(student.id)">
+                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'">
+                                                        {{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}
+                                                    </td>
+                                                    <td style="width: 20px;" :class="observedValuesActiveStudentId===student.id ? 'bg-success' : ''">
+
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
+                                                </tr>
+                                                <tr v-for="(student, index) in female" :key="student.StudentSubjectId" @click="editObservedValues(student.id)">
+                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'">
+                                                        {{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}
+                                                    </td>
+                                                    <td style="width: 20px;" :class="observedValuesActiveStudentId===student.id ? 'bg-success' : ''">
+
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- UPDATE FORM -->
+                                    <div class="col-lg-8 table-responsive p-2">
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center" rowspan="2">Core Values</th>
+                                                    <th class="text-center" rowspan="2">Behavior Statements</th>
+                                                    <th class="text-center" colspan="4">Quarter</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="text-center">1</th>
+                                                    <th class="text-center">2</th>
+                                                    <th class="text-center">3</th>
+                                                    <th class="text-center">4</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="v-align" rowspan="2">1. Maka-Diyos</td>
+                                                    <td class="v-align">Expresses one’s spiritual
+                                                        beliefs while respecting the
+                                                        spiritual beliefs of others</td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 3)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 4)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="v-align">Shows adherence to ethical
+                                                        principles by upholding
+                                                        truth</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td class="v-align" rowspan="2">2. Makatao</td>
+                                                    <td class="v-align">Is sensitive to individual,
+                                                        social and cultural
+                                                        difference</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="v-align">Demonstrates
+                                                        contributions towards
+                                                        solidarity</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <td class="v-align">3. Maka
+                                                        kalikasan</td>
+                                                    <td class="v-align">Cares for the environment
+                                                        and utilizes resources
+                                                        wisely, judiciously, and
+                                                        economically</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+
+                                                    <td class="v-align" rowspan="2">4. Makabansa</td>
+                                                    <td class="v-align">Demonstrates pride in
+                                                        being a Filipino; exercises
+                                                        the rights and
+                                                        responsibilities of a Filipino
+                                                        citizen</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="v-align">Demonstrates appropriate
+                                                        behavior in carrying out
+                                                        activities in the school,
+                                                        community, and country</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 
+                                ====================================================================================================================================
                                 PAYMENTS 
                                 ====================================================================================================================================
                             -->
@@ -817,7 +987,16 @@ export default {
             viewOptionSelectedQ: "Final",
             addStudentFormActive : false,
             addStudentSearch : '',
-            studentResults : {}
+            studentResults : {},
+            observedValuesActiveStudentId : null,
+            observedValues : [],
+            MAKADIOS_1 : 'MAKADIOS_1',
+            MAKADIOS_2 : 'MAKADIOS_2',
+            MAKATAO_1 : 'MAKATAO_1',
+            MAKATAO_2 : 'MAKATAO_2',
+            MAKAKALIKASAN_1 : 'MAKAKALIKASAN_1',
+            MAKABANSA_1 : 'MAKABANSA_1',
+            MAKABANSA_2 : 'MAKABANSA_2',
         }
     },
     methods : {
@@ -2249,7 +2428,53 @@ export default {
                     window.location.href = `${ this.baseURL }/classes/print-report-card-svi-all/${ this.classId }/Yes`
                 }
             }
-        }
+        },
+        editObservedValues(studentId) {
+            this.observedValuesActiveStudentId = studentId
+            this.getObservedValues()
+        },
+        getObservedValues() {
+            axios.get(`${ this.baseURL }/classes/get-observed-values`, {
+                params : {
+                    ClassId : this.classId,
+                    StudentId : this.observedValuesActiveStudentId
+                }
+            })
+            .then(response => {
+                this.observedValues = response.data
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error getting observed values!'
+                }) 
+            })
+        },
+        saveObservedValues(oValue, quarter) {
+            alert(oValue + " - " + this.observedValues)
+            // axios.post(`${ this.baseURL }/classes/save-observed-values`, {
+            //     ClassId : this.classId,
+            //     StudentId : this.observedValuesActiveStudentId,
+            //     ObservedValues : this.observedValues,
+            //     ObservedValue : oValue,
+            //     Quarter : quarter,
+            //     _token : this.token
+            // })
+            // .then(response => {
+            //     this.toast.fire({
+            //         icon : 'success',
+            //         text : 'Observed values saved!'
+            //     })
+            // })
+            // .catch(error => {
+            //     console.log(error.response)
+            //     this.toast.fire({
+            //         icon : 'error',
+            //         text : 'Error saving observed values!'
+            //     }) 
+            // })
+        },
     },
     created() {
         
