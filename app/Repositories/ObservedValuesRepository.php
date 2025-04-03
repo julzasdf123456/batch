@@ -10,15 +10,11 @@ class ObservedValuesRepository extends BaseRepository
     protected $fieldSearchable = [
         'StudentId',
         'ClassId',
-        'MakaDiyosOne',
-        'MakaDiyosTwo',
-        'MakaTaoOne',
-        'MakaTaoTwo',
-        'MakaKalikasan',
-        'MakaBansaOne',
-        'MakaBansaTwo',
-        'IndustryOne',
-        'IndustryTwo'
+        'ObservedValue',
+        'FirstQuarter',
+        'SecondQuarter',
+        'ThirdQuarter',
+        'FourthQuarter',
     ];
 
     public function getFieldsSearchable(): array

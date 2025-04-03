@@ -26,6 +26,7 @@ use App\Models\TransactionDetails;
 use App\Models\Teachers;
 use App\Models\Subjects;
 use App\Models\ClassSubjectParentAvg;
+use App\Models\ObservedValues;
 use App\Exports\DynamicExports;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -4053,5 +4054,50 @@ class ClassesController extends AppBaseController
             'avgParents' => $arr,
             'periodGradeChecker' => $periodGradeChecker,
         ]);
+    }
+
+    public function getObservedValues(Request $request) {
+        $studentId = $request['StudentId'];
+        $classId = $request['ClassId'];
+
+        $observedValues = ObservedValues::where('StudentId', $studentId)
+            ->where('ClassId', $classId)
+            ->get();
+
+        return response()->json($observedValues, 200);
+    }
+
+    public function saveObservedValues(Request $request) {
+        $studentId = $request['StudentId'];
+        $classId = $request['ClassId'];
+        $observedValue = $request['ObservedValue'];
+        $quarter = $request['Quarter'];
+
+        $observedValues = ObservedValues::where('StudentId', $studentId)
+            ->where('ClassId', $classId)
+            ->where('ObservedValue', $observedValue)
+            ->first();
+
+        if ($observedValues != null) {
+            $observedValues->ObservedValue = $request['ObservedValue'];
+            $observedValues->FirstQuarter = $request['FirstQuarter'];
+            $observedValues->SecondQuarter = $request['SecondQuarter'];
+            $observedValues->ThirdQuarter = $request['ThirdQuarter'];
+            $observedValues->FourthQuarter = $request['FourthQuarter'];
+            $observedValues->save();
+        } else {
+            ObservedValues::create([
+                'id' => IDGenerator::generateIDandRandString(),
+                'StudentId' => $studentId,
+                'ClassId' => $classId,
+                'ObservedValue' => $request['ObservedValue'],
+                'FirstQuarter' => $request['FirstQuarter'],
+                'SecondQuarter' => $request['SecondQuarter'],
+                'ThirdQuarter' => $request['ThirdQuarter'],
+                'FourthQuarter' => $request['FourthQuarter'],
+            ]);
+        }
+
+        return response()->json('ok', 200);
     }
 }

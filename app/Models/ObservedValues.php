@@ -12,50 +12,45 @@ class ObservedValues extends Model
 
     protected $primaryKey = 'id';
 
+    public static $MAKADIOS_1 = 'MAKADIOS_1';
+    public static $MAKADIOS_2 = 'MAKADIOS_2';
+    public static $MAKATAO_1 = 'MAKATAO_1';
+    public static $MAKATAO_2 = 'MAKATAO_2';
+    public static $MAKAKALIKASAN_1 = 'MAKAKALIKASAN_1';
+    public static $MAKABANSA_1 = 'MAKABANSA_1';
+    public static $MAKABANSA_2 = 'MAKABANSA_2';
+
     public $fillable = [
         'id',
         'StudentId',
         'ClassId',
-        'MakaDiyosOne',
-        'MakaDiyosTwo',
-        'MakaTaoOne',
-        'MakaTaoTwo',
-        'MakaKalikasan',
-        'MakaBansaOne',
-        'MakaBansaTwo',
-        'IndustryOne',
-        'IndustryTwo'
+        'ObservedValue',
+        'FirstQuarter',
+        'SecondQuarter',
+        'ThirdQuarter',
+        'FourthQuarter',
     ];
 
     protected $casts = [
         'StudentId' => 'string',
         'ClassId' => 'string',
-        'MakaDiyosOne' => 'string',
-        'MakaDiyosTwo' => 'string',
-        'MakaTaoOne' => 'string',
-        'MakaTaoTwo' => 'string',
-        'MakaKalikasan' => 'string',
-        'MakaBansaOne' => 'string',
-        'MakaBansaTwo' => 'string',
-        'IndustryOne' => 'string',
-        'IndustryTwo' => 'string'
+        'ObservedValue' => 'string',
+        'FirstQuarter' => 'string',
+        'SecondQuarter'=> 'string',
+        'ThirdQuarter'=> 'string',
+        'FourthQuarter' => 'string',
     ];
 
     public static array $rules = [
         'StudentId' => 'nullable|string|max:50',
         'ClassId' => 'nullable|string|max:50',
-        'MakaDiyosOne' => 'nullable|string|max:50',
-        'MakaDiyosTwo' => 'nullable|string|max:50',
-        'MakaTaoOne' => 'nullable|string|max:50',
-        'MakaTaoTwo' => 'nullable|string|max:50',
-        'MakaKalikasan' => 'nullable|string|max:50',
-        'MakaBansaOne' => 'nullable|string|max:50',
-        'MakaBansaTwo' => 'nullable|string|max:50',
-        'IndustryOne' => 'nullable|string|max:50',
-        'IndustryTwo' => 'nullable|string|max:50',
+        'ObservedValue' => 'nullable|string|max:50',
+        'FirstQuarter' => 'nullable|string|max:50',
+        'SecondQuarter' => 'nullable|string|max:50',
+        'ThirdQuarter' => 'nullable|string|max:50',
+        'FourthQuarter' => 'nullable|string|max:50',
         'created_at' => 'nullable',
         'updated_at' => 'nullable'
     ];
-
     
 }
