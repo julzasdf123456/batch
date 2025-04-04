@@ -595,7 +595,7 @@
                             $genAve = $sumAverage / $totalSubjectCount;
 
                             if ($genAve > 0) {
-                                $finalAverage += $genAve;
+                                $finalAverage += round($genAve);
                                 $finalAverageCount++;
                             }
 
@@ -824,7 +824,7 @@
                             $genAve = $sumAverage / $totalSubjectCount;
 
                             if ($genAve > 0) {
-                                $finalAverage += $genAve;
+                                $finalAverage += round($genAve);
                                 $finalAverageCount++;
                             }
 
@@ -851,7 +851,7 @@
                             <td style="text-align: right;" colspan="3"><strong>FINAL AVERAGE</strong></td>
                             {{-- <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
                             <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td> --}}
-                            <td class="text-center"><strong>{{ number_format($finalAverageGrade) }}</strong></td>
+                            <td class="text-center"><strong>{{ number_format(round($finalAverageGrade)) }}</strong></td>
 
                             {{-- <td class='text-center'>
                                 {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
