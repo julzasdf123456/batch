@@ -165,7 +165,7 @@
                     <div class="row w-20 gap-10">
                         <h2 class="bold">Age:</h2>
                         <div class="border-bottom w-100">
-                            
+                            <h2 class="bold">{{ Students::getAge($student) }}</h2>
                         </div>
                     </div>
     
@@ -189,7 +189,7 @@
                     <div class="row w-40 gap-10">
                         <h2 class="bold">SY:</h2>
                         <div class="border-bottom w-100">
-                            <h2 class="bold">{{ $sy->SchoolYear }}</h2>
+                            <h2 class="bold">{{ $sy->SchoolYear != null ? str_replace("S.Y.", "", $sy->SchoolYear) : '' }}</h2>
                         </div>
                     </div>
                 </div>
@@ -592,7 +592,9 @@
                                 $averageSecond = $sumSecond / $totalSubjectCount;
                             }
 
-                            $genAve = $sumAverage / $totalSubjectCount;
+                            if ($sumAverage > 0 && $totalSubjectCount > 0) {
+                                $genAve = $sumAverage / $totalSubjectCount;
+                            }
 
                             if ($genAve > 0) {
                                 $finalAverage += round($genAve);
@@ -821,7 +823,9 @@
                                 $averageFourth = $sumFourth / $totalSubjectCount;
                             }
 
-                            $genAve = $sumAverage / $totalSubjectCount;
+                            if ($sumAverage > 0 && $totalSubjectCount > 0) {
+                                $genAve = $sumAverage / $totalSubjectCount;
+                            }
 
                             if ($genAve > 0) {
                                 $finalAverage += round($genAve);
