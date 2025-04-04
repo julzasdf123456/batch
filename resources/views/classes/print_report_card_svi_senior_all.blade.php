@@ -592,7 +592,7 @@
                                 $averageSecond = $sumSecond / $totalSubjectCount;
                             }
 
-                            $genAve = ($averageFirst + $averageSecond) / 2;
+                            $genAve = $sumAverage / $totalSubjectCount;
 
                             if ($genAve > 0) {
                                 $finalAverage += $genAve;
