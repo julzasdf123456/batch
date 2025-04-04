@@ -1004,7 +1004,7 @@
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-sm table-bordered">
                                         <thead>
-                                            <th style="width: 28px;"</th>
+                                            <th style="width: 28px;"></th>
                                             <th class="text-center">Students</th>
                                             <th class="text-right">Total Miscellaneous Tuition Payments</th>
                                         </thead>
