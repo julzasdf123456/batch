@@ -3951,8 +3951,13 @@ class ClassesController extends AppBaseController
                     )
                     ->orderBy('Heirarchy')
                     ->get();
+
+                $item->ObservedValues = ObservedValues::where('StudentId', $item->id)
+                    ->where('ClassId', $classFirstSem->id)
+                    ->get();
             } else {
                 $item->FirstSemGradeData = [];
+                $item->ObservedValues = [];
             }
 
             if ($classSecondSem != null) {
@@ -4041,6 +4046,10 @@ class ClassesController extends AppBaseController
                     'Teachers.FullName',
                 )
                 ->orderBy('Heirarchy')
+                ->get();
+
+            $item->ObservedValues = ObservedValues::where('StudentId', $item->id)
+                ->where('ClassId', $classId)
                 ->get();
         }
 
