@@ -156,4 +156,15 @@ class Students extends Model
     public static function formatNameFormal($student) {
         return $student->LastName . ', ' . $student->FirstName . ($student->MiddleName != null ? (' ' . $student->MiddleName . ' ') : '') . ($student->Suffix != null ? $student->Suffix . ' ' : '');
     }
+
+    public static function getAge($student) {
+        try {
+            $birthdate = new \DateTime($student->Birthdate);
+            $now = new \DateTime();
+            $age = $now->diff($birthdate)->y;
+            return $age;
+        } catch (\Exception $e) {
+            return null; // Handle the exception as needed
+        }
+    }
 }
