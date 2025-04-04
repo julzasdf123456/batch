@@ -305,7 +305,7 @@
                     {{-- PRINCIPAL --}}
                     <div class="column w-50">
                         <div class="border-bottom">
-                            <h2 class="bold text-center">{{ env("PRINCIPAL_NAME") }}</h2>
+                            {{-- <h2 class="bold text-center">{{ env("PRINCIPAL_NAME") }}</h2> --}}
                         </div>
                         <p class="text-center text-sm">Principal</p>
                     </div>
@@ -313,7 +313,7 @@
                     {{-- ADVISER --}}
                     <div class="column w-50">
                         <div class="border-bottom">
-                            <h2 class="bold text-center">{{ $adviser->FullName }}</h2>
+                            {{-- <h2 class="bold text-center">{{ $adviser->FullName }}</h2> --}}
                         </div>
                         <p class="text-center text-sm">Adviser</p>
                     </div>
