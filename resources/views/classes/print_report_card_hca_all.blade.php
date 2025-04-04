@@ -2,6 +2,7 @@
     use App\Models\Students;
     use App\Models\Classes;
     use App\Models\Subjects;
+    use App\Models\ObservedValues;
 @endphp
 
 <link rel="stylesheet" href="{{ URL::asset('css/print_report_card_hca_all.css') }}">
@@ -17,6 +18,16 @@
         {{-- LEFT --}}
         <div class="half column">
             {{-- REPORT ON LEARNERS --}}
+            @php
+                $makadios1 = ObservedValues::pluckValue('MAKADIOS_1', $student->ObservedValues)->first();
+                $makadios2 = ObservedValues::pluckValue('MAKADIOS_2', $student->ObservedValues)->first();
+                $makatao1 = ObservedValues::pluckValue('MAKATAO_1', $student->ObservedValues)->first();
+                $makatao2 = ObservedValues::pluckValue('MAKATAO_2', $student->ObservedValues)->first();
+                $makakalikasan = ObservedValues::pluckValue('MAKAKALIKASAN_1', $student->ObservedValues)->first();
+                $makabansa1 = ObservedValues::pluckValue('MAKABANSA_1', $student->ObservedValues)->first();
+                $makabansa2 = ObservedValues::pluckValue('MAKABANSA_2', $student->ObservedValues)->first();
+                $industry = ObservedValues::pluckValue('INDUSTRY', $student->ObservedValues)->first();
+            @endphp
             <div class="column">
                 <h2 class="text-center record-header">REPORT ON LEARNER’S OBSERVED VALUES</h2>
 
@@ -40,19 +51,19 @@
                             <td class="v-align">Expresses one’s spiritual
                                 beliefs while respecting the
                                 spiritual beliefs of others</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->FirstQuarter != null ? $makadios1->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->SecondQuarter != null ? $makadios1->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->ThirdQuarter != null ? $makadios1->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->FourthQuarter != null ? $makadios1->FourthQuarter : '' }}</td>
                         </tr>
                         <tr>
                             <td class="v-align">Shows adherence to ethical
                                 principles by upholding
                                 truth</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->FirstQuarter != null ? $makadios2->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->SecondQuarter != null ? $makadios2->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->ThirdQuarter != null ? $makadios2->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->FourthQuarter != null ? $makadios2->FourthQuarter : '' }}</td>
                         </tr>
 
                         <tr>
@@ -60,19 +71,19 @@
                             <td class="v-align">Is sensitive to individual,
                                 social and cultural
                                 difference</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->FirstQuarter != null ? $makatao1->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->SecondQuarter != null ? $makatao1->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->ThirdQuarter != null ? $makatao1->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->FourthQuarter != null ? $makatao1->FourthQuarter : '' }}</td>
                         </tr>
                         <tr>
                             <td class="v-align">Demonstrates
                                 contributions towards
                                 solidarity</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->FirstQuarter != null ? $makatao2->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->SecondQuarter != null ? $makatao2->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->ThirdQuarter != null ? $makatao2->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->FourthQuarter != null ? $makatao2->FourthQuarter : '' }}</td>
                         </tr>
 
                         <tr>
@@ -81,10 +92,10 @@
                                 and utilizes resources
                                 wisely, judiciously, and
                                 economically</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->FirstQuarter != null ? $makakalikasan->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->SecondQuarter != null ? $makakalikasan->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->ThirdQuarter != null ? $makakalikasan->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->FourthQuarter != null ? $makakalikasan->FourthQuarter : '' }}</td>
                         </tr>
 
                         <tr>
@@ -95,29 +106,29 @@
                                 the rights and
                                 responsibilities of a Filipino
                                 citizen</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->FirstQuarter != null ? $makabansa1->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->SecondQuarter != null ? $makabansa1->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->ThirdQuarter != null ? $makabansa1->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->FourthQuarter != null ? $makabansa1->FourthQuarter : '' }}</td>
                         </tr>
                         <tr>
                             <td class="v-align">Demonstrates appropriate
                                 behavior in carrying out
                                 activities in the school,
                                 community, and country</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->FirstQuarter != null ? $makabansa2->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->SecondQuarter != null ? $makabansa2->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->ThirdQuarter != null ? $makabansa2->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->FourthQuarter != null ? $makabansa2->FourthQuarter : '' }}</td>
                         </tr>
 
                         <tr>
                             <td class="v-align">5. Industry</td>
                             <td class="v-align">Demonstrates diligence and initiative in doing tasks in school and in the community</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $industry != null && $industry->FirstQuarter != null ? $industry->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $industry != null && $industry->SecondQuarter != null ? $industry->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $industry != null && $industry->ThirdQuarter != null ? $industry->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $industry != null && $industry->FourthQuarter != null ? $industry->FourthQuarter : '' }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -394,7 +405,7 @@
                     $hasOverallInc = false;
                 @endphp
 
-                <table class="table table-bordered text-sm">
+                <table class="table table-bordered" style="font-size: 1.2em;">
                     <thead>
                         <tr>
                             <th style="font-size: .68em !important;" class="bg-gray text-center" rowspan="2">SUBJECTS</th>
@@ -736,7 +747,7 @@
             </div>
 
             {{-- CERTIFICATE OF TRANSFER --}}
-            <div class="column mt-2 gap-1">
+            <div class="column mt-2">
                 <h2 class="text-center record-header">CERTIFICATE OF TRANSFER</h2>
                 <div class="row gap-10 mt-1">
                     <div class="row w-60 gap-10">
@@ -794,7 +805,7 @@
             </div>
 
             {{-- SIGNATORIES --}}
-            <div class="row gap-20 mt-5 pt-2">
+            <div class="row gap-20 mt-4">
                 {{-- PRINCIPAL --}}
                 <div class="column w-50">
                     <div class="border-bottom">

@@ -372,6 +372,10 @@
         {{-- LEFT --}}
         <div class="half column">
             {{-- REPORT ON LEARNING PROGRESS AND ACHIEVEMENT --}}
+            @php
+                $finalAverage = 0;
+                $finalAverageCount = 0;
+            @endphp
             {{-- FIRST SEM --}}
             <div class="column">
                 <h2 class="text-center text-xl bold">REPORT ON LEARNING PROGRESS AND ACHIEVEMENT</h2>
@@ -588,6 +592,11 @@
                             }
 
                             $genAve = ($averageFirst + $averageSecond) / 2;
+
+                            if ($genAve > 0) {
+                                $finalAverage += $genAve;
+                                $finalAverageCount++;
+                            }
 
                         @endphp
                         <tr>
@@ -813,12 +822,35 @@
 
                             $genAve = ($averageThird + $averageFourth) / 2;
 
+                            if ($genAve > 0) {
+                                $finalAverage += $genAve;
+                                $finalAverageCount++;
+                            }
+
                         @endphp
                         <tr>
-                            <td style="text-align: right;" colspan="3"><strong>General Average</strong></td>
+                            <td style="text-align: right;" colspan="3"><strong>Average for the Semester</strong></td>
                             {{-- <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
                             <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td> --}}
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
+
+                            {{-- <td class='text-center'>
+                                {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}
+                            </td> --}}
+                        </tr>
+                        {{-- OVERALL AVERAGE --}}
+                        @php
+                            if($finalAverageCount > 0) {
+                                $finalAverageGrade = $finalAverage / $finalAverageCount;
+                            } else {
+                                $finalAverageGrade = 0;
+                            }
+                        @endphp
+                        <tr>
+                            <td style="text-align: right;" colspan="3"><strong>FINAL AVERAGE</strong></td>
+                            {{-- <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
+                            <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td> --}}
+                            <td class="text-center"><strong>{{ number_format($finalAverageGrade) }}</strong></td>
 
                             {{-- <td class='text-center'>
                                 {{ $hasOverallInc ? 'INC' : Subjects::checkPass($genAve) }}

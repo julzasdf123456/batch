@@ -3764,8 +3764,13 @@ class ClassesController extends AppBaseController
                     )
                     ->orderBy('Heirarchy')
                     ->get();
+
+                $item->ObservedValues = ObservedValues::where('StudentId', $item->id)
+                    ->where('ClassId', $classFirstSem->id)
+                    ->get();
             } else {
                 $item->FirstSemGradeData = [];
+                $item->ObservedValues = [];
             }
 
             if ($classSecondSem != null) {
@@ -3853,6 +3858,10 @@ class ClassesController extends AppBaseController
                 )
                 ->orderBy('Heirarchy')
                 ->get();
+
+            $item->ObservedValues = ObservedValues::where('StudentId', $item->id)
+                ->where('ClassId', $classId)
+                ->get();
         }
 
         $periodGradeChecker = DB::table('StudentSubjects')
@@ -3864,7 +3873,6 @@ class ClassesController extends AppBaseController
                     DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
                 )
                 ->first();
-
 
         return view('/classes/print_report_card_hca_all', [
             'classId' => $classId,
@@ -4063,9 +4071,29 @@ class ClassesController extends AppBaseController
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
 
-        $observedValues = ObservedValues::where('StudentId', $studentId)
-            ->where('ClassId', $classId)
-            ->get();
+        $class = Classes::find($classId);
+
+        if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') {
+            // only get first sem
+            $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', '1st')
+                ->first();
+
+            if ($classFirstSem != null) {
+                $observedValues = ObservedValues::where('StudentId', $studentId)
+                    ->where('ClassId', $classFirstSem->id)
+                    ->get();
+            } else {
+                $observedValues = null;
+            }
+        } else {
+            $observedValues = ObservedValues::where('StudentId', $studentId)
+                ->where('ClassId', $classId)
+                ->get();
+        }
 
         return response()->json($observedValues, 200);
     }
@@ -4074,33 +4102,59 @@ class ClassesController extends AppBaseController
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
         $observedValue = $request['ObservedValue'];
-        $quarter = $request['Quarter'];
+        $value = $request['Value'];
 
-        $observedValues = ObservedValues::where('StudentId', $studentId)
-            ->where('ClassId', $classId)
-            ->where('ObservedValue', $observedValue)
-            ->first();
+        $class = Classes::find($classId);
 
-        if ($observedValues != null) {
-            $observedValues->ObservedValue = $request['ObservedValue'];
-            $observedValues->FirstQuarter = $request['FirstQuarter'];
-            $observedValues->SecondQuarter = $request['SecondQuarter'];
-            $observedValues->ThirdQuarter = $request['ThirdQuarter'];
-            $observedValues->FourthQuarter = $request['FourthQuarter'];
-            $observedValues->save();
+        $trueClassId = null;
+        if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') {
+            // only get first sem
+            $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
+                ->where('Year', $class->Year)
+                ->where('Section', $class->Section)
+                ->where('Strand', $class->Strand)
+                ->where('Semester', '1st')
+                ->first();
+
+            if ($classFirstSem != null) {
+                $trueClassId = $classFirstSem->id;
+            } else {
+                $trueClassId = null;
+            }
         } else {
-            ObservedValues::create([
-                'id' => IDGenerator::generateIDandRandString(),
-                'StudentId' => $studentId,
-                'ClassId' => $classId,
-                'ObservedValue' => $request['ObservedValue'],
-                'FirstQuarter' => $request['FirstQuarter'],
-                'SecondQuarter' => $request['SecondQuarter'],
-                'ThirdQuarter' => $request['ThirdQuarter'],
-                'FourthQuarter' => $request['FourthQuarter'],
-            ]);
+            $trueClassId = $classId;
         }
 
-        return response()->json('ok', 200);
+        if ($trueClassId != null) {
+            $observedValues = ObservedValues::where('StudentId', $studentId)
+                ->where('ClassId', $trueClassId)
+                ->where('ObservedValue', $observedValue)
+                ->first();
+
+            if ($observedValues != null) {
+                $observedValues->FirstQuarter = isset($value['FirstQuarter']) ? $value['FirstQuarter'] : $observedValues->FirstQuarter;
+                $observedValues->SecondQuarter = isset($value['SecondQuarter']) ? $value['SecondQuarter'] : $observedValues->SecondQuarter;
+                $observedValues->ThirdQuarter = isset($value['ThirdQuarter']) ? $value['ThirdQuarter'] : $observedValues->ThirdQuarter;
+                $observedValues->FourthQuarter = isset($value['FourthQuarter']) ? $value['FourthQuarter'] : $observedValues->FourthQuarter;
+                $observedValues->save();
+            } else {
+                if ($studentId != null) {
+                    ObservedValues::create([
+                        'id' => IDGenerator::generateIDandRandString(),
+                        'StudentId' => $studentId,
+                        'ClassId' => $trueClassId,
+                        'ObservedValue' => $observedValue,
+                        'FirstQuarter' => isset($value['FirstQuarter']) ? $value['FirstQuarter'] : null,
+                        'SecondQuarter' => isset($value['SecondQuarter']) ? $value['SecondQuarter'] : null,
+                        'ThirdQuarter' => isset($value['ThirdQuarter']) ? $value['ThirdQuarter'] : null,
+                        'FourthQuarter' => isset($value['FourthQuarter']) ? $value['FourthQuarter'] : null,
+                    ]);
+                }
+            }
+
+            return response()->json('ok', 200);
+        } else {
+            return response()->json('No class ID found!', 404);
+        }
     }
 }

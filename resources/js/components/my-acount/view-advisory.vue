@@ -511,7 +511,7 @@
                                                     <td colspan="2" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
                                                 </tr>
                                                 <tr v-for="(student, index) in male" :key="student.StudentSubjectId" @click="editObservedValues(student.id)">
-                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'">
+                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'" :title="student.id">
                                                         {{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}
                                                     </td>
                                                     <td style="width: 20px;" :class="observedValuesActiveStudentId===student.id ? 'bg-success' : ''">
@@ -522,7 +522,7 @@
                                                     <td colspan="2" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
                                                 </tr>
                                                 <tr v-for="(student, index) in female" :key="student.StudentSubjectId" @click="editObservedValues(student.id)">
-                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'">
+                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'" :title="student.id">
                                                         {{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}
                                                     </td>
                                                     <td style="width: 20px;" :class="observedValuesActiveStudentId===student.id ? 'bg-success' : ''">
@@ -534,7 +534,7 @@
                                     </div>
 
                                     <!-- UPDATE FORM -->
-                                    <div class="col-lg-8 table-responsive p-2">
+                                    <div class="col-lg-8 table-responsive p-2" v-if="!isNull(observedValuesActiveStudentId)">
                                         <table class="table table-bordered table-hover">
                                             <thead>
                                                 <tr>
@@ -556,7 +556,7 @@
                                                         beliefs while respecting the
                                                         spiritual beliefs of others</td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
@@ -565,7 +565,7 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
@@ -574,7 +574,7 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 3)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
@@ -583,7 +583,7 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" @change="saveObservedValues(MAKADIOS_1, 4)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
@@ -596,10 +596,42 @@
                                                     <td class="v-align">Shows adherence to ethical
                                                         principles by upholding
                                                         truth</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
                                                 </tr>
 
                                                 <tr>
@@ -607,19 +639,83 @@
                                                     <td class="v-align">Is sensitive to individual,
                                                         social and cultural
                                                         difference</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FirstQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.SecondQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.ThirdQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FourthQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="v-align">Demonstrates
                                                         contributions towards
                                                         solidarity</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FirstQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.SecondQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.ThirdQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FourthQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
                                                 </tr>
 
                                                 <tr>
@@ -629,10 +725,42 @@
                                                         and utilizes resources
                                                         wisely, judiciously, and
                                                         economically</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
+                                                        <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FirstQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.SecondQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.ThirdQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FourthQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
                                                 </tr>
                                                 <tr>
 
@@ -642,20 +770,124 @@
                                                         the rights and
                                                         responsibilities of a Filipino
                                                         citizen</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
+                                                        <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FirstQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.SecondQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.ThirdQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FourthQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="v-align">Demonstrates appropriate
                                                         behavior in carrying out
                                                         activities in the school,
                                                         community, and country</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
-                                                    <td></td>
+                                                        <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FirstQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.SecondQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.ThirdQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FourthQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="v-align">5. Industry</td>
+                                                    <td class="v-align">Demonstrates diligence and initiative in doing tasks in school and in the community</td>
+                                                        <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.FirstQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.SecondQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.ThirdQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.FourthQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                            <option value="">-</option>
+                                                            <option value="AO">AO</option>
+                                                            <option value="SO">SO</option>
+                                                            <option value="RO">RO</option>
+                                                            <option value="NO">NO</option>
+                                                        </select>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -997,6 +1229,15 @@ export default {
             MAKAKALIKASAN_1 : 'MAKAKALIKASAN_1',
             MAKABANSA_1 : 'MAKABANSA_1',
             MAKABANSA_2 : 'MAKABANSA_2',
+            INDUSTRY : 'INDUSTRY',
+            makadios_1 : {},
+            makadios_2 : {},
+            makatao_1 : {},
+            makatao_2 : {},
+            makakalikasan_1 : {},
+            makabansa_1 : {},
+            makabansa_2 : {},
+            industry : {},
         }
     },
     methods : {
@@ -2434,6 +2675,8 @@ export default {
             this.getObservedValues()
         },
         getObservedValues() {
+            this.loaderVisibility = true
+
             axios.get(`${ this.baseURL }/classes/get-observed-values`, {
                 params : {
                     ClassId : this.classId,
@@ -2442,6 +2685,21 @@ export default {
             })
             .then(response => {
                 this.observedValues = response.data
+
+                this.resetObservedValues()
+
+                if (!this.isNull(this.observedValues)) {
+                    this.makabansa_1 = this.findValue(this.MAKABANSA_1)
+                    this.makabansa_2 = this.findValue(this.MAKABANSA_2)
+                    this.makadios_1 = this.findValue(this.MAKADIOS_1)
+                    this.makadios_2 = this.findValue(this.MAKADIOS_2)
+                    this.makatao_1 = this.findValue(this.MAKATAO_1)
+                    this.makatao_2 = this.findValue(this.MAKATAO_2)
+                    this.makakalikasan_1 = this.findValue(this.MAKAKALIKASAN_1)
+                    this.industry = this.findValue(this.INDUSTRY)
+                } 
+
+                this.loaderVisibility = false
             })
             .catch(error => {
                 console.log(error.response)
@@ -2449,31 +2707,133 @@ export default {
                     icon : 'error',
                     text : 'Error getting observed values!'
                 }) 
+                this.loaderVisibility = false
             })
         },
-        saveObservedValues(oValue, quarter) {
-            alert(oValue + " - " + this.observedValues)
-            // axios.post(`${ this.baseURL }/classes/save-observed-values`, {
-            //     ClassId : this.classId,
-            //     StudentId : this.observedValuesActiveStudentId,
-            //     ObservedValues : this.observedValues,
-            //     ObservedValue : oValue,
-            //     Quarter : quarter,
-            //     _token : this.token
-            // })
-            // .then(response => {
-            //     this.toast.fire({
-            //         icon : 'success',
-            //         text : 'Observed values saved!'
-            //     })
-            // })
-            // .catch(error => {
-            //     console.log(error.response)
-            //     this.toast.fire({
-            //         icon : 'error',
-            //         text : 'Error saving observed values!'
-            //     }) 
-            // })
+        resetObservedValues() {
+            this.makabansa_1 = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.MAKABANSA_1,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+
+            this.makabansa_2 = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.MAKABANSA_2,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+            this.makadios_1 = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.MAKADIOS_1,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+            this.makadios_2 = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.MAKADIOS_2,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+            this.makatao_1 = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.MAKATAO_1,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+            this.makatao_2 = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.MAKATAO_2,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+            this.makakalikasan_1 = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.MAKAKALIKASAN_1,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+            this.industry = {
+                id : null,
+                StudentId : this.observedValuesActiveStudentId,
+                ClassId : this.classId,
+                ObservedValue : this.INDUSTRY,
+                FirstQuarter : null,
+                SecondQuarter : null,
+                ThirdQuarter : null,
+                FourthQuarter : null,
+            }
+        },
+        findValue(value) {
+            let val = this.observedValues.find(obj => obj.ObservedValue === value && obj.StudentId === this.observedValuesActiveStudentId)
+            
+            if (this.isNull(val)) {
+                return {
+                    id : null,
+                    StudentId : this.observedValuesActiveStudentId,
+                    ClassId : this.classId,
+                    ObservedValue : null,
+                    FirstQuarter : null,
+                    SecondQuarter : null,
+                    ThirdQuarter : null,
+                    FourthQuarter : null,
+                }
+            } else {
+                return val
+            }
+        },
+        saveObservedValues(oValueStatic, value) {
+            // console.log(value)
+            axios.post(`${ this.baseURL }/classes/save-observed-values`, {
+                ClassId : this.classId,
+                StudentId : this.observedValuesActiveStudentId,
+                Value : value,
+                ObservedValue : oValueStatic,
+                _token : this.token
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Observed values saved!'
+                })
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error saving observed values!'
+                }) 
+            })
         },
     },
     created() {

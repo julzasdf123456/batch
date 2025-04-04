@@ -2,6 +2,7 @@
     use App\Models\Students;
     use App\Models\Classes;
     use App\Models\Subjects;
+    use App\Models\ObservedValues;
 @endphp
 
 <link rel="stylesheet" href="{{ URL::asset('css/print_report_card_hca_senior_all.css') }}">
@@ -368,7 +369,7 @@
                     $hasOverallInc = false;
                 @endphp
 
-                <table class="table table-bordered text-sm" style="margin-top: 2px;">
+                <table class="table table-bordered" style="margin-top: 2px; font-size: 1.11em;">
                     <thead>
                         <tr>
                             <th style="font-size: .68em !important;" class="bg-gray text-center" rowspan="2">SUBJECTS</th>
@@ -562,9 +563,9 @@
 
                         @endphp
                         <tr>
-                            <td style="text-align: right; border: none !important;"><strong>General Average for the Semester</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td>
+                            <td style="text-align: right; border: none !important;" colspan="3"><strong>General Average for the Semester</strong></td>
+                            {{-- <td class="text-right"><strong>{{ number_format($averageFirst) }}</strong></td>
+                            <td class="text-right"><strong>{{ number_format($averageSecond) }}</strong></td> --}}
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
                             <td class='text-center'>
@@ -593,7 +594,7 @@
                     $hasOverallInc = false;
                 @endphp
 
-                <table class="table table-bordered text-sm" style="margin-top: 2px;">
+                <table class="table table-bordered" style="margin-top: 2px; font-size: 1.11em;">
                     <thead>
                         <tr>
                             <th style="font-size: .68em !important;" class="bg-gray text-center" rowspan="2">SUBJECTS</th>
@@ -788,9 +789,9 @@
 
                         @endphp
                         <tr>
-                            <td style="text-align: right; border: none !important;"><strong>General Average for the Semester</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
-                            <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td>
+                            <td style="text-align: right; border: none !important;" colspan="3"><strong>General Average for the Semester</strong></td>
+                            {{-- <td class="text-right"><strong>{{ number_format($averageThird) }}</strong></td>
+                            <td class="text-right"><strong>{{ number_format($averageFourth) }}</strong></td> --}}
                             <td class="text-center"><strong>{{ number_format($genAve) }}</strong></td>
 
                             <td class='text-center'>
@@ -807,6 +808,16 @@
             <div class="column">
                 <h2 class="text-center record-header">REPORT ON LEARNER’S OBSERVED VALUES</h2>
 
+                @php
+                    $makadios1 = ObservedValues::pluckValue('MAKADIOS_1', $student->ObservedValues)->first();
+                    $makadios2 = ObservedValues::pluckValue('MAKADIOS_2', $student->ObservedValues)->first();
+                    $makatao1 = ObservedValues::pluckValue('MAKATAO_1', $student->ObservedValues)->first();
+                    $makatao2 = ObservedValues::pluckValue('MAKATAO_2', $student->ObservedValues)->first();
+                    $makakalikasan = ObservedValues::pluckValue('MAKAKALIKASAN_1', $student->ObservedValues)->first();
+                    $makabansa1 = ObservedValues::pluckValue('MAKABANSA_1', $student->ObservedValues)->first();
+                    $makabansa2 = ObservedValues::pluckValue('MAKABANSA_2', $student->ObservedValues)->first();
+                    $industry = ObservedValues::pluckValue('INDUSTRY', $student->ObservedValues)->first();
+                @endphp
                 <table class="table table-bordered baskerville mt-2">
                     <thead>
                         <tr>
@@ -827,19 +838,19 @@
                             <td class="v-align">Expresses one’s spiritual
                                 beliefs while respecting the
                                 spiritual beliefs of others</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->FirstQuarter != null ? $makadios1->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->SecondQuarter != null ? $makadios1->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->ThirdQuarter != null ? $makadios1->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios1 != null && $makadios1->FourthQuarter != null ? $makadios1->FourthQuarter : '' }}</td>
                         </tr>
                         <tr>
                             <td class="v-align">Shows adherence to ethical
                                 principles by upholding
                                 truth</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->FirstQuarter != null ? $makadios2->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->SecondQuarter != null ? $makadios2->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->ThirdQuarter != null ? $makadios2->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makadios2 != null && $makadios2->FourthQuarter != null ? $makadios2->FourthQuarter : '' }}</td>
                         </tr>
 
                         <tr>
@@ -847,19 +858,19 @@
                             <td class="v-align">Is sensitive to individual,
                                 social and cultural
                                 difference</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->FirstQuarter != null ? $makatao1->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->SecondQuarter != null ? $makatao1->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->ThirdQuarter != null ? $makatao1->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao1 != null && $makatao1->FourthQuarter != null ? $makatao1->FourthQuarter : '' }}</td>
                         </tr>
                         <tr>
                             <td class="v-align">Demonstrates
                                 contributions towards
                                 solidarity</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->FirstQuarter != null ? $makatao2->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->SecondQuarter != null ? $makatao2->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->ThirdQuarter != null ? $makatao2->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makatao2 != null && $makatao2->FourthQuarter != null ? $makatao2->FourthQuarter : '' }}</td>
                         </tr>
 
                         <tr>
@@ -869,10 +880,10 @@
                                 and utilizes resources
                                 wisely, judiciously, and
                                 economically</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->FirstQuarter != null ? $makakalikasan->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->SecondQuarter != null ? $makakalikasan->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->ThirdQuarter != null ? $makakalikasan->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makakalikasan != null && $makakalikasan->FourthQuarter != null ? $makakalikasan->FourthQuarter : '' }}</td>
                         </tr>
                         <tr>
 
@@ -882,20 +893,20 @@
                                 the rights and
                                 responsibilities of a Filipino
                                 citizen</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->FirstQuarter != null ? $makabansa1->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->SecondQuarter != null ? $makabansa1->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->ThirdQuarter != null ? $makabansa1->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa1 != null && $makabansa1->FourthQuarter != null ? $makabansa1->FourthQuarter : '' }}</td>
                         </tr>
                         <tr>
                             <td class="v-align">Demonstrates appropriate
                                 behavior in carrying out
                                 activities in the school,
                                 community, and country</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->FirstQuarter != null ? $makabansa2->FirstQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->SecondQuarter != null ? $makabansa2->SecondQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->ThirdQuarter != null ? $makabansa2->ThirdQuarter : '' }}</td>
+                            <td class="text-center v-align">{{ $makabansa2 != null && $makabansa2->FourthQuarter != null ? $makabansa2->FourthQuarter : '' }}</td>
                         </tr>
                     </tbody>
                 </table>

@@ -19,6 +19,7 @@ class ObservedValues extends Model
     public static $MAKAKALIKASAN_1 = 'MAKAKALIKASAN_1';
     public static $MAKABANSA_1 = 'MAKABANSA_1';
     public static $MAKABANSA_2 = 'MAKABANSA_2';
+    public static $INDUSTRY = 'INDUSTRY';
 
     public $fillable = [
         'id',
@@ -53,4 +54,9 @@ class ObservedValues extends Model
         'updated_at' => 'nullable'
     ];
     
+    public static function pluckValue($value, $array) {
+        return $array->filter(function ($observedValue) use ($value) {
+            return $observedValue->ObservedValue === $value;
+        });
+    } 
 }
