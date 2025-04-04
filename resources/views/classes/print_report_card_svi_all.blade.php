@@ -449,12 +449,12 @@
                                             $hasInc = true;
                                         }
 
-                                        $aveGrade = Subjects::getAverage([
+                                        $aveGrade = round(Subjects::getAverage([
                                             round(Subjects::validateNumber($subject['FirstGradingGrade'])),
                                             round(Subjects::validateNumber($subject['SecondGradingGrade'])),
                                             round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
                                             round(Subjects::validateNumber($subject['FourthGradingGrade'])),
-                                        ]);
+                                        ]));
                                         $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                     @endphp
                                     <td class="text-right">
@@ -499,12 +499,12 @@
                                         $hasInc = true;
                                     }
 
-                                    $aveGrade = Subjects::getAverage([
+                                    $aveGrade = round(Subjects::getAverage([
                                         round(Subjects::validateNumber($subject['FirstGradingGrade'])),
                                         round(Subjects::validateNumber($subject['SecondGradingGrade'])),
                                         round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
                                         round(Subjects::validateNumber($subject['FourthGradingGrade'])),
-                                    ]);
+                                    ]));
                                     
                                     $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                 @endphp
@@ -547,7 +547,7 @@
                                         $sumFourth += floatval(
                                             $subject['FourthGradingGrade'] != null ? $subject['FourthGradingGrade'] : 0,
                                         );
-                                        $sumAverage += is_numeric($aveGrade) ? round($aveGrade) : 0;
+                                        $sumAverage += is_numeric($aveGrade) ? $aveGrade : 0;
 
                                         $totalSubjectCount++;
                                     }
@@ -588,12 +588,12 @@
                                         $hasInc = true;
                                     }
 
-                                    $aveGrade = Subjects::getAverage([
+                                    $aveGrade = round(Subjects::getAverage([
                                         round(Subjects::validateNumber($subSubject['FirstGradingGrade'])),
                                         round(Subjects::validateNumber($subSubject['SecondGradingGrade'])),
                                         round(Subjects::validateNumber($subSubject['ThirdGradingGrade'])),
                                         round(Subjects::validateNumber($subSubject['FourthGradingGrade'])),
-                                    ]);
+                                    ]));
                                     $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                 @endphp
                                 <tr>

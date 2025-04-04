@@ -673,10 +673,10 @@
                                             $hasInc = true;
                                         }
 
-                                        $aveGrade = Subjects::getAverage([
+                                        $aveGrade = round(Subjects::getAverage([
                                             round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
                                             round(Subjects::validateNumber($subject['FourthGradingGrade'])),
-                                        ]);
+                                        ]));
                                         $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                     @endphp
                                     <td class=" text-right">
@@ -709,10 +709,10 @@
                                         $hasInc = true;
                                     }
 
-                                    $aveGrade = Subjects::getAverage([
+                                    $aveGrade = round(Subjects::getAverage([
                                         round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
                                         round(Subjects::validateNumber($subject['FourthGradingGrade'])),
-                                    ]);
+                                    ]));
 
                                     $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                 @endphp
@@ -766,10 +766,10 @@
                                         $hasInc = true;
                                     }
 
-                                    $aveGrade = Subjects::getAverage([
+                                    $aveGrade = round(Subjects::getAverage([
                                         round(Subjects::validateNumber($subSubject['ThirdGradingGrade'])),
                                         round(Subjects::validateNumber($subSubject['FourthGradingGrade'])),
-                                    ]);
+                                    ]));
                                     $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                 @endphp
                                 <tr>
@@ -821,7 +821,7 @@
                                 $averageFourth = $sumFourth / $totalSubjectCount;
                             }
 
-                            $genAve = ($averageThird + $averageFourth) / 2;
+                            $genAve = $sumAverage / $totalSubjectCount;
 
                             if ($genAve > 0) {
                                 $finalAverage += $genAve;
