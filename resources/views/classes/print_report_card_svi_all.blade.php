@@ -547,7 +547,7 @@
                                         $sumFourth += floatval(
                                             $subject['FourthGradingGrade'] != null ? $subject['FourthGradingGrade'] : 0,
                                         );
-                                        $sumAverage += is_numeric($aveGrade) ? $aveGrade : 0;
+                                        $sumAverage += is_numeric($aveGrade) ? round($aveGrade) : 0;
 
                                         $totalSubjectCount++;
                                     }

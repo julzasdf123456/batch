@@ -438,10 +438,10 @@
                                             $hasInc = true;
                                         }
 
-                                        $aveGrade = Subjects::getAverage([
+                                        $aveGrade = round(Subjects::getAverage([
                                             round(Subjects::validateNumber($subject['FirstGradingGrade'])),
                                             round(Subjects::validateNumber($subject['SecondGradingGrade'])),
-                                        ]);
+                                        ]));
                                         $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                     @endphp
                                     <td class="text-right">
@@ -472,10 +472,10 @@
                                         $hasInc = true;
                                     }
 
-                                    $aveGrade = Subjects::getAverage([
+                                    $aveGrade = round(Subjects::getAverage([
                                         round(Subjects::validateNumber($subject['FirstGradingGrade'])),
                                         round(Subjects::validateNumber($subject['SecondGradingGrade'])),
-                                    ]);
+                                    ]));
                                     
                                     $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                 @endphp
@@ -533,10 +533,10 @@
                                         $hasInc = true;
                                     }
 
-                                    $aveGrade = Subjects::getAverage([
+                                    $aveGrade = round(Subjects::getAverage([
                                         round(Subjects::validateNumber($subSubject['FirstGradingGrade'])),
                                         round(Subjects::validateNumber($subSubject['SecondGradingGrade'])),
-                                    ]);
+                                    ]));
                                     $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                 @endphp
                                 <tr>
