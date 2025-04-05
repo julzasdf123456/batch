@@ -3815,7 +3815,7 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printReportCardHcaAll($classId, $printFinalGrade) {
+    public function printReportCardHcaAll($classId, $printFinalGrade, $side) {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3883,6 +3883,7 @@ class ClassesController extends AppBaseController
             'adviser' => $adviser,
             'avgParents' => $arr,
             'periodGradeChecker' => $periodGradeChecker,
+            'side' => $side
         ]);
     }
 

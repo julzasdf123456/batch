@@ -2660,7 +2660,30 @@ export default {
                 if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
                     window.location.href = `${ this.baseURL }/classes/print-report-card-hca-senior-all/${ this.classId }/Yes`
                 } else {
-                    window.location.href = `${ this.baseURL }/classes/print-report-card-hca-all/${ this.classId }/Yes`
+                    // select what to print, fron or back
+                    Swal.fire({
+                        title: 'Select Which Side to Print',
+                        html: `
+                            <form id="radioForm">
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Front"> Front</label><br>
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Back"> Back</label><br>
+                            </form>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        preConfirm: () => {
+                            const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                            if (!selectedOption) {
+                                Swal.showValidationMessage('You need to select which side to print!');
+                                return null;
+                            }
+                            return selectedOption.value;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `${ this.baseURL }/classes/print-report-card-hca-all/${ this.classId }/Yes/${result.value}`
+                        }
+                    });
                 }
             } else if (this.school === 'SVI') {
                 if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
