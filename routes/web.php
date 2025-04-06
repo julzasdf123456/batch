@@ -146,6 +146,7 @@ Route::get('/classes/print-report-card-svi-senior-all/{classId}/{printFinalGrade
 Route::get('/classes/print-report-card-svi-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardSviAll'])->name('classes.print-report-card-svi-all');
 Route::get('/classes/get-observed-values', [ClassesController::class, 'getObservedValues'])->name('classes.get-observed-values');
 Route::post('/classes/save-observed-values', [ClassesController::class, 'saveObservedValues'])->name('classes.save-observed-values');
+Route::post('/classes/update-strand', [ClassesController::class, 'updateStrand'])->name('classes.update-strand');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
