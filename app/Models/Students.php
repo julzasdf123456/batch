@@ -162,7 +162,11 @@ class Students extends Model
             $birthdate = new \DateTime($student->Birthdate);
             $now = new \DateTime();
             $age = $now->diff($birthdate)->y;
-            return $age;
+            if ($age > 0) {
+                return $age;
+            } else {
+                return null;
+            }
         } catch (\Exception $e) {
             return null; // Handle the exception as needed
         }

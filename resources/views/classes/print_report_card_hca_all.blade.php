@@ -36,7 +36,7 @@
                 </div>
 
                 {{-- STUDENT PROFILE --}}
-                <div class="column gap-5 mt-2">
+                <div class="column gap-5 mt-2 w-100">
                     <h2 class="baskerville-bold text-center" style="font-size: .9em; padding: 0; margin: 0;">REPORT ON LEARNING PROGRESS AND ACHIEVEMENT</h2>
 
                     <div class="row gap-10">
