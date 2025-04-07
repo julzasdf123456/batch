@@ -185,7 +185,7 @@
                     <div class="row w-20 gap-10">
                         <h2 class="bold">Age:</h2>
                         <div class="border-bottom w-100">
-                            
+                            <h2 class="bold">{{ Students::getAge($student) }}</h2>
                         </div>
                     </div>
 
@@ -427,9 +427,8 @@
                                         <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                     </td>
                                     <td class='bg-gray text-center'>
-                                        {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
+                                        {{ $hasInc ? '-' : Subjects::checkPass($aveGrade) }}
                                     </td>
-                                    <td class="bg-gray"></td>
                                 @else
                                     <td class="bg-gray"></td>
                                     <td class="bg-gray"></td>
@@ -653,9 +652,8 @@
                                         <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                     </td>
                                     <td class='bg-gray text-center'>
-                                        {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
+                                        {{ $hasInc ? 'INC' : Subjects::checkPass($aveGrade) }}
                                     </td>
-                                    <td class="bg-gray"></td>
                                 @else
                                     <td class="bg-gray"></td>
                                     <td class="bg-gray"></td>

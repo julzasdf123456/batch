@@ -50,7 +50,7 @@
                         <div style="display: flex; justify-content: start;" class="w-20 gap-10">
                             <h2>Age:</h2>
                             <div class="border-bottom" style="flex: 1;">
-                                
+                                <h2>{{ Students::getAge($student) }}</h2>
                             </div>
                         </div>
                     </div>
@@ -209,7 +209,7 @@
                                             <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
                                         </td>
                                         <td class='bg-gray text-center'>
-                                            {{ $hasInc ? 'INC' : Subjects::checkPass($subject['AverageGrade']) }}
+                                            {{ $hasInc ? 'INC' : Subjects::checkPass($aveGrade) }}
                                         </td>
                                     @else
                                         @php
