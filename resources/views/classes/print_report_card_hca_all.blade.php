@@ -106,7 +106,7 @@
                 </div>
 
                 {{-- GRADING --}}
-                <div class="column mt-2">
+                <div class="column mt-2 w-100">
                     @php
                         $sumFirst = 0;
                         $sumSecond = 0;
@@ -184,12 +184,12 @@
                                                 $hasInc = true;
                                             }
 
-                                            $aveGrade = Subjects::getAverage([
+                                            $aveGrade = round(Subjects::getAverage([
                                                 round(Subjects::validateNumber($subject['FirstGradingGrade'])),
                                                 round(Subjects::validateNumber($subject['SecondGradingGrade'])),
                                                 round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
                                                 round(Subjects::validateNumber($subject['FourthGradingGrade'])),
-                                            ]);
+                                            ]));
                                             $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                         @endphp
                                         <td class="bg-gray text-right">
@@ -211,6 +211,27 @@
                                         <td class='bg-gray text-center'>
                                             {{ $hasInc ? 'INC' : Subjects::checkPass($aveGrade) }}
                                         </td>
+
+                                        @php
+                                        // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
+                                        if (!str_contains($subject['Subject'], "Homeroom")) {
+                                            $sumFirst += floatval(
+                                                $subject['FirstGradingGrade'] != null ? $subject['FirstGradingGrade'] : 0,
+                                            );
+                                            $sumSecond += floatval(
+                                                $subject['SecondGradingGrade'] != null ? $subject['SecondGradingGrade'] : 0,
+                                            );
+                                            $sumThird += floatval(
+                                                $subject['ThirdGradingGrade'] != null ? $subject['ThirdGradingGrade'] : 0,
+                                            );
+                                            $sumFourth += floatval(
+                                                $subject['FourthGradingGrade'] != null ? $subject['FourthGradingGrade'] : 0,
+                                            );
+                                            $sumAverage += is_numeric($aveGrade) ? $aveGrade : 0;
+
+                                            $totalSubjectCount++;
+                                        }
+                                    @endphp
                                     @else
                                         @php
                                             $avgParent = false;
@@ -239,12 +260,12 @@
                                             $hasInc = true;
                                         }
 
-                                        $aveGrade = Subjects::getAverage([
+                                        $aveGrade = round(Subjects::getAverage([
                                             round(Subjects::validateNumber($subject['FirstGradingGrade'])),
                                             round(Subjects::validateNumber($subject['SecondGradingGrade'])),
                                             round(Subjects::validateNumber($subject['ThirdGradingGrade'])),
                                             round(Subjects::validateNumber($subject['FourthGradingGrade'])),
-                                        ]);
+                                        ]));
                                         
                                         $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                     @endphp
@@ -324,12 +345,12 @@
                                             $hasInc = true;
                                         }
 
-                                        $aveGrade = Subjects::getAverage([
+                                        $aveGrade = round(Subjects::getAverage([
                                             round(Subjects::validateNumber($subSubject['FirstGradingGrade'])),
                                             round(Subjects::validateNumber($subSubject['SecondGradingGrade'])),
                                             round(Subjects::validateNumber($subSubject['ThirdGradingGrade'])),
                                             round(Subjects::validateNumber($subSubject['FourthGradingGrade'])),
-                                        ]);
+                                        ]));
                                         $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
                                     @endphp
                                     <tr>
@@ -359,7 +380,7 @@
                                         <td class='text-center'>
                                             {{-- {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }} --}}
                                         </td>
-                                        @php
+                                        {{-- @php
                                             // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
                                             if (!str_contains($subSubject['Subject'], "Homeroom")) {
                                                 $sumFirst += floatval(
@@ -378,7 +399,7 @@
 
                                                 $totalSubjectCount++;
                                             }
-                                        @endphp
+                                        @endphp --}}
                                     </tr>
                                     
                                 @endforeach
