@@ -54,7 +54,11 @@ class Classes extends Model
              * SCHOOL INFO
              */
             $worksheet->setCellValue('E23', strtoupper(env('APP_COMPANY')));
-            $worksheet->setCellValue('AF23', strtoupper(env('SCHOOL_CODE')));
+            if ($class->Year === 'Grade 12') {
+                $worksheet->setCellValue('AF23', strtoupper(env('SCHOOL_CODE_GR12')));
+            } else {
+                $worksheet->setCellValue('AF23', strtoupper(env('SCHOOL_CODE')));
+            }
 
             /**
              * GRADE LEVEL
