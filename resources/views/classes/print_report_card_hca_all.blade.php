@@ -90,14 +90,14 @@
 
                     <div class="row gap-10">
                         <div style="display: flex; justify-content: start;" class="w-70 gap-10">
-                            <h2>Shool Year:</h2>
+                            <h2>School Year:</h2>
                             <div class="border-bottom" style="flex: 1;">
                                 <h2>{{ $sy->SchoolYear }}</h2>
                             </div>
                         </div>
 
                         <div style="display: flex; justify-content: start;" class="w-30 gap-10">
-                            <h2>Currculum:</h2>
+                            <h2>Curriculum:</h2>
                             <div class="border-bottom" style="flex: 1;">
                                 <h2>K-12</h2>
                             </div>
