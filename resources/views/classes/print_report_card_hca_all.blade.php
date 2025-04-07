@@ -357,7 +357,7 @@
                                             
                                         </td>
                                         <td class='text-center'>
-                                            {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }}
+                                            {{-- {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }} --}}
                                         </td>
                                         @php
                                             // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
