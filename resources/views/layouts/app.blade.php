@@ -209,6 +209,7 @@
 <script src="{{ URL::asset('js/inputmask.min.js'); }}"></script>
 <script src="{{ URL::asset('js/daterangepicker.min.js'); }}"></script>
 <script src="{{ URL::asset('js/bstreeview.js'); }}"></script>
+<script src="{{ URL::asset('js/style.js'); }}"></script>
 <script>
     $('.select2').select2({
             theme: 'bootstrap4'

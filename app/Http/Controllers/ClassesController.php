@@ -3815,7 +3815,7 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printReportCardHcaAll($classId, $printFinalGrade) {
+    public function printReportCardHcaAll($classId, $printFinalGrade, $side) {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3883,6 +3883,7 @@ class ClassesController extends AppBaseController
             'adviser' => $adviser,
             'avgParents' => $arr,
             'periodGradeChecker' => $periodGradeChecker,
+            'side' => $side
         ]);
     }
 
@@ -4165,5 +4166,49 @@ class ClassesController extends AppBaseController
         } else {
             return response()->json('No class ID found!', 404);
         }
+    }
+
+    public function updateStrand(Request $request) {
+        $classId = $request['ClassId'];
+        $newStrand = $request['Strand'];
+
+        $class = Classes::find($classId);
+        if ($class != null) {
+            $oldStrand = $class->Strand;
+            // update strand
+            $class->Strand = $newStrand;
+            $class->save();
+
+            // also update other sem
+            if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') {
+                if ($class->Semester === '1st') {
+                    //find second sem 
+                    $classSecond = Classes::where('Year', $class->Year)
+                        ->where('Section', $class->Section)
+                        ->where('Strand', $oldStrand)
+                        ->where('Semester', '2nd')
+                        ->first();
+    
+                    if ($classSecond != null) {
+                        $classSecond->Strand = $newStrand;
+                        $classSecond->save();
+                    }
+                } else {
+                    //find first sem 
+                    $classFirst = Classes::where('Year', $class->Year)
+                        ->where('Section', $class->Section)
+                        ->where('Strand', $oldStrand)
+                        ->where('Semester', '1st')
+                        ->first();
+    
+                    if ($classFirst != null) {
+                        $classFirst->Strand = $newStrand;
+                        $classFirst->save();
+                    }
+                }
+            }
+        }
+
+        return response()->json('ok', 200);
     }
 }

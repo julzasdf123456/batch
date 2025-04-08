@@ -4,7 +4,15 @@
             <h4><i class="fas fa-graduation-cap ico-tab text-muted"></i><span class="text-muted">{{ advisory.Year }} - </span>{{ advisory.Section }}</h4>
             <span class="text-muted">{{ syDetails.SchoolYear }}</span>
             <span class="text-muted" title="Adviser" v-if="!isNull(adviser)">{{ isNull(adviser) ? '' : (' • ' + adviser.FullName) }}</span>
-            <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span>
+            <!-- <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span> -->
+            <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ') }}</span>
+            <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">
+                <input type="text" ref="strand" class="floating-input text-muted" v-model="advisory.Strand" :placeholder="advisory.Strand" v-autowidth="{
+                        minWidth: '20px',
+                        maxWidth: '75%',
+                        comfortZone: '1ch',
+                    }" @keyup.enter="updateStrand(advisory.Strand)" @blur="updateStrand(advisory.Strand)">
+            </span>
             <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true"><strong>{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</strong></span>
 
             <button class="btn btn-xs btn-default ml-3" v-if="advisory.Semester === '2nd'" @click="goToOtherSem('1st')">View 1st Sem <i class="fas fa-share ico-tab-left-mini"></i></button>
@@ -1145,11 +1153,13 @@ import axios from 'axios';
 import moment from 'moment';
 import FlatPickr from 'vue-flatpickr-component';
 import 'flatpickr/dist/flatpickr.css';
-import jquery from 'jquery';
+import { directive as VueInputAutowidth } from "vue-input-autowidth"
 import Swal from 'sweetalert2';
 import { Bootstrap4Pagination } from 'laravel-vue-pagination'
+import { update } from 'lodash';
 
 export default {
+    directives: { autowidth: VueInputAutowidth },
     components : {
         FlatPickr,
         Swal,
@@ -2660,7 +2670,30 @@ export default {
                 if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
                     window.location.href = `${ this.baseURL }/classes/print-report-card-hca-senior-all/${ this.classId }/Yes`
                 } else {
-                    window.location.href = `${ this.baseURL }/classes/print-report-card-hca-all/${ this.classId }/Yes`
+                    // select what to print, fron or back
+                    Swal.fire({
+                        title: 'Select Which Side to Print',
+                        html: `
+                            <form id="radioForm">
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Front"> Front</label><br>
+                                <label style='text-align: left;'><input type="radio" name="gradingOption" value="Back"> Back</label><br>
+                            </form>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Submit',
+                        preConfirm: () => {
+                            const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+                            if (!selectedOption) {
+                                Swal.showValidationMessage('You need to select which side to print!');
+                                return null;
+                            }
+                            return selectedOption.value;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = `${ this.baseURL }/classes/print-report-card-hca-all/${ this.classId }/Yes/${result.value}`
+                        }
+                    });
                 }
             } else if (this.school === 'SVI') {
                 if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
@@ -2835,6 +2868,28 @@ export default {
                 }) 
             })
         },
+        updateStrand(strand) {
+            axios.post(`${ this.baseURL }/classes/update-strand`, {
+                _token : this.token,
+                ClassId : this.classId,
+                Strand : strand
+            })
+            .then(response => {
+                this.toast.fire({
+                    icon : 'success',
+                    text : 'Strand updated!'
+                })
+            })
+            .catch(error => {
+                console.log(error.response)
+                this.toast.fire({
+                    icon : 'error',
+                    text : 'Error updating strand!'
+                }) 
+            })
+            this.$refs.strand.blur();
+            location.reload()
+        }
     },
     created() {
         

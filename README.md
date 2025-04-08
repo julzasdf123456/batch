@@ -23,7 +23,7 @@
 ### New Permissions
 
 ### New NPM Packages
-
+- npm install vue-input-autowidth@next --save
 
 ### New Config Items
 ENROLLMENT_FEE

@@ -141,11 +141,12 @@ Route::post('/classes/save-enroll-to-second-sem', [ClassesController::class, 'sa
 Route::get('/classes/download-sf10/{studentId}/{classId}', [ClassesController::class, 'downloadSF10'])->name('classes.download-sf10');
 Route::post('/classes/create-new-sem', [ClassesController::class, 'createNewSem'])->name('classes.create-new-sem');
 Route::get('/classes/print-report-card-hca-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaSeniorAll'])->name('classes.print-report-card-hca-senior-all');
-Route::get('/classes/print-report-card-hca-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardHcaAll'])->name('classes.print-report-card-hca-all');
+Route::get('/classes/print-report-card-hca-all/{classId}/{printFinalGrade}/{side}', [ClassesController::class, 'printReportCardHcaAll'])->name('classes.print-report-card-hca-all');
 Route::get('/classes/print-report-card-svi-senior-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardSviSeniorAll'])->name('classes.print-report-card-svi-senior-all');
 Route::get('/classes/print-report-card-svi-all/{classId}/{printFinalGrade}', [ClassesController::class, 'printReportCardSviAll'])->name('classes.print-report-card-svi-all');
 Route::get('/classes/get-observed-values', [ClassesController::class, 'getObservedValues'])->name('classes.get-observed-values');
 Route::post('/classes/save-observed-values', [ClassesController::class, 'saveObservedValues'])->name('classes.save-observed-values');
+Route::post('/classes/update-strand', [ClassesController::class, 'updateStrand'])->name('classes.update-strand');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
