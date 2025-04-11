@@ -266,7 +266,8 @@ class BarcodeAttendanceController extends AppBaseController
             ];
         } else {
             // check teachers
-            $teacher = Teachers::find($id);
+            $teacher = Teachers::where('TeacherId', $id)
+                ->first();
 
             if ($teacher != null) {
                 $latestPunch = DB::table('BarcodeAttendance')

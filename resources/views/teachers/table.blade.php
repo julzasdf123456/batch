@@ -3,6 +3,7 @@
         <table class="table table-hover" id="teachers-table">
             <thead>
             <tr>
+                <th>ID</th>
                 <th>Fullname</th>
                 <th>Designation</th>
                 <th>Subjectexpertise</th>
@@ -14,6 +15,7 @@
             <tbody>
             @foreach($teachers as $teacher)
                 <tr>
+                    <td>{{ $teacher->TeacherId }}</td>
                     <td>{{ $teacher->FullName }}</td>
                     <td>{{ $teacher->Designation }}</td>
                     <td>{{ $teacher->SubjectExpertise }}</td>

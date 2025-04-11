@@ -18,8 +18,17 @@
 
 <!-- Strand Field -->
 <div class="form-group col-lg-12">
-    {!! Form::label('Strand', 'Track & Strand:') !!}
+    {!! Form::label('Strand', 'Strand:') !!}
     {!! Form::text('Strand', null, ['class' => 'form-control', 'maxlength' => 500, 'maxlength' => 500, 'placeholder' => 'Strand name...']) !!}
+</div>
+
+<!-- Track Field -->
+<div class="form-group col-lg-12">
+    {!! Form::label('Track', 'Track Name:') !!}
+    {!! Form::select('Track', [
+        '' => '- n/a -', 
+        'Academics' => 'Academics', 
+        'Technical, Vocational, and Livelihood' => 'Technical, Vocational, and Livelihood'], null, ['class' => 'form-control']) !!}
 </div>
 
 <!-- SEmester Field -->

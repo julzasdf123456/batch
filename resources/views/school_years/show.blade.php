@@ -26,6 +26,7 @@
                 <table class="table table-hover">
                     <thead>
                         <th>Grades/Classes - Section</th>
+                        <th>Track</th>
                         <th>Strand</th>
                         <th>Semester</th>
                         <th>Adviser</th>
@@ -35,6 +36,7 @@
                         @foreach ($classes as $item)
                             <tr>
                                 <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Year . ' - ' . $item->Section }}</td>
+                                <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Track }}</td>
                                 <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Strand }}</td>
                                 <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->Semester != null ? $item->Semester . ' Sem' : '' }}</td>
                                 <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)" class="v-align pointer">{{ $item->FullName }} <span class="text-muted">({{ $item->Designation }})</span></td>

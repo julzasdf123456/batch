@@ -22,6 +22,12 @@
     {!! Form::select('Department', ['Grade School' => 'Grade School', 'High School' => 'High School'], null, ['class' => 'form-control', 'required' => true]) !!}
 </div>
 
+<!-- TeacherId Field -->
+<div class="form-group col-lg-12">
+    {!! Form::label('TeacherId', 'Teacher ID:') !!}
+    {!! Form::text('TeacherId', null, ['class' => 'form-control', 'maxlength' => 500, 'maxlength' => 500, 'placeholder' => 'Input teacher id...', 'required' => true]) !!}
+</div>
+
 <!-- Status Field -->
 <div class="form-group col-lg-12">
     {!! Form::label('Status', 'Status:') !!}

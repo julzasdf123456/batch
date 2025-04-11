@@ -14,7 +14,8 @@ class Teachers extends Model
         'Designation',
         'SubjectExpertise',
         'Department',
-        'Status'
+        'Status',
+        'TeacherId'
     ];
 
     protected $casts = [
@@ -23,7 +24,8 @@ class Teachers extends Model
         'Designation' => 'string',
         'SubjectExpertise' => 'string',
         'Department' => 'string',
-        'Status' => 'string'
+        'Status' => 'string',
+        'TeacherId' => 'string',
     ];
 
     public static array $rules = [
@@ -33,7 +35,8 @@ class Teachers extends Model
         'Department' => 'nullable|string|max:50',
         'Status' => 'nullable|string|max:50',
         'created_at' => 'nullable',
-        'updated_at' => 'nullable'
+        'updated_at' => 'nullable',
+        'TeacherId' => 'nullable|string|max:50',
     ];
 
     
