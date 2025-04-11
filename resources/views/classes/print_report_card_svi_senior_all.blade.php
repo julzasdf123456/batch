@@ -198,7 +198,7 @@
                     <div class="row w-40 gap-10">
                         <h2 class="bold">Track:</h2>
                         <div class="border-bottom w-100">
-                            <h2 class="bold"></h2>
+                            <h2 class="bold">{{ $class->Track != null ? $class->Track : '' }}</h2>
                         </div>
                     </div>
 
