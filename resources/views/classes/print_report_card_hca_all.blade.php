@@ -8,14 +8,13 @@
 <link rel="stylesheet" href="{{ URL::asset('css/print_report_card_hca_all.css') }}">
 
 @if ($side === 'Front')
-    {{-- FRONT --}}
+    {{-- 
+    ===================================================================================================>
+            FRONT
+    ===================================================================================================>
+    --}}
     @foreach ($students as $student)
     <div id="print-area">
-        {{-- 
-        ===================================================================================================>
-                FRONT
-        ===================================================================================================>
-        --}}
         <div class="content">
             {{-- RIGHT --}}
             <div class="column">
@@ -315,93 +314,97 @@
                             <!-- Check if the subject has child subjects and display them -->
                             @if (isset($groupedSubjects[$subject['Subject']]))
                                 @foreach ($groupedSubjects[$subject['Subject']] as $subSubject)
-                                    @php
-                                        $hasInc = false;
-                                        if (
-                                            $subSubject['FirstGradingGrade'] == null &&
-                                            $periodGradeChecker->First != null
-                                        ) {
-                                            $hasInc = true;
-                                        }
-
-                                        if (
-                                            $subSubject['SecondGradingGrade'] == null &&
-                                            $periodGradeChecker->Second != null
-                                        ) {
-                                            $hasInc = true;
-                                        }
-
-                                        if (
-                                            $subSubject['ThirdGradingGrade'] == null &&
-                                            $periodGradeChecker->Third != null
-                                        ) {
-                                            $hasInc = true;
-                                        }
-
-                                        if (
-                                            $subSubject['FourthGradingGrade'] == null &&
-                                            $periodGradeChecker->Fourth != null
-                                        ) {
-                                            $hasInc = true;
-                                        }
-
-                                        $aveGrade = round(Subjects::getAverage([
-                                            Subjects::validateNumber($subSubject['FirstGradingGrade']),
-                                            Subjects::validateNumber($subSubject['SecondGradingGrade']),
-                                            Subjects::validateNumber($subSubject['ThirdGradingGrade']),
-                                            Subjects::validateNumber($subSubject['FourthGradingGrade']),
-                                        ]));
-                                        $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
-                                    @endphp
-                                    <tr>
-                                        <!-- Indented sub-subjects -->
-                                        <td class="sub-subject indent-05">{{ $subSubject['Subject'] }}</td>
-                                        <td class="text-right">
-                                            {{ is_numeric($subSubject['FirstGradingGrade']) ? number_format($subSubject['FirstGradingGrade']) : $subSubject['FirstGradingGrade'] }}
-                                        </td>
-                                        <td class="text-right">
-                                            {{ is_numeric($subSubject['SecondGradingGrade']) ? number_format($subSubject['SecondGradingGrade']) : $subSubject['SecondGradingGrade'] }}
-                                        </td>
-                                        <td class="text-right">
-                                            {{ is_numeric($subSubject['ThirdGradingGrade']) ? number_format($subSubject['ThirdGradingGrade']) : $subSubject['ThirdGradingGrade'] }}
-                                        </td>
-                                        <td class="text-right">
-                                            {{ is_numeric($subSubject['FourthGradingGrade']) ? number_format($subSubject['FourthGradingGrade']) : $subSubject['FourthGradingGrade'] }}
-                                        </td>
+                                    {{-- IF GRADE 7,8,9, AND Parent Subject is TLE, do not show --}}
+                                    @if (in_array($class->Year, ['Grade 7', 'Grade 8', 'Grade 9']) && $subSubject['ParentSubject'] === 'TLE')
                                         
-                                        <td class='text-center'>
-                                            @if ($avgParent)
-                                                <strong></strong>
-                                            @else
-                                                <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
-                                            @endif
-                                            
-                                        </td>
-                                        <td class='text-center'>
-                                            {{-- {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }} --}}
-                                        </td>
-                                        {{-- @php
-                                            // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
-                                            if (!str_contains($subSubject['Subject'], "Homeroom")) {
-                                                $sumFirst += floatval(
-                                                    $subSubject['FirstGradingGrade'] != null ? $subSubject['FirstGradingGrade'] : 0,
-                                                );
-                                                $sumSecond += floatval(
-                                                    $subSubject['SecondGradingGrade'] != null ? $subSubject['SecondGradingGrade'] : 0,
-                                                );
-                                                $sumThird += floatval(
-                                                    $subSubject['ThirdGradingGrade'] != null ? $subSubject['ThirdGradingGrade'] : 0,
-                                                );
-                                                $sumFourth += floatval(
-                                                    $subSubject['FourthGradingGrade'] != null ? $subSubject['FourthGradingGrade'] : 0,
-                                                );
-                                                $sumAverage += is_numeric($aveGrade) ? $aveGrade : 0;
-
-                                                $totalSubjectCount++;
+                                    @else 
+                                        @php
+                                            $hasInc = false;
+                                            if (
+                                                $subSubject['FirstGradingGrade'] == null &&
+                                                $periodGradeChecker->First != null
+                                            ) {
+                                                $hasInc = true;
                                             }
-                                        @endphp --}}
-                                    </tr>
-                                    
+
+                                            if (
+                                                $subSubject['SecondGradingGrade'] == null &&
+                                                $periodGradeChecker->Second != null
+                                            ) {
+                                                $hasInc = true;
+                                            }
+
+                                            if (
+                                                $subSubject['ThirdGradingGrade'] == null &&
+                                                $periodGradeChecker->Third != null
+                                            ) {
+                                                $hasInc = true;
+                                            }
+
+                                            if (
+                                                $subSubject['FourthGradingGrade'] == null &&
+                                                $periodGradeChecker->Fourth != null
+                                            ) {
+                                                $hasInc = true;
+                                            }
+
+                                            $aveGrade = round(Subjects::getAverage([
+                                                Subjects::validateNumber($subSubject['FirstGradingGrade']),
+                                                Subjects::validateNumber($subSubject['SecondGradingGrade']),
+                                                Subjects::validateNumber($subSubject['ThirdGradingGrade']),
+                                                Subjects::validateNumber($subSubject['FourthGradingGrade']),
+                                            ]));
+                                            $hasOverallInc = $hasOverallInc ? $hasOverallInc : $hasInc;
+                                        @endphp
+                                        <tr>
+                                            <!-- Indented sub-subjects -->
+                                            <td class="sub-subject indent-05">{{ $subSubject['Subject'] }}</td>
+                                            <td class="text-right">
+                                                {{ is_numeric($subSubject['FirstGradingGrade']) ? number_format($subSubject['FirstGradingGrade']) : $subSubject['FirstGradingGrade'] }}
+                                            </td>
+                                            <td class="text-right">
+                                                {{ is_numeric($subSubject['SecondGradingGrade']) ? number_format($subSubject['SecondGradingGrade']) : $subSubject['SecondGradingGrade'] }}
+                                            </td>
+                                            <td class="text-right">
+                                                {{ is_numeric($subSubject['ThirdGradingGrade']) ? number_format($subSubject['ThirdGradingGrade']) : $subSubject['ThirdGradingGrade'] }}
+                                            </td>
+                                            <td class="text-right">
+                                                {{ is_numeric($subSubject['FourthGradingGrade']) ? number_format($subSubject['FourthGradingGrade']) : $subSubject['FourthGradingGrade'] }}
+                                            </td>
+                                            
+                                            <td class='text-center'>
+                                                @if ($avgParent)
+                                                    <strong></strong>
+                                                @else
+                                                    <strong>{{ $hasInc ? '' : Subjects::validateGrade($aveGrade) }}</strong>
+                                                @endif
+                                                
+                                            </td>
+                                            <td class='text-center'>
+                                                {{-- {{ $hasInc ? 'INC' : Subjects::checkPass($subSubject['AverageGrade']) }} --}}
+                                            </td>
+                                            {{-- @php
+                                                // DO NOT INCLUDE HOMEROOM GUIDANCE ON AVERAGING
+                                                if (!str_contains($subSubject['Subject'], "Homeroom")) {
+                                                    $sumFirst += floatval(
+                                                        $subSubject['FirstGradingGrade'] != null ? $subSubject['FirstGradingGrade'] : 0,
+                                                    );
+                                                    $sumSecond += floatval(
+                                                        $subSubject['SecondGradingGrade'] != null ? $subSubject['SecondGradingGrade'] : 0,
+                                                    );
+                                                    $sumThird += floatval(
+                                                        $subSubject['ThirdGradingGrade'] != null ? $subSubject['ThirdGradingGrade'] : 0,
+                                                    );
+                                                    $sumFourth += floatval(
+                                                        $subSubject['FourthGradingGrade'] != null ? $subSubject['FourthGradingGrade'] : 0,
+                                                    );
+                                                    $sumAverage += is_numeric($aveGrade) ? $aveGrade : 0;
+
+                                                    $totalSubjectCount++;
+                                                }
+                                            @endphp --}}
+                                        </tr>
+                                    @endif
                                 @endforeach
                             @endif
                             @endforeach
@@ -865,6 +868,5 @@
 
     window.setTimeout(function(){
         window.history.go(-1)
-        // window.location.href = "{{ route('transactions.miscellaneous-search') }}";
     }, 800);
 </script>
