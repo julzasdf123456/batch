@@ -27,7 +27,7 @@
     {!! Form::label('Track', 'Track Name:') !!}
     {!! Form::select('Track', [
         '' => '- n/a -', 
-        'Academics' => 'Academics', 
+        'Academic' => 'Academic', 
         'Technical, Vocational, and Livelihood' => 'Technical, Vocational, and Livelihood'], null, ['class' => 'form-control']) !!}
 </div>
 
