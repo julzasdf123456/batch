@@ -5,6 +5,7 @@
             <span class="text-muted">{{ syDetails.SchoolYear }}</span>
             <span class="text-muted" title="Adviser" v-if="!isNull(adviser)">{{ isNull(adviser) ? '' : (' • ' + adviser.FullName) }}</span>
             <!-- <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span> -->
+            <span class="text-muted" v-if="isNull(advisory.Track) ? false : true">{{ isNull(advisory.Track) ? '' : (' • ' + advisory.Track ) }}</span>
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ') }}</span>
             <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">
                 <input type="text" ref="strand" class="floating-input text-muted" v-model="advisory.Strand" :placeholder="advisory.Strand" v-autowidth="{

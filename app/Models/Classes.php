@@ -18,6 +18,7 @@ class Classes extends Model
         'Adviser',
         'Strand',
         'Semester',
+        'Track',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class Classes extends Model
         'Adviser' => 'string',
         'Strand' => 'string',
         'Semester' => 'string',
+        'Track' => 'string',
     ];
 
     public static array $rules = [
@@ -42,6 +44,7 @@ class Classes extends Model
         'updated_at' => 'nullable',
         'Strand' => 'nullable|string',
         'Semester' => 'nullable|string',
+        'Track' => 'nullable|string',
     ];
 
     public static function populateSF10DataFront($student, $class, $adviser, $worksheet) {

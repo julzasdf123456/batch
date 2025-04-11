@@ -12,13 +12,10 @@
 - ClassSubjectParentAvg
 
 ### New Columns on Tables
-- Students
-    - JHSSchoolGraduated
-    - JHSSchoolAddress
-    - JHSDateGraduated
-    - ElementarySchoolGraduated
-    - ElementarySchoolAddress
-    - ElementaryDateGraduated
+- ClassesRepo
+    - Track
+- Classes
+    - Track
 
 ### New Permissions
 

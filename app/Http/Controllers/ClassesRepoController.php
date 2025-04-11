@@ -9,6 +9,7 @@ use App\Repositories\ClassesRepoRepository;
 use Illuminate\Http\Request;
 use App\Models\ClassesRepo;
 use App\Models\Teachers;
+use App\Models\Classes;
 use App\Models\Subjects;
 use App\Models\TuitionInclusions;
 use Illuminate\Support\Facades\DB;
@@ -64,6 +65,17 @@ class ClassesRepoController extends AppBaseController
         $input = $request->all();
 
         $classesRepo = $this->classesRepoRepository->create($input);
+
+        $class = Classes::where('Year', $classesRepo->Year)
+            ->where('Section', $classesRepo->Section)
+            ->where('Strand', $classesRepo->Strand)
+            ->where('Semester', $classesRepo->Semester)
+            ->first();
+
+        if ($class != null) {
+            $class->Track = $classesRepo->Track;
+            $class->save();
+        }
 
         Flash::success('Classes Repo saved successfully.');
 
@@ -165,6 +177,17 @@ class ClassesRepoController extends AppBaseController
         }
 
         $classesRepo = $this->classesRepoRepository->update($request->all(), $id);
+
+        $class = Classes::where('Year', $classesRepo->Year)
+            ->where('Section', $classesRepo->Section)
+            ->where('Strand', $classesRepo->Strand)
+            ->where('Semester', $classesRepo->Semester)
+            ->first();
+
+        if ($class != null) {
+            $class->Track = $classesRepo->Track;
+            $class->save();
+        }
 
         Flash::success('Classes Repo updated successfully.');
 
