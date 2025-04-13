@@ -7,6 +7,7 @@
 <meta name="pm-out-threshold" content="{{ env('STUDENT_OUT_PM_THRESHOLD') }}">
 <meta name="viewed-in" content="admin">
 <meta name="school" content="{{ env('APP_COMPANY_ABRV') }}">
+<meta name="olv-input" content="{{ env('OLV_EDIT_MODE') }}">
 
 @section('content')
 <div id="app">

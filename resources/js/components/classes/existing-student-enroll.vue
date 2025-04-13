@@ -15,11 +15,13 @@
     <div class="content table-responsive px-3">
         <table class="table table-hover table-sm">
             <thead>
-                <th>Student ID</th>
-                <th>Student</th>
-                <th>Address</th>
-                <th>Latest Grade Level</th>
-                <th></th>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student</th>
+                    <th>Address</th>
+                    <th>Latest Grade Level</th>
+                    <th></th>
+                </tr>
             </thead>
             <tbody>
                 <tr v-for="student in students.data" :key="student.id" style="cursor: pointer;">

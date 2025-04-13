@@ -6,14 +6,16 @@
 
     <table class="print-table-bordered" style="width: 100%; margin-top: 15px;">
         <thead>
-            <th></th>
-            <th>OR Number</th>
-            <th>Student</th>
-            <th>Payment For</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Mode of<br>Payment</th>
-            <th class="text-right">Amount Paid</th>
+            <tr>
+                <th></th>
+                <th>OR Number</th>
+                <th>Student</th>
+                <th>Payment For</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Mode of<br>Payment</th>
+                <th class="text-right">Amount Paid</th>
+            </tr>
         </thead>
         <tbody>
             <tr v-for="(item, index) in summary" :key="item.id">

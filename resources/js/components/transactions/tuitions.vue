@@ -135,10 +135,12 @@
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover table-sm table-bordered mt-3">
                         <thead>
-                            <th>Item</th>
-                            <th>Price</th>
-                            <th>Qty</th>
-                            <th>Total</th>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="item in payableItems" :key="item.id">
@@ -175,9 +177,11 @@
                     <span class="text-muted">Tuition Monthly Payables</span>
                     <table class="table table-sm table-hover table-borderless">
                         <thead>
-                            <th>Month</th>
-                            <th class="text-right">Amount Paid</th>
-                            <th class="text-right">Balance</th>
+                            <tr>
+                                <th>Month</th>
+                                <th class="text-right">Amount Paid</th>
+                                <th class="text-right">Balance</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="month in tuitionMonths" :key="month.id">
@@ -433,8 +437,10 @@
                                         <span class="text-muted">Payable Breakdown</span>
                                         <table class="table table-sm table-hover">
                                             <thead>
-                                                <th class="text-muted">Item</th>
-                                                <th class="text-muted text-right">Amount</th>
+                                                <tr>
+                                                    <th class="text-muted">Item</th>
+                                                    <th class="text-muted text-right">Amount</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="inc in payableInclusions" :key="inc.id">
@@ -450,12 +456,14 @@
                                         <span class="text-muted">Tuition Fee Monthly Balance Breakdown</span>
                                         <table class="table table-hover table-sm table-bordered">
                                             <thead>
-                                                <th class="text-muted">Month</th>
-                                                <th class="text-muted text-right">Tuition Fee</th>
-                                                <th class="text-muted text-right">Discount</th>
-                                                <th class="text-muted text-right">Amount Payable</th>
-                                                <th class="text-muted text-right">Amount Paid</th>
-                                                <th class="text-muted text-right">Balance</th>
+                                                <tr>
+                                                    <th class="text-muted">Month</th>
+                                                    <th class="text-muted text-right">Tuition Fee</th>
+                                                    <th class="text-muted text-right">Discount</th>
+                                                    <th class="text-muted text-right">Amount Payable</th>
+                                                    <th class="text-muted text-right">Amount Paid</th>
+                                                    <th class="text-muted text-right">Balance</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-for="item in tuitionsBreakdown" :key="item.id">
@@ -483,16 +491,18 @@
                                 <span class="text-muted">Transaction Logs</span>
                                 <table class="table table-hover table-sm table-bordered">
                                     <thead>
-                                        <th class="text-muted">Payment For</th>
-                                        <th class="text-muted">Mode of Payment</th>
-                                        <th class="text-muted">Period</th>
-                                        <th class="text-muted">OR Number</th>
-                                        <th class="text-muted">OR Date</th>
-                                        <th class="text-muted">Cashier</th>
-                                        <th class="text-muted text-right">Cash Amount</th>
-                                        <th class="text-muted text-right">Check Amount</th>
-                                        <th class="text-muted text-right">Transfer Amount</th>
-                                        <th class="text-muted text-right">Total Amount Paid</th>
+                                        <tr>
+                                            <th class="text-muted">Payment For</th>
+                                            <th class="text-muted">Mode of Payment</th>
+                                            <th class="text-muted">Period</th>
+                                            <th class="text-muted">OR Number</th>
+                                            <th class="text-muted">OR Date</th>
+                                            <th class="text-muted">Cashier</th>
+                                            <th class="text-muted text-right">Cash Amount</th>
+                                            <th class="text-muted text-right">Check Amount</th>
+                                            <th class="text-muted text-right">Transfer Amount</th>
+                                            <th class="text-muted text-right">Total Amount Paid</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="hist in payableTransactionHistory" :key="hist.id">
@@ -517,11 +527,13 @@
                             <div class="table-responsive">
                                 <table class="table table-hover table-sm table-bordered">
                                     <thead>
-                                        <th>OR Number</th>
-                                        <th>Date</th>
-                                        <th>Particulars</th>
-                                        <th>Amount Paid</th>
-                                        <th>Cashier</th>
+                                        <tr>
+                                            <th>OR Number</th>
+                                            <th>Date</th>
+                                            <th>Particulars</th>
+                                            <th>Amount Paid</th>
+                                            <th>Cashier</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="item in detailedTransactions" :key="item.id">

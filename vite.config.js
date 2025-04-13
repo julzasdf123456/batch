@@ -6,6 +6,13 @@ import vue from '@vitejs/plugin-vue'
 
 
 export default defineConfig({
+    server: {
+        host: 'batch.local', // ✅ Force IPv4 instead of 'batch.local'
+        port: 5173,
+        hmr: {
+          host: 'batch.local',
+        },
+    },
     plugins: [
 
         vue(),

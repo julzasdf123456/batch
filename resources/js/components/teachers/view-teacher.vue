@@ -66,13 +66,15 @@
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover table-bordered table-sm">
                         <thead>
-                            <th></th>
-                            <th class="text-muted">Student</th>
-                            <th class="text-muted">1st Grading</th>
-                            <th class="text-muted">2nd Grading</th>
-                            <th class="text-muted">3rd Grading</th>
-                            <th class="text-muted">4th Grading</th>
-                            <th class="text-muted">Final Grade</th>
+                            <tr>
+                                <th></th>
+                                <th class="text-muted">Student</th>
+                                <th class="text-muted">1st Grading</th>
+                                <th class="text-muted">2nd Grading</th>
+                                <th class="text-muted">3rd Grading</th>
+                                <th class="text-muted">4th Grading</th>
+                                <th class="text-muted">Final Grade</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(student, index) in students" :key="student.StudentSubjectId">

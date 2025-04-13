@@ -38,7 +38,7 @@
                     <p class="card-title text-muted">
                         Parent Subject Averaging
                         <br>
-                        <p class="text-muted no-pads text-sm">Each subject component of the following subject parents will be averaged if checked.</p>
+                        <span class="text-muted no-pads text-sm">Each subject component of the following subject parents will be averaged if checked.</span>
                     </p>
                     
                 </div>

@@ -22,10 +22,12 @@
             <div class="table-responsive">
                 <table class="table table-hover table-bordered mt-3">
                     <thead>
-                        <th>Item</th>
-                        <th>Price</th>
-                        <th>Qty</th>
-                        <th>Total Amount</th>
+                        <tr>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Qty</th>
+                            <th>Total Amount</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr v-for="item in payableItems" :key="item.id">

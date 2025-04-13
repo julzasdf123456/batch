@@ -42,8 +42,10 @@
                     <span class="text-muted"><i class="fas fa-book ico-tab-mini"></i>Subjects Enrolled</span>
                     <table class="table table-hover table-sm table-borderless">
                         <thead>
-                            <th class="tet-muted">Subject</th>
-                            <th class="tet-muted">Teacher</th>
+                            <tr>
+                                <th class="tet-muted">Subject</th>
+                                <th class="tet-muted">Teacher</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="s in subjects" :key="s.StudentSubjectId">
@@ -108,8 +110,10 @@
                     <span class="text-muted"><i class="fas fa-book ico-tab-mini"></i>Subjects in this Class</span>
                     <table class="table table-hover table-sm">
                         <thead>
-                            <th class="text-muted" colspan="2">Subject</th>
-                            <th class="text-muted" colspan="2">Teacher/Instructor</th>
+                            <tr>
+                                <th class="text-muted" colspan="2">Subject</th>
+                                <th class="text-muted" colspan="2">Teacher/Instructor</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="subject in subjectsInClass" :key="subject.id">

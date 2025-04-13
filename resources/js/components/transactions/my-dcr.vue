@@ -54,14 +54,16 @@
                             <div class="p-2 table-responsive">
                                 <table class="table table-sm table-hover table-bordered">
                                     <thead>
-                                        <th></th>
-                                        <th>OR Number</th>
-                                        <th>Student/Payor</th>
-                                        <th>Payment For</th>
-                                        <th>Time</th>
-                                        <th>Mode of<br>Payment</th>
-                                        <th class="text-right">Amount Paid</th>
-                                        <th style="width: 120px;"></th>
+                                        <tr>
+                                            <th></th>
+                                            <th>OR Number</th>
+                                            <th>Student/Payor</th>
+                                            <th>Payment For</th>
+                                            <th>Time</th>
+                                            <th>Mode of<br>Payment</th>
+                                            <th class="text-right">Amount Paid</th>
+                                            <th style="width: 120px;"></th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, index) in summary" :key="item.id">
@@ -110,12 +112,14 @@
                             <div class="p-2 table-responsive">
                                 <table class="table table-sm table-hover table-bordered">
                                     <thead>
-                                        <th></th>
-                                        <th>OR Number</th>
-                                        <th>Student/Payor</th>
-                                        <th>Particulars</th>
-                                        <th class="text-right">Amount Paid</th>
-                                        <th style="width: 40px;"></th>
+                                        <tr>
+                                            <th></th>
+                                            <th>OR Number</th>
+                                            <th>Student/Payor</th>
+                                            <th>Particulars</th>
+                                            <th class="text-right">Amount Paid</th>
+                                            <th style="width: 40px;"></th>
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, index) in details" :key="item.id">
@@ -145,15 +149,17 @@
                             <div class="p-2 table-responsive">
                                 <table class="table table-sm table-hover table-bordered">
                                     <thead>
-                                        <th></th>
-                                        <th>OR Number</th>
-                                        <th>Student/Payor</th>
-                                        <th>Payment For</th>
-                                        <th>Time</th>
-                                        <th>Mode of<br>Payment</th>
-                                        <th class="text-right">Amount Paid</th>
-                                        <th>Reason</th>
-                                        <!-- <th style="width: 120px;"></th> -->
+                                        <tr>
+                                            <th></th>
+                                            <th>OR Number</th>
+                                            <th>Student/Payor</th>
+                                            <th>Payment For</th>
+                                            <th>Time</th>
+                                            <th>Mode of<br>Payment</th>
+                                            <th class="text-right">Amount Paid</th>
+                                            <th>Reason</th>
+                                            <!-- <th style="width: 120px;"></th> -->
+                                        </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="(item, index) in cancelled" :key="item.id">
@@ -241,8 +247,10 @@
                         <p class="text-muted no-pads">Particulars</p>
                         <table class="table table-sm table-hover">
                             <thead>
-                                <th>Particulars</th>
-                                <th class="text-right">Amount</th>
+                                <tr>
+                                    <th>Particulars</th>
+                                    <th class="text-right">Amount</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="item in transactionDetails" :key="item.id">

@@ -4,6 +4,7 @@
 <meta name="teacher-id" content="{{ Auth::user()->TeacherId }}">
 <meta name="school-year-id" content="{{ $syId }}">
 <meta name="subject-id" content="{{ $subjectId }}">
+<meta name="olv-input" content="{{ env('OLV_EDIT_MODE') }}">
 
 @section('content')
 <div id="app">

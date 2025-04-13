@@ -20,10 +20,12 @@
                     <div class="table-responsive">
                         <table class="table table-hover table-sm table-bordered">
                             <thead>
-                                <th>OR Number</th>
-                                <th>Date</th>
-                                <th>Particulars</th>
-                                <th>Amount Paid</th>
+                                <tr>
+                                    <th>OR Number</th>
+                                    <th>Date</th>
+                                    <th>Particulars</th>
+                                    <th>Amount Paid</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="item in detailedTransactions" :key="item.id">

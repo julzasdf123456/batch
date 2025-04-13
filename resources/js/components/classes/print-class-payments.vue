@@ -4,11 +4,13 @@
 
     <table class="print-table-bordered" style="width: 100%;">
         <thead>
-            <th></th>
-            <th class="text-center">Students</th>
-            <th class="text-center">Tuition<br>Payable</th>
-            <th class="text-center" v-for="pm in paymentMonths">{{ moment(pm.ForMonth).format('MMM YYYY') }}</th>
-            <th class="text-center">Remaining<br>Balance</th>
+            <tr>
+                <th></th>
+                <th class="text-center">Students</th>
+                <th class="text-center">Tuition<br>Payable</th>
+                <th class="text-center" v-for="pm in paymentMonths">{{ moment(pm.ForMonth).format('MMM YYYY') }}</th>
+                <th class="text-center">Remaining<br>Balance</th>
+            </tr>
         </thead>
         <tbody>
             <tr>

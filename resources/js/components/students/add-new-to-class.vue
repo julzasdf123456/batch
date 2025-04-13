@@ -127,8 +127,10 @@
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover table-sm">
                         <thead>
-                            <th class="text-muted" colspan="2">Subject</th>
-                            <th class="text-muted" colspan="2">Teacher/Instructor</th>
+                            <tr>
+                                <th class="text-muted" colspan="2">Subject</th>
+                                <th class="text-muted" colspan="2">Teacher/Instructor</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="subject in subjects" :key="subject.id">

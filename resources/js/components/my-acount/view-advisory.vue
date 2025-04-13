@@ -172,16 +172,18 @@
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
-                                            <th style="width: 16px;" v-if="selectionMode"></th>
-                                            <th style="width: 35px;"></th>
-                                            <th class="text-muted">Last Name</th>
-                                            <th class="text-muted">First Name</th>
-                                            <th class="text-muted">Middle Name</th>
-                                            <th class="text-muted">LRN</th>
-                                            <th class="text-muted">Address</th>
-                                            <th class="text-muted">Birth Date</th>
-                                            <th class="text-muted">Contact Numbers</th>
-                                            <th style="width: 120px;"></th>
+                                            <tr>
+                                                <th style="width: 16px;" v-if="selectionMode"></th>
+                                                <th style="width: 35px;"></th>
+                                                <th class="text-muted">Last Name</th>
+                                                <th class="text-muted">First Name</th>
+                                                <th class="text-muted">Middle Name</th>
+                                                <th class="text-muted">LRN</th>
+                                                <th class="text-muted">Address</th>
+                                                <th class="text-muted">Birth Date</th>
+                                                <th class="text-muted">Contact Numbers</th>
+                                                <th style="width: 120px;"></th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -353,9 +355,11 @@
 
                                     <table class="table table-hover table-sm table-bordered">
                                         <thead>
-                                            <th style="width: 28px;"</th>
-                                            <th class="text-center">Students</th>
-                                            <th class="text-center" v-for="d in daysInAMonth">{{ d }}</th>
+                                            <tr>
+                                                <th style="width: 28px;"></th>
+                                                <th class="text-center">Students</th>
+                                                <th class="text-center" v-for="d in daysInAMonth">{{ d }}</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -513,6 +517,18 @@
                             <div class="tab-pane fade" id="observed-content" role="tabpanel" aria-labelledby="observed-tab">
                                 <div class="row">
                                     <!-- STUDENTS LIST -->
+                                    <div class="col-lg-12 pt-3">
+                                        <div class='btn-group float-right'>
+                                            <button
+                                            class='btn btn-sm' :class="olvInput==='DROPDOWN' ? 'btn-success' : 'btn-default'" @click="changeInputType('DROPDOWN')">
+                                                <i class="fas fa-chevron-circle-down ico-tab-mini"></i> Dropdown
+                                            </button>
+                                            <button
+                                            class='btn btn-sm' :class="olvInput==='INPUT' ? 'btn-success' : 'btn-default'" @click="changeInputType('INPUT')">
+                                                <i class="fas fa-text-width ico-tab-mini"></i>Input
+                                            </button>
+                                        </div>
+                                    </div>
                                     <div class="col-lg-4 table-responsive" style="height: 80vh; padding-top: 18px;">
                                         <table class="table table-hover table-borderless">
                                             <tbody>
@@ -565,40 +581,60 @@
                                                         beliefs while respecting the
                                                         spiritual beliefs of others</td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -606,40 +642,60 @@
                                                         principles by upholding
                                                         truth</td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makadios_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
 
@@ -649,40 +705,60 @@
                                                         social and cultural
                                                         difference</td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FirstQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FirstQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.SecondQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.SecondQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.ThirdQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.ThirdQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FourthQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FourthQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -690,40 +766,60 @@
                                                         contributions towards
                                                         solidarity</td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FirstQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FirstQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.SecondQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.SecondQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.ThirdQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.ThirdQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FourthQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FourthQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makatao_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
 
@@ -735,40 +831,60 @@
                                                         wisely, judiciously, and
                                                         economically</td>
                                                         <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FirstQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FirstQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makakalikasan_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.SecondQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.SecondQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makakalikasan_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.ThirdQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.ThirdQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makakalikasan_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FourthQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FourthQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makakalikasan_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -780,40 +896,60 @@
                                                         responsibilities of a Filipino
                                                         citizen</td>
                                                         <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FirstQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FirstQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.SecondQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.SecondQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.ThirdQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.ThirdQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FourthQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FourthQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -822,80 +958,120 @@
                                                         activities in the school,
                                                         community, and country</td>
                                                         <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FirstQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FirstQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.SecondQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.SecondQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.ThirdQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.ThirdQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">>
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FourthQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)">
+                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FourthQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="makabansa_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="v-align">5. Industry</td>
                                                     <td class="v-align">Demonstrates diligence and initiative in doing tasks in school and in the community</td>
                                                         <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.FirstQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.FirstQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="industry.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.SecondQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.SecondQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="industry.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.ThirdQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.ThirdQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="industry.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                     <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.FourthQuarter" @change="saveObservedValues(INDUSTRY, industry)">
+                                                        <select class="form-control form-control-sm table-select" v-model="industry.FourthQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
                                                             <option value="">-</option>
                                                             <option value="AO">AO</option>
                                                             <option value="SO">SO</option>
                                                             <option value="RO">RO</option>
                                                             <option value="NO">NO</option>
                                                         </select>
+                                                        <input class="form-control form-control-sm" v-autowidth="{
+                                                                minWidth: '20px',
+                                                                maxWidth: '75%',
+                                                                comfortZone: '6ch',
+                                                            }" v-model="industry.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -916,11 +1092,13 @@
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
-                                            <th></th>
-                                            <th class="text-center">Students</th>
-                                            <th class="text-center">Tuition<br>Payable</th>
-                                            <th class="text-center" v-for="pm in paymentMonths">{{ moment(pm.ForMonth).format('MMM YYYY') }}</th>
-                                            <th class="text-center">Remaining<br>Balance</th>
+                                            <tr>
+                                                <th></th>
+                                                <th class="text-center">Students</th>
+                                                <th class="text-center">Tuition<br>Payable</th>
+                                                <th class="text-center" v-for="pm in paymentMonths">{{ moment(pm.ForMonth).format('MMM YYYY') }}</th>
+                                                <th class="text-center">Remaining<br>Balance</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -974,13 +1152,15 @@
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
-                                            <th></th>
-                                            <th>Student Name</th>
-                                            <th>LRN</th>
-                                            <th>Address</th>
-                                            <th>Gender</th>
-                                            <th>Status</th>
-                                            <th></th>
+                                            <tr>
+                                                <th></th>
+                                                <th>Student Name</th>
+                                                <th>LRN</th>
+                                                <th>Address</th>
+                                                <th>Gender</th>
+                                                <th>Status</th>
+                                                <th></th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="(student, index) in inactive">
@@ -1013,9 +1193,11 @@
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-sm table-bordered">
                                         <thead>
-                                            <th style="width: 28px;"></th>
-                                            <th class="text-center">Students</th>
-                                            <th class="text-right">Total Miscellaneous Tuition Payments</th>
+                                            <tr>
+                                                <th style="width: 28px;"></th>
+                                                <th class="text-center">Students</th>
+                                                <th class="text-right">Total Miscellaneous Tuition Payments</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="(student, index) in miscToTuitions" :key="student.StudentSubjectId">
@@ -1189,6 +1371,7 @@ export default {
             pmOutThreshold : document.querySelector("meta[name='pm-out-threshold']").getAttribute('content'),
             viewedIn : document.querySelector("meta[name='viewed-in']").getAttribute('content'),
             school : document.querySelector("meta[name='school']").getAttribute('content'),
+            olvInput : document.querySelector("meta[name='olv-input']").getAttribute('content'),
             male : [],
             female : [],
             advisory : {},
@@ -2890,6 +3073,9 @@ export default {
             })
             this.$refs.strand.blur();
             location.reload()
+        },
+        changeInputType(type) {
+            this.olvInput = type
         }
     },
     created() {

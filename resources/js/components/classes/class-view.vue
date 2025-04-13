@@ -6,11 +6,13 @@
         <div class="card-body table-responsive p-0">
             <table class="table table-hover table-sm">
                 <thead>
-                    <th class="text-muted" style="width: 40px;">#</th>
-                    <th class="text-muted">Student</th>
-                    <th class="text-muted">Address</th>
-                    <th class="text-muted">Type</th>
-                    <th class="text-muted"></th>
+                    <tr>
+                        <th class="text-muted" style="width: 40px;">#</th>
+                        <th class="text-muted">Student</th>
+                        <th class="text-muted">Address</th>
+                        <th class="text-muted">Type</th>
+                        <th class="text-muted"></th>
+                    </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(student, index) in students" :key="student.id">
