@@ -240,6 +240,8 @@
 
                                                             <button v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
 
+                                                            <button v-if="advisory.Year !== 'Grade 11' || advisory.Year !== 'Grade 12'" @click="downloadSF10JHS(student.id)" class="dropdown-item" title="Download School Form 10 for JHS in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
+
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
                                                             <button v-if="viewedIn==='admin'" @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
@@ -300,6 +302,8 @@
                                                             <div v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" class="divider"></div>
 
                                                             <button v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
+
+                                                            <button v-if="advisory.Year !== 'Grade 11' || advisory.Year !== 'Grade 12'" @click="downloadSF10JHS(student.id)" class="dropdown-item" title="Download School Form 10 for JHS in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
 
                                                             <div v-if="viewedIn==='admin'" class="divider"></div>
 
@@ -2817,6 +2821,11 @@ export default {
         downloadSF10(studentId) {
             if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
                 window.location.href = `${ this.baseURL }/classes/download-sf10/${ studentId }/${ this.classId }`
+            }
+        },
+        downloadSF10JHS(studentId) {
+            if (this.advisory.Year !== 'Grade 11' || this.advisory.Year !== 'Grade 12') {
+                window.location.href = `${ this.baseURL }/classes/download-sf10-jhs/${ studentId }/${ this.classId }`
             }
         },
         selectViewOptionQ(quarter) {

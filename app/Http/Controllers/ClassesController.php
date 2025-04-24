@@ -3669,6 +3669,71 @@ class ClassesController extends AppBaseController
         return response()->download(public_path('generated/sf2/SF10_' . $studentId . '.xlsx'));
     }
 
+    public function downloadSF10JHS($studentId, $classId) {
+        /**
+         * MODIFY EXCEL
+         */
+        $filePath = public_path('templates/SF_10_Template_JHS.xlsx');
+        $spreadsheet = IOFactory::load($filePath);
+
+        /**
+         * ================================================
+         * Access the first worksheet
+         * ================================================
+         */
+        $worksheet = $spreadsheet->getSheetByName("SF10");
+
+        /**
+         * ================================================
+         * START FILLING FIRST SHEET
+         * ================================================
+         */
+        $student = Students::find($studentId);
+        $class = null;
+        $otherClass = null;
+        $adviser = null;
+        $otherAdviser = null;
+
+        if ($student != null) {
+            /**
+             * QUERY STUDENT DETAILS
+             */
+            $class = DB::table('Classes')
+                ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
+                ->select(
+                    'Classes.*',
+                    'SchoolYear.SchoolYear'
+                )
+                ->whereRaw("Classes.id='" . $classId . "'")
+                ->first();
+
+            $adviser = Teachers::find($class->Adviser);
+
+            /**
+             * STUDENTS INFO
+             */
+            $worksheet->setCellValue('C9', strtoupper($student->LastName));
+            $worksheet->setCellValue('G9', strtoupper($student->FirstName));
+            $worksheet->setCellValue('N9', strtoupper($student->MiddleName));
+            $worksheet->setCellValue('K9', strtoupper($student->Suffix));
+            $worksheet->setCellValue('E10', $student->LRN);
+            // $worksheet->setCellValue('I10', $student->Birthdate != null ? date('m/d/Y', strtotime($student->Birthdate)) : '-');
+            $worksheet->setCellValue('N10', strtoupper($student->Gender));
+
+            // $worksheet->setCellValue('P14', $student->JHSDateGraduated != null ? date('m/d/Y', strtotime($student->JHSDateGraduated)) : '-');
+
+            Classes::populateSF10JHS($student, $class, $adviser, $worksheet);
+        }
+
+        $worksheet = $spreadsheet->getSheetByName("SF10");
+        
+        // Save the modified file
+        $writer = new Xlsx($spreadsheet);
+        $writer->save(public_path('generated/sf2/SF10_JHS_' . $studentId . '.xlsx'));
+
+        return response()->download(public_path('generated/sf2/SF10_JHS_' . $studentId . '.xlsx'));
+    }
+
     public function createNewSem(Request $request) {
         $syId = $request['SchoolYearId'];
         $year = $request['Year'];
