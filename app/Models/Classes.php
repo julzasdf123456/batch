@@ -295,6 +295,69 @@ class Classes extends Model
         }
     }
 
+    public static function populateSF10JHS($student, $class, $adviser, $worksheet) {
+        if ($class != null) {
+            /**
+             * SCHOOL INFO
+             */
+            $worksheet->setCellValue('C22', strtoupper(env('APP_COMPANY')));
+            $worksheet->setCellValue('H22', strtoupper(env('SCHOOL_CODE')));
+            $worksheet->setCellValue('M22', "BOHOL");
+            $worksheet->setCellValue('P22', "VII");
+
+            /**
+             * GRADE LEVEL
+             */
+            $worksheet->setCellValue('D23', strtoupper(str_replace('Grade ', '', $class->Year)));
+            $worksheet->setCellValue('F23', strtoupper($class->Section));
+            $worksheet->setCellValue('H23', strtoupper(str_replace('S.Y. ', '', $class->SchoolYear)));
+            $worksheet->setCellValue('F23', strtoupper($class->Section));
+            $worksheet->setCellValue('L23', strtoupper($adviser != null ? $adviser->FullName : ''));
+
+            /**
+             * CURRENT SEM SUBJECTS
+             */
+            $currentSubjects = DB::table('StudentSubjects')
+                ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->whereRaw("StudentSubjects.StudentId='" . $student->id . "' AND StudentSubjects.ClassId='" . $class->id . "'")
+                ->select(
+                    'StudentSubjects.*',
+                    'Subjects.Subject',
+                    'Subjects.ParentSubject',
+                    'Teachers.FullName',
+                )
+                ->orderBy('Heirarchy')
+                ->get();
+            
+            $fsRowStart = 27;
+            $fsRowOGStart = 27; // for averaging, get original starting row
+            foreach($currentSubjects as $fs) {
+                $worksheet->setCellValue('A' . $fsRowStart, $fs->Subject);
+                $worksheet->setCellValue('G' . $fsRowStart, $fs->FirstGradingGrade != null ? round(floatval($fs->FirstGradingGrade)) : '');
+                $worksheet->setCellValue('H' . $fsRowStart, $fs->SecondGradingGrade != null ? round(floatval($fs->SecondGradingGrade)) : '');
+                $worksheet->setCellValue('I' . $fsRowStart, $fs->ThirdGradingGrade != null ? round(floatval($fs->ThirdGradingGrade)) : '');
+                $worksheet->setCellValue('J' . $fsRowStart, $fs->FourthGradingGrade != null ? round(floatval($fs->FourthGradingGrade)) : '');
+                $worksheet->setCellValue('K' . $fsRowStart, '=IF(OR(G'.$fsRowStart.'="",J'.$fsRowStart.'=""),"",IF(ISERROR(ROUND(AVERAGE(G'.$fsRowStart.',J'.$fsRowStart.'),0)),"",ROUND(AVERAGE(G'.$fsRowStart.',J'.$fsRowStart.'),0)))');
+                $worksheet->setCellValue('L' . $fsRowStart, '=IF(OR(G'.$fsRowStart.'="",J'.$fsRowStart.'="",K'.$fsRowStart.'=""),"",IF(K'.$fsRowStart.'>=75,"PASSED","FAILED"))');
+
+                $fsRowStart++;
+            }
+            
+            $worksheet->setCellValue('J40', '=ROUND(AVERAGE(K'.$fsRowOGStart.':K'.($fsRowStart-1).'),0)');
+            $worksheet->setCellValue('K40', '=IF($J$40>=90,ROUND($J$40,3),ROUND($J$40,0))');
+            $worksheet->setCellValue('L40', '=IF(K40>74.5,"Promoted","Retained")');
+            $worksheet->setCellValue('I14', '=K40');
+
+            /**
+             * ADVISER AND PRINCIPAL
+             */
+            $worksheet->setCellValue('E83', strtoupper(env('PRINCIPAL_NAME')));
+            $worksheet->setCellValue('B83', strtoupper(date('m/d/Y')));
+        } 
+    }
+
     public static function categorizeParentSubjects($data) {
         /**
          * REORGANIZE SUBJECTS FOR PARENT SUBJECTS

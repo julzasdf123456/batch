@@ -1,5 +1,5 @@
 
-
+### MODIFY THESE FOR DOCS
 ### GENERATE MODELS FROM TABLE
 - php artisan infyom:scaffold Post --fromTable --table=posts --connection=server_name
 
@@ -9,13 +9,8 @@
 - Green - #3a9971
 
 ### New Tables
-- ClassSubjectParentAvg
 
 ### New Columns on Tables
-- ClassesRepo
-    - Track
-- Classes
-    - Track
 
 ### New Permissions
 

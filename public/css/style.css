@@ -368,7 +368,8 @@ td.off {
 /**
  * BUTTONS
  */
-.btn {
+ :not(.btn-group) > .btn,
+ :not(.btn-group) .btn:not(.btn-group .btn) {
     border-radius: 10px !important;
     padding-left: 15px !important;
     padding-right: 15px !important;
@@ -1135,6 +1136,12 @@ body.dark-mode .tbl-divider {
 
 .dark-mode .bg-select {
     background-color: #3f464d !important;
+}
+
+.table-input {
+    border: none !important;
+    outline: none !important;
+    min-width: 50px !important;
 }
 
 .table-select {

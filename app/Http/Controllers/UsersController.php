@@ -345,8 +345,8 @@ class UsersController extends AppBaseController
                 
             $data['Inactive'] =  DB::table('StudentClasses')
                 ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
-                ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
-                ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
+                ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
                 ->whereRaw("Students.Status IS NOT NULL")
                 ->select(

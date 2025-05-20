@@ -55,15 +55,17 @@
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover table-sm table-bordered">
                         <thead>
-                            <th style="width: 35px;"></th>
-                            <th class="text-muted">LRN</th>
-                            <th class="text-muted">Last Name</th>
-                            <th class="text-muted">First Name</th>
-                            <th class="text-muted">Middle Name</th>
-                            <th class="text-muted">Gender</th>
-                            <th class="text-muted">Address</th>
-                            <th class="text-muted">Birth Date</th>
-                            <th class="text-muted">Contact Numbers</th>
+                            <tr>
+                                <th style="width: 35px;"></th>
+                                <th class="text-muted">LRN</th>
+                                <th class="text-muted">Last Name</th>
+                                <th class="text-muted">First Name</th>
+                                <th class="text-muted">Middle Name</th>
+                                <th class="text-muted">Gender</th>
+                                <th class="text-muted">Address</th>
+                                <th class="text-muted">Birth Date</th>
+                                <th class="text-muted">Contact Numbers</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(student, index) in studentData" :key="student.id">

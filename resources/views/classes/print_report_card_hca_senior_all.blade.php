@@ -160,7 +160,7 @@
                     <div class="row w-60 gap-10">
                         <h2 class="bold">NAME:</h2>
                         <div class="border-bottom w-100">
-                            <h2 class="bold">{{ $student->LastName }}, {{ $student->FirstName }}</h2>
+                            <h2 class="bold">{{ $student->LastName }}, {{ $student->FirstName }} {{ $student->MiddleName }}</h2>
                         </div>
                     </div>
     

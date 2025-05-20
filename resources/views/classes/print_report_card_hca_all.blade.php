@@ -42,7 +42,7 @@
                         <div style="display: flex; justify-content: start;" class="w-80 gap-10">
                             <h2>NAME:</h2>
                             <div class="border-bottom" style="flex: 1;">
-                                <h2>{{ $student->LastName }}, {{ $student->FirstName }}</h2>
+                                <h2>{{ $student->LastName }}, {{ $student->FirstName }} {{ $student->MiddleName }}</h2>
                             </div>
                         </div>
 

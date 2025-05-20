@@ -44,14 +44,16 @@
 
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
-                                            <th></th>
-                                            <th class="text-muted">Student</th>
-                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">1st Grading</th>
-                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">2nd Grading</th>
-                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">3rd Grading</th>
-                                            <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">4th Grading</th>
-                                            <th class="text-muted">Final Grade</th>
-                                            <th style="width: 20px;"></th>
+                                            <tr>
+                                                <th></th>
+                                                <th class="text-muted">Student</th>
+                                                <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">1st Grading</th>
+                                                <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='1st'">2nd Grading</th>
+                                                <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">3rd Grading</th>
+                                                <th class="text-muted" v-if="isNull(classDetails.Semester) || classDetails.Semester==='2nd'">4th Grading</th>
+                                                <th class="text-muted">Final Grade</th>
+                                                <th style="width: 20px;"></th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -140,9 +142,11 @@
 
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
-                                            <th></th>
-                                            <th class="text-muted">Student</th>
-                                            <th class="text-muted text-center" v-for="head in quizHeaders" :key="head.QuizTitle">{{ head.QuizTitle }}<br>({{ getGradingPeriod(head.GradingPeriod) }})</th>
+                                            <tr>
+                                                <th></th>
+                                                <th class="text-muted">Student</th>
+                                                <th class="text-muted text-center" v-for="head in quizHeaders" :key="head.QuizTitle">{{ head.QuizTitle }}<br>({{ getGradingPeriod(head.GradingPeriod) }})</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
@@ -192,11 +196,13 @@
                                 <div class="table-responsive mt-2">
                                     <table class="table table-hover table-bordered table-sm">
                                         <thead>
-                                            <th></th>
-                                            <th class="text-center">Students</th>
-                                            <th class="text-center">Tuition<br>Payable</th>
-                                            <th class="text-center" v-for="pm in paymentMonths">{{ moment(pm.ForMonth).format('MMM YYYY') }}</th>
-                                            <th class="text-center">Remaining<br>Balance</th>
+                                            <tr>
+                                                <th></th>
+                                                <th class="text-center">Students</th>
+                                                <th class="text-center">Tuition<br>Payable</th>
+                                                <th class="text-center" v-for="pm in paymentMonths">{{ moment(pm.ForMonth).format('MMM YYYY') }}</th>
+                                                <th class="text-center">Remaining<br>Balance</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr>

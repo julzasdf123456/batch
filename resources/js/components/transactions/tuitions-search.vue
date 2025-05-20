@@ -8,10 +8,12 @@
             <div class="table-responsive px-3">
                 <table class="table table-hover table-sm">
                     <thead>
-                        <th class="text-muted">Student</th>
-                        <th class="text-muted">Address</th>
-                        <th class="text-muted">Current Grade/Level</th>
-                        <th></th>
+                        <tr>
+                            <th class="text-muted">Student</th>
+                            <th class="text-muted">Address</th>
+                            <th class="text-muted">Current Grade/Level</th>
+                            <th></th>
+                        </tr>
                     </thead>
                     <tbody>
                         <tr v-for="student in students.data" :key="student.id" style="cursor: pointer;">
