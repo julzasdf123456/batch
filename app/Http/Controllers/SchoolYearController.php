@@ -9,6 +9,14 @@ use App\Repositories\SchoolYearRepository;
 use Illuminate\Http\Request;
 use App\Models\SchoolYear;
 use App\Models\Classes;
+use App\Models\StudentScholarships;
+use App\Models\Payables;
+use App\Models\ClassSubjectParentAvg;
+use App\Models\ObservedValues;
+use App\Models\QuizScores;
+use App\Models\StudentClasses;
+use App\Models\StudentSubjects;
+use App\Models\Students;
 use App\Models\IDGenerator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -71,6 +79,10 @@ class SchoolYearController extends AppBaseController
                 return redirect(route('schoolYears.index'));
             }
 
+            $sys = SchoolYear::whereRaw("id NOT IN ('" . $id . "')")
+                ->orderByDesc('created_at')
+                ->get();
+
             $classes = DB::table('Classes')
                 ->leftJoin('Teachers', 'Classes.Adviser', '=', 'Teachers.id')
                 ->where('Classes.SchoolYearId', $id)
@@ -85,6 +97,7 @@ class SchoolYearController extends AppBaseController
             return view('school_years.show', [
                 'schoolYear' => $schoolYear,
                 'classes' => $classes,
+                'sys' => $sys,
             ]);
         } else {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
@@ -180,5 +193,90 @@ class SchoolYearController extends AppBaseController
             ->get();
 
         return response()->json($classes, 200);
+    }
+
+    public function mergeToSy(Request $request) {
+        $syId = $request['SchoolYearId'];
+        $newSyId = $request['NewSchoolYearId'];
+
+        $currentSy = SchoolYear::find($syId);
+
+        if ($currentSy != null) {
+            $newSy = SchoolYear::find($newSyId);
+
+            if ($newSy != null) {
+                // Update Classes First
+                // loop through all classes on the current SY
+                $currentSyClasses = Classes::where('SchoolYearId', $syId)->get();
+                foreach($currentSyClasses as $item) {
+                    // get corresponding class (classid) on the other SY
+                    $otherClass = null;
+                    if ($item->Year == 'Grade 11' | $item->Year == 'Grade 12') {
+                        $otherClass = Classes::where('Year', $item->Year)
+                            ->where('Section', $item->Section)
+                            ->where('Strand', $item->Strand)
+                            ->where('Semester', $item->Semester)
+                            ->where('SchoolYearId', $newSyId)
+                            ->first();
+                    } else {
+                        $otherClass = Classes::where('Year', $item->Year)
+                            ->where('Section', $item->Section)
+                            ->where('SchoolYearId', $newSyId)
+                            ->first();
+                    }
+
+                    if ($otherClass != null) {
+                        // UPDATE ClassSubjectParentAvg
+                        ClassSubjectParentAvg::where('ClassId', $item->id)
+                            ->update(['ClassId' => $otherClass->id]);
+
+                        // UPDATE ObservedValues
+                        ObservedValues::where('ClassId', $item->id)
+                            ->update(['ClassId' => $otherClass->id]);
+
+                        // UPDATE Payables
+                        Payables::where('ClassId', $item->id)
+                            ->update(['ClassId' => $otherClass->id]);
+
+                        // UPDATE QuizScores
+                        QuizScores::where('ClassId', $item->id)
+                            ->update(['ClassId' => $otherClass->id]);
+
+                        // UPDATE StudentClasses
+                        StudentClasses::where('ClassId', $item->id)
+                            ->update(['ClassId' => $otherClass->id]);
+
+                        // UPDATE StudentSubjects
+                        StudentSubjects::where('ClassId', $item->id)
+                            ->update(['ClassId' => $otherClass->id]);
+
+                        // UPDATE Students
+                        Students::where('CurrentGradeLevel', $item->id)
+                            ->update(['CurrentGradeLevel' => $otherClass->id]);
+                    }
+                }
+
+                // DELETE Classes with SY ID
+                Classes::where('SchoolYearId', $syId)
+                    ->delete();
+
+                // Update Student Scholarships
+                StudentScholarships::where('SchoolYear', $currentSy->SchoolYear)
+                    ->update(['SchoolYear' => $newSy->SchoolYear]);
+
+                // Update Student Payables
+                Payables::where('SchoolYear', $currentSy->SchoolYear)
+                    ->update(['SchoolYear' => $newSy->SchoolYear]);
+
+                // DELETE OLD SY
+                $currentSy->delete();
+
+                return response()->json('School years merged!', 200);
+            } else {
+                return response()->json('Selected school year not found!', 404);
+            }
+        } else {
+            return response()->json('School year not found!', 404);
+        }
     }
 }

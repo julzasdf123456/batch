@@ -161,6 +161,7 @@ Route::resource('classesRepos', ClassesRepoController::class);
 Route::get('/school_years/get-school-years', [SchoolYearController::class, 'getSchoolYears'])->name('schoolYears.get-school-years');
 Route::get('/school_years/get-school-year', [SchoolYearController::class, 'getSchoolYear'])->name('schoolYears.get-school-year');
 Route::get('/school_years/get-classes-in-sy', [SchoolYearController::class, 'getClassesInSY'])->name('schoolYears.get-classes-in-sy');
+Route::post('/school_years/merge-to-sy', [SchoolYearController::class, 'mergeToSy'])->name('schoolYears.merge-to-sy');
 Route::resource('schoolYears', SchoolYearController::class);
 
 Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');
