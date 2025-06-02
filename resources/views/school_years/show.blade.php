@@ -12,6 +12,10 @@
                        href="{{ route('schoolYears.index') }}">
                                                     Back
                                             </a>
+
+                    @if (Auth::id() == 1)
+                        <button class="btn btn-danger float-right ico-tab-mini" data-toggle="modal" data-target="#modal-merge">Merge to Existing/Other SY</button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -53,12 +57,79 @@
             </div>
         </div>
     </div>
+
+{{-- MERGE MODAL--}}
+<div class="modal fade" id="modal-merge" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Merge to Another School Year</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="SY">Select School Year to Merge</label>
+                    <select class="custom-select select2"  name="SY" id="SY" style="width: 100%;" required>
+                        <option value="">-- Select --</option>
+                        @foreach ($sys as $item)
+                            <option value="{{ $item->id }}">{{ $item->SchoolYear }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+            </div>
+            <div class="modal-footer justify-content-between">
+                <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="merge()"><i class="fas fa-plus ico-tab-mini"></i>Confirm Merge</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('page_scripts')
     <script>
-        function view(adviserId, syId, classId) {
-            window.location.href = "{{ url('/classes/view-class') }}/" + adviserId + '/' + syId + '/' + classId
+        $(document).ready(function() {
+
+        })
+
+        function merge() {
+            let newSy = $('#SY').val()
+            Swal.fire({
+                title: "Confirm Merge",
+                showCancelButton: true,
+                text : `Merging this School Year to the selected one will transfer all the students grading and tuition information. This will not affect the student's details. Proceed will caution.`,
+                confirmButtonText: "Yes",
+                confirmButtonColor : '#e03822'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ url('/school_years/merge-to-sy') }}",
+                        type : "POST",
+                        data : {
+                            _token : "{{ csrf_token() }}",
+                            SchoolYearId : "{{ $schoolYear->id }}",
+                            NewSchoolYearId : newSy,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                icon : 'success',
+                                text : 'School Years Merged!'
+                            })
+                            window.location.href = "{{ url('/schoolYears') }}"
+                        },
+                        error : function(err) {
+                            console.log(err)
+                            Toast.fire({
+                                icon : 'error',
+                                text : 'Error removing merging school years!'
+                            })
+                        }
+                    })
+                }
+            })
         }
     </script>    
 @endpush
