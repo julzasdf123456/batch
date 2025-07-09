@@ -70,10 +70,12 @@ class SchoolYearController extends AppBaseController
      */
     public function show($id)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view school year'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view school year']))
+        {
             $schoolYear = $this->schoolYearRepository->find($id);
 
-            if (empty($schoolYear)) {
+            if (empty($schoolYear))
+            {
                 Flash::error('School Year not found');
 
                 return redirect(route('schoolYears.index'));
@@ -99,7 +101,8 @@ class SchoolYearController extends AppBaseController
                 'classes' => $classes,
                 'sys' => $sys,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -109,17 +112,20 @@ class SchoolYearController extends AppBaseController
      */
     public function edit($id)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'edit school year'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit school year']))
+        {
             $schoolYear = $this->schoolYearRepository->find($id);
 
-            if (empty($schoolYear)) {
+            if (empty($schoolYear))
+            {
                 Flash::error('School Year not found');
 
                 return redirect(route('schoolYears.index'));
             }
 
             return view('school_years.edit')->with('schoolYear', $schoolYear);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -131,7 +137,8 @@ class SchoolYearController extends AppBaseController
     {
         $schoolYear = $this->schoolYearRepository->find($id);
 
-        if (empty($schoolYear)) {
+        if (empty($schoolYear))
+        {
             Flash::error('School Year not found');
 
             return redirect(route('schoolYears.index'));
@@ -151,10 +158,12 @@ class SchoolYearController extends AppBaseController
      */
     public function destroy($id)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'delete school year'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete school year']))
+        {
             $schoolYear = $this->schoolYearRepository->find($id);
 
-            if (empty($schoolYear)) {
+            if (empty($schoolYear))
+            {
                 Flash::error('School Year not found');
 
                 return redirect(route('schoolYears.index'));
@@ -165,20 +174,24 @@ class SchoolYearController extends AppBaseController
             Flash::success('School Year deleted successfully.');
 
             return redirect(route('schoolYears.index'));
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function getSchoolYears(Request $request) {
+    public function getSchoolYears(Request $request)
+    {
         return response()->json(SchoolYear::orderByDesc('created_at')->get(), 200);
     }
 
-    public function getSchoolYear(Request $request) {
+    public function getSchoolYear(Request $request)
+    {
         return response()->json(SchoolYear::where('SchoolYear', $request['SchoolYear'])->orderByDesc('created_at')->first(), 200);
     }
 
-    public function getClassesInSY(Request $request) {
+    public function getClassesInSY(Request $request)
+    {
         $syId = $request['SchoolYearId'];
 
         $classes = DB::table('Classes')
@@ -195,37 +208,44 @@ class SchoolYearController extends AppBaseController
         return response()->json($classes, 200);
     }
 
-    public function mergeToSy(Request $request) {
+    public function mergeToSy(Request $request)
+    {
         $syId = $request['SchoolYearId'];
         $newSyId = $request['NewSchoolYearId'];
 
         $currentSy = SchoolYear::find($syId);
 
-        if ($currentSy != null) {
+        if ($currentSy != null)
+        {
             $newSy = SchoolYear::find($newSyId);
 
-            if ($newSy != null) {
+            if ($newSy != null)
+            {
                 // Update Classes First
                 // loop through all classes on the current SY
                 $currentSyClasses = Classes::where('SchoolYearId', $syId)->get();
-                foreach($currentSyClasses as $item) {
+                foreach ($currentSyClasses as $item)
+                {
                     // get corresponding class (classid) on the other SY
                     $otherClass = null;
-                    if ($item->Year == 'Grade 11' | $item->Year == 'Grade 12') {
+                    if ($item->Year == 'Grade 11' | $item->Year == 'Grade 12')
+                    {
                         $otherClass = Classes::where('Year', $item->Year)
                             ->where('Section', $item->Section)
                             ->where('Strand', $item->Strand)
                             ->where('Semester', $item->Semester)
                             ->where('SchoolYearId', $newSyId)
                             ->first();
-                    } else {
+                    } else
+                    {
                         $otherClass = Classes::where('Year', $item->Year)
                             ->where('Section', $item->Section)
                             ->where('SchoolYearId', $newSyId)
                             ->first();
                     }
 
-                    if ($otherClass != null) {
+                    if ($otherClass != null)
+                    {
                         // UPDATE ClassSubjectParentAvg
                         ClassSubjectParentAvg::where('ClassId', $item->id)
                             ->update(['ClassId' => $otherClass->id]);
@@ -272,11 +292,41 @@ class SchoolYearController extends AppBaseController
                 $currentSy->delete();
 
                 return response()->json('School years merged!', 200);
-            } else {
+            } else
+            {
                 return response()->json('Selected school year not found!', 404);
             }
-        } else {
+        } else
+        {
             return response()->json('School year not found!', 404);
         }
     }
+    public function viewSummary(Request $request)
+    {
+
+        $schoolYearId = $request->school_year_id;
+
+        $summaries = StudentClasses::select('Classes.Year', DB::raw('COUNT(StudentClasses.id) as Students'))
+            ->join('Classes', 'StudentClasses.ClassId', '=', 'Classes.id')
+            ->where('Classes.SchoolYearId', $schoolYearId)
+            ->groupBy('Classes.Year')
+            ->orderByRaw("CASE Classes.Year
+                  WHEN 'Grade 7' THEN 1
+                  WHEN 'Grade 8' THEN 2
+                  WHEN 'Grade 9' THEN 3
+                  WHEN 'Grade 10' THEN 4
+                  WHEN 'Grade 11' THEN 5
+                  WHEN 'Grade 12' THEN 6
+                  ELSE 7 END")
+            ->get();
+
+        $schoolYear = SchoolYear::find($schoolYearId);
+
+        return view('school_years.show_summary', [
+            'summaries' => $summaries,
+            'schoolYear' => $schoolYear,
+        ]);
+
+    }
+
 }

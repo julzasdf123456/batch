@@ -163,6 +163,7 @@ Route::get('/school_years/get-school-year', [SchoolYearController::class, 'getSc
 Route::get('/school_years/get-classes-in-sy', [SchoolYearController::class, 'getClassesInSY'])->name('schoolYears.get-classes-in-sy');
 Route::post('/school_years/merge-to-sy', [SchoolYearController::class, 'mergeToSy'])->name('schoolYears.merge-to-sy');
 Route::resource('schoolYears', SchoolYearController::class);
+Route::get('/school_years/view-summary', [SchoolYearController::class, 'viewSummary'])->name('schoolYears.view-summary');
 
 Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');
 Route::get('/teachers/get-class-details', [TeachersController::class, 'getClassDetails'])->name('teachers.get-class-details');
