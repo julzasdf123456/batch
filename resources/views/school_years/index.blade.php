@@ -8,8 +8,7 @@
                     <h4>School Years</h4>
                 </div>
                 {{-- <div class="col-sm-6">
-                    <a class="btn btn-primary float-right"
-                       href="{{ route('schoolYears.create') }}">
+                    <a class="btn btn-primary float-right" href="{{ route('schoolYears.create') }}">
                         Add New
                     </a>
                 </div> --}}

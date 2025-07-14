@@ -98,14 +98,15 @@ class ClassesController extends AppBaseController
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
             ->whereRaw("ClassId='" . $id . "'")
             ->select(
-                'StudentSubjects.SubjectId', 
+                'StudentSubjects.SubjectId',
                 'Subjects.Subject'
             )
             ->groupBy('StudentSubjects.SubjectId', 'Subjects.Subject')
             ->orderBy('Subjects.Subject')
             ->get();
 
-        if (empty($classes)) {
+        if (empty($classes))
+        {
             Flash::error('Classes not found');
 
             return redirect(route('classes.index'));
@@ -124,7 +125,8 @@ class ClassesController extends AppBaseController
     {
         $classes = $this->classesRepository->find($id);
 
-        if (empty($classes)) {
+        if (empty($classes))
+        {
             Flash::error('Classes not found');
 
             return redirect(route('classes.index'));
@@ -140,7 +142,8 @@ class ClassesController extends AppBaseController
     {
         $classes = $this->classesRepository->find($id);
 
-        if (empty($classes)) {
+        if (empty($classes))
+        {
             Flash::error('Classes not found');
 
             return redirect(route('classes.index'));
@@ -160,37 +163,55 @@ class ClassesController extends AppBaseController
      */
     public function destroy($id)
     {
-        $classes = $this->classesRepository->find($id);
 
-        if (empty($classes)) {
-            Flash::error('Classes not found');
-
-            return redirect(route('classes.index'));
+        if (!Auth::user()->hasAnyPermission(['god permission', 'delete class']))
+        {
+            Flash::error('You dont have permission to delete this class!');
+            return redirect()->back();
         }
 
-        $this->classesRepository->delete($id);
+        $class = Classes::find($id);
 
-        Flash::success('Classes deleted successfully.');
+        if (!$class)
+        {
+            Flash::error('Class not found');
+            return redirect()->back();
+        }
 
-        return redirect(route('classes.index'));
+
+        if ($class->delete())
+        {
+            Flash::success('Class deleted successfully.');
+        } else
+        {
+            Flash::error('Failed to delete class.');
+        }
+
+        return redirect()->back();
     }
 
-    public function enroll($studentId) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class'])) {
+    public function enroll($studentId)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class']))
+        {
             return view('/classes/enroll', [
                 'studentId' => $studentId
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function existingStudent(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class'])) {
+    public function existingStudent(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class']))
+        {
             return view('/classes/existing_student', [
 
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -198,7 +219,8 @@ class ClassesController extends AppBaseController
     /**
      * WITH SEM TUITION COMPUTATION
      */
-    public function saveEnrollment(Request $request) {
+    public function saveEnrollment(Request $request)
+    {
         $studentId = $request['StudentId'];
         $classesRepoId = $request['ClassRepoId'];
         $syId = $request['SchoolYearId'];
@@ -210,8 +232,10 @@ class ClassesController extends AppBaseController
         $classesRepo = ClassesRepo::find($classesRepoId);
         $student = Students::find($studentId);
 
-        if ($student != null) {
-            if ($classesRepo != null) {
+        if ($student != null)
+        {
+            if ($classesRepo != null)
+            {
                 $semTail = "";
                 // check if class exists in a particular school year
                 $class = Classes::where('SchoolYearId', $syId)
@@ -222,7 +246,8 @@ class ClassesController extends AppBaseController
                     ->first();
 
                 // save class if not yet created
-                if ($class == null) {
+                if ($class == null)
+                {
                     $classId = IDGenerator::generateID();
                     $class = new Classes;
                     $class->id = $classId;
@@ -233,14 +258,17 @@ class ClassesController extends AppBaseController
                     $class->Strand = $classesRepo->Strand;
                     $class->Semester = $semester;
                     $class->save();
-                    
-                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE')
+                    {
                         $semTail = ' ' . $semester . ' Sem';
                     }
-                } else { 
+                } else
+                {
                     $classId = $class->id;
 
-                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE')
+                    {
                         $semTail = ' ' . $class->Semester . ' Sem';
                     }
                 }
@@ -250,10 +278,12 @@ class ClassesController extends AppBaseController
                 $enrollee = StudentClasses::where('ClassId', $classId)
                     ->where('StudentId', $studentId)
                     ->first();
-                
-                if ($enrollee != null) {
+
+                if ($enrollee != null)
+                {
                     return response()->json('Student already enrolled in this class!', 403);
-                } else {
+                } else
+                {
                     // create enrollee/student
                     $enrollee = new StudentClasses;
                     $enrollee->id = IDGenerator::generateID();
@@ -264,7 +294,8 @@ class ClassesController extends AppBaseController
                     $enrollee->Semester = $semester;
                     $enrollee->save();
 
-                    if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
+                    if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE')
+                    {
                         // create payables
                         $payableId = IDGenerator::generateIDandRandString();
                         $payable = new Payables;
@@ -283,8 +314,10 @@ class ClassesController extends AppBaseController
                      * CREATE SUBJECTS
                      * ==========================================================
                      */
-                    foreach($subjects as $item) {
-                        if ($item['Selected'] | $item['Selected']==='true') {
+                    foreach ($subjects as $item)
+                    {
+                        if ($item['Selected'] | $item['Selected'] === 'true')
+                        {
                             $studentSubjects = new StudentSubjects;
                             $studentSubjects->id = IDGenerator::generateIDandRandString();
                             $studentSubjects->StudentId = $studentId;
@@ -294,9 +327,10 @@ class ClassesController extends AppBaseController
                             $studentSubjects->save();
                         }
                     }
-                    
+
                     // also insert 2nd sem subjects if SENIOR_HIGH_SEM_ENROLLMENT=CONTINUOS
-                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS') {
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS')
+                    {
                         $classesRepoSecond = ClassesRepo::where('Year', $classesRepo->Year)
                             ->where('Section', $classesRepo->Section)
                             ->where('Strand', $classesRepo->Strand)
@@ -310,7 +344,8 @@ class ClassesController extends AppBaseController
                             ->where('SchoolYearId', $syId)
                             ->first();
 
-                        if ($classesRepoSecond != null && $classSecond != null) {
+                        if ($classesRepoSecond != null && $classSecond != null)
+                        {
                             // insert to second sem class
                             $enrollee2nd = new StudentClasses;
                             $enrollee2nd->id = IDGenerator::generateID();
@@ -330,7 +365,8 @@ class ClassesController extends AppBaseController
                                 )
                                 ->get();
 
-                            foreach ($subjects as $subj) {
+                            foreach ($subjects as $subj)
+                            {
                                 $studentSubjects = new StudentSubjects;
                                 $studentSubjects->id = IDGenerator::generateIDandRandString();
                                 $studentSubjects->StudentId = $studentId;
@@ -339,9 +375,9 @@ class ClassesController extends AppBaseController
                                 $studentSubjects->TeacherId = $subj->Teacher;
                                 $studentSubjects->save();
                             }
-                        } 
+                        }
                     }
-                    
+
                     // update student current grade level
                     $student->CurrentGradeLevel = $classId;
                     $student->save();
@@ -352,16 +388,18 @@ class ClassesController extends AppBaseController
                      * ======================================================
                      */
                     $class = Classes::find($classId);
-                    if ($class != null) {
+                    if ($class != null)
+                    {
                         $classRepo = ClassesRepo::where('Year', $class->Year)
                             ->where('Section', $class->Section)
                             ->where('Strand', $class->Strand)
                             ->where('Semester', $class->Semester)
                             ->first();
-                        
+
                         $sy = SchoolYear::find($class->SchoolYearId);
 
-                        if ($classRepo != null) {
+                        if ($classRepo != null)
+                        {
                             $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
                             $payableId = IDGenerator::generateIDandRandString();
@@ -373,12 +411,14 @@ class ClassesController extends AppBaseController
                             $tuitionPayable->SchoolYear = $sy->SchoolYear;
                             $tuitionPayable->ClassId = $classId;
 
-                            if ($baseTuition != null) {
+                            if ($baseTuition != null)
+                            {
                                 // copy base tuition fee if declared in classes
                                 $tuitionPayable->Payable = $baseTuition;
                                 $tuitionPayable->AmountPayable = $baseTuition;
                                 $tuitionPayable->Balance = $baseTuition;
-                            } else {
+                            } else
+                            {
                                 // get tuition per subject if not declared in classes
                                 $totalSubjectTuition = DB::table('SubjectClasses')
                                     ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
@@ -388,11 +428,13 @@ class ClassesController extends AppBaseController
                                     )
                                     ->first();
 
-                                if ($totalSubjectTuition != null) {
+                                if ($totalSubjectTuition != null)
+                                {
                                     $tuitionPayable->Payable = $totalSubjectTuition->Total;
                                     $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
                                     $tuitionPayable->Balance = $totalSubjectTuition->Total;
-                                } else {
+                                } else
+                                {
                                     $tuitionPayable->Payable = 0.0;
                                     $tuitionPayable->AmountPayable = 0.0;
                                     $tuitionPayable->Balance = 0.0;
@@ -403,8 +445,10 @@ class ClassesController extends AppBaseController
                             $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
                                 ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
                                 ->get();
-                            if ($tuitionInclusions != null) {
-                                foreach($tuitionInclusions as $item) {
+                            if ($tuitionInclusions != null)
+                            {
+                                foreach ($tuitionInclusions as $item)
+                                {
                                     $payableInclusions = new PayableInclusions;
                                     $payableInclusions->id = IDGenerator::generateIDandRandString();
                                     $payableInclusions->PayableId = $payableId;
@@ -415,7 +459,8 @@ class ClassesController extends AppBaseController
                             }
 
                             // create tuitions breakdown
-                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                            {
                                 // update payable, set to half per sem
                                 $tuitionPayable->Payable = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / 2) : 0;
                                 $tuitionPayable->AmountPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / 2) : 0;
@@ -424,39 +469,44 @@ class ClassesController extends AppBaseController
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                    
-                                    if ($class->Semester != null && $class->Semester == '2nd') {
-                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                    } else {
+
+                                    if ($class->Semester != null && $class->Semester == '2nd')
+                                    {
+                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                    } else
+                                    {
                                         $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     }
-                                    
+
                                     $tuitionBreakdown->PayableId = $payableId;
-    
+
                                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
                                     $pyblOriginal = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / $monthsToPay) : 0;
-    
+
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
                                     $tuitionBreakdown->Payable = $pyblOriginal;
                                     $tuitionBreakdown->Balance = $amntPayable;
                                     $tuitionBreakdown->save();
                                 }
-                            } else {
+                            } else
+                            {
                                 $monthsToPay = 10;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
                                     $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     $tuitionBreakdown->PayableId = $payableId;
-    
+
                                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
-    
+
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
                                     $tuitionBreakdown->Payable = $amntPayable;
                                     $tuitionBreakdown->Balance = $amntPayable;
@@ -468,15 +518,18 @@ class ClassesController extends AppBaseController
                         }
                     }
                 }
-            } else {
+            } else
+            {
                 return response()->json('Class repository not found!', 404);
             }
-        } else {
+        } else
+        {
             return response()->json('Student not found!', 404);
         }
     }
 
-    public function getStudentsFromClass(Request $request) {
+    public function getStudentsFromClass(Request $request)
+    {
         $classId = $request['ClassId'];
 
         $students = DB::table('StudentClasses')
@@ -499,7 +552,8 @@ class ClassesController extends AppBaseController
         return response()->json($students, 200);
     }
 
-    public function getTuitionBreakdown(Request $request) {
+    public function getTuitionBreakdown(Request $request)
+    {
         $payableId = $request['PayableId'];
 
         $data = DB::table('TuitionsBreakdown')
@@ -510,25 +564,31 @@ class ClassesController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function viewClass($adviserId, $syId, $classId) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view class'])) {
+    public function viewClass($adviserId, $syId, $classId)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view class']))
+        {
             return view('classes.show', [
                 'adviser' => $adviserId,
                 'schoolYearId' => $syId,
                 'classId' => $classId,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
-        
+
     }
 
-    public function transferToAnotherClass($studentId) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'transfer student class'])) {
+    public function transferToAnotherClass($studentId)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'transfer student class']))
+        {
             return view('/classes/transfer_to_another_class', [
                 'studentId' => $studentId,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -536,7 +596,8 @@ class ClassesController extends AppBaseController
     /**
      * WITH SEM TUITION COMPUTATION
      */
-    public function saveTransfer(Request $request) {
+    public function saveTransfer(Request $request)
+    {
         $studentId = $request['StudentId'];
         $currentClassId = $request['CurrentClassId'];
         $syId = $request['SchoolYearId'];
@@ -549,8 +610,10 @@ class ClassesController extends AppBaseController
         $sy = SchoolYear::find($syId);
         $classesRepo = ClassesRepo::find($transferedClassId);
 
-        if ($student != null) {
-            if ($classesRepo != null) {
+        if ($student != null)
+        {
+            if ($classesRepo != null)
+            {
                 $semTail = "";
                 // check if class exists in a particular school year
                 $class = Classes::where('SchoolYearId', $syId)
@@ -561,7 +624,8 @@ class ClassesController extends AppBaseController
                     ->first();
 
                 // save class if not yet created
-                if ($class == null) {
+                if ($class == null)
+                {
                     $classId = IDGenerator::generateID();
                     $class = new Classes;
                     $class->id = $classId;
@@ -573,35 +637,40 @@ class ClassesController extends AppBaseController
                     $class->Semester = $semester;
                     $class->save();
 
-                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE')
+                    {
                         $semTail = ' ' . $semester . ' Sem';
                     }
-                } else { 
+                } else
+                {
                     $classId = $class->id;
 
-                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                    if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE')
+                    {
                         $semTail = ' ' . $class->Semester . ' Sem';
                     }
                 }
 
-                 // create student inside the class
+                // create student inside the class
                 // check student first if enrolled already in class
                 $enrollee = StudentClasses::where('ClassId', $classId)
                     ->where('StudentId', $studentId)
                     ->first();
-                
-                if ($enrollee != null) {
+
+                if ($enrollee != null)
+                {
                     $enrollee->delete();
-                } 
+                }
                 // delete previous enrollment
                 $prevClass = StudentClasses::where('ClassId', $currentClassId)
                     ->where('StudentId', $studentId)
                     ->first();
 
-                if ($prevClass != null) {
+                if ($prevClass != null)
+                {
                     $prevClass->delete();
                 }
-                
+
                 // create enrollee/student
                 $enrollee = new StudentClasses;
                 $enrollee->id = IDGenerator::generateID();
@@ -618,15 +687,18 @@ class ClassesController extends AppBaseController
                 $enrollee->save();
 
                 // create subjects
-                foreach($subjects as $item) {
-                    if ($item['Selected'] | $item['Selected']==='true') {
+                foreach ($subjects as $item)
+                {
+                    if ($item['Selected'] | $item['Selected'] === 'true')
+                    {
                         $studentSubjects = StudentSubjects::where('StudentId', $studentId)
                             ->where('ClassId', $currentClassId)
                             ->where('SubjectId', $item['id'])
                             // ->where('TeacherId', $item['TeacherId'])
                             ->first();
 
-                        if ($studentSubjects == null) {
+                        if ($studentSubjects == null)
+                        {
                             $studentSubjects = new StudentSubjects;
                             $studentSubjects->id = IDGenerator::generateIDandRandString();
                             $studentSubjects->StudentId = $studentId;
@@ -634,7 +706,8 @@ class ClassesController extends AppBaseController
                             $studentSubjects->ClassId = $classId;
                             $studentSubjects->TeacherId = $item['TeacherId'];
                             $studentSubjects->save();
-                        } else {
+                        } else
+                        {
                             $studentSubjects->delete();
 
                             $studentSubjectsN = new StudentSubjects;
@@ -654,9 +727,9 @@ class ClassesController extends AppBaseController
                 }
 
                 StudentSubjects::where('StudentId', $studentId)
-                            ->where('ClassId', $currentClassId)
-                            ->delete();
-                
+                    ->where('ClassId', $currentClassId)
+                    ->delete();
+
                 // update student current grade level
                 $student->CurrentGradeLevel = $classId;
                 $student->save();
@@ -671,47 +744,51 @@ class ClassesController extends AppBaseController
                     ->where('ClassId', $currentClassId)
                     ->first();
                 $amountPaid = 0;
-                if ($tpExisting != null) {
+                if ($tpExisting != null)
+                {
                     // delete tuitions breakdown
                     TuitionsBreakdown::where('PayableId', $tpExisting->id)
                         ->delete();
 
                     // delete payable inclusions
                     PayableInclusions::where('PayableId', $tpExisting->id)
-                    ->delete();
+                        ->delete();
 
                     $amountPaid = $tpExisting->AmountPaid != null && is_numeric($tpExisting->AmountPaid) ? floatval($tpExisting->AmountPaid) : 0;
-                    
+
                     $payableId = $tpExisting->id;
 
                     // update scholarship id
                     $scholarship = StudentScholarships::where('PayableId', $tpExisting->id)
-                            ->where('StudentId', $studentId)
-                            ->where("DeductMonthly", "Yes")
-                            ->update(['id' => $payableId]);          
+                        ->where('StudentId', $studentId)
+                        ->where("DeductMonthly", "Yes")
+                        ->update(['id' => $payableId]);
 
                     $tpExisting->delete();
-                } else {
+                } else
+                {
                     $payableId = IDGenerator::generateIDandRandString();
                 }
 
 
                 /*
-                * ======================================================
-                * ADD TUITION FEE PAYABLES
-                * ======================================================
-                */
+                 * ======================================================
+                 * ADD TUITION FEE PAYABLES
+                 * ======================================================
+                 */
                 $class = Classes::find($classId);
-                if ($class != null) {
+                if ($class != null)
+                {
                     $classRepo = ClassesRepo::where('Year', $class->Year)
                         ->where('Section', $class->Section)
                         ->where('Strand', $class->Strand)
                         ->where('Semester', $class->Semester)
                         ->first();
-                    
+
                     $sy = SchoolYear::find($class->SchoolYearId);
 
-                    if ($classRepo != null) {
+                    if ($classRepo != null)
+                    {
                         $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
                         $tuitionPayable = new Payables;
@@ -722,12 +799,14 @@ class ClassesController extends AppBaseController
                         $tuitionPayable->SchoolYear = $sy->SchoolYear;
                         $tuitionPayable->ClassId = $classId;
 
-                        if ($baseTuition != null) {
+                        if ($baseTuition != null)
+                        {
                             // copy base tuition fee if declared in classes
                             $tuitionPayable->Payable = $baseTuition;
                             $tuitionPayable->AmountPayable = $baseTuition;
                             $tuitionPayable->Balance = $baseTuition;
-                        } else {
+                        } else
+                        {
                             // get tuition per subject if not declared in classes
                             $totalSubjectTuition = DB::table('SubjectClasses')
                                 ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
@@ -737,11 +816,13 @@ class ClassesController extends AppBaseController
                                 )
                                 ->first();
 
-                            if ($totalSubjectTuition != null) {
+                            if ($totalSubjectTuition != null)
+                            {
                                 $tuitionPayable->Payable = $totalSubjectTuition->Total;
                                 $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
                                 $tuitionPayable->Balance = $totalSubjectTuition->Total;
-                            } else {
+                            } else
+                            {
                                 $tuitionPayable->Payable = 0.0;
                                 $tuitionPayable->AmountPayable = 0.0;
                                 $tuitionPayable->Balance = 0.0;
@@ -752,8 +833,10 @@ class ClassesController extends AppBaseController
                         $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
                             ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
                             ->get();
-                        if ($tuitionInclusions != null) {
-                            foreach($tuitionInclusions as $item) {
+                        if ($tuitionInclusions != null)
+                        {
+                            foreach ($tuitionInclusions as $item)
+                            {
                                 $payableInclusions = new PayableInclusions;
                                 $payableInclusions->id = IDGenerator::generateIDandRandString();
                                 $payableInclusions->PayableId = $payableId;
@@ -764,7 +847,8 @@ class ClassesController extends AppBaseController
                         }
 
                         // create tuitions breakdown
-                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                        {
                             // update payable, set to half per sem
                             $tuitionPayable->Payable = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / 2) : 0;
                             $tuitionPayable->AmountPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / 2) : 0;
@@ -773,17 +857,20 @@ class ClassesController extends AppBaseController
                             // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                             $monthsToPay = 5;
 
-                            for ($i=0; $i<$monthsToPay; $i++) {
+                            for ($i = 0; $i < $monthsToPay; $i++)
+                            {
                                 $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                 $tuitionBreakdown = new TuitionsBreakdown;
                                 $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                
-                                if ($class->Semester != null && $class->Semester == '2nd') {
-                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                } else {
+
+                                if ($class->Semester != null && $class->Semester == '2nd')
+                                {
+                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                } else
+                                {
                                     $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                 }
-                                
+
                                 $tuitionBreakdown->PayableId = $payableId;
 
                                 $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
@@ -793,10 +880,12 @@ class ClassesController extends AppBaseController
                                 $tuitionBreakdown->Balance = $amntPayable;
                                 $tuitionBreakdown->save();
                             }
-                        } else {
+                        } else
+                        {
                             $monthsToPay = 10;
 
-                            for ($i=0; $i<$monthsToPay; $i++) {
+                            for ($i = 0; $i < $monthsToPay; $i++)
+                            {
                                 $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                 $tuitionBreakdown = new TuitionsBreakdown;
                                 $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
@@ -823,9 +912,10 @@ class ClassesController extends AppBaseController
                             ->where('StudentId', $studentId)
                             ->where("DeductMonthly", "Yes")
                             ->get();
-                    
+
                         $scholarshipAmount = 0;
-                        foreach($scholarship as $item) {
+                        foreach ($scholarship as $item)
+                        {
                             $item->PayableId = $payableId;
                             $item->Notes = 'Transfered from Transfer Wizzard';
                             $item->save();
@@ -833,13 +923,15 @@ class ClassesController extends AppBaseController
                             $scholarshipAmount += ($item->Amount != null ? floatval($item->Amount) : 0);
                         }
 
-                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                        {
                             $scholarshipAmount = $scholarshipAmount / 2;
                         }
-                        
+
                         $tuitionPayable = Payables::find($payableId);
 
-                        if ($scholarshipAmount > 0) {
+                        if ($scholarshipAmount > 0)
+                        {
                             $tuitionPayable->DiscountAmount = $scholarshipAmount;
                             $tuitionPayable->AmountPayable = floatval($tuitionPayable->AmountPayable) - $scholarshipAmount;
                             $tuitionPayable->Balance = $tuitionPayable->AmountPayable;
@@ -847,13 +939,16 @@ class ClassesController extends AppBaseController
 
                             // update payable tuitions breakdown
                             $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
-                            if ($tuitionsBreakdown != null) {
+                            if ($tuitionsBreakdown != null)
+                            {
                                 $count = count($tuitionsBreakdown);
 
-                                if ($count > 0) {
+                                if ($count > 0)
+                                {
                                     $amountDistributable = round((floatval($scholarshipAmount) / $count), 2);
-                                
-                                    foreach($tuitionsBreakdown as $item) {
+
+                                    foreach ($tuitionsBreakdown as $item)
+                                    {
                                         $item->Discount = $amountDistributable;
                                         $item->AmountPayable = floatval($item->AmountPayable) - floatval($amountDistributable);
                                         $item->Balance = floatval($item->Balance) - floatval($amountDistributable);
@@ -869,7 +964,8 @@ class ClassesController extends AppBaseController
                          * ==========================================================================
                          */
                         // update tuitions breakdown
-                        if ($amountPaid > 0) {
+                        if ($amountPaid > 0)
+                        {
                             $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
 
                             // update transactions
@@ -877,15 +973,19 @@ class ClassesController extends AppBaseController
                                 ->update(['PayablesId' => $payableId]);
 
                             $payment = $amountPaid;
-                            foreach($tBreakdown as $item) {
+                            foreach ($tBreakdown as $item)
+                            {
                                 $currentPayable = floatval($item->Balance);
-                                if ($payment > 0) {
-                                    if ($payment >= $currentPayable) {
+                                if ($payment > 0)
+                                {
+                                    if ($payment >= $currentPayable)
+                                    {
                                         $item->Balance = 0;
                                         $item->AmountPaid = $item->AmountPayable;
-                                        
+
                                         $payment = $payment - $currentPayable;
-                                    } else {
+                                    } else
+                                    {
                                         $item->Balance = $currentPayable - $payment;
                                         $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -897,7 +997,8 @@ class ClassesController extends AppBaseController
                             }
 
                             // update payable
-                            if ($tuitionPayable != null) {
+                            if ($tuitionPayable != null)
+                            {
                                 $bal = $tuitionPayable != null && $tuitionPayable->Balance != null && is_numeric($tuitionPayable->Balance) ? floatval($tuitionPayable->Balance) : 0;
 
                                 $tuitionPayable->AmountPaid = $amountPaid;
@@ -916,7 +1017,8 @@ class ClassesController extends AppBaseController
     /**
      * WITH SEM TUITION COMPUTATION
      */
-    public function batchTransfer(Request $request) {
+    public function batchTransfer(Request $request)
+    {
         $students = $request['Students'];
         $currentClassId = $request['CurrentClassId'];
         $syId = $request['SchoolYearId'];
@@ -925,7 +1027,8 @@ class ClassesController extends AppBaseController
         $sy = SchoolYear::find($syId);
         $classesRepo = ClassesRepo::find($transferedClassId);
 
-        if ($classesRepo != null) {
+        if ($classesRepo != null)
+        {
             // check if class exists in a particular school year
             $class = Classes::where('SchoolYearId', $syId)
                 ->where('Year', $classesRepo->Year)
@@ -935,7 +1038,8 @@ class ClassesController extends AppBaseController
                 ->first();
 
             // save class if not yet created
-            if ($class == null) {
+            if ($class == null)
+            {
                 $classId = IDGenerator::generateID();
                 $class = new Classes;
                 $class->id = $classId;
@@ -946,33 +1050,39 @@ class ClassesController extends AppBaseController
                 $class->Strand = $classesRepo->Strand;
                 $class->Semester = $classesRepo->Semester;
                 $class->save();
-            } else { 
+            } else
+            {
                 $classId = $class->id;
             }
 
             // loop students
-            foreach($students as $item) {
+            foreach ($students as $item)
+            {
                 $student = Students::find($item['id']);
 
-                if ($student != null) {
+                if ($student != null)
+                {
                     // create student inside the class
                     // check student first if enrolled already in class
                     $enrollee = StudentClasses::where('ClassId', $classId)
                         ->where('StudentId', $student->id)
                         ->first();
-                    
-                    if ($enrollee != null) {
+
+                    if ($enrollee != null)
+                    {
                         // skip if student is already enrolled in the same class
-                    } else {
+                    } else
+                    {
                         // delete previous enrollment
                         $prevClass = StudentClasses::where('ClassId', $currentClassId)
                             ->where('StudentId', $student->id)
                             ->first();
 
-                        if ($prevClass != null) {
+                        if ($prevClass != null)
+                        {
                             $prevClass->delete();
                         }
-                        
+
                         // create enrollee/student
                         $enrollee = new StudentClasses;
                         $enrollee->id = IDGenerator::generateID();
@@ -994,14 +1104,16 @@ class ClassesController extends AppBaseController
                             ->where('ClassRepoId', $classesRepo->id)
                             ->select('SubjectClasses.*', 'Subjects.Teacher')
                             ->get();
-                        foreach($subjects as $item) {
+                        foreach ($subjects as $item)
+                        {
                             $studentSubjects = StudentSubjects::where('StudentId', $student->id)
                                 ->where('ClassId', $classId)
                                 ->where('SubjectId', $item->id)
                                 ->where('TeacherId', $item->Teacher)
                                 ->first();
 
-                            if ($studentSubjects == null) {
+                            if ($studentSubjects == null)
+                            {
                                 $studentSubjects = new StudentSubjects;
                                 $studentSubjects->id = IDGenerator::generateIDandRandString();
                                 $studentSubjects->StudentId = $student->id;
@@ -1011,7 +1123,7 @@ class ClassesController extends AppBaseController
                                 $studentSubjects->save();
                             }
                         }
-                        
+
                         // update student current grade level
                         $student->CurrentGradeLevel = $classId;
                         $student->save();
@@ -1027,40 +1139,44 @@ class ClassesController extends AppBaseController
                             ->first();
                         $amountPaid = 0;
                         $payableId = '';
-                        if ($tpExisting != null) {
+                        if ($tpExisting != null)
+                        {
                             // delete tuitions breakdown
                             TuitionsBreakdown::where('PayableId', $tpExisting->id)
                                 ->delete();
 
                             // delete payable inclusions
                             PayableInclusions::where('PayableId', $tpExisting->id)
-                            ->delete();
+                                ->delete();
 
                             $tpExisting->delete();
 
                             $amountPaid = $tpExisting->AmountPaid != null && is_numeric($tpExisting->AmountPaid) ? floatval($tpExisting->AmountPaid) : 0;
 
                             $payableId = $tpExisting->id;
-                        } else {
+                        } else
+                        {
                             $payableId = IDGenerator::generateIDandRandString();
                         }
 
                         /*
-                        * ======================================================
-                        * ADD TUITION FEE PAYABLES
-                        * ======================================================
-                        */
+                         * ======================================================
+                         * ADD TUITION FEE PAYABLES
+                         * ======================================================
+                         */
                         $class = Classes::find($classId);
-                        if ($class != null) {
+                        if ($class != null)
+                        {
                             $classRepo = ClassesRepo::where('Year', $class->Year)
                                 ->where('Section', $class->Section)
                                 ->where('Strand', $class->Strand)
                                 ->where('Semester', $class->Semester)
                                 ->first();
-                            
+
                             $sy = SchoolYear::find($class->SchoolYearId);
 
-                            if ($classRepo != null) {
+                            if ($classRepo != null)
+                            {
                                 $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
                                 $tuitionPayable = new Payables;
@@ -1071,12 +1187,14 @@ class ClassesController extends AppBaseController
                                 $tuitionPayable->SchoolYear = $sy->SchoolYear;
                                 $tuitionPayable->ClassId = $classId;
 
-                                if ($baseTuition != null) {
+                                if ($baseTuition != null)
+                                {
                                     // copy base tuition fee if declared in classes
                                     $tuitionPayable->Payable = $baseTuition;
                                     $tuitionPayable->AmountPayable = $baseTuition;
                                     $tuitionPayable->Balance = $baseTuition;
-                                } else {
+                                } else
+                                {
                                     // get tuition per subject if not declared in classes
                                     $totalSubjectTuition = DB::table('SubjectClasses')
                                         ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
@@ -1086,11 +1204,13 @@ class ClassesController extends AppBaseController
                                         )
                                         ->first();
 
-                                    if ($totalSubjectTuition != null) {
+                                    if ($totalSubjectTuition != null)
+                                    {
                                         $tuitionPayable->Payable = $totalSubjectTuition->Total;
                                         $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
                                         $tuitionPayable->Balance = $totalSubjectTuition->Total;
-                                    } else {
+                                    } else
+                                    {
                                         $tuitionPayable->Payable = 0.0;
                                         $tuitionPayable->AmountPayable = 0.0;
                                         $tuitionPayable->Balance = 0.0;
@@ -1101,8 +1221,10 @@ class ClassesController extends AppBaseController
                                 $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
                                     ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
                                     ->get();
-                                if ($tuitionInclusions != null) {
-                                    foreach($tuitionInclusions as $item) {
+                                if ($tuitionInclusions != null)
+                                {
+                                    foreach ($tuitionInclusions as $item)
+                                    {
                                         $payableInclusions = new PayableInclusions;
                                         $payableInclusions->id = IDGenerator::generateIDandRandString();
                                         $payableInclusions->PayableId = $payableId;
@@ -1113,7 +1235,8 @@ class ClassesController extends AppBaseController
                                 }
 
                                 // create tuitions breakdown
-                                if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                                {
                                     // update payable, set to half per sem
                                     $tuitionPayable->Payable = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / 2) : 0;
                                     $tuitionPayable->AmountPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / 2) : 0;
@@ -1122,38 +1245,43 @@ class ClassesController extends AppBaseController
                                     // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                     $monthsToPay = 5;
 
-                                    for ($i=0; $i<$monthsToPay; $i++) {
+                                    for ($i = 0; $i < $monthsToPay; $i++)
+                                    {
                                         $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                         $tuitionBreakdown = new TuitionsBreakdown;
                                         $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                        
-                                        if ($class->Semester != null && $class->Semester == '2nd') {
-                                            $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                        } else {
+
+                                        if ($class->Semester != null && $class->Semester == '2nd')
+                                        {
+                                            $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                        } else
+                                        {
                                             $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                         }
-                                        
+
                                         $tuitionBreakdown->PayableId = $payableId;
-        
+
                                         $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
-        
+
                                         $tuitionBreakdown->AmountPayable = $amntPayable;
                                         $tuitionBreakdown->Payable = $amntPayable;
                                         $tuitionBreakdown->Balance = $amntPayable;
                                         $tuitionBreakdown->save();
                                     }
-                                } else {
+                                } else
+                                {
                                     $monthsToPay = 10;
 
-                                    for ($i=0; $i<$monthsToPay; $i++) {
+                                    for ($i = 0; $i < $monthsToPay; $i++)
+                                    {
                                         $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                         $tuitionBreakdown = new TuitionsBreakdown;
                                         $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
                                         $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                         $tuitionBreakdown->PayableId = $payableId;
-        
+
                                         $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
-        
+
                                         $tuitionBreakdown->AmountPayable = $amntPayable;
                                         $tuitionBreakdown->Payable = $amntPayable;
                                         $tuitionBreakdown->Balance = $amntPayable;
@@ -1172,9 +1300,10 @@ class ClassesController extends AppBaseController
                                     ->where('StudentId', $student->id)
                                     ->where("DeductMonthly", "Yes")
                                     ->get();
-                            
+
                                 $scholarshipAmount = 0;
-                                foreach($scholarship as $item) {
+                                foreach ($scholarship as $item)
+                                {
                                     $item->PayableId = $payableId;
                                     $item->Notes = 'Transfered from Batch Transfer';
                                     $item->save();
@@ -1182,13 +1311,15 @@ class ClassesController extends AppBaseController
                                     $scholarshipAmount += ($item->Amount != null ? floatval($item->Amount) : 0);
                                 }
 
-                                if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                                if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                                {
                                     $scholarshipAmount = $scholarshipAmount / 2;
                                 }
-                                
+
                                 $tuitionPayable = Payables::find($payableId);
 
-                                if ($scholarshipAmount > 0) {
+                                if ($scholarshipAmount > 0)
+                                {
                                     $tuitionPayable->DiscountAmount = $scholarshipAmount;
                                     $tuitionPayable->AmountPayable = floatval($tuitionPayable->AmountPayable) - $scholarshipAmount;
                                     $tuitionPayable->Balance = $tuitionPayable->AmountPayable;
@@ -1196,13 +1327,16 @@ class ClassesController extends AppBaseController
 
                                     // update payable tuitions breakdown
                                     $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
-                                    if ($tuitionsBreakdown != null) {
+                                    if ($tuitionsBreakdown != null)
+                                    {
                                         $count = count($tuitionsBreakdown);
 
-                                        if ($count > 0) {
+                                        if ($count > 0)
+                                        {
                                             $amountDistributable = round((floatval($scholarshipAmount) / $count), 2);
-                                        
-                                            foreach($tuitionsBreakdown as $item) {
+
+                                            foreach ($tuitionsBreakdown as $item)
+                                            {
                                                 $item->Discount = $amountDistributable;
                                                 $item->AmountPayable = floatval($item->AmountPayable) - floatval($amountDistributable);
                                                 $item->Balance = floatval($item->Balance) - floatval($amountDistributable);
@@ -1218,7 +1352,8 @@ class ClassesController extends AppBaseController
                                  * ==========================================================================
                                  */
                                 // update tuitions breakdown
-                                if ($amountPaid > 0) {
+                                if ($amountPaid > 0)
+                                {
                                     $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
 
                                     // update transactions
@@ -1226,15 +1361,19 @@ class ClassesController extends AppBaseController
                                         ->update(['PayablesId' => $payableId]);
 
                                     $payment = $amountPaid;
-                                    foreach($tBreakdown as $item) {
+                                    foreach ($tBreakdown as $item)
+                                    {
                                         $currentPayable = floatval($item->Balance);
-                                        if ($payment > 0) {
-                                            if ($payment >= $currentPayable) {
+                                        if ($payment > 0)
+                                        {
+                                            if ($payment >= $currentPayable)
+                                            {
                                                 $item->Balance = 0;
                                                 $item->AmountPaid = $item->AmountPayable;
-                                                
+
                                                 $payment = $payment - $currentPayable;
-                                            } else {
+                                            } else
+                                            {
                                                 $item->Balance = $currentPayable - $payment;
                                                 $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -1246,7 +1385,8 @@ class ClassesController extends AppBaseController
                                     }
 
                                     // update payable
-                                    if ($tuitionPayable != null) {
+                                    if ($tuitionPayable != null)
+                                    {
                                         $bal = $tuitionPayable != null && $tuitionPayable->Balance != null && is_numeric($tuitionPayable->Balance) ? floatval($tuitionPayable->Balance) : 0;
 
                                         $tuitionPayable->AmountPaid = $amountPaid;
@@ -1256,7 +1396,7 @@ class ClassesController extends AppBaseController
                                 }
                             }
                         }
-                    }  
+                    }
                 }
             }
         }
@@ -1264,7 +1404,8 @@ class ClassesController extends AppBaseController
         return response()->json($students, 200);
     }
 
-    public function revalidateSubjects(Request $request) {
+    public function revalidateSubjects(Request $request)
+    {
         $classId = $request['ClassId'];
 
         $students = Students::whereRaw("id IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
@@ -1274,20 +1415,24 @@ class ClassesController extends AppBaseController
 
         $sy = SchoolYear::find($class->SchoolYearId);
 
-        if ($class != null) {
-            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+        if ($class != null)
+        {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+            {
                 $classRepo = ClassesRepo::where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->where('Strand', $class->Strand)
                     ->where('Semester', $class->Semester)
                     ->first();
-            } else {
+            } else
+            {
                 $classRepo = ClassesRepo::where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->first();
             }
-            
-            if ($classRepo != null) {
+
+            if ($classRepo != null)
+            {
                 $subjectClasses = DB::table('SubjectClasses')
                     ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
                     ->where('ClassRepoId', $classRepo->id)
@@ -1297,13 +1442,15 @@ class ClassesController extends AppBaseController
                     )
                     ->get();
 
-                foreach($students as $item) {
+                foreach ($students as $item)
+                {
                     // delete StudentSubjects fist
                     StudentSubjects::where('StudentId', $item->id)
                         ->where('ClassId', $class->id)
                         ->delete();
 
-                    foreach($subjectClasses as $sc) {
+                    foreach ($subjectClasses as $sc)
+                    {
                         $ss = new StudentSubjects;
                         $ss->id = IDGenerator::generateIDandRandString();
                         $ss->StudentId = $item->id;
@@ -1313,17 +1460,20 @@ class ClassesController extends AppBaseController
                         $ss->save();
                     }
                 }
-                
+
                 return response()->json($class, 200);
-            } else {
+            } else
+            {
                 return response()->json('Classes Repo not found!', 404);
             }
-        } else {
+        } else
+        {
             return response()->json('Class not found!', 404);
         }
     }
-    
-    public function saveNewStudent(Request $request) {
+
+    public function saveNewStudent(Request $request)
+    {
         $studentId = $request['StudentId'];
         $classesRepoId = $request['ClassRepoId'];
         $syId = $request['SchoolYearId'];
@@ -1335,8 +1485,10 @@ class ClassesController extends AppBaseController
         $classesRepo = ClassesRepo::find($classesRepoId);
         $student = Students::find($studentId);
 
-        if ($student != null) {
-            if ($classesRepo != null) {
+        if ($student != null)
+        {
+            if ($classesRepo != null)
+            {
                 // check if class exists in a particular school year
                 $class = Classes::where('SchoolYearId', $syId)
                     ->where('Year', $classesRepo->Year)
@@ -1346,7 +1498,8 @@ class ClassesController extends AppBaseController
                     ->first();
 
                 // save class if not yet created
-                if ($class == null) {
+                if ($class == null)
+                {
                     $classId = IDGenerator::generateID();
                     $class = new Classes;
                     $class->id = $classId;
@@ -1357,7 +1510,8 @@ class ClassesController extends AppBaseController
                     $class->Strand = $classesRepo->Strand;
                     $class->Semester = $semester;
                     $class->save();
-                } else { 
+                } else
+                {
                     $classId = $class->id;
                 }
 
@@ -1366,10 +1520,12 @@ class ClassesController extends AppBaseController
                 $enrollee = StudentClasses::where('ClassId', $classId)
                     ->where('StudentId', $studentId)
                     ->first();
-                
-                if ($enrollee != null) {
+
+                if ($enrollee != null)
+                {
                     return response()->json('Student already enrolled in this class!', 403);
-                } else {
+                } else
+                {
                     // create enrollee/student
                     $enrollee = new StudentClasses;
                     $enrollee->id = IDGenerator::generateID();
@@ -1381,8 +1537,10 @@ class ClassesController extends AppBaseController
                     $enrollee->save();
 
                     // create subjects
-                    foreach($subjects as $item) {
-                        if ($item['Selected'] | $item['Selected']==='true') {
+                    foreach ($subjects as $item)
+                    {
+                        if ($item['Selected'] | $item['Selected'] === 'true')
+                        {
                             $studentSubjects = new StudentSubjects;
                             $studentSubjects->id = IDGenerator::generateIDandRandString();
                             $studentSubjects->StudentId = $studentId;
@@ -1392,7 +1550,7 @@ class ClassesController extends AppBaseController
                             $studentSubjects->save();
                         }
                     }
-                    
+
                     // update student current grade level
                     $student->CurrentGradeLevel = $classId;
                     $student->save();
@@ -1403,16 +1561,18 @@ class ClassesController extends AppBaseController
                      * ======================================================
                      */
                     $class = Classes::find($classId);
-                    if ($class != null) {
+                    if ($class != null)
+                    {
                         $classRepo = ClassesRepo::where('Year', $class->Year)
                             ->where('Section', $class->Section)
                             ->where('Strand', $class->Strand)
                             ->where('Semester', $class->Semester)
                             ->first();
-                        
+
                         $sy = SchoolYear::find($class->SchoolYearId);
 
-                        if ($classRepo != null) {
+                        if ($classRepo != null)
+                        {
                             $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
                             $payableId = IDGenerator::generateIDandRandString();
@@ -1424,12 +1584,14 @@ class ClassesController extends AppBaseController
                             $tuitionPayable->SchoolYear = $sy->SchoolYear;
                             $tuitionPayable->ClassId = $classId;
 
-                            if ($baseTuition != null) {
+                            if ($baseTuition != null)
+                            {
                                 // copy base tuition fee if declared in classes
                                 $tuitionPayable->Payable = $baseTuition;
                                 $tuitionPayable->AmountPayable = $baseTuition;
                                 $tuitionPayable->Balance = $baseTuition;
-                            } else {
+                            } else
+                            {
                                 // get tuition per subject if not declared in classes
                                 $totalSubjectTuition = DB::table('SubjectClasses')
                                     ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
@@ -1439,11 +1601,13 @@ class ClassesController extends AppBaseController
                                     )
                                     ->first();
 
-                                if ($totalSubjectTuition != null) {
+                                if ($totalSubjectTuition != null)
+                                {
                                     $tuitionPayable->Payable = $totalSubjectTuition->Total;
                                     $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
                                     $tuitionPayable->Balance = $totalSubjectTuition->Total;
-                                } else {
+                                } else
+                                {
                                     $tuitionPayable->Payable = 0.0;
                                     $tuitionPayable->AmountPayable = 0.0;
                                     $tuitionPayable->Balance = 0.0;
@@ -1454,8 +1618,10 @@ class ClassesController extends AppBaseController
                             $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
                                 ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
                                 ->get();
-                            if ($tuitionInclusions != null) {
-                                foreach($tuitionInclusions as $item) {
+                            if ($tuitionInclusions != null)
+                            {
+                                foreach ($tuitionInclusions as $item)
+                                {
                                     $payableInclusions = new PayableInclusions;
                                     $payableInclusions->id = IDGenerator::generateIDandRandString();
                                     $payableInclusions->PayableId = $payableId;
@@ -1466,42 +1632,48 @@ class ClassesController extends AppBaseController
                             }
 
                             // create tuitions breakdown
-                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                            {
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                    
-                                    if ($class->Semester != null && $class->Semester == '2nd') {
-                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                    } else {
+
+                                    if ($class->Semester != null && $class->Semester == '2nd')
+                                    {
+                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                    } else
+                                    {
                                         $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     }
-                                    
+
                                     $tuitionBreakdown->PayableId = $payableId;
-    
+
                                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
-    
+
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
                                     $tuitionBreakdown->Payable = $amntPayable;
                                     $tuitionBreakdown->Balance = $amntPayable;
                                     $tuitionBreakdown->save();
                                 }
-                            } else {
+                            } else
+                            {
                                 $monthsToPay = 10;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
                                     $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     $tuitionBreakdown->PayableId = $payableId;
-    
+
                                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
-    
+
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
                                     $tuitionBreakdown->Payable = $amntPayable;
                                     $tuitionBreakdown->Balance = $amntPayable;
@@ -1513,23 +1685,28 @@ class ClassesController extends AppBaseController
                         }
                     }
                 }
-            } else {
+            } else
+            {
                 return response()->json('Class repository not found!', 404);
             }
-        } else {
+        } else
+        {
             return response()->json('Student not found!', 404);
         }
     }
 
-    public function getClassesRepos(Request $request) {
+    public function getClassesRepos(Request $request)
+    {
         return response()->json(ClassesRepo::orderBy('Year')->get(), 200);
     }
 
-    public function markEscMultiple(Request $request) {
+    public function markEscMultiple(Request $request)
+    {
         $students = $request['Students'];
         $option = $request['Option'];
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $escScholarship = Scholarships::find(env('ESC_SCHOLARSHIP_ID'));
             $vmsPublic = Scholarships::find(env('VMS_PUBLIC_SCHOLARSHIP_ID'));
             $vmsPrivate = Scholarships::find(env('VMS_PRIVATE_SCHOLARSHIP_ID'));
@@ -1538,14 +1715,17 @@ class ClassesController extends AppBaseController
             $class = Classes::find($student->CurrentGradeLevel);
             $sy = SchoolYear::find($class->SchoolYearId);
 
-            if ($option === 'Yes') {
+            if ($option === 'Yes')
+            {
                 /**
                  * =============================================
                  * UPDATE SCHOLARSHIP
                  * =============================================
                  */
-                if ($student != null && $class != null && $sy != null) {
-                    if ($student->ESCScholar === 'No') {
+                if ($student != null && $class != null && $sy != null)
+                {
+                    if ($student->ESCScholar === 'No')
+                    {
                         $student->ESCScholar = 'Yes';
                         $student->save();
 
@@ -1554,44 +1734,52 @@ class ClassesController extends AppBaseController
                             ->first();
 
                         $discount = 0;
-                        if ($payable != null) {
+                        if ($payable != null)
+                        {
 
                             $payableId = $payable->id;
                             $paidAmount = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
 
-                            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+                            {
                                 // VMS
-                                if ($student->FromSchool == 'Private') {
+                                if ($student->FromSchool == 'Private')
+                                {
                                     // PRIVATE
-                                    if ($vmsPrivate != null && $student->ESCScholar === 'Yes') {
+                                    if ($vmsPrivate != null && $student->ESCScholar === 'Yes')
+                                    {
                                         // update payable
                                         $vmsAmount = $vmsPrivate->Amount != null ? (floatval($vmsPrivate->Amount)) : 0;
-                                        
+
                                         $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-                    
-                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                                        {
                                             $payable->AmountPayable = $pyblAmount - ($vmsAmount / 2);
                                             $payable->Balance = $pyblBalance - ($vmsAmount / 2);
                                             $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
-                                        } else {
+                                        } else
+                                        {
                                             $payable->AmountPayable = $pyblAmount - $vmsAmount;
                                             $payable->Balance = $pyblBalance - $vmsAmount;
                                             $payable->DiscountAmount = ($pyblDiscount + $vmsAmount);
                                         }
-                                        
-        
+
+
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)
                                             ->where('SchoolYear', $sy->SchoolYear)
                                             ->where('ScholarshipId', $vmsPrivate->id)
                                             ->first();
-        
-                                        if ($studScholarship != null) {
+
+                                        if ($studScholarship != null)
+                                        {
                                             $studScholarship->PayableId = $payableId;
                                             $studScholarship->save();
-                                        } else {
+                                        } else
+                                        {
                                             $studScholarship = new StudentScholarships;
                                             $studScholarship->id = IDGenerator::generateIDandRandString();
                                             $studScholarship->PayableId = $payableId;
@@ -1603,39 +1791,45 @@ class ClassesController extends AppBaseController
                                             $studScholarship->DeductMonthly = 'Yes';
                                             $studScholarship->save();
                                         }
-        
+
                                         $discount = $vmsPrivate->Amount != null ? floatval($vmsPrivate->Amount) : 0;
                                     }
-                                } else {
+                                } else
+                                {
                                     // PUBLIC
-                                    if ($vmsPublic != null && $student->ESCScholar === 'Yes') {
+                                    if ($vmsPublic != null && $student->ESCScholar === 'Yes')
+                                    {
                                         // update payable
                                         $vmsAmount = $vmsPublic->Amount != null ? (floatval($vmsPublic->Amount)) : 0;
-                                        
+
                                         $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-                    
-                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                                        {
                                             $payable->AmountPayable = $pyblAmount - ($vmsAmount / 2);
                                             $payable->Balance = $pyblBalance - ($vmsAmount / 2);
                                             $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
-                                        } else {
+                                        } else
+                                        {
                                             $payable->AmountPayable = $pyblAmount - $vmsAmount;
                                             $payable->Balance = $pyblBalance - $vmsAmount;
                                             $payable->DiscountAmount = ($pyblDiscount + $vmsAmount);
                                         }
-        
+
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)
                                             ->where('SchoolYear', $sy->SchoolYear)
                                             ->where('ScholarshipId', $vmsPublic->id)
                                             ->first();
-        
-                                        if ($studScholarship != null) {
+
+                                        if ($studScholarship != null)
+                                        {
                                             $studScholarship->PayableId = $payableId;
                                             $studScholarship->save();
-                                        } else {
+                                        } else
+                                        {
                                             $studScholarship = new StudentScholarships;
                                             $studScholarship->id = IDGenerator::generateIDandRandString();
                                             $studScholarship->PayableId = $payableId;
@@ -1647,34 +1841,38 @@ class ClassesController extends AppBaseController
                                             $studScholarship->DeductMonthly = 'Yes';
                                             $studScholarship->save();
                                         }
-        
+
                                         $discount = $vmsPublic->Amount != null ? floatval($vmsPublic->Amount) : 0;
                                     }
                                 }
-                            } else {
+                            } else
+                            {
                                 // ESC
-                                if ($escScholarship != null && $student->ESCScholar === 'Yes') {
+                                if ($escScholarship != null && $student->ESCScholar === 'Yes')
+                                {
                                     // update payable
                                     $escAmount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
-                                    
+
                                     $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                     $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                     $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-                
+
                                     $payable->AmountPayable = $pyblAmount - $escAmount;
                                     $payable->Balance = $pyblBalance - $escAmount;
                                     $payable->DiscountAmount = $pyblDiscount + $escAmount;
-                
+
                                     // insert esc scholarship
                                     $studScholarship = StudentScholarships::where('StudentId', $student->id)
                                         ->where('SchoolYear', $sy->SchoolYear)
                                         ->where('ScholarshipId', $escScholarship->id)
                                         ->first();
-                
-                                    if ($studScholarship != null) {
+
+                                    if ($studScholarship != null)
+                                    {
                                         $studScholarship->PayableId = $payableId;
                                         $studScholarship->save();
-                                    } else {
+                                    } else
+                                    {
                                         $studScholarship = new StudentScholarships;
                                         $studScholarship->id = IDGenerator::generateIDandRandString();
                                         $studScholarship->PayableId = $payableId;
@@ -1686,7 +1884,7 @@ class ClassesController extends AppBaseController
                                         $studScholarship->DeductMonthly = 'Yes';
                                         $studScholarship->save();
                                     }
-                
+
                                     $discount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
                                 }
                             }
@@ -1703,21 +1901,25 @@ class ClassesController extends AppBaseController
 
                             // recreate tuitions breakdown
                             $discount = floatval($payable->DiscountAmount);
-                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                            {
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                    
-                                    if ($class->Semester != null && $class->Semester == '2nd') {
-                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                    } else {
+
+                                    if ($class->Semester != null && $class->Semester == '2nd')
+                                    {
+                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                    } else
+                                    {
                                         $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     }
-                                    
+
                                     $tuitionBreakdown->PayableId = $payableId;
 
                                     $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
@@ -1730,10 +1932,12 @@ class ClassesController extends AppBaseController
                                     $tuitionBreakdown->Discount = $dscntOriginal;
                                     $tuitionBreakdown->save();
                                 }
-                            } else {
+                            } else
+                            {
                                 $monthsToPay = 10;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
@@ -1753,19 +1957,24 @@ class ClassesController extends AppBaseController
                             }
 
                             // update tutions breakdown payments
-                            if ($paidAmount > 0) {
+                            if ($paidAmount > 0)
+                            {
                                 // update tuitions breakdown
                                 $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
                                 $payment = $paidAmount;
-                                foreach($tBreakdown as $item) {
+                                foreach ($tBreakdown as $item)
+                                {
                                     $currentPayable = floatval($item->Balance);
-                                    if ($payment > 0) {
-                                        if ($payment >= $currentPayable) {
+                                    if ($payment > 0)
+                                    {
+                                        if ($payment >= $currentPayable)
+                                        {
                                             $item->Balance = 0;
                                             $item->AmountPaid = $item->AmountPayable;
-                                            
+
                                             $payment = $payment - $currentPayable;
-                                        } else {
+                                        } else
+                                        {
                                             $item->Balance = $currentPayable - $payment;
                                             $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -1778,117 +1987,135 @@ class ClassesController extends AppBaseController
                             }
                         }
                     }
-                    
+
                 }
-            } else {
+            } else
+            {
                 /**
                  * =============================================
                  * RERMOVE SCHOLARSHIP
                  * =============================================
                  */
-                if ($student != null && $class != null && $sy != null) {
-                    if ($student->ESCScholar === 'Yes') {
+                if ($student != null && $class != null && $sy != null)
+                {
+                    if ($student->ESCScholar === 'Yes')
+                    {
                         $payable = Payables::where('StudentId', $student->id)
                             ->where('SchoolYear', $sy->SchoolYear)
                             ->first();
 
                         $discount = 0;
-                        if ($payable != null) {
+                        if ($payable != null)
+                        {
                             $payableId = $payable->id;
                             $paidAmount = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
 
-                            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+                            {
                                 // VMS
-                                if ($student->FromSchool == 'Private') {
+                                if ($student->FromSchool == 'Private')
+                                {
                                     // PRIVATE
-                                    if ($vmsPrivate != null && $student->ESCScholar === 'Yes') {
+                                    if ($vmsPrivate != null && $student->ESCScholar === 'Yes')
+                                    {
                                         // update payable
                                         $vmsAmount = $vmsPrivate->Amount != null ? (floatval($vmsPrivate->Amount)) : 0;
-                                        
+
                                         $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-                    
-                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                                        {
                                             $payable->AmountPayable = $pyblAmount + ($vmsAmount / 2);
                                             $payable->Balance = $pyblBalance + ($vmsAmount / 2);
                                             $payable->DiscountAmount = ($pyblDiscount - ($vmsAmount / 2));
-                                        } else {
+                                        } else
+                                        {
                                             $payable->AmountPayable = $pyblAmount + $vmsAmount;
                                             $payable->Balance = $pyblBalance + $vmsAmount;
                                             $payable->DiscountAmount = ($pyblDiscount - $vmsAmount);
                                         }
-                                        
-        
+
+
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)
                                             ->where('SchoolYear', $sy->SchoolYear)
                                             ->where('ScholarshipId', $vmsPrivate->id)
                                             ->first();
-        
-                                        if ($studScholarship != null) {
+
+                                        if ($studScholarship != null)
+                                        {
                                             $studScholarship->delete();
                                         }
-        
+
                                         $discount = $vmsPrivate->Amount != null ? floatval($vmsPrivate->Amount) : 0;
                                     }
-                                } else {
+                                } else
+                                {
                                     // PUBLIC
-                                    if ($vmsPublic != null && $student->ESCScholar === 'Yes') {
+                                    if ($vmsPublic != null && $student->ESCScholar === 'Yes')
+                                    {
                                         // update payable
                                         $vmsAmount = $vmsPublic->Amount != null ? (floatval($vmsPublic->Amount)) : 0;
-                                        
+
                                         $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                         $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                         $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-                    
-                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+
+                                        if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                                        {
                                             $payable->AmountPayable = $pyblAmount + ($vmsAmount / 2);
                                             $payable->Balance = $pyblBalance + ($vmsAmount / 2);
                                             $payable->DiscountAmount = ($pyblDiscount - ($vmsAmount / 2));
-                                        } else {
+                                        } else
+                                        {
                                             $payable->AmountPayable = $pyblAmount + $vmsAmount;
                                             $payable->Balance = $pyblBalance + $vmsAmount;
                                             $payable->DiscountAmount = ($pyblDiscount - $vmsAmount);
                                         }
-        
+
                                         // insert esc scholarship
                                         $studScholarship = StudentScholarships::where('StudentId', $student->id)
                                             ->where('SchoolYear', $sy->SchoolYear)
                                             ->where('ScholarshipId', $vmsPublic->id)
                                             ->first();
-        
-                                        if ($studScholarship != null) {
+
+                                        if ($studScholarship != null)
+                                        {
                                             $studScholarship->delete();
-                                        } 
-        
+                                        }
+
                                         $discount = $vmsPublic->Amount != null ? floatval($vmsPublic->Amount) : 0;
                                     }
                                 }
-                            } else {
+                            } else
+                            {
                                 // ESC
-                                if ($escScholarship != null && $student->ESCScholar === 'Yes') {
+                                if ($escScholarship != null && $student->ESCScholar === 'Yes')
+                                {
                                     // update payable
                                     $escAmount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
-                                    
+
                                     $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                     $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                     $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-                
+
                                     $payable->AmountPayable = $pyblAmount + $escAmount;
                                     $payable->Balance = $pyblBalance + $escAmount;
                                     $payable->DiscountAmount = $pyblDiscount - $escAmount;
-                
+
                                     // insert esc scholarship
                                     $studScholarship = StudentScholarships::where('StudentId', $student->id)
                                         ->where('SchoolYear', $sy->SchoolYear)
                                         ->where('ScholarshipId', $escScholarship->id)
                                         ->first();
-                
-                                    if ($studScholarship != null) {
+
+                                    if ($studScholarship != null)
+                                    {
                                         $studScholarship->delete();
-                                    } 
-                
+                                    }
+
                                     $discount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
                                 }
                             }
@@ -1905,21 +2132,25 @@ class ClassesController extends AppBaseController
 
                             // recreate tuitions breakdown
                             $discount = floatval($payable->DiscountAmount);
-                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                            {
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                    
-                                    if ($class->Semester != null && $class->Semester == '2nd') {
-                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                    } else {
+
+                                    if ($class->Semester != null && $class->Semester == '2nd')
+                                    {
+                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                    } else
+                                    {
                                         $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     }
-                                    
+
                                     $tuitionBreakdown->PayableId = $payableId;
 
                                     $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
@@ -1932,10 +2163,12 @@ class ClassesController extends AppBaseController
                                     $tuitionBreakdown->Discount = $dscntOriginal;
                                     $tuitionBreakdown->save();
                                 }
-                            } else {
+                            } else
+                            {
                                 $monthsToPay = 10;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
@@ -1955,19 +2188,24 @@ class ClassesController extends AppBaseController
                             }
 
                             // update tutions breakdown payments
-                            if ($paidAmount > 0) {
+                            if ($paidAmount > 0)
+                            {
                                 // update tuitions breakdown
                                 $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
                                 $payment = $paidAmount;
-                                foreach($tBreakdown as $item) {
+                                foreach ($tBreakdown as $item)
+                                {
                                     $currentPayable = floatval($item->Balance);
-                                    if ($payment > 0) {
-                                        if ($payment >= $currentPayable) {
+                                    if ($payment > 0)
+                                    {
+                                        if ($payment >= $currentPayable)
+                                        {
                                             $item->Balance = 0;
                                             $item->AmountPaid = $item->AmountPayable;
-                                            
+
                                             $payment = $payment - $currentPayable;
-                                        } else {
+                                        } else
+                                        {
                                             $item->Balance = $currentPayable - $payment;
                                             $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -1980,7 +2218,7 @@ class ClassesController extends AppBaseController
                             }
                         }
                     }
-                    
+
                     $student->ESCScholar = 'No';
                     $student->save();
                 }
@@ -1989,12 +2227,14 @@ class ClassesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
-    
-    public function markFromSchoolMultiple(Request $request) {
+
+    public function markFromSchoolMultiple(Request $request)
+    {
         $students = $request['Students'];
         $school = $request['School'];
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             Students::where('id', $item['id'])
                 ->update(['FromSchool' => $school]);
         }
@@ -2002,10 +2242,11 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function getMiscellaneousToTuitionsData(Request $request) {
+    public function getMiscellaneousToTuitionsData(Request $request)
+    {
         $classId = $request['ClassId'];
 
-        $data =  DB::table('StudentClasses')
+        $data = DB::table('StudentClasses')
             ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
             ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
             ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
@@ -2023,10 +2264,11 @@ class ClassesController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function flushMiscToTuitions(Request $request) {
+    public function flushMiscToTuitions(Request $request)
+    {
         $classId = $request['ClassId'];
 
-        $data =  DB::table('StudentClasses')
+        $data = DB::table('StudentClasses')
             ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
             ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
             ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
@@ -2044,8 +2286,10 @@ class ClassesController extends AppBaseController
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
 
-        foreach($data as $item) {
-            if ($class != null && $sy != null) {
+        foreach ($data as $item)
+        {
+            if ($class != null && $sy != null)
+            {
                 // update tuition payable
                 $payable = Payables::where('ClassId', $classId)
                     ->where('StudentId', $item->id)
@@ -2053,7 +2297,8 @@ class ClassesController extends AppBaseController
                     ->where('Category', 'Tuition Fees')
                     ->first();
 
-                if ($payable != null) {
+                if ($payable != null)
+                {
                     $paidAmount = $item->TuitionMiscPayable != null ? $item->TuitionMiscPayable : 0;
 
                     $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
@@ -2068,15 +2313,19 @@ class ClassesController extends AppBaseController
                     // update tuitions breakdown
                     $tBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
                     $payment = floatval($paidAmount);
-                    foreach($tBreakdown as $itemx) {
+                    foreach ($tBreakdown as $itemx)
+                    {
                         $currentPayable = floatval($itemx->Balance);
-                        if ($payment > 0) {
-                            if ($payment >= $currentPayable) {
+                        if ($payment > 0)
+                        {
+                            if ($payment >= $currentPayable)
+                            {
                                 $itemx->Balance = 0;
                                 $itemx->AmountPaid = $itemx->AmountPayable;
-                                
+
                                 $payment = $payment - $currentPayable;
-                            } else {
+                            } else
+                            {
                                 $itemx->Balance = $currentPayable - $payment;
                                 $itemx->AmountPaid = floatval($itemx->AmountPaid) + $payment;
 
@@ -2092,22 +2341,25 @@ class ClassesController extends AppBaseController
                         WHERE t.StudentId='" . $item->id . "' AND td.Particulars LIKE '%Tuition Fee%' AND t.Status IS NULL AND td.FlushedToTuition IS NULL)")
                         ->get();
 
-                    foreach($tDetails as $itemy) {
+                    foreach ($tDetails as $itemy)
+                    {
                         TransactionDetails::where('id', $itemy->id)
                             ->update(['FlushedToTuition' => 'Yes']);
-                    } 
+                    }
                 }
             }
         }
 
         return response()->json('ok', 200);
     }
-    
-    public function flushMiscEnrollmentToTuitions(Request $request) {
+
+    public function flushMiscEnrollmentToTuitions(Request $request)
+    {
         $classId = $request['ClassId'];
 
-        if (env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE') {
-            $data =  DB::table('StudentClasses')
+        if (env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE')
+        {
+            $data = DB::table('StudentClasses')
                 ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
                 ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
                 ->whereRaw("Students.Status IS NULL AND Students.id IS NOT NULL")
@@ -2125,8 +2377,10 @@ class ClassesController extends AppBaseController
             $class = Classes::find($classId);
             $sy = SchoolYear::find($class->SchoolYearId);
 
-            foreach($data as $item) {
-                if ($class != null && $sy != null) {
+            foreach ($data as $item)
+            {
+                if ($class != null && $sy != null)
+                {
                     // update tuition payable
                     $payable = Payables::where('ClassId', $classId)
                         ->where('StudentId', $item->id)
@@ -2134,7 +2388,8 @@ class ClassesController extends AppBaseController
                         ->where('Category', 'Tuition Fees')
                         ->first();
 
-                    if ($payable != null) {
+                    if ($payable != null)
+                    {
                         $totalPayments = $item->TuitionMiscPayable != null ? $item->TuitionMiscPayable : 0;
 
                         $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
@@ -2153,21 +2408,25 @@ class ClassesController extends AppBaseController
 
                         TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                         // create tuitions breakdown
-                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                        {
                             // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                             $monthsToPay = 5;
 
-                            for ($i=0; $i<$monthsToPay; $i++) {
+                            for ($i = 0; $i < $monthsToPay; $i++)
+                            {
                                 $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                 $tuitionBreakdown = new TuitionsBreakdown;
                                 $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                
-                                if ($class->Semester != null && $class->Semester == '2nd') {
-                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                } else {
+
+                                if ($class->Semester != null && $class->Semester == '2nd')
+                                {
+                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                } else
+                                {
                                     $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                 }
-                                
+
                                 $tuitionBreakdown->PayableId = $payable->id;
 
                                 $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
@@ -2180,11 +2439,13 @@ class ClassesController extends AppBaseController
                                 $tuitionBreakdown->Discount = $dscntOriginal;
                                 $tuitionBreakdown->save();
                             }
-                        } else {
+                        } else
+                        {
                             // if not SHS and SHS enrollment for semestrals are continuos
                             $monthsToPay = 10;
 
-                            for ($i=0; $i<$monthsToPay; $i++) {
+                            for ($i = 0; $i < $monthsToPay; $i++)
+                            {
                                 $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                 $tuitionBreakdown = new TuitionsBreakdown;
                                 $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
@@ -2209,10 +2470,11 @@ class ClassesController extends AppBaseController
                             WHERE t.StudentId='" . $item->id . "' AND td.Particulars LIKE '%Enrollment Fees%' AND t.Status IS NULL AND td.FlushedToTuition IS NULL)")
                             ->get();
 
-                        foreach($tDetails as $itemy) {
+                        foreach ($tDetails as $itemy)
+                        {
                             TransactionDetails::where('id', $itemy->id)
                                 ->update(['FlushedToTuition' => 'Yes']);
-                        } 
+                        }
                     }
                 }
             }
@@ -2221,7 +2483,8 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function printClassPayments($syId, $classId, $teacherId) {
+    public function printClassPayments($syId, $classId, $teacherId)
+    {
         return view('/classes/print_class_payments', [
             'schoolYearId' => $syId,
             'classId' => $classId,
@@ -2229,7 +2492,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printSingleGrade($studentId, $classId) {
+    public function printSingleGrade($studentId, $classId)
+    {
         $data = DB::table('StudentSubjects')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -2247,9 +2511,11 @@ class ClassesController extends AppBaseController
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $studentId . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled'
+            )
             ->first();
 
         return view('/classes/print_single_grade', [
@@ -2261,7 +2527,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printSingleGradeAll($classId) {
+    public function printSingleGradeAll($classId)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -2281,7 +2548,8 @@ class ClassesController extends AppBaseController
             ->orderBy('Students.LastName')
             ->get();
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $item->GradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -2301,7 +2569,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printGradesInSubjectClass($subjectId, $classId, $teacherId) {
+    public function printGradesInSubjectClass($subjectId, $classId, $teacherId)
+    {
         $data = DB::table('StudentSubjects')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -2324,7 +2593,7 @@ class ClassesController extends AppBaseController
         $sy = SchoolYear::find($class->SchoolYearId);
         $teacher = Teachers::find($teacherId);
         $subject = Subjects::find($subjectId);
-        
+
         return view('/classes/print_grades_in_subject_class', [
             'data' => $data,
             'class' => $class,
@@ -2334,7 +2603,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function addNewSubjectToClass(Request $request) {
+    public function addNewSubjectToClass(Request $request)
+    {
         $subjectId = $request['SubjectId'];
         $classId = $request['ClassId'];
 
@@ -2350,7 +2620,8 @@ class ClassesController extends AppBaseController
         $subject = Subjects::find($subjectId);
         $class = Classes::find($classId);
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             StudentSubjects::create([
                 'id' => IDGenerator::generateIDandRandString(),
                 'StudentId' => $item->id,
@@ -2361,22 +2632,26 @@ class ClassesController extends AppBaseController
         }
 
         // add subject to SubjectClasses
-        if ($class != null) {
-            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+        if ($class != null)
+        {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->where('Strand', $class->Strand)
                     ->where('Semester', $class->Semester)
                     ->first();
-            } else {
+            } else
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->first();
             }
-            
-            if ($classRepo != null) {
+
+            if ($classRepo != null)
+            {
                 SubjectClasses::create([
                     'id' => IDGenerator::generateIDandRandString(),
                     'SubjectId' => $subjectId,
@@ -2389,7 +2664,8 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function printSingleGradeHca($studentId, $classId) {
+    public function printSingleGradeHca($studentId, $classId)
+    {
         $data = DB::table('StudentSubjects')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -2409,9 +2685,11 @@ class ClassesController extends AppBaseController
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $studentId . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled'
+            )
             ->first();
 
         $arr = [];
@@ -2419,9 +2697,10 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        }  
+        }
 
         return view('/classes/print_single_grade_hca', [
             'data' => $data,
@@ -2433,7 +2712,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printSingleGradeAllHca($classId) {
+    public function printSingleGradeAllHca($classId)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -2453,7 +2733,8 @@ class ClassesController extends AppBaseController
             ->orderBy('Students.LastName')
             ->get();
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $item->GradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -2472,9 +2753,10 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
         return view('/classes/print_single_grade_all_hca', [
             'students' => $students,
@@ -2485,39 +2767,46 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function stubConfig($classId) {
+    public function stubConfig($classId)
+    {
         return view('/classes/stub_config', [
             'classId' => $classId,
         ]);
     }
 
-    public function saveGradeStubConfig(Request $request) {
+    public function saveGradeStubConfig(Request $request)
+    {
         $classId = $request['ClassId'];
         $subjects = $request['Subjects'];
         $avgSubjectParents = $request['AveragedSubjectParents'];
 
         $class = Classes::find($classId);
 
-        if ($class != null) {
+        if ($class != null)
+        {
             /**
              * save first in SubjectClasses
              **/
-            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->where('Strand', $class->Strand)
                     ->where('Semester', $class->Semester)
                     ->first();
-            } else {
+            } else
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->first();
             }
 
-            if ($classRepo != null && $subjects != null) {
-                foreach($subjects as $key => $item) {
+            if ($classRepo != null && $subjects != null)
+            {
+                foreach ($subjects as $key => $item)
+                {
                     SubjectClasses::where('SubjectId', $item['id'])
                         ->where('ClassRepoId', $classRepo->id)
                         ->update(['Heirarchy' => $key]);
@@ -2527,7 +2816,8 @@ class ClassesController extends AppBaseController
             /**
              * SAVE NOW StudentSubjects
              */
-            foreach($subjects as $key => $item) {
+            foreach ($subjects as $key => $item)
+            {
                 StudentSubjects::where('SubjectId', $item['id'])
                     ->where('ClassId', $classId)
                     ->update(['Heirarchy' => $key]);
@@ -2537,7 +2827,8 @@ class ClassesController extends AppBaseController
              * SAVE Averaged Parent Subject Config
              */
             ClassSubjectParentAvg::where('ClassId', $classId)->delete();
-            foreach ($avgSubjectParents as $item) {
+            foreach ($avgSubjectParents as $item)
+            {
                 ClassSubjectParentAvg::create([
                     'id' => IDGenerator::generateIDandRandString(),
                     'ClassId' => $classId,
@@ -2549,49 +2840,58 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function revalidateStudentSubjects(Request $request) {
+    public function revalidateStudentSubjects(Request $request)
+    {
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
         $syId = $request['SchoolYearId'];
-        
+
         $class = Classes::find($classId);
         $student = Students::find($studentId);
         $sy = SchoolYear::find($syId);
 
-        if ($student != null && $student->CurrentGradeLevel === null) {
+        if ($student != null && $student->CurrentGradeLevel === null)
+        {
             $student->CurrentGradeLevel = $class != null ? $class->id : null;
             $student->save();
         }
-        
-        if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+
+        if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+        {
             $classRepo = DB::table('ClassesRepo')
                 ->where('Year', $class->Year)
                 ->where('Section', $class->Section)
                 ->where('Strand', $class->Strand)
                 ->where('Semester', $class->Semester)
                 ->first();
-        } else {
+        } else
+        {
             $classRepo = DB::table('ClassesRepo')
                 ->where('Year', $class->Year)
                 ->where('Section', $class->Section)
                 ->first();
         }
 
-        if ($classRepo != null){
+        if ($classRepo != null)
+        {
             $subjectClasses = SubjectClasses::where('ClassRepoId', $classRepo->id)->get();
 
-            if ($subjectClasses != null) {
-                foreach($subjectClasses as $item) {
+            if ($subjectClasses != null)
+            {
+                foreach ($subjectClasses as $item)
+                {
                     $subject = Subjects::find($item->SubjectId);
 
-                    if ($subject != null) {
+                    if ($subject != null)
+                    {
                         $studentSubjects = StudentSubjects::where('StudentId', $studentId)
                             ->where('ClassId', $classId)
                             ->where('SubjectId', $subject->id)
                             ->where('TeacherId', $subject->Teacher)
                             ->first();
 
-                        if ($studentSubjects == null) {
+                        if ($studentSubjects == null)
+                        {
                             $studentSubjects = new StudentSubjects;
                             $studentSubjects->id = IDGenerator::generateIDandRandString();
                             $studentSubjects->StudentId = $studentId;
@@ -2608,7 +2908,8 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function clearStudentSubjects(Request $request) {
+    public function clearStudentSubjects(Request $request)
+    {
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
 
@@ -2619,26 +2920,28 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function getClassRankings(Request $request) {
+    public function getClassRankings(Request $request)
+    {
         $classId = $request['ClassId'];
 
-        $data['Male'] =  DB::table('StudentClasses')
-                ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
-                ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
-                ->whereRaw("Students.Status IS NULL")
-                ->select(
-                    'Students.*',
-                    'StudentClasses.Status as EnrollmentStatus',
-                    'StudentClasses.id as StudentClassId'
-                )
-                ->orderBy('Students.LastName')
-                ->get();
+        $data['Male'] = DB::table('StudentClasses')
+            ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
+            ->whereRaw("StudentClasses.ClassId='" . $classId . "'")
+            ->whereRaw("Students.Status IS NULL")
+            ->select(
+                'Students.*',
+                'StudentClasses.Status as EnrollmentStatus',
+                'StudentClasses.id as StudentClassId'
+            )
+            ->orderBy('Students.LastName')
+            ->get();
     }
 
-    public function printRanking($classId, $rankGrade, $teacherId, $syId) {
+    public function printRanking($classId, $rankGrade, $teacherId, $syId)
+    {
         $teacher = Teachers::find($teacherId);
         $class = Classes::find($classId);
-        
+
 
         return view('/classes/print_rankings', [
             'class' => $class,
@@ -2647,8 +2950,9 @@ class ClassesController extends AppBaseController
             'teacher' => $teacher,
         ]);
     }
-    
-    public function printSingleGradeHcaSenior($studentId, $classId) {
+
+    public function printSingleGradeHcaSenior($studentId, $classId)
+    {
         $data = DB::table('StudentSubjects')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -2670,9 +2974,11 @@ class ClassesController extends AppBaseController
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $studentId . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled'
+            )
             ->first();
 
         $arr = [];
@@ -2680,9 +2986,10 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
         return view('/classes/print_single_grade_hca_senior', [
             'data' => $data,
@@ -2693,8 +3000,9 @@ class ClassesController extends AppBaseController
             'avgParents' => $arr,
         ]);
     }
-    
-    public function printSingleGradeAllHcaSenior($classId) {
+
+    public function printSingleGradeAllHcaSenior($classId)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -2714,7 +3022,8 @@ class ClassesController extends AppBaseController
             ->orderBy('Students.LastName')
             ->get();
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $item->GradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -2729,25 +3038,26 @@ class ClassesController extends AppBaseController
                 ->orderBy('Heirarchy')
                 ->get();
         }
-        
+
         $arr = [];
         $parents = ClassSubjectParentAvg::where('ClassId', $classId)
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
-        
+        }
+
         $periodGradeChecker = DB::table('StudentSubjects')
-                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-                ->select(
-                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
-                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
-                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
-                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
-                )
-                ->first();
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+            )
+            ->first();
 
         return view('/classes/print_single_grade_all_hca_senior', [
             'students' => $students,
@@ -2759,12 +3069,13 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function downloadStudents($classId) {
+    public function downloadStudents($classId)
+    {
         $class = DB::table('Classes')
             ->whereRaw("id='" . $classId . "'")
             ->first();
 
-        $male =  DB::table('StudentClasses')
+        $male = DB::table('StudentClasses')
             ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -2805,7 +3116,7 @@ class ClassesController extends AppBaseController
             ->orderBy('Students.LastName')
             ->get();
 
-        $female =  DB::table('StudentClasses')
+        $female = DB::table('StudentClasses')
             ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -2901,24 +3212,27 @@ class ClassesController extends AppBaseController
             ],
         ];
 
-        $export = new DynamicExports($data, 
-                                    $headers, 
-                                    [],
-                                    'A8',
-                                    $styles,
-                                    'STUDENTS DATA FOR ' . ($class != null ? ($class->Year . ' ' . $class->Section . ' ' . $class->Strand) : '-')
-                                );
-    
+        $export = new DynamicExports(
+            $data,
+            $headers,
+            [],
+            'A8',
+            $styles,
+            'STUDENTS DATA FOR ' . ($class != null ? ($class->Year . ' ' . $class->Section . ' ' . $class->Strand) : '-')
+        );
+
         return Excel::download($export, 'All-Students-Data.xlsx');
     }
 
-    public function mergeTo($studentId) {
+    public function mergeTo($studentId)
+    {
         return view("/classes/merge_to", [
             'studentId' => $studentId,
         ]);
     }
 
-    public function doMerger(Request $request) {
+    public function doMerger(Request $request)
+    {
         $sourceStudentId = $request['SourceStudentId'];
         $destinationStudentId = $request['DestinationtudentId'];
 
@@ -2928,7 +3242,8 @@ class ClassesController extends AppBaseController
         // transfer other transactions to new student
         $transactions = Transactions::where('StudentId', $sourceStudentId)
             ->get();
-        foreach($transactions as $item) {
+        foreach ($transactions as $item)
+        {
             $item->StudentId = $destinationStudentId;
             $item->save();
         }
@@ -2937,13 +3252,14 @@ class ClassesController extends AppBaseController
          * TRANSACT PAYABLES
          */
         // get source payables
-        $sy =  SchoolYear::orderByDesc('created_at')->first();
+        $sy = SchoolYear::orderByDesc('created_at')->first();
         $sourcePayable = Payables::where('StudentId', $sourceStudentId)
             ->where('SchoolYear', $sy != null ? $sy->SchoolYear : '')
             ->where('Category', 'Tuition Fees')
             ->first();
 
-        if ($sourcePayable != null) {
+        if ($sourcePayable != null)
+        {
             $amountAlrPaid = $sourcePayable->AmountPaid != null ? floatval($sourcePayable->AmountPaid) : 0;
 
 
@@ -2951,10 +3267,11 @@ class ClassesController extends AppBaseController
                 ->where('SchoolYear', $sy != null ? $sy->SchoolYear : '')
                 ->where('Category', 'Tuition Fees')
                 ->first();
-            if ($payable != null) {
+            if ($payable != null)
+            {
                 $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
                 $newAmntPaid = $payableAmntPaid + floatval($amountAlrPaid);
-                
+
                 $payableBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                 $balance = $payableBalance - floatval($amountAlrPaid);
 
@@ -2965,15 +3282,19 @@ class ClassesController extends AppBaseController
                 // update tuitions breakdown
                 $tBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
                 $payment = floatval($amountAlrPaid);
-                foreach($tBreakdown as $item) {
+                foreach ($tBreakdown as $item)
+                {
                     $currentPayable = floatval($item->Balance);
-                    if ($payment > 0) {
-                        if ($payment >= $currentPayable) {
+                    if ($payment > 0)
+                    {
+                        if ($payment >= $currentPayable)
+                        {
                             $item->Balance = 0;
                             $item->AmountPaid = $item->AmountPayable;
-                            
+
                             $payment = $payment - $currentPayable;
-                        } else {
+                        } else
+                        {
                             $item->Balance = $currentPayable - $payment;
                             $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -2984,7 +3305,7 @@ class ClassesController extends AppBaseController
                 }
             }
         }
-        
+
         // delete data
         $source->delete();
         StudentSubjects::where('StudentId', $sourceStudentId)->delete();
@@ -2993,7 +3314,8 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function printSingleGradeSvi($studentId, $classId, $gradingPeriod) {
+    public function printSingleGradeSvi($studentId, $classId, $gradingPeriod)
+    {
         $data = DB::table('StudentSubjects')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3015,9 +3337,11 @@ class ClassesController extends AppBaseController
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $studentId . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled'
+            )
             ->first();
 
         $arr = [];
@@ -3025,7 +3349,8 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
         }
 
@@ -3040,7 +3365,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printSingleGradeAllSvi($classId, $gradingPeriod) {
+    public function printSingleGradeAllSvi($classId, $gradingPeriod)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3065,11 +3391,13 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
         }
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $item->GradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3095,7 +3423,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printSingleGradeSviSenior($studentId, $classId, $gradingPeriod, $printFinalGrade) {
+    public function printSingleGradeSviSenior($studentId, $classId, $gradingPeriod, $printFinalGrade)
+    {
         $data = DB::table('StudentSubjects')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3117,9 +3446,11 @@ class ClassesController extends AppBaseController
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $studentId . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled'
+            )
             ->first();
 
         $arr = [];
@@ -3127,19 +3458,20 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
         }
-        
+
         $periodGradeChecker = DB::table('StudentSubjects')
-                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-                ->select(
-                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
-                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
-                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
-                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
-                )
-                ->first();
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+            )
+            ->first();
 
         return view('/classes/print_single_grade_svi_senior', [
             'data' => $data,
@@ -3153,8 +3485,9 @@ class ClassesController extends AppBaseController
             'printFinalGrade' => $printFinalGrade,
         ]);
     }
-    
-    public function printSingleGradeAllSviSenior($classId, $gradingPeriod, $printFinalGrade) {
+
+    public function printSingleGradeAllSviSenior($classId, $gradingPeriod, $printFinalGrade)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3180,11 +3513,13 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $item->GradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3201,14 +3536,14 @@ class ClassesController extends AppBaseController
         }
 
         $periodGradeChecker = DB::table('StudentSubjects')
-                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-                ->select(
-                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
-                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
-                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
-                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
-                )
-                ->first();
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+            )
+            ->first();
 
         return view('/classes/print_single_grade_all_svi_senior', [
             'students' => $students,
@@ -3222,7 +3557,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printAllGrades($classId, $gradingPeriod) {
+    public function printAllGrades($classId, $gradingPeriod)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3249,9 +3585,10 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
         $subjects = DB::table('StudentSubjects')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3276,27 +3613,30 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function saveEnrollToSecondSem(Request $request) {
+    public function saveEnrollToSecondSem(Request $request)
+    {
         $sourceClassId = $request['SourceClassId'];
         $students = $request['Students'];
 
         // if (env("SENIOR_HIGH_SEM_ENROLLMENT") === 'CONTINUOS') {
-            
+
         // } else {
         //     return response()->json("This feature is not applicable for this school (configuration). Contact support for more information.", 403);
         // }
         // get 1st sem class
         $sourceClass = Classes::find($sourceClassId);
         // get 2nd sem class
-        if ($sourceClass != null) {
+        if ($sourceClass != null)
+        {
             // get class repo first
             $classRepo = ClassesRepo::where('Year', $sourceClass->Year)
-                    ->where('Section', $sourceClass->Section)
-                    ->where('Strand', $sourceClass->Strand)
-                    ->where('Semester', '2nd')
-                    ->first();
+                ->where('Section', $sourceClass->Section)
+                ->where('Strand', $sourceClass->Strand)
+                ->where('Semester', '2nd')
+                ->first();
 
-            if ($classRepo == null) {
+            if ($classRepo == null)
+            {
                 $classRepo = new ClassesRepo;
                 $classRepo->id = IDGenerator::generateID();
                 $classRepo->Year = $sourceClass->Year;
@@ -3315,7 +3655,8 @@ class ClassesController extends AppBaseController
                 ->where('Semester', '2nd')
                 ->first();
 
-            if ($destinationClass == null) {
+            if ($destinationClass == null)
+            {
                 $classId = IDGenerator::generateID();
 
                 $destinationClass = new Classes;
@@ -3327,14 +3668,17 @@ class ClassesController extends AppBaseController
                 $destinationClass->Strand = $sourceClass->Strand;
                 $destinationClass->Semester = '2nd';
                 $destinationClass->save();
-            } else {
+            } else
+            {
                 $classId = $destinationClass->id;
             }
 
             $sy = SchoolYear::find($sourceClass->SchoolYearId);
 
-            if ($students != null) {
-                foreach($students as $item) {
+            if ($students != null)
+            {
+                foreach ($students as $item)
+                {
                     $student = Students::find($item['id']);
                     $studentId = $item['id'];
                     /**
@@ -3348,10 +3692,12 @@ class ClassesController extends AppBaseController
                         ->where('StudentId', $item['id'])
                         ->where('Semester', '2nd')
                         ->first();
-                    
-                    if ($enrollee != null) {
+
+                    if ($enrollee != null)
+                    {
                         // skip
-                    } else {
+                    } else
+                    {
                         // create enrollee/student
                         $enrollee = new StudentClasses;
                         $enrollee->id = IDGenerator::generateID();
@@ -3364,7 +3710,8 @@ class ClassesController extends AppBaseController
                         $enrollee->Notes = 'Auto-enrollment from Selection';
                         $enrollee->save();
 
-                        if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
+                        if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE')
+                        {
                             // create payables
                             $payableId = IDGenerator::generateIDandRandString();
                             $payable = new Payables;
@@ -3384,26 +3731,30 @@ class ClassesController extends AppBaseController
                      * CREATE SUBJECTS
                      * ==========================================================
                      */
-                    if ($classRepo != null) {
+                    if ($classRepo != null)
+                    {
                         $subjects = DB::table('SubjectClasses')
-                                ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
-                                ->where('SubjectClasses.ClassRepoId', $classRepo->id)
-                                ->select(
-                                    'SubjectClasses.*',
-                                    'Subjects.Teacher'
-                                )
-                                ->get(); 
+                            ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
+                            ->where('SubjectClasses.ClassRepoId', $classRepo->id)
+                            ->select(
+                                'SubjectClasses.*',
+                                'Subjects.Teacher'
+                            )
+                            ->get();
 
-                        foreach($subjects as $itemx) {
+                        foreach ($subjects as $itemx)
+                        {
                             // check if student has this subject already
                             $ss = StudentSubjects::where('StudentId', $item['id'])
                                 ->where('SubjectId', $itemx->SubjectId)
                                 ->where('ClassId', $classId)
                                 ->first();
 
-                            if ($ss != null) {
+                            if ($ss != null)
+                            {
                                 // skip
-                            } else {
+                            } else
+                            {
                                 $studentSubjects = new StudentSubjects;
                                 $studentSubjects->id = IDGenerator::generateIDandRandString();
                                 $studentSubjects->StudentId = $item['id'];
@@ -3422,16 +3773,18 @@ class ClassesController extends AppBaseController
                      * ======================================================
                      */
                     $class = Classes::find($classId);
-                    if ($class != null) {
+                    if ($class != null)
+                    {
                         $classRepo = ClassesRepo::where('Year', $class->Year)
                             ->where('Section', $class->Section)
                             ->where('Strand', $class->Strand)
                             ->where('Semester', $class->Semester)
                             ->first();
-                        
+
                         $sy = SchoolYear::find($class->SchoolYearId);
 
-                        if ($classRepo != null) {
+                        if ($classRepo != null)
+                        {
                             $baseTuition = $student->FromSchool === 'Private' ? $classRepo->BaseTuitionFee : ($classRepo->BaseTuitionFeePublic != null ? $classRepo->BaseTuitionFeePublic : $classRepo->BaseTuitionFee); // private is the default
 
                             $payableId = IDGenerator::generateIDandRandString();
@@ -3443,12 +3796,14 @@ class ClassesController extends AppBaseController
                             $tuitionPayable->SchoolYear = $sy->SchoolYear;
                             $tuitionPayable->ClassId = $classId;
 
-                            if ($baseTuition != null) {
+                            if ($baseTuition != null)
+                            {
                                 // copy base tuition fee if declared in classes
                                 $tuitionPayable->Payable = $baseTuition;
                                 $tuitionPayable->AmountPayable = $baseTuition;
                                 $tuitionPayable->Balance = $baseTuition;
-                            } else {
+                            } else
+                            {
                                 // get tuition per subject if not declared in classes
                                 $totalSubjectTuition = DB::table('SubjectClasses')
                                     ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
@@ -3458,11 +3813,13 @@ class ClassesController extends AppBaseController
                                     )
                                     ->first();
 
-                                if ($totalSubjectTuition != null) {
+                                if ($totalSubjectTuition != null)
+                                {
                                     $tuitionPayable->Payable = $totalSubjectTuition->Total;
                                     $tuitionPayable->AmountPayable = $totalSubjectTuition->Total;
                                     $tuitionPayable->Balance = $totalSubjectTuition->Total;
-                                } else {
+                                } else
+                                {
                                     $tuitionPayable->Payable = 0.0;
                                     $tuitionPayable->AmountPayable = 0.0;
                                     $tuitionPayable->Balance = 0.0;
@@ -3473,8 +3830,10 @@ class ClassesController extends AppBaseController
                             $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
                                 ->where('FromSchool', $student->FromSchool != null ? $student->FromSchool : 'Private')
                                 ->get();
-                            if ($tuitionInclusions != null) {
-                                foreach($tuitionInclusions as $item) {
+                            if ($tuitionInclusions != null)
+                            {
+                                foreach ($tuitionInclusions as $item)
+                                {
                                     $payableInclusions = new PayableInclusions;
                                     $payableInclusions->id = IDGenerator::generateIDandRandString();
                                     $payableInclusions->PayableId = $payableId;
@@ -3485,7 +3844,8 @@ class ClassesController extends AppBaseController
                             }
 
                             // create tuitions breakdown
-                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                            {
                                 // update payable, set to half per sem
                                 $tuitionPayable->Payable = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / 2) : 0;
                                 $tuitionPayable->AmountPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / 2) : 0;
@@ -3494,39 +3854,44 @@ class ClassesController extends AppBaseController
                                 // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                                 $monthsToPay = 5;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                    
-                                    if ($class->Semester != null && $class->Semester == '2nd') {
-                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                    } else {
+
+                                    if ($class->Semester != null && $class->Semester == '2nd')
+                                    {
+                                        $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                    } else
+                                    {
                                         $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     }
-                                    
+
                                     $tuitionBreakdown->PayableId = $payableId;
-    
+
                                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
                                     $pyblOriginal = $tuitionPayable->Payable > 0 ? ($tuitionPayable->Payable / $monthsToPay) : 0;
-    
+
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
                                     $tuitionBreakdown->Payable = $pyblOriginal;
                                     $tuitionBreakdown->Balance = $amntPayable;
                                     $tuitionBreakdown->save();
                                 }
-                            } else {
+                            } else
+                            {
                                 $monthsToPay = 10;
 
-                                for ($i=0; $i<$monthsToPay; $i++) {
+                                for ($i = 0; $i < $monthsToPay; $i++)
+                                {
                                     $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                     $tuitionBreakdown = new TuitionsBreakdown;
                                     $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
                                     $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                     $tuitionBreakdown->PayableId = $payableId;
-    
+
                                     $amntPayable = $tuitionPayable->AmountPayable > 0 ? ($tuitionPayable->AmountPayable / $monthsToPay) : 0;
-    
+
                                     $tuitionBreakdown->AmountPayable = $amntPayable;
                                     $tuitionBreakdown->Payable = $amntPayable;
                                     $tuitionBreakdown->Balance = $amntPayable;
@@ -3537,7 +3902,7 @@ class ClassesController extends AppBaseController
                             $tuitionPayable->save();
                         }
                     }
-                    
+
                     // update student current grade level
                     $student->CurrentGradeLevel = $classId;
                     $student->save();
@@ -3548,7 +3913,8 @@ class ClassesController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function downloadSF10($studentId, $classId) {
+    public function downloadSF10($studentId, $classId)
+    {
         /**
          * MODIFY EXCEL
          */
@@ -3574,7 +3940,8 @@ class ClassesController extends AppBaseController
         $otherAdviser = null;
         $sem = null;
 
-        if ($student != null) {
+        if ($student != null)
+        {
             /**
              * QUERY STUDENT DETAILS
              */
@@ -3604,18 +3971,19 @@ class ClassesController extends AppBaseController
             $worksheet->setCellValue('P14', $student->JHSDateGraduated != null ? date('m/d/Y', strtotime($student->JHSDateGraduated)) : '-');
             $worksheet->setCellValue('Z14', strtoupper($student->JHSSchoolGraduated));
             $worksheet->setCellValue('AW14', strtoupper($student->JHSSchoolAddress));
-            
+
             $worksheet->setCellValue('AH13', strtoupper($student->JHSAverageGrade));
 
             Classes::populateSF10DataFront($student, $class, $adviser, $worksheet);
-            
+
             /**
              * ==========================================================
              * GET OTHER CLASS
              * If $class is 1st Sem, this class should be 2nd sem, vice versa
              * ==========================================================
              */
-            if ($class != null) {
+            if ($class != null)
+            {
                 $otherClass = DB::table('Classes')
                     ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
                     ->select(
@@ -3629,7 +3997,8 @@ class ClassesController extends AppBaseController
                     ->where('Classes.Semester', $sem)
                     ->first();
 
-                if ($otherClass != null) {
+                if ($otherClass != null)
+                {
                     $otherAdviser = Teachers::find($otherClass->Adviser);
 
                     Classes::populateSF10DataFront($student, $otherClass, $otherAdviser, $worksheet);
@@ -3649,19 +4018,22 @@ class ClassesController extends AppBaseController
          * START FILLING SECOND SHEET
          * ================================================
          */
-        if ($student != null) {
+        if ($student != null)
+        {
             // set current class
-            if ($class != null) {
+            if ($class != null)
+            {
                 Classes::populateSF10DataBack($student, $class, $adviser, $worksheet);
             }
 
-            if ($otherClass != null) {
+            if ($otherClass != null)
+            {
                 Classes::populateSF10DataBack($student, $otherClass, $otherAdviser, $worksheet);
             }
         }
 
         $worksheet = $spreadsheet->getSheetByName("Front");
-        
+
         // Save the modified file
         $writer = new Xlsx($spreadsheet);
         $writer->save(public_path('generated/sf2/SF10_' . $studentId . '.xlsx'));
@@ -3669,7 +4041,8 @@ class ClassesController extends AppBaseController
         return response()->download(public_path('generated/sf2/SF10_' . $studentId . '.xlsx'));
     }
 
-    public function downloadSF10JHS($studentId, $classId) {
+    public function downloadSF10JHS($studentId, $classId)
+    {
         /**
          * MODIFY EXCEL
          */
@@ -3694,7 +4067,8 @@ class ClassesController extends AppBaseController
         $adviser = null;
         $otherAdviser = null;
 
-        if ($student != null) {
+        if ($student != null)
+        {
             /**
              * QUERY STUDENT DETAILS
              */
@@ -3726,7 +4100,7 @@ class ClassesController extends AppBaseController
         }
 
         $worksheet = $spreadsheet->getSheetByName("SF10");
-        
+
         // Save the modified file
         $writer = new Xlsx($spreadsheet);
         $writer->save(public_path('generated/sf2/SF10_JHS_' . $studentId . '.xlsx'));
@@ -3734,7 +4108,8 @@ class ClassesController extends AppBaseController
         return response()->download(public_path('generated/sf2/SF10_JHS_' . $studentId . '.xlsx'));
     }
 
-    public function createNewSem(Request $request) {
+    public function createNewSem(Request $request)
+    {
         $syId = $request['SchoolYearId'];
         $year = $request['Year'];
         $section = $request['Section'];
@@ -3750,7 +4125,8 @@ class ClassesController extends AppBaseController
             ->first();
 
         $id = IDGenerator::generateID();
-        if ($class == null) {
+        if ($class == null)
+        {
             Classes::create([
                 'id' => $id,
                 'SchoolYearId' => $syId,
@@ -3765,7 +4141,8 @@ class ClassesController extends AppBaseController
         return response()->json($id, 200);
     }
 
-    public function printReportCardHcaSeniorAll($classId, $printFinalGrade) {
+    public function printReportCardHcaSeniorAll($classId, $printFinalGrade)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3790,11 +4167,13 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
-        if ($class->Semester == '1st') {
+        if ($class->Semester == '1st')
+        {
             $classFirstSem = $class;
 
             $classSecondSem = Classes::where('SchoolYearId', $class->SchoolYearId)
@@ -3803,7 +4182,8 @@ class ClassesController extends AppBaseController
                 ->where('Strand', $class->Strand)
                 ->where('Semester', '2nd')
                 ->first();
-        } else {
+        } else
+        {
             $classSecondSem = $class;
 
             $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
@@ -3814,8 +4194,10 @@ class ClassesController extends AppBaseController
                 ->first();
         }
 
-        foreach($students as $item) {
-            if ($classFirstSem != null) {
+        foreach ($students as $item)
+        {
+            if ($classFirstSem != null)
+            {
                 $item->FirstSemGradeData = DB::table('StudentSubjects')
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3833,12 +4215,14 @@ class ClassesController extends AppBaseController
                 $item->ObservedValues = ObservedValues::where('StudentId', $item->id)
                     ->where('ClassId', $classFirstSem->id)
                     ->get();
-            } else {
+            } else
+            {
                 $item->FirstSemGradeData = [];
                 $item->ObservedValues = [];
             }
 
-            if ($classSecondSem != null) {
+            if ($classSecondSem != null)
+            {
                 $item->SecondSemGradeData = DB::table('StudentSubjects')
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3852,20 +4236,21 @@ class ClassesController extends AppBaseController
                     )
                     ->orderBy('Heirarchy')
                     ->get();
-            } else {
+            } else
+            {
                 $item->SecondSemGradeData = [];
             }
         }
 
         $periodGradeChecker = DB::table('StudentSubjects')
-                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-                ->select(
-                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
-                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
-                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
-                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
-                )
-                ->first();
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+            )
+            ->first();
 
 
         return view('/classes/print_report_card_hca_senior_all', [
@@ -3880,7 +4265,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printReportCardHcaAll($classId, $printFinalGrade, $side) {
+    public function printReportCardHcaAll($classId, $printFinalGrade, $side)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3905,11 +4291,13 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $item->GradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -3930,14 +4318,14 @@ class ClassesController extends AppBaseController
         }
 
         $periodGradeChecker = DB::table('StudentSubjects')
-                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-                ->select(
-                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
-                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
-                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
-                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
-                )
-                ->first();
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+            )
+            ->first();
 
         return view('/classes/print_report_card_hca_all', [
             'classId' => $classId,
@@ -3952,7 +4340,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printReportCardSviSeniorAll($classId, $printFinalGrade) {
+    public function printReportCardSviSeniorAll($classId, $printFinalGrade)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -3977,11 +4366,13 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
-        if ($class->Semester == '1st') {
+        if ($class->Semester == '1st')
+        {
             $classFirstSem = $class;
 
             $classSecondSem = Classes::where('SchoolYearId', $class->SchoolYearId)
@@ -3990,7 +4381,8 @@ class ClassesController extends AppBaseController
                 ->where('Strand', $class->Strand)
                 ->where('Semester', '2nd')
                 ->first();
-        } else {
+        } else
+        {
             $classSecondSem = $class;
 
             $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
@@ -4001,8 +4393,10 @@ class ClassesController extends AppBaseController
                 ->first();
         }
 
-        foreach($students as $item) {
-            if ($classFirstSem != null) {
+        foreach ($students as $item)
+        {
+            if ($classFirstSem != null)
+            {
                 $item->FirstSemGradeData = DB::table('StudentSubjects')
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -4021,12 +4415,14 @@ class ClassesController extends AppBaseController
                 $item->ObservedValues = ObservedValues::where('StudentId', $item->id)
                     ->where('ClassId', $classFirstSem->id)
                     ->get();
-            } else {
+            } else
+            {
                 $item->FirstSemGradeData = [];
                 $item->ObservedValues = [];
             }
 
-            if ($classSecondSem != null) {
+            if ($classSecondSem != null)
+            {
                 $item->SecondSemGradeData = DB::table('StudentSubjects')
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -4041,20 +4437,21 @@ class ClassesController extends AppBaseController
                     )
                     ->orderBy('Heirarchy')
                     ->get();
-            } else {
+            } else
+            {
                 $item->SecondSemGradeData = [];
             }
         }
 
         $periodGradeChecker = DB::table('StudentSubjects')
-                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-                ->select(
-                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
-                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
-                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
-                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
-                )
-                ->first();
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+            )
+            ->first();
 
 
         return view('/classes/print_report_card_svi_senior_all', [
@@ -4069,7 +4466,8 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function printReportCardSviAll($classId, $printFinalGrade) {
+    public function printReportCardSviAll($classId, $printFinalGrade)
+    {
         $class = Classes::find($classId);
         $sy = SchoolYear::find($class->SchoolYearId);
         $adviser = Teachers::find($class->Adviser);
@@ -4094,11 +4492,13 @@ class ClassesController extends AppBaseController
             ->select('ParentSubject')
             ->get();
 
-        foreach($parents as $item) {
+        foreach ($parents as $item)
+        {
             array_push($arr, $item->ParentSubject);
-        } 
+        }
 
-        foreach($students as $item) {
+        foreach ($students as $item)
+        {
             $item->GradeData = DB::table('StudentSubjects')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
@@ -4120,14 +4520,14 @@ class ClassesController extends AppBaseController
         }
 
         $periodGradeChecker = DB::table('StudentSubjects')
-                ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
-                ->select(
-                    DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
-                    DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
-                    DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
-                    DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
-                )
-                ->first();
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->select(
+                DB::raw("SUM(TRY_CAST(FirstGradingGrade AS DECIMAL)) AS First"),
+                DB::raw("SUM(TRY_CAST(SecondGradingGrade AS DECIMAL)) AS Second"),
+                DB::raw("SUM(TRY_CAST(ThirdGradingGrade AS DECIMAL)) AS Third"),
+                DB::raw("SUM(TRY_CAST(FourthGradingGrade AS DECIMAL)) AS Fourth"),
+            )
+            ->first();
 
 
         return view('/classes/print_report_card_svi_all', [
@@ -4142,13 +4542,15 @@ class ClassesController extends AppBaseController
         ]);
     }
 
-    public function getObservedValues(Request $request) {
+    public function getObservedValues(Request $request)
+    {
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
 
         $class = Classes::find($classId);
 
-        if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') {
+        if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12')
+        {
             // only get first sem
             $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
                 ->where('Year', $class->Year)
@@ -4157,14 +4559,17 @@ class ClassesController extends AppBaseController
                 ->where('Semester', '1st')
                 ->first();
 
-            if ($classFirstSem != null) {
+            if ($classFirstSem != null)
+            {
                 $observedValues = ObservedValues::where('StudentId', $studentId)
                     ->where('ClassId', $classFirstSem->id)
                     ->get();
-            } else {
+            } else
+            {
                 $observedValues = null;
             }
-        } else {
+        } else
+        {
             $observedValues = ObservedValues::where('StudentId', $studentId)
                 ->where('ClassId', $classId)
                 ->get();
@@ -4173,7 +4578,8 @@ class ClassesController extends AppBaseController
         return response()->json($observedValues, 200);
     }
 
-    public function saveObservedValues(Request $request) {
+    public function saveObservedValues(Request $request)
+    {
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
         $observedValue = $request['ObservedValue'];
@@ -4182,7 +4588,8 @@ class ClassesController extends AppBaseController
         $class = Classes::find($classId);
 
         $trueClassId = null;
-        if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') {
+        if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12')
+        {
             // only get first sem
             $classFirstSem = Classes::where('SchoolYearId', $class->SchoolYearId)
                 ->where('Year', $class->Year)
@@ -4191,29 +4598,36 @@ class ClassesController extends AppBaseController
                 ->where('Semester', '1st')
                 ->first();
 
-            if ($classFirstSem != null) {
+            if ($classFirstSem != null)
+            {
                 $trueClassId = $classFirstSem->id;
-            } else {
+            } else
+            {
                 $trueClassId = null;
             }
-        } else {
+        } else
+        {
             $trueClassId = $classId;
         }
 
-        if ($trueClassId != null) {
+        if ($trueClassId != null)
+        {
             $observedValues = ObservedValues::where('StudentId', $studentId)
                 ->where('ClassId', $trueClassId)
                 ->where('ObservedValue', $observedValue)
                 ->first();
 
-            if ($observedValues != null) {
+            if ($observedValues != null)
+            {
                 $observedValues->FirstQuarter = isset($value['FirstQuarter']) ? $value['FirstQuarter'] : $observedValues->FirstQuarter;
                 $observedValues->SecondQuarter = isset($value['SecondQuarter']) ? $value['SecondQuarter'] : $observedValues->SecondQuarter;
                 $observedValues->ThirdQuarter = isset($value['ThirdQuarter']) ? $value['ThirdQuarter'] : $observedValues->ThirdQuarter;
                 $observedValues->FourthQuarter = isset($value['FourthQuarter']) ? $value['FourthQuarter'] : $observedValues->FourthQuarter;
                 $observedValues->save();
-            } else {
-                if ($studentId != null) {
+            } else
+            {
+                if ($studentId != null)
+                {
                     ObservedValues::create([
                         'id' => IDGenerator::generateIDandRandString(),
                         'StudentId' => $studentId,
@@ -4228,45 +4642,53 @@ class ClassesController extends AppBaseController
             }
 
             return response()->json('ok', 200);
-        } else {
+        } else
+        {
             return response()->json('No class ID found!', 404);
         }
     }
 
-    public function updateStrand(Request $request) {
+    public function updateStrand(Request $request)
+    {
         $classId = $request['ClassId'];
         $newStrand = $request['Strand'];
 
         $class = Classes::find($classId);
-        if ($class != null) {
+        if ($class != null)
+        {
             $oldStrand = $class->Strand;
             // update strand
             $class->Strand = $newStrand;
             $class->save();
 
             // also update other sem
-            if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') {
-                if ($class->Semester === '1st') {
+            if ($class->Year === 'Grade 11' | $class->Year === 'Grade 12')
+            {
+                if ($class->Semester === '1st')
+                {
                     //find second sem 
                     $classSecond = Classes::where('Year', $class->Year)
                         ->where('Section', $class->Section)
                         ->where('Strand', $oldStrand)
                         ->where('Semester', '2nd')
                         ->first();
-    
-                    if ($classSecond != null) {
+
+                    if ($classSecond != null)
+                    {
                         $classSecond->Strand = $newStrand;
                         $classSecond->save();
                     }
-                } else {
+                } else
+                {
                     //find first sem 
                     $classFirst = Classes::where('Year', $class->Year)
                         ->where('Section', $class->Section)
                         ->where('Strand', $oldStrand)
                         ->where('Semester', '1st')
                         ->first();
-    
-                    if ($classFirst != null) {
+
+                    if ($classFirst != null)
+                    {
                         $classFirst->Strand = $newStrand;
                         $classFirst->save();
                     }

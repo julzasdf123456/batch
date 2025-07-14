@@ -37,6 +37,7 @@
                         <th>Strand</th>
                         <th>Semester</th>
                         <th>Adviser</th>
+                        <th>Student Count</th>
                         <th></th>
                     </thead>
                     <tbody>
@@ -53,7 +54,21 @@
                                 <td onclick="view(`{{ $item->Adviser }}`, `{{ $schoolYear->id }}`, `{{ $item->id }}`)"
                                     class="v-align pointer">{{ $item->FullName }} <span
                                         class="text-muted">({{ $item->Designation }})</span></td>
-                                <td class="text-right">
+                                <td>{{$item->StudentsCount}}</td>
+                                <td class="d-flex gap-2 text-right">
+                                    @if(!$item->StudentsCount)
+                                        @if (Auth::user()->hasAnyPermission(['god permission', 'delete class']))
+                                                            {!! Form::open(['route' => ['class.destroy', $item->id], 'method' => 'DELETE', 'style' => 'display:inline']) !!}
+                                                            {!! Form::button('<i class="fas fa-trash-alt"></i> Delete', [
+                                                'type' => 'submit',
+                                                'class' => 'btn btn-sm btn-outline-danger',
+                                                'onclick' => "return confirm('Are you sure?')"
+                                            ]) !!}
+                                                            {!! Form::close() !!}
+                                        @endif
+                                    @endif
+
+
                                     <a class="btn btn-primary-skinny btn-sm"
                                         href="{{ route('classes.view-class', [$item->Adviser, $schoolYear->id, $item->id]) }}">View
                                         <i class="fas fa-angle-right ico-tab-left-mini"></i></a>

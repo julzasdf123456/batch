@@ -148,6 +148,7 @@ Route::get('/classes/print-report-card-svi-all/{classId}/{printFinalGrade}', [Cl
 Route::get('/classes/get-observed-values', [ClassesController::class, 'getObservedValues'])->name('classes.get-observed-values');
 Route::post('/classes/save-observed-values', [ClassesController::class, 'saveObservedValues'])->name('classes.save-observed-values');
 Route::post('/classes/update-strand', [ClassesController::class, 'updateStrand'])->name('classes.update-strand');
+Route::delete('/classes/destroy/{classId}', [ClassesController::class, 'destroy'])->name('class.destroy');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);

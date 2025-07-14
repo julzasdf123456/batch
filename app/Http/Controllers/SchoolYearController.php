@@ -85,16 +85,27 @@ class SchoolYearController extends AppBaseController
                 ->orderByDesc('created_at')
                 ->get();
 
+            // FETCH THE STUDENTS
+            $studentCounts = DB::table('StudentClasses')
+                ->select('ClassId', DB::raw('COUNT(*) as StudentsCount'))
+                ->groupBy('ClassId');
+
+            // FETCH THE CLASSES WITH STUDENT'S COUNT
             $classes = DB::table('Classes')
                 ->leftJoin('Teachers', 'Classes.Adviser', '=', 'Teachers.id')
+                ->leftJoinSub($studentCounts, 'sc', function ($join) {
+                    $join->on('Classes.id', '=', 'sc.ClassId');
+                })
                 ->where('Classes.SchoolYearId', $id)
                 ->select(
                     'Classes.*',
                     'Teachers.FullName',
                     'Teachers.Designation',
+                    DB::raw('ISNULL(sc.StudentsCount, 0) as StudentsCount') // SQL Server
                 )
                 ->orderBy('Classes.Year')
                 ->get();
+
 
             return view('school_years.show', [
                 'schoolYear' => $schoolYear,
@@ -303,9 +314,10 @@ class SchoolYearController extends AppBaseController
     }
     public function viewSummary(Request $request)
     {
-
+        //GET THE SCHOOL YEAR BY ID
         $schoolYearId = $request->school_year_id;
 
+        //GET ALL SUMMARIES WITH THE FETCHED SCHOOL YEAR
         $summaries = StudentClasses::select('Classes.Year', DB::raw('COUNT(StudentClasses.id) as Students'))
             ->join('Classes', 'StudentClasses.ClassId', '=', 'Classes.id')
             ->where('Classes.SchoolYearId', $schoolYearId)
@@ -320,8 +332,10 @@ class SchoolYearController extends AppBaseController
                   ELSE 7 END")
             ->get();
 
+        //RETURN THE SCHOOL YEAR
         $schoolYear = SchoolYear::find($schoolYearId);
 
+        //DISPLAY THE SUMMARIES
         return view('school_years.show_summary', [
             'summaries' => $summaries,
             'schoolYear' => $schoolYear,
