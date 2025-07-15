@@ -4698,4 +4698,50 @@ class ClassesController extends AppBaseController
 
         return response()->json('ok', 200);
     }
+
+
+    public function getStudentHistory(Request $request)
+    {
+
+        $student = Students::find($request->StudentId);
+
+        if (!$student)
+        {
+            return response()->json('Student Not found!', 404);
+        }
+
+        $studentSubjects = DB::table('StudentSubjects as ssj')
+            ->leftJoin('Subjects as sj', 'sj.id', '=', 'ssj.SubjectId')
+            ->leftJoin('Classes as c', 'c.id', '=', 'ssj.ClassId')
+            ->leftJoin('SchoolYear as sy', 'sy.id', '=', 'c.SchoolYearId')
+            ->leftJoin('Teachers as t', 't.id', '=', 'ssj.TeacherId')
+            ->select(
+                'ssj.*',
+                'sj.Subject as Subject',
+                'sj.Description',
+                'c.Year',
+                'c.Section',
+                'c.Adviser',
+                'sy.SchoolYear',
+                'sy.MonthStart',
+                't.FullName as TeacherName'
+            )
+            ->where('ssj.StudentId', $student->id)
+            ->get();
+
+
+
+        $grouped = $studentSubjects
+            ->sortByDesc('SchoolYear')
+            ->groupBy('SchoolYear')
+            ->map(function ($yearGroup) {
+                return $yearGroup->groupBy('Year')->map(function ($gradeGroup) {
+                    return $gradeGroup->values();
+                });
+            });
+
+        return response()->json($grouped);
+    }
+
+
 }

@@ -1,8 +1,9 @@
 @extends('layouts.app')
 
+<meta name="student-id" content="{{ $id }}">
 @section('content')
     <div id="app">
-        <search-students></search-students>
+        <view-student-classes-history></view-student-classes-history>
     </div>
     @vite('resources/js/app.js')
 @endsection
@@ -11,7 +12,7 @@
     <script>
         $(document).ready(function () {
             $('body').addClass('sidebar-collapse')
-            $('#page-title').html("<span class='text-muted'></span> <strong>All Students</strong>")
+            $('#page-title').html("<span class='text-muted'></span> <strong>Student Classes History View</strong>")
         })
     </script>
 @endpush

@@ -35,9 +35,11 @@ class StudentsController extends AppBaseController
      */
     public function index(Request $request)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view students'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view students']))
+        {
             return view('students.index');
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -70,11 +72,13 @@ class StudentsController extends AppBaseController
      */
     public function show($id)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view student details'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view student details']))
+        {
             return view('students.show', [
-                'id'  => $id,
+                'id' => $id,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -86,7 +90,8 @@ class StudentsController extends AppBaseController
     {
         $students = $this->studentsRepository->find($id);
 
-        if (empty($students)) {
+        if (empty($students))
+        {
             Flash::error('Students not found');
 
             return redirect(route('students.index'));
@@ -102,7 +107,8 @@ class StudentsController extends AppBaseController
     {
         $students = $this->studentsRepository->find($id);
 
-        if (empty($students)) {
+        if (empty($students))
+        {
             Flash::error('Students not found');
 
             return redirect(route('students.index'));
@@ -124,7 +130,8 @@ class StudentsController extends AppBaseController
     {
         $students = $this->studentsRepository->find($id);
 
-        if (empty($students)) {
+        if (empty($students))
+        {
             Flash::error('Students not found');
 
             return redirect(route('students.index'));
@@ -142,12 +149,15 @@ class StudentsController extends AppBaseController
         return response()->json($students, 200);
     }
 
-    public function newStudent(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student details'])) {
+    public function newStudent(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student details']))
+        {
             return view('/students/new_student', [
 
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -164,47 +174,56 @@ class StudentsController extends AppBaseController
         return response()->json($students, 200);
     }
 
-    public function getStudent(Request $request) {
+    public function getStudent(Request $request)
+    {
         $id = $request['id'];
 
         $student = DB::table('Students')
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $id . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled'
+            )
             ->first();
 
         return response()->json($student, 200);
     }
 
-    public function searchStudentsPaginated(Request $request) {
+    public function searchStudentsPaginated(Request $request)
+    {
+
         $params = $request['SearchParams'];
 
-        if ($params != null) {
-            $data = DB::table('Students')
-            ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
-            ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
-            ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
-            ->whereRaw("Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
-                (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
-                (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%' OR Students.LRN LIKE '%" . $params . "%'")
-            ->select('Students.*',
-                'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled',
-                'Classes.Year',
-                'Classes.Section',
-                'Classes.Strand',
-            )
-            ->orderBy('Students.FirstName')
-            ->paginate(15);
-        } else {
+        if ($params != null)
+        {
             $data = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
-                ->select('Students.*',
+                ->whereRaw("Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
+                (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
+                (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%' OR Students.LRN LIKE '%" . $params . "%'")
+                ->select(
+                    'Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled',
+                    'Classes.Year',
+                    'Classes.Section',
+                    'Classes.Strand',
+                )
+                ->orderBy('Students.FirstName')
+                ->paginate(15);
+        } else
+        {
+            $data = DB::table('Students')
+                ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
+                ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
+                ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
+                ->select(
+                    'Students.*',
                     'Towns.Town as TownSpelled',
                     'Barangays.Barangay as BarangaySpelled',
                     'Classes.Year',
@@ -218,9 +237,10 @@ class StudentsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function getStudentDetails(Request $request) {
+    public function getStudentDetails(Request $request)
+    {
         $id = $request['StudentId'];
-        
+
         $student = DB::table('Students')
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -228,7 +248,8 @@ class StudentsController extends AppBaseController
             ->leftJoin(DB::raw("Barangays bp"), DB::raw("TRY_CAST(Students.PermanentBarangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(bp.id AS VARCHAR(100))"))
             ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
             ->whereRaw("Students.id='" . $id . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town AS TownSpelled',
                 'Barangays.Barangay AS BarangaySpelled',
                 'tp.Town AS TownSpelledPermanent',
@@ -240,7 +261,8 @@ class StudentsController extends AppBaseController
             )
             ->first();
 
-        if ($student->CurrentGradeLevel != null) {
+        if ($student->CurrentGradeLevel != null)
+        {
             $subjects = DB::table('StudentSubjects')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                 ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
@@ -257,7 +279,8 @@ class StudentsController extends AppBaseController
                 )
                 ->orderBy('Subjects.Subject')
                 ->get();
-        } else {
+        } else
+        {
             $subjects = [];
         }
 
@@ -267,7 +290,7 @@ class StudentsController extends AppBaseController
             ->get();
 
         $otherPayables = DB::table('Payables')
-            ->whereRaw("Category NOT IN ('Tuition Fees') AND StudentId='" . $student->id ."'")
+            ->whereRaw("Category NOT IN ('Tuition Fees') AND StudentId='" . $student->id . "'")
             ->orderBy('Category')
             ->get();
 
@@ -290,34 +313,41 @@ class StudentsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function editStudent($studentId, $from) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'edit student details'])) {
+    public function editStudent($studentId, $from)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit student details']))
+        {
             return view('/students/edit_student', [
                 'studentId' => $studentId,
                 'from' => $from,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function updateStudent(UpdateStudentsRequest $request) {
+    public function updateStudent(UpdateStudentsRequest $request)
+    {
         $students = $this->studentsRepository->update($request->all(), $request['id']);
 
         return response()->json($students, 200);
     }
 
-    public function getStudentClassDetails(Request $request) {
+    public function getStudentClassDetails(Request $request)
+    {
         $studentId = $request['StudentId'];
 
         $student = Students::find($studentId);
         $data['Student'] = $student;
 
-        if ($student != null && $student->CurrentGradeLevel != null) {
+        if ($student != null && $student->CurrentGradeLevel != null)
+        {
             $class = Classes::find($student->CurrentGradeLevel);
             $data['Class'] = $class;
 
-            if ($class != null) {
+            if ($class != null)
+            {
                 $subjects = DB::table('StudentSubjects')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                     ->leftJoin('Teachers', 'StudentSubjects.TeacherId', '=', 'Teachers.id')
@@ -331,10 +361,12 @@ class StudentsController extends AppBaseController
                     ->get();
 
                 $data['Subjects'] = $subjects;
-            } else {
+            } else
+            {
                 $data['Subjects'] = [];
             }
-        } else {
+        } else
+        {
             $data['Class'] = [];
             $data['Subjects'] = [];
         }
@@ -342,22 +374,26 @@ class StudentsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function guestView($id) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view student details'])) {
+    public function guestView($id)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view student details']))
+        {
             return view('/students/guest_view', [
-                'id'  => $id,
+                'id' => $id,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function printStudents($classId) {
+    public function printStudents($classId)
+    {
         $class = DB::table('Classes')
             ->whereRaw("id='" . $classId . "'")
             ->first();
 
-        $male =  DB::table('StudentClasses')
+        $male = DB::table('StudentClasses')
             ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -371,7 +407,7 @@ class StudentsController extends AppBaseController
             ->orderBy('Students.LastName')
             ->get();
 
-        $female =  DB::table('StudentClasses')
+        $female = DB::table('StudentClasses')
             ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -386,32 +422,35 @@ class StudentsController extends AppBaseController
             ->get();
 
         return view('/students/print_students', [
-            'class' => $class, 
+            'class' => $class,
             'male' => $male,
             'female' => $female,
         ]);
     }
 
-    public function updateStatus(Request $request) {
+    public function updateStatus(Request $request)
+    {
         $id = $request['id'];
         $status = $request['Status'];
 
         $student = Students::find($id);
 
-        if ($student != null) {
+        if ($student != null)
+        {
             $student->Status = $status;
             $student->save();
         }
 
         return response()->json('ok', 200);
     }
-    
-    public function printInactiveStudents($classId) {
+
+    public function printInactiveStudents($classId)
+    {
         $class = DB::table('Classes')
             ->whereRaw("id='" . $classId . "'")
             ->first();
 
-        $students =  DB::table('StudentClasses')
+        $students = DB::table('StudentClasses')
             ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
             ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
             ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
@@ -428,36 +467,44 @@ class StudentsController extends AppBaseController
             ->get();
 
         return view('/students/print_inactive_students', [
-            'class' => $class, 
+            'class' => $class,
             'students' => $students,
         ]);
     }
 
-    public function addNew(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student details'])) {
+    public function addNew(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student details']))
+        {
             return view('/students/add_new');
-        } else {
-            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
-        } 
-    }
-    
-    public function addNewToClass($studentId) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class'])) {
-            return view('/students/add_new_to_class', [
-                'studentId' => $studentId
-            ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function markEsc(Request $request) {
+    public function addNewToClass($studentId)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'enroll student class']))
+        {
+            return view('/students/add_new_to_class', [
+                'studentId' => $studentId
+            ]);
+        } else
+        {
+            return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
+        }
+    }
+
+    public function markEsc(Request $request)
+    {
         $id = $request['id'];
         $escScholar = $request['ESCScholar'];
 
         $student = Students::find($id);
 
-        if ($student != null) {
+        if ($student != null)
+        {
             $student->ESCScholar = $escScholar;
             $student->save();
         }
@@ -465,23 +512,29 @@ class StudentsController extends AppBaseController
         return response()->json($student, 200);
     }
 
-    public function studentsList(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view students', 'view student details'])) {
+    public function studentsList(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view students', 'view student details']))
+        {
             return view('/students/students_list');
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
-        } 
+        }
     }
 
-    public function getStudentsList(Request $request) {
+    public function getStudentsList(Request $request)
+    {
         $syId = $request['SchoolYearId'];
         $classRepoId = $request['ClassRepo'];
         $status = $request['Status'];
 
         $sy = SchoolYear::find($syId);
 
-        if ($classRepoId === 'All') {
-            if ($status === 'Active') {
+        if ($classRepoId === 'All')
+        {
+            if ($status === 'Active')
+            {
                 $students = DB::table('StudentClasses')
                     ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                     ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -499,7 +552,8 @@ class StudentsController extends AppBaseController
                     ->orderByDesc('Students.Gender')
                     ->orderBy('Students.LastName')
                     ->get();
-            } else {
+            } else
+            {
                 $students = DB::table('StudentClasses')
                     ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                     ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -520,7 +574,8 @@ class StudentsController extends AppBaseController
             }
 
             return response()->json($students, 200);
-        } else {
+        } else
+        {
             $classRepo = ClassesRepo::find($classRepoId);
             $class = Classes::where('SchoolYearId', $syId)
                 ->where('Year', $classRepo->Year)
@@ -529,8 +584,10 @@ class StudentsController extends AppBaseController
                 ->where('Semester', $classRepo->Semester)
                 ->first();
 
-            if ($class != null) {
-                if ($status === 'Active') {
+            if ($class != null)
+            {
+                if ($status === 'Active')
+                {
                     $students = DB::table('StudentClasses')
                         ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                         ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -548,7 +605,8 @@ class StudentsController extends AppBaseController
                         ->orderByDesc('Students.Gender')
                         ->orderBy('Students.LastName')
                         ->get();
-                } else {
+                } else
+                {
                     $students = DB::table('StudentClasses')
                         ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                         ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -567,21 +625,25 @@ class StudentsController extends AppBaseController
                         ->orderBy('Students.LastName')
                         ->get();
                 }
-                
+
                 return response()->json($students, 200);
-            } else {
+            } else
+            {
                 return response()->json([], 200);
             }
         }
     }
 
-    public function printStudentsList($syId, $classRepoId, $status) {
+    public function printStudentsList($syId, $classRepoId, $status)
+    {
         $sy = SchoolYear::find($syId);
 
         $students = [];
-        if ($classRepoId === 'All') {
+        if ($classRepoId === 'All')
+        {
             $class = 'All';
-            if ($status === 'Active') {
+            if ($status === 'Active')
+            {
                 $students = DB::table('StudentClasses')
                     ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                     ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -599,7 +661,8 @@ class StudentsController extends AppBaseController
                     ->orderByDesc('Students.Gender')
                     ->orderBy('Students.LastName')
                     ->get();
-            } else {
+            } else
+            {
                 $students = DB::table('StudentClasses')
                     ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                     ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -618,7 +681,8 @@ class StudentsController extends AppBaseController
                     ->orderBy('Students.LastName')
                     ->get();
             }
-        } else {
+        } else
+        {
             $classRepo = ClassesRepo::find($classRepoId);
             $class = Classes::where('SchoolYearId', $syId)
                 ->where('Year', $classRepo->Year)
@@ -627,8 +691,10 @@ class StudentsController extends AppBaseController
                 ->where('Semester', $classRepo->Semester)
                 ->first();
 
-            if ($class != null) {
-                if ($status === 'Active') {
+            if ($class != null)
+            {
+                if ($status === 'Active')
+                {
                     $students = DB::table('StudentClasses')
                         ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                         ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -646,7 +712,8 @@ class StudentsController extends AppBaseController
                         ->orderByDesc('Students.Gender')
                         ->orderBy('Students.LastName')
                         ->get();
-                } else {
+                } else
+                {
                     $students = DB::table('StudentClasses')
                         ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                         ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
@@ -665,7 +732,7 @@ class StudentsController extends AppBaseController
                         ->orderBy('Students.LastName')
                         ->get();
                 }
-                
+
             }
         }
 
@@ -676,37 +743,44 @@ class StudentsController extends AppBaseController
         ]);
     }
 
-    public function scout($direction, $studentId) {
+    public function scout($direction, $studentId)
+    {
         $student = Students::find($studentId);
 
         $class = Classes::find($student->CurrentGradeLevel);
 
-        if ($class != null) {
-            if ($direction === 'next') {
+        if ($class != null)
+        {
+            if ($direction === 'next')
+            {
                 $studentData = Students::where('CurrentGradeLevel', $class->id)
                     ->whereRaw("LastName > '" . $student->LastName . "'")
                     ->orderBy('LastName')
                     ->first();
-            } else {
+            } else
+            {
                 $studentData = Students::where('CurrentGradeLevel', $class->id)
                     ->whereRaw("LastName < '" . $student->LastName . "'")
                     ->orderByDesc('LastName')
                     ->first();
             }
-            
+
             return redirect(route('students.guest-view', [$studentData->id]));
-        } else {
+        } else
+        {
             return redirect(route('students.guest-view', [$studentId]));
         }
     }
-    
-    public function uploadStudentProfile(Request $request) {
+
+    public function uploadStudentProfile(Request $request)
+    {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:60048',
         ]);
 
         // Store the uploaded image in the 'public/uploads' directory
-        if ($request->file('image')) {
+        if ($request->file('image'))
+        {
             $image = $request->file('image');
             $imageName = $request['id'] . '.jpg';
             $image->move(public_path() . "/imgs/student-imgs/", $imageName);
@@ -715,5 +789,18 @@ class StudentsController extends AppBaseController
         }
 
         return response()->json(['error' => 'Image upload failed'], 400);
+    }
+
+
+
+    public function getStudentClassesHistory($id)
+    {
+
+        $student = Students::where('id', $id)->first();
+
+        return view('/students/view_student_classes_history', [
+        'id' => $id,
+        ]);
+
     }
 }
