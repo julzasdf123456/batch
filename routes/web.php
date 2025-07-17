@@ -96,6 +96,8 @@ Route::get('/students/get-students-list', [StudentsController::class, 'getStuden
 Route::get('/students/print-students-list/{syId}/{classRepo}/{status}', [StudentsController::class, 'printStudentsList'])->name('students.print-students-list');
 Route::get('/students/scout/{direction}/{studentId}', [StudentsController::class, 'scout'])->name('students.scout');
 Route::post('/students/upload-student-profile', [StudentsController::class, 'uploadStudentProfile'])->name('students.upload-student-profile');
+Route::get('/students/classes-history/{studentId}', [StudentsController::class, 'getStudentClassesHistory'])->name('classes.student-history');
+
 Route::resource('students', StudentsController::class);
 
 Route::get('/classes/enroll/{studentId}', [ClassesController::class, 'enroll'])->name('classes.enroll');
@@ -149,6 +151,7 @@ Route::get('/classes/get-observed-values', [ClassesController::class, 'getObserv
 Route::post('/classes/save-observed-values', [ClassesController::class, 'saveObservedValues'])->name('classes.save-observed-values');
 Route::post('/classes/update-strand', [ClassesController::class, 'updateStrand'])->name('classes.update-strand');
 Route::delete('/classes/destroy/{classId}', [ClassesController::class, 'destroy'])->name('class.destroy');
+Route::get('/classes/get-student-history', [ClassesController::class, 'getStudentHistory']);
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
