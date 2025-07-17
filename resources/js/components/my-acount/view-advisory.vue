@@ -3310,7 +3310,7 @@
           <button
             class="btn btn-primary"
             :disabled="!selectedTeacherId"
-            @click="changeAdviser"
+            @click="confirmChangeAdviser()"
           >
             Change Adviser
           </button>
@@ -5272,6 +5272,11 @@ export default {
       let modalElement = this.$refs.modalTeachers;
 
       $(modalElement).modal("show");
+    },
+    confirmChangeAdviser() {
+      if (window.confirm("Are you sure you want to change the adviser?")) {
+        this.changeAdviser();
+      }
     },
 
     changeAdviser() {
