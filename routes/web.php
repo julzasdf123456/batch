@@ -152,6 +152,7 @@ Route::post('/classes/save-observed-values', [ClassesController::class, 'saveObs
 Route::post('/classes/update-strand', [ClassesController::class, 'updateStrand'])->name('classes.update-strand');
 Route::delete('/classes/destroy/{classId}', [ClassesController::class, 'destroy'])->name('class.destroy');
 Route::get('/classes/get-student-history', [ClassesController::class, 'getStudentHistory']);
+Route::post('/classes/change-class-adviser', [ClassesController::class, 'changeClassAdviser'])->name('clasees.change-class-adviser');
 Route::resource('classes', ClassesController::class);
 
 Route::resource('studentClasses', StudentClassesController::class);
@@ -169,6 +170,7 @@ Route::post('/school_years/merge-to-sy', [SchoolYearController::class, 'mergeToS
 Route::resource('schoolYears', SchoolYearController::class);
 Route::get('/school_years/view-summary', [SchoolYearController::class, 'viewSummary'])->name('schoolYears.view-summary');
 
+Route::get('/teachers/get-teachers', [TeachersController::class, 'getTeachers'])->name('teachers.get-teachers');
 Route::get('/teachers/get-teacher-data', [TeachersController::class, 'getTeacherData'])->name('teachers.get-teacher-data');
 Route::get('/teachers/get-class-details', [TeachersController::class, 'getClassDetails'])->name('teachers.get-class-details');
 Route::get('/teachers/get-students-from-subject-class', [TeachersController::class, 'getStudentsFromSubjectClass'])->name('teachers.get-students-from-subject-class');

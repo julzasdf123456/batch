@@ -72,7 +72,8 @@ class UsersController extends AppBaseController
     {
         $users = $this->usersRepository->find($id);
 
-        if (empty($users)) {
+        if (empty($users))
+        {
             Flash::error('Users not found');
 
             return redirect(route('users.index'));
@@ -83,7 +84,7 @@ class UsersController extends AppBaseController
         $permissions = $user->getAllPermissions();
 
         return view('users.show', [
-            'users' => $users, 
+            'users' => $users,
             'roles' => $roles,
             'permissions' => $permissions,
         ]);
@@ -96,7 +97,8 @@ class UsersController extends AppBaseController
     {
         $users = $this->usersRepository->find($id);
 
-        if (empty($users)) {
+        if (empty($users))
+        {
             Flash::error('Users not found');
 
             return redirect(route('users.index'));
@@ -115,7 +117,8 @@ class UsersController extends AppBaseController
     {
         $users = $this->usersRepository->find($id);
 
-        if (empty($users)) {
+        if (empty($users))
+        {
             Flash::error('Users not found');
 
             return redirect(route('users.index'));
@@ -137,7 +140,8 @@ class UsersController extends AppBaseController
     {
         $users = $this->usersRepository->find($id);
 
-        if (empty($users)) {
+        if (empty($users))
+        {
             Flash::error('Users not found');
 
             return redirect(route('users.index'));
@@ -149,14 +153,16 @@ class UsersController extends AppBaseController
 
         return redirect(route('users.index'));
     }
-    
-    public function switchColorModes(Request $request) {
+
+    public function switchColorModes(Request $request)
+    {
         $id = $request['id'];
         $color = $request['Color'];
 
         $user = User::find($id);
 
-        if ($user != null) {
+        if ($user != null)
+        {
             $user->ColorProfile = $color;
             $user->save();
         }
@@ -164,12 +170,14 @@ class UsersController extends AppBaseController
         return response()->json($user, 200);
     }
 
-    public function addRoles($id) {
+    public function addRoles($id)
+    {
         $users = User::find($id);
 
         $roles = Role::all();
 
-        if (empty($users)) {
+        if (empty($users))
+        {
             Flash::error('Users not found');
 
             return redirect(route('users.index'));
@@ -177,16 +185,18 @@ class UsersController extends AppBaseController
 
         return view('/users/add_roles', ['users' => $users, 'roles' => $roles]);
     }
-    
-    public function createRoles(Request $request) {
+
+    public function createRoles(Request $request)
+    {
         $user = User::find($request->userId);
 
         $user->syncPermissions($request->input('permissions', []));
 
         return redirect('users/' . $request->userId);
     }
-    
-    public function createUserRoles(Request $request) {
+
+    public function createUserRoles(Request $request)
+    {
         $user = User::find($request->userId);
 
         $user->syncRoles($request->input('roles', []));
@@ -195,49 +205,62 @@ class UsersController extends AppBaseController
         return redirect('users/' . $request->userId);
     }
 
-    public function myAccountIndex(Request $request) {
-        if (Auth::user()->TeacherId != null) {
+    public function myAccountIndex(Request $request)
+    {
+        if (Auth::user()->TeacherId != null)
+        {
             return view('/my_account/index', [
 
             ]);
-        } else {
+        } else
+        {
             return view('/error_messages/not-allowed');
         }
     }
 
-    public function myClasses(Request $request) {
-        if (Auth::user()->TeacherId != null) {
+    public function myClasses(Request $request)
+    {
+        if (Auth::user()->TeacherId != null)
+        {
             return view('/my_account/my_classes', [
 
             ]);
-        } else {
+        } else
+        {
             return view('/error_messages/not-allowed');
         }
     }
 
-    public function myAdvisory(Request $request) {
-        if (Auth::user()->TeacherId != null) {
+    public function myAdvisory(Request $request)
+    {
+        if (Auth::user()->TeacherId != null)
+        {
             return view('/my_account/my_advisory', [
 
             ]);
-        } else {
+        } else
+        {
             return view('/error_messages/not-allowed');
         }
     }
 
-    public function viewClass($classId, $syId, $subjectId) {
-        if (Auth::user()->TeacherId != null) {
+    public function viewClass($classId, $syId, $subjectId)
+    {
+        if (Auth::user()->TeacherId != null)
+        {
             return view('/my_account/view_class', [
                 'classId' => $classId,
                 'syId' => $syId,
                 'subjectId' => $subjectId,
             ]);
-        } else {
+        } else
+        {
             return view('/error_messages/not-allowed');
         }
     }
 
-    public function getAdvisoryData(Request $request) {
+    public function getAdvisoryData(Request $request)
+    {
         $id = $request['TeacherId'];
 
         $schoolYears = DB::table('Classes')
@@ -254,10 +277,11 @@ class UsersController extends AppBaseController
             ->orderByDesc('SchoolYear.SchoolYear')
             ->get();
 
-        foreach($schoolYears as $item) {
+        foreach ($schoolYears as $item)
+        {
             $item->Advisories = DB::table('Classes')
                 ->leftJoin('SchoolYear', 'Classes.SchoolYearId', '=', 'SchoolYear.id')
-                ->whereRaw("Classes.Adviser='" . $id . "' AND SchoolYear.id='" . $item->id .  "'")
+                ->whereRaw("Classes.Adviser='" . $id . "' AND SchoolYear.id='" . $item->id . "'")
                 ->select('Classes.*')
                 ->get();
         }
@@ -265,7 +289,8 @@ class UsersController extends AppBaseController
         return response()->json($schoolYears, 200);
     }
 
-    public function viewAdvisory($adviser, $schoolYearId, $classId) {
+    public function viewAdvisory($adviser, $schoolYearId, $classId)
+    {
         return view('/my_account/view_advisory', [
             'adviser' => $adviser,
             'schoolYearId' => $schoolYearId,
@@ -273,7 +298,8 @@ class UsersController extends AppBaseController
         ]);
     }
 
-    public function getAdvisoryDetaills(Request $request) {
+    public function getAdvisoryDetaills(Request $request)
+    {
         $teacherId = $request['TeacherId'];
         $schoolYearId = $request['SchoolYearId'];
         $classId = $request['ClassId'];
@@ -287,15 +313,18 @@ class UsersController extends AppBaseController
         $data['Class'] = $class;
         $data['Adviser'] = Teachers::find($class != null ? $class->Adviser : '0');
 
-        if ($class != null) {
-            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+        if ($class != null)
+        {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->where('Strand', $class->Strand)
                     ->where('Semester', $class->Semester)
                     ->first();
-            } else {
+            } else
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
@@ -303,14 +332,16 @@ class UsersController extends AppBaseController
             }
 
             $data['ClassRepo'] = $classRepo;
-        } else {
+        } else
+        {
             $data['ClassRepo'] = null;
         }
 
         $data['SchoolYear'] = DB::table('SchoolYear')->where('id', $schoolYearId)->first();
-        
-        if ($class != null) {
-            $data['Male'] =  DB::table('StudentClasses')
+
+        if ($class != null)
+        {
+            $data['Male'] = DB::table('StudentClasses')
                 ->leftJoin('Students', DB::raw("TRY_CAST(StudentClasses.StudentId AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Students.id AS VARCHAR(100))"))
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -326,7 +357,7 @@ class UsersController extends AppBaseController
                 ->orderBy('Students.LastName')
                 ->get();
 
-            $data['Female'] =  DB::table('StudentClasses')
+            $data['Female'] = DB::table('StudentClasses')
                 ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -342,8 +373,8 @@ class UsersController extends AppBaseController
                 ->orderBy('Students.LastName')
                 ->get();
 
-                
-            $data['Inactive'] =  DB::table('StudentClasses')
+
+            $data['Inactive'] = DB::table('StudentClasses')
                 ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -359,7 +390,8 @@ class UsersController extends AppBaseController
                 ->orderBy('Students.Status')
                 ->orderBy('Students.LastName')
                 ->get();
-        } else {
+        } else
+        {
             $data['Male'] = [];
             $data['Female'] = [];
             $data['Inactive'] = [];
@@ -368,7 +400,8 @@ class UsersController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function getSubjectsFromClass(Request $request) {
+    public function getSubjectsFromClass(Request $request)
+    {
         $classId = $request['ClassId'];
 
         $data = DB::table('StudentSubjects')
@@ -384,7 +417,8 @@ class UsersController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function getStudentSubjectsDataFromClass(Request $request) {
+    public function getStudentSubjectsDataFromClass(Request $request)
+    {
         $classId = $request['ClassId'];
 
         $data = DB::table('StudentSubjects')
@@ -395,13 +429,15 @@ class UsersController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function updatePassword(Request $request) {
+    public function updatePassword(Request $request)
+    {
         // Validate the request
         $validator = Validator::make($request->all(), [
             'password' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
+        if ($validator->fails())
+        {
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
@@ -410,7 +446,8 @@ class UsersController extends AppBaseController
 
         // Assuming you have a user authenticated
         $user = Auth::user();
-        if (!$user) {
+        if (!$user)
+        {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not authenticated.',
@@ -426,14 +463,16 @@ class UsersController extends AppBaseController
             'message' => 'Password updated successfully.',
         ]);
     }
-    
-    public function updatePasswordAdmin(Request $request) {
+
+    public function updatePasswordAdmin(Request $request)
+    {
         // Validate the request
         $validator = Validator::make($request->all(), [
             'password' => 'required|string',
         ]);
 
-        if ($validator->fails()) {
+        if ($validator->fails())
+        {
             return response()->json([
                 'status' => 'error',
                 'errors' => $validator->errors(),
@@ -442,7 +481,8 @@ class UsersController extends AppBaseController
 
         // Assuming you have a user authenticated
         $user = Users::find($request->user_id);
-        if (!$user) {
+        if (!$user)
+        {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not authenticated.',
@@ -459,7 +499,8 @@ class UsersController extends AppBaseController
         ]);
     }
 
-    public function removeStudentSubjects(Request $request) {
+    public function removeStudentSubjects(Request $request)
+    {
         $subjectId = $request['SubjectId'];
         $classId = $request['ClassId'];
         $teacherId = $request['TeacherId'];
@@ -472,8 +513,10 @@ class UsersController extends AppBaseController
             ->delete();
 
         // remove also in SubjectClasses
-        if ($class != null) {
-            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+        if ($class != null)
+        {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
@@ -481,18 +524,21 @@ class UsersController extends AppBaseController
                     ->where('Semester', $class->Semester)
                     ->first();
 
-                if ($classRepo != null) {
+                if ($classRepo != null)
+                {
                     SubjectClasses::where('SubjectId', $subjectId)
                         ->where('ClassRepoId', $classRepo->id)
                         ->delete();
                 }
-            } else {
+            } else
+            {
                 $classRepo = DB::table('ClassesRepo')
                     ->where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->first();
 
-                if ($classRepo != null) {
+                if ($classRepo != null)
+                {
                     SubjectClasses::where('SubjectId', $subjectId)
                         ->where('ClassRepoId', $classRepo->id)
                         ->delete();
@@ -503,7 +549,8 @@ class UsersController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function getHomeRoomSubjects(Request $request) {
+    public function getHomeRoomSubjects(Request $request)
+    {
         $data = DB::table('Subjects')
             ->whereRaw("Subject LIKE '%Homeroom Guidance%'")
             ->get();

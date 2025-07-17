@@ -4743,5 +4743,37 @@ class ClassesController extends AppBaseController
         return response()->json($grouped);
     }
 
+    public function changeClassAdviser(Request $request)
+    {
+        $classId = $request->input('ClassId');
+        $teacherId = $request->input('TeacherId');
+
+        $teacher = Teachers::find($teacherId);
+
+        if (!$teacher)
+        {
+            Flash::error('Teacher not found.');
+
+            return redirect()->back();
+        }
+
+        $class = Classes::find($classId);
+
+        if (!$class)
+        {
+            Flash::error('Class not found.');
+            return redirect()->back();
+        }
+
+        $class->update([
+            'Adviser' => $teacherId,
+        ]);
+
+        Flash::success('Class adviser changed successfully.');
+
+        return response()->json($teacher, 200);
+    }
+
+
 
 }

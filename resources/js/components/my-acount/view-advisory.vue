@@ -1,2674 +1,4813 @@
 <template>
-    <div class="row px-4">
-        <div class="col-lg-12">
-            <h4><i class="fas fa-graduation-cap ico-tab text-muted"></i><span class="text-muted">{{ advisory.Year }} - </span>{{ advisory.Section }}</h4>
-            <span class="text-muted">{{ syDetails.SchoolYear }}</span>
-            <span class="text-muted" title="Adviser" v-if="!isNull(adviser)">{{ isNull(adviser) ? '' : (' • ' + adviser.FullName) }}</span>
-            <!-- <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span> -->
-            <span class="text-muted" v-if="isNull(advisory.Track) ? false : true">{{ isNull(advisory.Track) ? '' : (' • ' + advisory.Track ) }}</span>
-            <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ') }}</span>
-            <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">
-                <input type="text" ref="strand" class="floating-input text-muted" v-model="advisory.Strand" :placeholder="advisory.Strand" v-autowidth="{
-                        minWidth: '20px',
-                        maxWidth: '75%',
-                        comfortZone: '1ch',
-                    }" @keyup.enter="updateStrand(advisory.Strand)" @blur="updateStrand(advisory.Strand)">
-            </span>
-            <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true"><strong>{{ isNull(advisory.Semester) ? '' : (' • ' + advisory.Semester + ' Sem') }}</strong></span>
+  <div class="row px-4">
+    <div class="col-lg-12">
+      <h4>
+        <i class="fas fa-graduation-cap ico-tab text-muted"></i
+        ><span class="text-muted">{{ advisory.Year }} - </span>{{ advisory.Section }}
+      </h4>
+      <span class="text-muted">{{ syDetails.SchoolYear }}</span>
+      <span class="text-muted" title="Adviser" v-if="!isNull(adviser)">{{
+        isNull(adviser) ? "" : " • " + adviser.FullName
+      }}</span>
+      <!-- <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{ isNull(advisory.Strand) ? '' : (' • ' + advisory.Strand) }}</span> -->
+      <span class="text-muted" v-if="isNull(advisory.Track) ? false : true">{{
+        isNull(advisory.Track) ? "" : " • " + advisory.Track
+      }}</span>
+      <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">{{
+        isNull(advisory.Strand) ? "" : " • "
+      }}</span>
+      <span class="text-muted" v-if="isNull(advisory.Strand) ? false : true">
+        <input
+          type="text"
+          ref="strand"
+          class="floating-input text-muted"
+          v-model="advisory.Strand"
+          :placeholder="advisory.Strand"
+          v-autowidth="{
+            minWidth: '20px',
+            maxWidth: '75%',
+            comfortZone: '1ch',
+          }"
+          @keyup.enter="updateStrand(advisory.Strand)"
+          @blur="updateStrand(advisory.Strand)"
+        />
+      </span>
+      <span class="text-muted" v-if="isNull(advisory.Semester) ? false : true"
+        ><strong>{{
+          isNull(advisory.Semester) ? "" : " • " + advisory.Semester + " Sem"
+        }}</strong></span
+      >
 
-            <button class="btn btn-xs btn-default ml-3" v-if="advisory.Semester === '2nd'" @click="goToOtherSem('1st')">View 1st Sem <i class="fas fa-share ico-tab-left-mini"></i></button>
-            <button class="btn btn-xs btn-default ml-3" v-if="advisory.Semester === '1st'" @click="goToOtherSem('2nd')">View 2nd Sem <i class="fas fa-share ico-tab-left-mini"></i></button>
+      <button
+        class="btn btn-xs btn-default ml-3"
+        v-if="advisory.Semester === '2nd'"
+        @click="goToOtherSem('1st')"
+      >
+        View 1st Sem <i class="fas fa-share ico-tab-left-mini"></i>
+      </button>
+      <button
+        class="btn btn-xs btn-default ml-3"
+        v-if="advisory.Semester === '1st'"
+        @click="goToOtherSem('2nd')"
+      >
+        View 2nd Sem <i class="fas fa-share ico-tab-left-mini"></i>
+      </button>
 
-            <br>
-            <span class="text-muted text-xs mr-2 pointer" title="Male Students Count"><i class="fas fa-venus mr-1"></i>{{ male.length }}</span> • 
-            <span class="text-muted text-xs ml-2 mr-2 pointer" title="Female Students Count"><i class="fas fa-mars mr-1"></i>{{ female.length }}</span> • 
-            <span class="text-muted text-xs ml-2 pointer" title="Total Students Count"><i class="fas fa-venus-mars mr-1"></i>{{( female.length +  male.length) }}</span>
-            
-            <select v-if="viewedIn==='admin'" v-model="classSelect" class="form-control form-control-sm float-right" style="width: 150px;" @change="goToClass()">
-                <option v-for="c in classesInSy" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
-            </select>
-            <div class="dropdown mr-1 float-right" title="More Options" v-if="userId === '1' ? true : false">
-                <a v-if="viewedIn==='admin'" href="#" role="button" data-toggle="dropdown" aria-expanded="false" class="btn btn-default btn-sm">
-                    <i class="fas fa-shield-alt"></i>
-                    Administrative Options
-                </a>
-                <div class="dropdown-menu">
-                    <button class="dropdown-item" @click="revalidateSubjects()" title="Populates Subjects per student">Revalidate Subjects</button>
-                    <button  class="dropdown-item" @click="revalidatePayments()" title="Populates PayableInclusions and TuitionsBreakdown tables">Revalidate Payables</button>
-                </div>
-            </div>
-            
+      <br />
+      <span class="text-muted text-xs mr-2 pointer" title="Male Students Count"
+        ><i class="fas fa-venus mr-1"></i>{{ male.length }}</span
+      >
+      •
+      <span class="text-muted text-xs ml-2 mr-2 pointer" title="Female Students Count"
+        ><i class="fas fa-mars mr-1"></i>{{ female.length }}</span
+      >
+      •
+      <span class="text-muted text-xs ml-2 pointer" title="Total Students Count"
+        ><i class="fas fa-venus-mars mr-1"></i>{{ female.length + male.length }}</span
+      >
 
-            <div id="loader" class="spinner-border text-success float-right" v-if="loaderVisibility" role="status">
-                <span class="sr-only">Loading...</span>
-            </div>
+      <select
+        v-if="viewedIn === 'admin'"
+        v-model="classSelect"
+        class="form-control form-control-sm float-right"
+        style="width: 150px"
+        @change="goToClass()"
+      >
+        <option v-for="c in classesInSy" :value="c.id">
+          {{
+            c.Year +
+            "-" +
+            c.Section +
+            (!isNull(c.Strand) ? " " + c.Strand : "") +
+            (!isNull(c.Semester) ? " (" + c.Semester + " Sem)" : "")
+          }}
+        </option>
+      </select>
+      <div
+        class="dropdown mr-1 float-right"
+        title="More Options"
+        v-if="userId === '1' ? true : false"
+      >
+        <a
+          v-if="viewedIn === 'admin'"
+          href="#"
+          role="button"
+          data-toggle="dropdown"
+          aria-expanded="false"
+          class="btn btn-default btn-sm"
+        >
+          <i class="fas fa-shield-alt"></i>
+          Administrative Options
+        </a>
+        <div class="dropdown-menu">
+          <button
+            class="dropdown-item"
+            @click="revalidateSubjects()"
+            title="Populates Subjects per student"
+          >
+            Revalidate Subjects
+          </button>
+          <button
+            class="dropdown-item"
+            @click="revalidatePayments()"
+            title="Populates PayableInclusions and TuitionsBreakdown tables"
+          >
+            Revalidate Payables
+          </button>
         </div>
+      </div>
 
-        <!-- Student Adding Form -->
-        <div class="mt-3 col-lg-4" v-if="addStudentFormActive">
-            <div class="card shadow-none" style="height: 80vh;">
-                <div class="card-header border-0">
-                    <span class="card-title">
-                        Add More Students to This Class
-                    </span>
+      <div
+        id="loader"
+        class="spinner-border text-success float-right"
+        v-if="loaderVisibility"
+        role="status"
+      >
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
 
-                    <div class="card-tools">
-                        <button @click="toggleAddStudentsForm" class="btn btn-sm btn-link"><i class="fas fa-times text-danger"></i></button>
-                    </div>
-                </div>
-                <div class="card-body table-responsive">
-                    <p class="no-pads text-sm text-danger"><strong>NOTE </strong> that by directly adding students here, you are bypassing the enrollment processs, and that students will not be collected any enrollment fees.</p>
-                    <div class="row mt-2">
-                        <div class="col-lg-12">
-                            <p class="no-pads text-sm text-muted pb-2">Search Student</p>
-                            <input type="text" @keyup="searchStudent" v-model="addStudentSearch" class="form-control form-control-sm" placeholder="Search ID or name..." autofocus>
-                        </div>
-                        <!-- results -->
-                        <div class="col-lg-12 mt-3">
-                            <table class="table table-sm table-borderless table-hover">
-                                <tbody>
-                                    <tr v-for="student in studentResults.data" :key="student.id">
-                                        <td class="v-align">
-                                            <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                            <br>
-                                            <span class="text-muted text-sm">{{ student.id }}</span>
-                                            <br>
-                                            <span class="text-muted text-sm">{{ isNull(student.Year) ? '-' : (student.Year + ' - ' + (isNull(student.Strand) ? '' : (student.Strand + ' ')) + student.Section) }}</span>
-                                        </td>
-                                        <td class="v-align text-right">
-                                            <button @click="addStudentToClass(student.id)" class="btn btn-default" title="Add to this class"><i class="fas fa-user-plus"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <pagination :data="studentResults" :limit="10" @pagination-change-page="searchStudent"></pagination>
-                </div>
-            </div>
+    <!-- Student Adding Form -->
+    <div class="mt-3 col-lg-4" v-if="addStudentFormActive">
+      <div class="card shadow-none" style="height: 80vh">
+        <div class="card-header border-0">
+          <span class="card-title"> Add More Students to This Class </span>
+
+          <div class="card-tools">
+            <button @click="toggleAddStudentsForm" class="btn btn-sm btn-link">
+              <i class="fas fa-times text-danger"></i>
+            </button>
+          </div>
         </div>
+        <div class="card-body table-responsive">
+          <p class="no-pads text-sm text-danger">
+            <strong>NOTE </strong> that by directly adding students here, you are
+            bypassing the enrollment processs, and that students will not be collected any
+            enrollment fees.
+          </p>
+          <div class="row mt-2">
+            <div class="col-lg-12">
+              <p class="no-pads text-sm text-muted pb-2">Search Student</p>
+              <input
+                type="text"
+                @keyup="searchStudent"
+                v-model="addStudentSearch"
+                class="form-control form-control-sm"
+                placeholder="Search ID or name..."
+                autofocus
+              />
+            </div>
+            <!-- results -->
+            <div class="col-lg-12 mt-3">
+              <table class="table table-sm table-borderless table-hover">
+                <tbody>
+                  <tr v-for="student in studentResults.data" :key="student.id">
+                    <td class="v-align">
+                      <strong>{{
+                        student.LastName +
+                        ", " +
+                        student.FirstName +
+                        (isNull(student.MiddleName)
+                          ? ""
+                          : " " + student.MiddleName + " ") +
+                        (isNull(student.Suffix) ? "" : student.Suffix)
+                      }}</strong>
+                      <br />
+                      <span class="text-muted text-sm">{{ student.id }}</span>
+                      <br />
+                      <span class="text-muted text-sm">{{
+                        isNull(student.Year)
+                          ? "-"
+                          : student.Year +
+                            " - " +
+                            (isNull(student.Strand) ? "" : student.Strand + " ") +
+                            student.Section
+                      }}</span>
+                    </td>
+                    <td class="v-align text-right">
+                      <button
+                        @click="addStudentToClass(student.id)"
+                        class="btn btn-default"
+                        title="Add to this class"
+                      >
+                        <i class="fas fa-user-plus"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <pagination
+            :data="studentResults"
+            :limit="10"
+            @pagination-change-page="searchStudent"
+          ></pagination>
+        </div>
+      </div>
+    </div>
 
-        <!-- students in class -->
-        <div class="mt-3" :class="addStudentFormActive ? 'col-lg-8' : 'col-lg-12'">
-            <div class="card shadow-none">
-                <div class="card-body">
-                    <div class="dropdown">
-                        <a class="btn btn-link-muted btn-xs dropdown-toggle float-right" href="#" role="button" data-toggle="dropdown" aria-expanded="false" style="margin-right: 15px;">
-                            More
-                        </a>
+    <!-- students in class -->
+    <div class="mt-3" :class="addStudentFormActive ? 'col-lg-8' : 'col-lg-12'">
+      <div class="card shadow-none">
+        <div class="card-body">
+          <div class="dropdown">
+            <a
+              class="btn btn-link-muted btn-xs dropdown-toggle float-right"
+              href="#"
+              role="button"
+              data-toggle="dropdown"
+              aria-expanded="false"
+              style="margin-right: 15px"
+            >
+              More
+            </a>
 
-                        <div class="dropdown-menu">
-                            <a :href="baseURL + '/students/print-students/' + classId" class="dropdown-item"  title="Print Students"><i class="fas fa-print ico-tab-mini"></i>Print Students</a>
-                            <a :href="baseURL + '/classes/download-students/' + classId" class="dropdown-item" title="Download in excel file format"><i class="fas fa-file-excel ico-tab-mini"></i>Download Students</a>
-                            <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="dropdown-item" title="Print Payment Details"><i class="fas fa-print ico-tab-mini"></i> Print Payment Details</a>
-                            <button class="dropdown-item" @click="downloadSF2()"><i class="fas fa-file-excel ico-tab-mini"></i>Download SF2</button>
+            <div class="dropdown-menu">
+              <a
+                :href="baseURL + '/students/print-students/' + classId"
+                class="dropdown-item"
+                title="Print Students"
+                ><i class="fas fa-print ico-tab-mini"></i>Print Students</a
+              >
+              <a
+                :href="baseURL + '/classes/download-students/' + classId"
+                class="dropdown-item"
+                title="Download in excel file format"
+                ><i class="fas fa-file-excel ico-tab-mini"></i>Download Students</a
+              >
+              <a
+                :href="
+                  baseURL +
+                  '/classes/print-class-payments/' +
+                  syId +
+                  '/' +
+                  classId +
+                  '/' +
+                  teacherId
+                "
+                class="dropdown-item"
+                title="Print Payment Details"
+                ><i class="fas fa-print ico-tab-mini"></i> Print Payment Details</a
+              >
+              <button class="dropdown-item" @click="downloadSF2()">
+                <i class="fas fa-file-excel ico-tab-mini"></i>Download SF2
+              </button>
 
-                            <div class="divider"></div>
+              <div class="divider"></div>
 
-                            <button @click="rankings()" class="dropdown-item" title="View Grade Class Rankings"><i class="fas fa-award ico-tab-mini"></i>Rankings</button>
-                            <button @click="printAllGradeStub()" class="dropdown-item" title="Print all grading stub"><i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub</button>
-                            <button @click="printAllGrades()" class="dropdown-item" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grades</button>
-                            <button @click="printReportCard()" class="dropdown-item" title="Print or download SF10"><i class="fas fa-print ico-tab-mini"></i>Print/Download Report Card</button>
-                            <button class="dropdown-item" @click="stubConfig()"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
+              <button
+                @click="rankings()"
+                class="dropdown-item"
+                title="View Grade Class Rankings"
+              >
+                <i class="fas fa-award ico-tab-mini"></i>Rankings
+              </button>
+              <button
+                @click="printAllGradeStub()"
+                class="dropdown-item"
+                title="Print all grading stub"
+              >
+                <i class="fas fa-print ico-tab-mini"></i>Print All Grading Stub
+              </button>
+              <button
+                @click="printAllGrades()"
+                class="dropdown-item"
+                title="Print all grades"
+              >
+                <i class="fas fa-print ico-tab-mini"></i>Print All Grades
+              </button>
+              <button
+                @click="printReportCard()"
+                class="dropdown-item"
+                title="Print or download SF10"
+              >
+                <i class="fas fa-print ico-tab-mini"></i>Print/Download Report Card
+              </button>
+              <button class="dropdown-item" @click="stubConfig()">
+                <i class="fas fa-cogs ico-tab-mini"></i>Stub Config
+              </button>
 
-                            <div v-if="viewedIn==='admin'" class="divider"></div>
+              <div v-if="viewedIn === 'admin'" class="divider"></div>
 
-                            <button v-if="viewedIn==='admin'" @click="manageClass()" class="dropdown-item" title="Manage class subjects and tuition fees"><i class="fas fa-wrench ico-tab-mini"></i>Manage Class</button>
-                        </div>
-                    </div>
-                    <div>
-                        <!-- TAB HEADS -->
-                        <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="students-list-tab" data-toggle="pill" href="#students-list-content" role="tab" aria-controls="students-list-content" aria-selected="false">Active Students List</a>
-                            </li>
-                            <li class="nav-item" @click="getAllAttendanceData()">
-                                <a class="nav-link" id="attendance-tab" data-toggle="pill" href="#attendance-content" role="tab" aria-controls="attendance-content" aria-selected="false">Attendance</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="grades-tab" data-toggle="pill" href="#grades-content" role="tab" aria-controls="grades-content" aria-selected="false">Grades</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="observed-tab" data-toggle="pill" href="#observed-content" role="tab" aria-controls="observed-content" aria-selected="false">Observed Values</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="payments-tab" data-toggle="pill" href="#payments-content" role="tab" aria-controls="payments-content" aria-selected="false">Payments</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="inactive-tab" data-toggle="pill" href="#inactive-content" role="tab" aria-controls="inactive-content" aria-selected="false">Inactive Students</a>
-                            </li>
-                            <li class="nav-item" v-if="userId === '1' ? true : false">
-                                <a class="nav-link" id="flush-payments-tab" data-toggle="pill" href="#flush-payments-content" role="tab" aria-controls="flush-payments-content" aria-selected="false"><i class="fas fa-shield-alt ico-tab-mini"></i>Misc. Tuition Payments</a>
-                            </li>
-                        </ul>
+              <button
+                v-if="viewedIn === 'admin'"
+                @click="manageClass()"
+                class="dropdown-item"
+                title="Manage class subjects and tuition fees"
+              >
+                <i class="fas fa-wrench ico-tab-mini"></i>Manage Class
+              </button>
 
-                        <div class="tab-content" id="custom-tabs-three-tabContent">
-                            <!-- 
+              <button
+                v-if="viewedIn === 'admin'"
+                @click="teachers()"
+                class="dropdown-item"
+                :title="
+                  'Change Adviser from this class ' +
+                  advisory.Year +
+                  '-' +
+                  advisory.Section
+                "
+              >
+                <i class="fas fa-user ico-tab-mini"></i>Change Adviser
+              </button>
+            </div>
+          </div>
+          <div>
+            <!-- TAB HEADS -->
+            <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  id="students-list-tab"
+                  data-toggle="pill"
+                  href="#students-list-content"
+                  role="tab"
+                  aria-controls="students-list-content"
+                  aria-selected="false"
+                  >Active Students List</a
+                >
+              </li>
+              <li class="nav-item" @click="getAllAttendanceData()">
+                <a
+                  class="nav-link"
+                  id="attendance-tab"
+                  data-toggle="pill"
+                  href="#attendance-content"
+                  role="tab"
+                  aria-controls="attendance-content"
+                  aria-selected="false"
+                  >Attendance</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="grades-tab"
+                  data-toggle="pill"
+                  href="#grades-content"
+                  role="tab"
+                  aria-controls="grades-content"
+                  aria-selected="false"
+                  >Grades</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="observed-tab"
+                  data-toggle="pill"
+                  href="#observed-content"
+                  role="tab"
+                  aria-controls="observed-content"
+                  aria-selected="false"
+                  >Observed Values</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="payments-tab"
+                  data-toggle="pill"
+                  href="#payments-content"
+                  role="tab"
+                  aria-controls="payments-content"
+                  aria-selected="false"
+                  >Payments</a
+                >
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="inactive-tab"
+                  data-toggle="pill"
+                  href="#inactive-content"
+                  role="tab"
+                  aria-controls="inactive-content"
+                  aria-selected="false"
+                  >Inactive Students</a
+                >
+              </li>
+              <li class="nav-item" v-if="userId === '1' ? true : false">
+                <a
+                  class="nav-link"
+                  id="flush-payments-tab"
+                  data-toggle="pill"
+                  href="#flush-payments-content"
+                  role="tab"
+                  aria-controls="flush-payments-content"
+                  aria-selected="false"
+                  ><i class="fas fa-shield-alt ico-tab-mini"></i>Misc. Tuition Payments</a
+                >
+              </li>
+            </ul>
+
+            <div class="tab-content" id="custom-tabs-three-tabContent">
+              <!-- 
                                 ====================================================================================================================================
                                 STUDENTS LIST 
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade active show" id="students-list-content" role="tabpanel" aria-labelledby="students-list-tab">
-                                <div class="mt-2">
-                                    <button v-if="viewedIn==='admin'" @click="switchSelectionMode()" title="Select" class="btn btn-default btn-sm"><i class="fas fa-check-circle ico-tab-mini" :class="selectionButtonIndicator"></i>Select Multiple</button>
-                                    <a :href="baseURL + '/students/print-students/' + classId" class="btn btn-default btn-sm ml-2" title="Print"><i class="fas fa-print ico-tab-mini"></i>Print Students List</a>
-                                    <!-- <button @click="toggleAddStudentsForm()" class="btn btn-default btn-sm ml-2"><i class="fas fa-user-plus ico-tab-mini"></i>{{ addStudentFormActive ? 'Close' : 'Add/Enroll Students Here' }}</button> -->
+              <div
+                class="tab-pane fade active show"
+                id="students-list-content"
+                role="tabpanel"
+                aria-labelledby="students-list-tab"
+              >
+                <div class="mt-2">
+                  <button
+                    v-if="viewedIn === 'admin'"
+                    @click="switchSelectionMode()"
+                    title="Select"
+                    class="btn btn-default btn-sm"
+                  >
+                    <i
+                      class="fas fa-check-circle ico-tab-mini"
+                      :class="selectionButtonIndicator"
+                    ></i
+                    >Select Multiple
+                  </button>
+                  <a
+                    :href="baseURL + '/students/print-students/' + classId"
+                    class="btn btn-default btn-sm ml-2"
+                    title="Print"
+                    ><i class="fas fa-print ico-tab-mini"></i>Print Students List</a
+                  >
+                  <!-- <button @click="toggleAddStudentsForm()" class="btn btn-default btn-sm ml-2"><i class="fas fa-user-plus ico-tab-mini"></i>{{ addStudentFormActive ? 'Close' : 'Add/Enroll Students Here' }}</button> -->
 
-                                    <a :href="baseURL + '/classes/download-students/' + classId" class="btn btn-primary btn-sm float-right" title="Download in excel file format"><i class="fas fa-download ico-tab-mini"></i>Download Excel</a>
-                                </div>
-                                <!-- SELECT OPTIONS -->
-                                <div class="pt-3 pb-2" v-if="selectionMode && viewedIn==='admin'">
-                                    <p class="text-muted text-sm">Select Multiple Options</p>
-                                    <button @click="batchTransfer()" class="btn btn-sm btn-default mr-1"><i class="fas fa-random ico-tab-mini"></i>Transfer to Another Class</button>
-                                    <button @click="markEscMultiple('Yes')" class="btn btn-sm btn-default mr-1"><i class="fas fa-check-circle ico-tab-mini"></i>Mark {{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
-                                    <button @click="markEscMultiple('No')" class="btn btn-sm btn-default mr-1"><i class="far fa-check-circle ico-tab-mini"></i>Mark Non-{{ advisory.Year==='Grade 11' | advisory.Year==='Grade 12' ? 'VMS' : 'ESC' }} Scholar</button>
-                                    <button @click="markFromSchool('Private')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-lock ico-tab-mini"></i>Mark from Private</button>
-                                    <button @click="markFromSchool('Public')" class="btn btn-sm btn-default mr-1"><i class="fas fa-user-check ico-tab-mini"></i>Mark from Public</button>
-                                    <button v-if="checkEnrollableTo2ndSem" @click="enrollToSecondSem()" class="btn btn-sm btn-default mr-1"><i class="fas fa-sign-in-alt ico-tab-mini"></i>Enroll to 2nd Semester</button>
-                                    <!-- <button class="btn btn-sm btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Remove/Unenroll</button> -->
-                                </div>
-                                <div class="table-responsive mt-2">
-                                    <table class="table table-hover table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 16px;" v-if="selectionMode"></th>
-                                                <th style="width: 35px;"></th>
-                                                <th class="text-muted">Last Name</th>
-                                                <th class="text-muted">First Name</th>
-                                                <th class="text-muted">Middle Name</th>
-                                                <th class="text-muted">LRN</th>
-                                                <th class="text-muted">Address</th>
-                                                <th class="text-muted">Birth Date</th>
-                                                <th class="text-muted">Contact Numbers</th>
-                                                <th style="width: 120px;"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td colspan="9" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
-                                                <td class="v-align" v-if="selectionMode">
-                                                    <div class="input-group-radio-sm">
-                                                        <input type="checkbox" class="custom-radio-sm" :id="student.StudentClassId" :value="student" v-model="selection">
-                                                        <label :for="student.StudentClassId" class="custom-radio-label-sm"></label>
-                                                    </div>
-                                                </td>
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <div style="display: inline-block; vertical-align: middle;">
-                                                        <img @click="showImageProfile(`${imgPath}student-imgs/${student.id}.jpg`)" :src="`${imgPath}student-imgs/${student.id}.jpg`" @error="handleError" style="width: 28px; height: 28px; object-fit: cover; margin-right: 15px; cursor: pointer;" class="img-circle" alt="">
-                                                    </div>
-                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
-                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC/VMS Scholar' : 'Non-ESC/VMS Scholar'"></i></span>
-                                                    <strong>{{ student.LastName }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="v-align">
-                                                    <strong>{{ student.FirstName + (isNull(student.Suffix) ? '' : (' ' + student.Suffix)) }}</strong>
-                                                </td>
-                                                <td class="v-align">
-                                                    <strong>{{ student.MiddleName }}</strong>
-                                                </td>
-                                                <td class="v-align">{{ student.LRN }}</td>
-                                                <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
-                                                <td class="v-align">{{ isNull(student.Birthdate) ? '-' : moment(student.Birthdate).format('MMM DD, YYYY') }}</td>
-                                                <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
-                                                <td class="text-right" style="overflow: visible;">
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
+                  <a
+                    :href="baseURL + '/classes/download-students/' + classId"
+                    class="btn btn-primary btn-sm float-right"
+                    title="Download in excel file format"
+                    ><i class="fas fa-download ico-tab-mini"></i>Download Excel</a
+                  >
+                </div>
+                <!-- SELECT OPTIONS -->
+                <div class="pt-3 pb-2" v-if="selectionMode && viewedIn === 'admin'">
+                  <p class="text-muted text-sm">Select Multiple Options</p>
+                  <button @click="batchTransfer()" class="btn btn-sm btn-default mr-1">
+                    <i class="fas fa-random ico-tab-mini"></i>Transfer to Another Class
+                  </button>
+                  <button
+                    @click="markEscMultiple('Yes')"
+                    class="btn btn-sm btn-default mr-1"
+                  >
+                    <i class="fas fa-check-circle ico-tab-mini"></i>Mark
+                    {{
+                      (advisory.Year === "Grade 11") | (advisory.Year === "Grade 12")
+                        ? "VMS"
+                        : "ESC"
+                    }}
+                    Scholar
+                  </button>
+                  <button
+                    @click="markEscMultiple('No')"
+                    class="btn btn-sm btn-default mr-1"
+                  >
+                    <i class="far fa-check-circle ico-tab-mini"></i>Mark Non-{{
+                      (advisory.Year === "Grade 11") | (advisory.Year === "Grade 12")
+                        ? "VMS"
+                        : "ESC"
+                    }}
+                    Scholar
+                  </button>
+                  <button
+                    @click="markFromSchool('Private')"
+                    class="btn btn-sm btn-default mr-1"
+                  >
+                    <i class="fas fa-user-lock ico-tab-mini"></i>Mark from Private
+                  </button>
+                  <button
+                    @click="markFromSchool('Public')"
+                    class="btn btn-sm btn-default mr-1"
+                  >
+                    <i class="fas fa-user-check ico-tab-mini"></i>Mark from Public
+                  </button>
+                  <button
+                    v-if="checkEnrollableTo2ndSem"
+                    @click="enrollToSecondSem()"
+                    class="btn btn-sm btn-default mr-1"
+                  >
+                    <i class="fas fa-sign-in-alt ico-tab-mini"></i>Enroll to 2nd Semester
+                  </button>
+                  <!-- <button class="btn btn-sm btn-danger"><i class="fas fa-trash ico-tab-mini"></i>Remove/Unenroll</button> -->
+                </div>
+                <div class="table-responsive mt-2">
+                  <table class="table table-hover table-bordered table-sm">
+                    <thead>
+                      <tr>
+                        <th style="width: 16px" v-if="selectionMode"></th>
+                        <th style="width: 35px"></th>
+                        <th class="text-muted">Last Name</th>
+                        <th class="text-muted">First Name</th>
+                        <th class="text-muted">Middle Name</th>
+                        <th class="text-muted">LRN</th>
+                        <th class="text-muted">Address</th>
+                        <th class="text-muted">Birth Date</th>
+                        <th class="text-muted">Contact Numbers</th>
+                        <th style="width: 120px"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td colspan="9" class="text-muted bg-info">
+                          <i class="fas fa-venus ico-tab-mini"></i>Male Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in male"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align" v-if="selectionMode">
+                          <div class="input-group-radio-sm">
+                            <input
+                              type="checkbox"
+                              class="custom-radio-sm"
+                              :id="student.StudentClassId"
+                              :value="student"
+                              v-model="selection"
+                            />
+                            <label
+                              :for="student.StudentClassId"
+                              class="custom-radio-label-sm"
+                            ></label>
+                          </div>
+                        </td>
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <div style="display: inline-block; vertical-align: middle">
+                            <img
+                              @click="
+                                showImageProfile(
+                                  `${imgPath}student-imgs/${student.id}.jpg`
+                                )
+                              "
+                              :src="`${imgPath}student-imgs/${student.id}.jpg`"
+                              @error="handleError"
+                              style="
+                                width: 28px;
+                                height: 28px;
+                                object-fit: cover;
+                                margin-right: 15px;
+                                cursor: pointer;
+                              "
+                              class="img-circle"
+                              alt=""
+                            />
+                          </div>
+                          <span
+                            ><i
+                              class="ico-tab-mini text-xs fas"
+                              :class="
+                                student.FromSchool === 'Private'
+                                  ? 'fa-user-lock text-primary'
+                                  : 'fa-user-check text-warning'
+                              "
+                              :title="
+                                student.FromSchool === 'Private'
+                                  ? 'From Private School'
+                                  : 'From Public School'
+                              "
+                            ></i
+                          ></span>
+                          <span
+                            ><i
+                              class="ico-tab-mini text-xs fas"
+                              :class="
+                                student.ESCScholar === 'Yes'
+                                  ? 'fa-check-circle text-primary'
+                                  : 'fa-check-circle text-gray'
+                              "
+                              :title="
+                                student.ESCScholar === 'Yes'
+                                  ? 'ESC/VMS Scholar'
+                                  : 'Non-ESC/VMS Scholar'
+                              "
+                            ></i
+                          ></span>
+                          <strong>{{ student.LastName }}</strong>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td class="v-align">
+                          <strong>{{
+                            student.FirstName +
+                            (isNull(student.Suffix) ? "" : " " + student.Suffix)
+                          }}</strong>
+                        </td>
+                        <td class="v-align">
+                          <strong>{{ student.MiddleName }}</strong>
+                        </td>
+                        <td class="v-align">{{ student.LRN }}</td>
+                        <td class="v-align">
+                          {{
+                            (isNull(student.Sitio) ? "" : student.Sitio) +
+                            ", " +
+                            student.BarangaySpelled +
+                            ", " +
+                            student.TownSpelled
+                          }}
+                        </td>
+                        <td class="v-align">
+                          {{
+                            isNull(student.Birthdate)
+                              ? "-"
+                              : moment(student.Birthdate).format("MMM DD, YYYY")
+                          }}
+                        </td>
+                        <td class="v-align">
+                          {{
+                            isNull(student.ContactNumber) ? "-" : student.ContactNumber
+                          }}
+                        </td>
+                        <td class="text-right" style="overflow: visible">
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                            ><i class="fas fa-eye"></i
+                          ></a>
 
-                                                    <div class="px-3" title="More Options" style="display: inline;">
-                                                        <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu">
-                                                            <span v-if="viewedIn==='admin'" class="text-muted text-sm px-4">Tag as: </span>
-                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
-                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
-                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
+                          <div class="px-3" title="More Options" style="display: inline">
+                            <a
+                              href="#"
+                              role="button"
+                              data-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                              <span
+                                v-if="viewedIn === 'admin'"
+                                class="text-muted text-sm px-4"
+                                >Tag as:
+                              </span>
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="
+                                  updateStatus(
+                                    student.id,
+                                    `Transferred to Another School`,
+                                    `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`
+                                  )
+                                "
+                                class="dropdown-item"
+                              >
+                                <i class="fas fa-share ico-tab"></i>Transferred to Another
+                                School
+                              </button>
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="
+                                  updateStatus(
+                                    student.id,
+                                    `Withdrawn`,
+                                    `Tag this student as WITHDRAWN? You can always change this anytime.`
+                                  )
+                                "
+                                class="dropdown-item"
+                              >
+                                <i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn
+                              </button>
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="
+                                  updateStatus(
+                                    student.id,
+                                    `Dropped Out`,
+                                    `Tag this student as DROPPED OUT? You can always change this anytime.`
+                                  )
+                                "
+                                class="dropdown-item"
+                              >
+                                <i class="fas fa-times-circle ico-tab"></i>Dropped Out
+                              </button>
 
-                                                            <div v-if="viewedIn==='admin'" class="divider"></div>
+                              <div v-if="viewedIn === 'admin'" class="divider"></div>
 
-                                                            <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
-                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
-                                                            <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
-                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
+                              <a
+                                class="dropdown-item"
+                                :href="
+                                  baseURL +
+                                  '/students/edit-student/' +
+                                  student.id +
+                                  '/class-view'
+                                "
+                                ><i class="fas fa-pen ico-tab"></i>Edit Student Details</a
+                              >
+                              <a
+                                v-if="viewedIn === 'admin'"
+                                class="dropdown-item"
+                                :href="
+                                  baseURL +
+                                  '/classes/transfer-to-another-class/' +
+                                  student.id
+                                "
+                                ><i class="fas fa-random ico-tab"></i>Transfer to Another
+                                Class</a
+                              >
+                              <a
+                                class="dropdown-item"
+                                :href="
+                                  baseURL +
+                                  '/transactions/print-tuition-ledger/' +
+                                  student.id +
+                                  '/' +
+                                  syDetails.SchoolYear
+                                "
+                                ><i class="fas fa-print ico-tab"></i>Print Tuition
+                                Ledger</a
+                              >
+                              <a
+                                v-if="viewedIn === 'admin'"
+                                class="dropdown-item"
+                                :href="baseURL + '/classes/merge-to/' + student.id"
+                                ><i class="fas fa-link ico-tab"></i>Merge To</a
+                              >
 
-                                                            <div v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" class="divider"></div>
+                              <div
+                                v-if="
+                                  advisory.Year === 'Grade 11' ||
+                                  advisory.Year === 'Grade 12'
+                                "
+                                class="divider"
+                              ></div>
 
-                                                            <button v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
+                              <button
+                                v-if="
+                                  advisory.Year === 'Grade 11' ||
+                                  advisory.Year === 'Grade 12'
+                                "
+                                @click="downloadSF10(student.id)"
+                                class="dropdown-item"
+                                title="Download School Form 10 in Excel File"
+                              >
+                                <i class="fas fa-file-excel ico-tab"></i>Download SF10
+                              </button>
 
-                                                            <button v-if="advisory.Year !== 'Grade 11' || advisory.Year !== 'Grade 12'" @click="downloadSF10JHS(student.id)" class="dropdown-item" title="Download School Form 10 for JHS in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
+                              <button
+                                v-if="
+                                  advisory.Year !== 'Grade 11' ||
+                                  advisory.Year !== 'Grade 12'
+                                "
+                                @click="downloadSF10JHS(student.id)"
+                                class="dropdown-item"
+                                title="Download School Form 10 for JHS in Excel File"
+                              >
+                                <i class="fas fa-file-excel ico-tab"></i>Download SF10
+                              </button>
 
-                                                            <div v-if="viewedIn==='admin'" class="divider"></div>
+                              <div v-if="viewedIn === 'admin'" class="divider"></div>
 
-                                                            <button v-if="viewedIn==='admin'" @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="9" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
-                                                <td class="v-align" v-if="selectionMode">
-                                                    <div class="input-group-radio-sm">
-                                                        <input type="checkbox" class="custom-radio-sm" :id="student.StudentClassId" :value="student" v-model="selection">
-                                                        <label :for="student.StudentClassId" class="custom-radio-label-sm"></label>
-                                                    </div>
-                                                </td>
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <div style="display: inline-block; vertical-align: middle;">
-                                                        <img @click="showImageProfile(`${imgPath}student-imgs/${student.id}.jpg`)" :src="`${imgPath}student-imgs/${student.id}.jpg`" @error="handleError" style="width: 28px; height: 28px; object-fit: cover; margin-right: 15px; cursor: pointer;" class="img-circle" alt="">
-                                                    </div>
-                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
-                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.ESCScholar==='Yes' ? 'fa-check-circle text-primary' : 'fa-check-circle text-gray'" :title="student.ESCScholar==='Yes' ? 'ESC Scholar' : 'Non-ESC Scholar'"></i></span>
-                                                    <strong>{{ student.LastName }}</strong>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="v-align">
-                                                    <strong>{{ student.FirstName + (isNull(student.Suffix) ? '' : (' ' + student.Suffix)) }}</strong>
-                                                </td>
-                                                <td class="v-align">
-                                                    <strong>{{ student.MiddleName }}</strong>
-                                                </td>
-                                                <td class="v-align">{{ student.LRN }}</td>
-                                                <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
-                                                <td class="v-align">{{ isNull(student.Birthdate) ? '-' : moment(student.Birthdate).format('MMM DD, YYYY') }}</td>
-                                                <td class="v-align">{{ isNull(student.ContactNumber) ? '-' : student.ContactNumber }}</td>
-                                                <td class="text-right" title="View Student">
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id"><i class="fas fa-eye"></i></a>
-                                                    
-                                                    <div class="px-3" title="More Options" style="display: inline;">
-                                                        <a href="#" role="button" data-toggle="dropdown" aria-expanded="false">
-                                                            <i class="fas fa-ellipsis-v"></i>
-                                                        </a>
-                                                        <div class="dropdown-menu">
-                                                            <span v-if="viewedIn==='admin'" class="text-muted text-sm px-2">Tag as: </span>
-                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Transferred to Another School`, `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-share ico-tab"></i>Transferred to Another School</button>
-                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Withdrawn`, `Tag this student as WITHDRAWN? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn</button>
-                                                            <button v-if="viewedIn==='admin'" @click="updateStatus(student.id, `Dropped Out`, `Tag this student as DROPPED OUT? You can always change this anytime.`)" class="dropdown-item"><i class="fas fa-times-circle ico-tab"></i>Dropped Out</button>
-
-                                                            <div  v-if="viewedIn==='admin'" class="divider"></div>
-
-                                                            <a class="dropdown-item" :href="baseURL + '/students/edit-student/' + student.id + '/class-view'"><i class="fas fa-pen ico-tab"></i>Edit Student Details</a>
-                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/transfer-to-another-class/' + student.id"><i class="fas fa-random ico-tab"></i>Transfer to Another Class</a>
-                                                            <a class="dropdown-item" :href="baseURL + '/transactions/print-tuition-ledger/' + student.id + '/' + syDetails.SchoolYear"><i class="fas fa-print ico-tab"></i>Print Tuition Ledger</a>
-                                                            <a v-if="viewedIn==='admin'" class="dropdown-item" :href="baseURL + '/classes/merge-to/' + student.id"><i class="fas fa-link ico-tab"></i>Merge To</a>
-
-                                                            <div v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" class="divider"></div>
-
-                                                            <button v-if="advisory.Year === 'Grade 11' || advisory.Year === 'Grade 12'" @click="downloadSF10(student.id)" class="dropdown-item" title="Download School Form 10 in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
-
-                                                            <button v-if="advisory.Year !== 'Grade 11' || advisory.Year !== 'Grade 12'" @click="downloadSF10JHS(student.id)" class="dropdown-item" title="Download School Form 10 for JHS in Excel File"><i class="fas fa-file-excel ico-tab"></i>Download SF10</button>
-
-                                                            <div v-if="viewedIn==='admin'" class="divider"></div>
-
-                                                            <button v-if="viewedIn==='admin'" @click="removeFromClass(student.StudentClassId)" title="Remove from this class" class='dropdown-item text-danger'><i class="fas fa-trash ico-tab"></i>Remove/Unenroll</button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="removeFromClass(student.StudentClassId)"
+                                title="Remove from this class"
+                                class="dropdown-item text-danger"
+                              >
+                                <i class="fas fa-trash ico-tab"></i>Remove/Unenroll
+                              </button>
                             </div>
-                            
-                            <!-- 
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="9" class="text-muted bg-warning">
+                          <i class="fas fa-mars ico-tab-mini"></i>Female Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in female"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align" v-if="selectionMode">
+                          <div class="input-group-radio-sm">
+                            <input
+                              type="checkbox"
+                              class="custom-radio-sm"
+                              :id="student.StudentClassId"
+                              :value="student"
+                              v-model="selection"
+                            />
+                            <label
+                              :for="student.StudentClassId"
+                              class="custom-radio-label-sm"
+                            ></label>
+                          </div>
+                        </td>
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <div style="display: inline-block; vertical-align: middle">
+                            <img
+                              @click="
+                                showImageProfile(
+                                  `${imgPath}student-imgs/${student.id}.jpg`
+                                )
+                              "
+                              :src="`${imgPath}student-imgs/${student.id}.jpg`"
+                              @error="handleError"
+                              style="
+                                width: 28px;
+                                height: 28px;
+                                object-fit: cover;
+                                margin-right: 15px;
+                                cursor: pointer;
+                              "
+                              class="img-circle"
+                              alt=""
+                            />
+                          </div>
+                          <span
+                            ><i
+                              class="ico-tab-mini text-xs fas"
+                              :class="
+                                student.FromSchool === 'Private'
+                                  ? 'fa-user-lock text-primary'
+                                  : 'fa-user-check text-warning'
+                              "
+                              :title="
+                                student.FromSchool === 'Private'
+                                  ? 'From Private School'
+                                  : 'From Public School'
+                              "
+                            ></i
+                          ></span>
+                          <span
+                            ><i
+                              class="ico-tab-mini text-xs fas"
+                              :class="
+                                student.ESCScholar === 'Yes'
+                                  ? 'fa-check-circle text-primary'
+                                  : 'fa-check-circle text-gray'
+                              "
+                              :title="
+                                student.ESCScholar === 'Yes'
+                                  ? 'ESC Scholar'
+                                  : 'Non-ESC Scholar'
+                              "
+                            ></i
+                          ></span>
+                          <strong>{{ student.LastName }}</strong>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td class="v-align">
+                          <strong>{{
+                            student.FirstName +
+                            (isNull(student.Suffix) ? "" : " " + student.Suffix)
+                          }}</strong>
+                        </td>
+                        <td class="v-align">
+                          <strong>{{ student.MiddleName }}</strong>
+                        </td>
+                        <td class="v-align">{{ student.LRN }}</td>
+                        <td class="v-align">
+                          {{
+                            (isNull(student.Sitio) ? "" : student.Sitio) +
+                            ", " +
+                            student.BarangaySpelled +
+                            ", " +
+                            student.TownSpelled
+                          }}
+                        </td>
+                        <td class="v-align">
+                          {{
+                            isNull(student.Birthdate)
+                              ? "-"
+                              : moment(student.Birthdate).format("MMM DD, YYYY")
+                          }}
+                        </td>
+                        <td class="v-align">
+                          {{
+                            isNull(student.ContactNumber) ? "-" : student.ContactNumber
+                          }}
+                        </td>
+                        <td class="text-right" title="View Student">
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                            ><i class="fas fa-eye"></i
+                          ></a>
+
+                          <div class="px-3" title="More Options" style="display: inline">
+                            <a
+                              href="#"
+                              role="button"
+                              data-toggle="dropdown"
+                              aria-expanded="false"
+                            >
+                              <i class="fas fa-ellipsis-v"></i>
+                            </a>
+                            <div class="dropdown-menu">
+                              <span
+                                v-if="viewedIn === 'admin'"
+                                class="text-muted text-sm px-2"
+                                >Tag as:
+                              </span>
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="
+                                  updateStatus(
+                                    student.id,
+                                    `Transferred to Another School`,
+                                    `Tag this student as TRANSFERRED TO ANOTHER SCHOOL? You can always change this anytime.`
+                                  )
+                                "
+                                class="dropdown-item"
+                              >
+                                <i class="fas fa-share ico-tab"></i>Transferred to Another
+                                School
+                              </button>
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="
+                                  updateStatus(
+                                    student.id,
+                                    `Withdrawn`,
+                                    `Tag this student as WITHDRAWN? You can always change this anytime.`
+                                  )
+                                "
+                                class="dropdown-item"
+                              >
+                                <i class="fas fa-sign-out-alt ico-tab"></i>Withdrawn
+                              </button>
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="
+                                  updateStatus(
+                                    student.id,
+                                    `Dropped Out`,
+                                    `Tag this student as DROPPED OUT? You can always change this anytime.`
+                                  )
+                                "
+                                class="dropdown-item"
+                              >
+                                <i class="fas fa-times-circle ico-tab"></i>Dropped Out
+                              </button>
+
+                              <div v-if="viewedIn === 'admin'" class="divider"></div>
+
+                              <a
+                                class="dropdown-item"
+                                :href="
+                                  baseURL +
+                                  '/students/edit-student/' +
+                                  student.id +
+                                  '/class-view'
+                                "
+                                ><i class="fas fa-pen ico-tab"></i>Edit Student Details</a
+                              >
+                              <a
+                                v-if="viewedIn === 'admin'"
+                                class="dropdown-item"
+                                :href="
+                                  baseURL +
+                                  '/classes/transfer-to-another-class/' +
+                                  student.id
+                                "
+                                ><i class="fas fa-random ico-tab"></i>Transfer to Another
+                                Class</a
+                              >
+                              <a
+                                class="dropdown-item"
+                                :href="
+                                  baseURL +
+                                  '/transactions/print-tuition-ledger/' +
+                                  student.id +
+                                  '/' +
+                                  syDetails.SchoolYear
+                                "
+                                ><i class="fas fa-print ico-tab"></i>Print Tuition
+                                Ledger</a
+                              >
+                              <a
+                                v-if="viewedIn === 'admin'"
+                                class="dropdown-item"
+                                :href="baseURL + '/classes/merge-to/' + student.id"
+                                ><i class="fas fa-link ico-tab"></i>Merge To</a
+                              >
+
+                              <div
+                                v-if="
+                                  advisory.Year === 'Grade 11' ||
+                                  advisory.Year === 'Grade 12'
+                                "
+                                class="divider"
+                              ></div>
+
+                              <button
+                                v-if="
+                                  advisory.Year === 'Grade 11' ||
+                                  advisory.Year === 'Grade 12'
+                                "
+                                @click="downloadSF10(student.id)"
+                                class="dropdown-item"
+                                title="Download School Form 10 in Excel File"
+                              >
+                                <i class="fas fa-file-excel ico-tab"></i>Download SF10
+                              </button>
+
+                              <button
+                                v-if="
+                                  advisory.Year !== 'Grade 11' ||
+                                  advisory.Year !== 'Grade 12'
+                                "
+                                @click="downloadSF10JHS(student.id)"
+                                class="dropdown-item"
+                                title="Download School Form 10 for JHS in Excel File"
+                              >
+                                <i class="fas fa-file-excel ico-tab"></i>Download SF10
+                              </button>
+
+                              <div v-if="viewedIn === 'admin'" class="divider"></div>
+
+                              <button
+                                v-if="viewedIn === 'admin'"
+                                @click="removeFromClass(student.StudentClassId)"
+                                title="Remove from this class"
+                                class="dropdown-item text-danger"
+                              >
+                                <i class="fas fa-trash ico-tab"></i>Remove/Unenroll
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 
                                 ====================================================================================================================================
                                 ATTENDANCE 
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade" id="attendance-content" role="tabpanel" aria-labelledby="attendance-tab">
-                                <div class="table-responsive mt-2">
-                                    <!-- action -->
-                                    <div class="form-group float-right ml-2">
-                                        <span class="text-muted">Actions</span>
-                                        <br>
-                                        <button class="btn btn-default btn-sm" @click="getAllAttendanceData()">View <i class="fas fa-check-circle ico-tab-left-mini"></i></button>
+              <div
+                class="tab-pane fade"
+                id="attendance-content"
+                role="tabpanel"
+                aria-labelledby="attendance-tab"
+              >
+                <div class="table-responsive mt-2">
+                  <!-- action -->
+                  <div class="form-group float-right ml-2">
+                    <span class="text-muted">Actions</span>
+                    <br />
+                    <button
+                      class="btn btn-default btn-sm"
+                      @click="getAllAttendanceData()"
+                    >
+                      View <i class="fas fa-check-circle ico-tab-left-mini"></i>
+                    </button>
 
-                                        <button class="btn btn-primary btn-sm ico-tab-left" @click="downloadSF2()">Download SF2 <i class="fas fa-file-excel ico-tab-left-mini"></i></button>
-                                    </div>
+                    <button
+                      class="btn btn-primary btn-sm ico-tab-left"
+                      @click="downloadSF2()"
+                    >
+                      Download SF2 <i class="fas fa-file-excel ico-tab-left-mini"></i>
+                    </button>
+                  </div>
 
-                                    <!-- year -->
-                                    <div class="form-group float-right ml-2" style="width: 130px;">
-                                        <span class="text-muted">Year</span>
-                                        <input type="number" class="form-control form-control-sm" v-model="attendanceYear">
-                                    </div>
-                                    <!-- months -->
-                                    <div class="form-group float-right" style="width: 150px;">
-                                        <span class="text-muted">Month</span>
-                                        <select v-model="attendanceMonth" class="form-control form-control-sm" @change="getAllAttendanceData()">
-                                            <option value="01">January</option>
-                                            <option value="02">February</option>
-                                            <option value="03">March</option>
-                                            <option value="04">April</option>
-                                            <option value="05">May</option>
-                                            <option value="06">June</option>
-                                            <option value="07">July</option>
-                                            <option value="08">August</option>
-                                            <option value="09">September</option>
-                                            <option value="10">October</option>
-                                            <option value="11">November</option>
-                                            <option value="12">December</option>
-                                        </select>
-                                    </div>
+                  <!-- year -->
+                  <div class="form-group float-right ml-2" style="width: 130px">
+                    <span class="text-muted">Year</span>
+                    <input
+                      type="number"
+                      class="form-control form-control-sm"
+                      v-model="attendanceYear"
+                    />
+                  </div>
+                  <!-- months -->
+                  <div class="form-group float-right" style="width: 150px">
+                    <span class="text-muted">Month</span>
+                    <select
+                      v-model="attendanceMonth"
+                      class="form-control form-control-sm"
+                      @change="getAllAttendanceData()"
+                    >
+                      <option value="01">January</option>
+                      <option value="02">February</option>
+                      <option value="03">March</option>
+                      <option value="04">April</option>
+                      <option value="05">May</option>
+                      <option value="06">June</option>
+                      <option value="07">July</option>
+                      <option value="08">August</option>
+                      <option value="09">September</option>
+                      <option value="10">October</option>
+                      <option value="11">November</option>
+                      <option value="12">December</option>
+                    </select>
+                  </div>
 
-                                    <table class="table table-hover table-sm table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 28px;"></th>
-                                                <th class="text-center">Students</th>
-                                                <th class="text-center" v-for="d in daysInAMonth">{{ d }}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td :colspan="(4 + (daysInAMonth.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
-                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    </a>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="v-align text-center pointer" @click="showAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`, `${ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }`)" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
-                                            </tr>
-                                            <tr>
-                                                <td :colspan="(4 + (daysInAMonth.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
-                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    </a>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="v-align text-center pointer" @click="showAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`, `${ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }`)" v-for="d in daysInAMonth" v-html="fetchDailyAttendance(student.id, `${attendanceYear}-${attendanceMonth}-${d}`)"></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                  <table class="table table-hover table-sm table-bordered">
+                    <thead>
+                      <tr>
+                        <th style="width: 28px"></th>
+                        <th class="text-center">Students</th>
+                        <th class="text-center" v-for="d in daysInAMonth">{{ d }}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td :colspan="4 + daysInAMonth.length" class="text-muted bg-info">
+                          <i class="fas fa-venus ico-tab-mini"></i>Male Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in male"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                          >
+                            <strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong>
+                          </a>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td
+                          class="v-align text-center pointer"
+                          @click="
+                            showAttendance(
+                              student.id,
+                              `${attendanceYear}-${attendanceMonth}-${d}`,
+                              `${
+                                student.LastName +
+                                ', ' +
+                                student.FirstName +
+                                (isNull(student.MiddleName)
+                                  ? ''
+                                  : ' ' + student.MiddleName + ' ') +
+                                (isNull(student.Suffix) ? '' : student.Suffix)
+                              }`
+                            )
+                          "
+                          v-for="d in daysInAMonth"
+                          v-html="
+                            fetchDailyAttendance(
+                              student.id,
+                              `${attendanceYear}-${attendanceMonth}-${d}`
+                            )
+                          "
+                        ></td>
+                      </tr>
+                      <tr>
+                        <td
+                          :colspan="4 + daysInAMonth.length"
+                          class="text-muted bg-warning"
+                        >
+                          <i class="fas fa-mars ico-tab-mini"></i>Female Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in female"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                          >
+                            <strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong>
+                          </a>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td
+                          class="v-align text-center pointer"
+                          @click="
+                            showAttendance(
+                              student.id,
+                              `${attendanceYear}-${attendanceMonth}-${d}`,
+                              `${
+                                student.LastName +
+                                ', ' +
+                                student.FirstName +
+                                (isNull(student.MiddleName)
+                                  ? ''
+                                  : ' ' + student.MiddleName + ' ') +
+                                (isNull(student.Suffix) ? '' : student.Suffix)
+                              }`
+                            )
+                          "
+                          v-for="d in daysInAMonth"
+                          v-html="
+                            fetchDailyAttendance(
+                              student.id,
+                              `${attendanceYear}-${attendanceMonth}-${d}`
+                            )
+                          "
+                        ></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                            <!-- 
+              <!-- 
                                 ====================================================================================================================================
                                 GRADES 
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade" id="grades-content" role="tabpanel" aria-labelledby="grades-tab">
-                                <div class="mt-2" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: start; align-items: center;">
-                                    <!-- <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a> -->
-                                    <button @click="rankings()" class="btn btn-default btn-sm" style="width: 180px;" title="View Grade Class Rankings"><i class="fas fa-award ico-tab-mini"></i>Rankings</button>
-                                    <button @click="printAllGradeStub()" class="btn btn-default btn-sm" style="width: 180px;" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</button>
-                                    <button @click="printAllGrades()" class="btn btn-default btn-sm" style="width: 220px;" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Grades</button>
-                                    <button @click="stubConfig()" class="btn btn-default btn-sm" style="width: 180px;" title="Setup Stub Config"><i class="fas fa-cogs ico-tab-mini"></i>Stub Config</button>
+              <div
+                class="tab-pane fade"
+                id="grades-content"
+                role="tabpanel"
+                aria-labelledby="grades-tab"
+              >
+                <div
+                  class="mt-2"
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    column-gap: 5px;
+                    justify-content: start;
+                    align-items: center;
+                  "
+                >
+                  <!-- <a :href="baseURL + '/classes/print-single-grade-all/' + classId" class="btn btn-default btn-sm" title="Print all grades"><i class="fas fa-print ico-tab-mini"></i>Print All Stub</a> -->
+                  <button
+                    @click="rankings()"
+                    class="btn btn-default btn-sm"
+                    style="width: 180px"
+                    title="View Grade Class Rankings"
+                  >
+                    <i class="fas fa-award ico-tab-mini"></i>Rankings
+                  </button>
+                  <button
+                    @click="printAllGradeStub()"
+                    class="btn btn-default btn-sm"
+                    style="width: 180px"
+                    title="Print all grades"
+                  >
+                    <i class="fas fa-print ico-tab-mini"></i>Print All Stub
+                  </button>
+                  <button
+                    @click="printAllGrades()"
+                    class="btn btn-default btn-sm"
+                    style="width: 220px"
+                    title="Print all grades"
+                  >
+                    <i class="fas fa-print ico-tab-mini"></i>Print All Grades
+                  </button>
+                  <button
+                    @click="stubConfig()"
+                    class="btn btn-default btn-sm"
+                    style="width: 180px"
+                    title="Setup Stub Config"
+                  >
+                    <i class="fas fa-cogs ico-tab-mini"></i>Stub Config
+                  </button>
 
-                                    <div v-if="viewedIn==='admin'" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center; width: 90%;">
-                                        <div v-if="addSubjectEnabled" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: end; align-items: center;">
-                                            <span class="text-muted text-sm">Select Subject to Add</span>
-                                            <select v-model="addedSubjectId" @change="addSubject()" class="form-control form-control-sm"  name="Subjects" id="Subjects" style="width: 220px;">
-                                                <option value="">-- Select --</option>
-                                                <option v-for="subs in subjectRepos" :value="subs.id">{{ subs.Subject + ' (' + subs.FullName + ')' }}</option>
-                                            </select>
-                                        </div>
-                                        <button v-if="addSubjectEnabled" @click="() => { addSubjectEnabled ? addSubjectEnabled = false : addSubjectEnabled = true }" class="btn btn-link btn-sm text-danger" title="Close"><i class="fas fa-times-circle"></i></button>
-                                        <button v-if="!addSubjectEnabled" @click="() => { addSubjectEnabled ? addSubjectEnabled = false : addSubjectEnabled = true }" class="btn btn-default btn-sm"><i class="fas fa-plus ico-tab-mini"></i>Add Subject</button>
-                                    </div>
-                                </div>
-                                <div class="mt-2" style="display: flex; flex-direction: row; column-gap: 5px; justify-content: start; align-items: center;">
-                                    <p class="no-pads text-sm text-muted">Grading View Options: </p>
-                                    <button class="btn btn-xs" @click="selectViewOptionQ('1st')" v-if="isNull(advisory.Semester) | advisory.Semester === '1st'" :class="viewOptionSelectedQ==='1st' ? 'btn-success' : 'btn-default'">1st Q</button>
-                                    <button class="btn btn-xs" @click="selectViewOptionQ('2nd')" v-if="isNull(advisory.Semester) | advisory.Semester === '1st'" :class="viewOptionSelectedQ==='2nd' ? 'btn-success' : 'btn-default'">2nd Q</button>
-                                    <button class="btn btn-xs" @click="selectViewOptionQ('3rd')" v-if="isNull(advisory.Semester) | advisory.Semester === '2nd'" :class="viewOptionSelectedQ==='3rd' ? 'btn-success' : 'btn-default'">3rd Q</button>
-                                    <button class="btn btn-xs" @click="selectViewOptionQ('4th')" v-if="isNull(advisory.Semester) | advisory.Semester === '2nd'" :class="viewOptionSelectedQ==='4th' ? 'btn-success' : 'btn-default'">4th Q</button>
-                                    <button class="btn btn-xs" @click="selectViewOptionQ('Final')" :class="viewOptionSelectedQ==='Final' ? 'btn-success' : 'btn-default'" title="Final Grade">FG</button>
-                                </div>
-                                <div class="table-responsive mt-2">
-                                    <table class="table table-hover table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th rowspan="2"></th>
-                                                <th rowspan="2" class="text-center" style="min-width: 230px;">Students</th>
-                                                <th class="text-center" v-for="header in mainSubjects.Headers" 
-                                                    :key="header.Subject" 
-                                                    :rowspan="header.rowspan" 
-                                                    :colspan="header.colspan">
-                                                    {{ header.Subject }}
-                                                    <div v-if="header.hasMenu">
-                                                        <span class="text-xs text-muted">{{ header.FullName }}</span>
-                                                        <br>
-                                                        <div v-if="viewedIn==='admin'" class="divider"></div>
-                                                        <div v-if="viewedIn==='admin'" style="display: flex; width: 100%; flex-direction: row; justify-content: center; align-items: center;">
-                                                            <a :href="baseURL + '/classes/print-grades-in-subject-class/' + header.id + '/' + classId + '/' + header.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
+                  <div
+                    v-if="viewedIn === 'admin'"
+                    style="
+                      display: flex;
+                      flex-direction: row;
+                      column-gap: 5px;
+                      justify-content: end;
+                      align-items: center;
+                      width: 90%;
+                    "
+                  >
+                    <div
+                      v-if="addSubjectEnabled"
+                      style="
+                        display: flex;
+                        flex-direction: row;
+                        column-gap: 5px;
+                        justify-content: end;
+                        align-items: center;
+                      "
+                    >
+                      <span class="text-muted text-sm">Select Subject to Add</span>
+                      <select
+                        v-model="addedSubjectId"
+                        @change="addSubject()"
+                        class="form-control form-control-sm"
+                        name="Subjects"
+                        id="Subjects"
+                        style="width: 220px"
+                      >
+                        <option value="">-- Select --</option>
+                        <option v-for="subs in subjectRepos" :value="subs.id">
+                          {{ subs.Subject + " (" + subs.FullName + ")" }}
+                        </option>
+                      </select>
+                    </div>
+                    <button
+                      v-if="addSubjectEnabled"
+                      @click="
+                        () => {
+                          addSubjectEnabled
+                            ? (addSubjectEnabled = false)
+                            : (addSubjectEnabled = true);
+                        }
+                      "
+                      class="btn btn-link btn-sm text-danger"
+                      title="Close"
+                    >
+                      <i class="fas fa-times-circle"></i>
+                    </button>
+                    <button
+                      v-if="!addSubjectEnabled"
+                      @click="
+                        () => {
+                          addSubjectEnabled
+                            ? (addSubjectEnabled = false)
+                            : (addSubjectEnabled = true);
+                        }
+                      "
+                      class="btn btn-default btn-sm"
+                    >
+                      <i class="fas fa-plus ico-tab-mini"></i>Add Subject
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="mt-2"
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    column-gap: 5px;
+                    justify-content: start;
+                    align-items: center;
+                  "
+                >
+                  <p class="no-pads text-sm text-muted">Grading View Options:</p>
+                  <button
+                    class="btn btn-xs"
+                    @click="selectViewOptionQ('1st')"
+                    v-if="isNull(advisory.Semester) | (advisory.Semester === '1st')"
+                    :class="viewOptionSelectedQ === '1st' ? 'btn-success' : 'btn-default'"
+                  >
+                    1st Q
+                  </button>
+                  <button
+                    class="btn btn-xs"
+                    @click="selectViewOptionQ('2nd')"
+                    v-if="isNull(advisory.Semester) | (advisory.Semester === '1st')"
+                    :class="viewOptionSelectedQ === '2nd' ? 'btn-success' : 'btn-default'"
+                  >
+                    2nd Q
+                  </button>
+                  <button
+                    class="btn btn-xs"
+                    @click="selectViewOptionQ('3rd')"
+                    v-if="isNull(advisory.Semester) | (advisory.Semester === '2nd')"
+                    :class="viewOptionSelectedQ === '3rd' ? 'btn-success' : 'btn-default'"
+                  >
+                    3rd Q
+                  </button>
+                  <button
+                    class="btn btn-xs"
+                    @click="selectViewOptionQ('4th')"
+                    v-if="isNull(advisory.Semester) | (advisory.Semester === '2nd')"
+                    :class="viewOptionSelectedQ === '4th' ? 'btn-success' : 'btn-default'"
+                  >
+                    4th Q
+                  </button>
+                  <button
+                    class="btn btn-xs"
+                    @click="selectViewOptionQ('Final')"
+                    :class="
+                      viewOptionSelectedQ === 'Final' ? 'btn-success' : 'btn-default'
+                    "
+                    title="Final Grade"
+                  >
+                    FG
+                  </button>
+                </div>
+                <div class="table-responsive mt-2">
+                  <table class="table table-hover table-bordered table-sm">
+                    <thead>
+                      <tr>
+                        <th rowspan="2"></th>
+                        <th rowspan="2" class="text-center" style="min-width: 230px">
+                          Students
+                        </th>
+                        <th
+                          class="text-center"
+                          v-for="header in mainSubjects.Headers"
+                          :key="header.Subject"
+                          :rowspan="header.rowspan"
+                          :colspan="header.colspan"
+                        >
+                          {{ header.Subject }}
+                          <div v-if="header.hasMenu">
+                            <span class="text-xs text-muted">{{ header.FullName }}</span>
+                            <br />
+                            <div v-if="viewedIn === 'admin'" class="divider"></div>
+                            <div
+                              v-if="viewedIn === 'admin'"
+                              style="
+                                display: flex;
+                                width: 100%;
+                                flex-direction: row;
+                                justify-content: center;
+                                align-items: center;
+                              "
+                            >
+                              <a
+                                :href="
+                                  baseURL +
+                                  '/classes/print-grades-in-subject-class/' +
+                                  header.id +
+                                  '/' +
+                                  classId +
+                                  '/' +
+                                  header.TeacherId
+                                "
+                                class="btn btn-link-muted btn-sm"
+                                title="Print all grades in subject"
+                                ><i class="fas fa-print"></i
+                              ></a>
 
-                                                            <button @click="removeSubject(header.id, header.TeacherId)" class="btn btn-link-muted btn-sm" title="Remove this subject from class"><i class="fas fa-times-circle"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </th>
-                                                <th rowspan="2" style="min-width: 100px;"></th>
-                                            </tr>
-                                            <tr>
-                                                <th class="text-center" v-for="header in mainSubjects.SubHeaders" :key="header.Subject">
-                                                    {{ header.Subject }}
-                                                    <br>
-                                                    <span class="text-xs text-muted">{{ header.FullName }}</span>
-                                                    <br>
-                                                    <div v-if="viewedIn==='admin'" class="divider"></div>
-                                                    <div v-if="viewedIn==='admin'" style="display: flex; width: 100%; flex-direction: row; justify-content: center; align-items: center;">
-                                                        <a :href="baseURL + '/classes/print-grades-in-subject-class/' + header.id + '/' + classId + '/' + header.TeacherId" class="btn btn-link-muted btn-sm" title="Print all grades in subject"><i class="fas fa-print"></i></a>
-
-                                                        <button @click="removeSubject(header.id, header.TeacherId)" class="btn btn-link-muted btn-sm" title="Remove this subject from class"><i class="fas fa-times-circle"></i></button>
-                                                    </div>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td :colspan="(3 + (subjectHeadsRearranged.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
-                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    </a>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
-                                                <td class="v-align text-right">
-                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
-                                                    <button @click="revalidateStudentSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
-                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-comment" title="Print grade"><i class="fas fa-print"></i></button>
-                                                    <button @click="clearSubjects(student.id)" class="btn btn-xs btn-comment" style="margin-left: 8px !important;" title="Remove all subjects"><i class="fas fa-times text-danger"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td :colspan="(3 + (subjectHeadsRearranged.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
-                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    </a>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="v-align text-right" v-for="sb in subjectHeadsRearranged" v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"></td>
-                                                <td class="v-align text-right">
-                                                    <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
-                                                    <button @click="revalidateStudentSubjects(student.id)" v-if="viewedIn==='admin'" class="btn btn-xs btn-comment" title="Revalidate Subjects"><i class="fas fa-sync-alt"></i></button>
-                                                    <button @click="printSingleStub(student.id)" class="btn btn-xs btn-comment" title="Print grade"><i class="fas fa-print"></i></button>
-                                                    <button @click="clearSubjects(student.id)" class="btn btn-xs btn-comment" style="margin-left: 8px !important;" title="Remove all subjects"><i class="fas fa-times text-danger"></i></button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                              <button
+                                @click="removeSubject(header.id, header.TeacherId)"
+                                class="btn btn-link-muted btn-sm"
+                                title="Remove this subject from class"
+                              >
+                                <i class="fas fa-times-circle"></i>
+                              </button>
                             </div>
+                          </div>
+                        </th>
+                        <th rowspan="2" style="min-width: 100px"></th>
+                      </tr>
+                      <tr>
+                        <th
+                          class="text-center"
+                          v-for="header in mainSubjects.SubHeaders"
+                          :key="header.Subject"
+                        >
+                          {{ header.Subject }}
+                          <br />
+                          <span class="text-xs text-muted">{{ header.FullName }}</span>
+                          <br />
+                          <div v-if="viewedIn === 'admin'" class="divider"></div>
+                          <div
+                            v-if="viewedIn === 'admin'"
+                            style="
+                              display: flex;
+                              width: 100%;
+                              flex-direction: row;
+                              justify-content: center;
+                              align-items: center;
+                            "
+                          >
+                            <a
+                              :href="
+                                baseURL +
+                                '/classes/print-grades-in-subject-class/' +
+                                header.id +
+                                '/' +
+                                classId +
+                                '/' +
+                                header.TeacherId
+                              "
+                              class="btn btn-link-muted btn-sm"
+                              title="Print all grades in subject"
+                              ><i class="fas fa-print"></i
+                            ></a>
 
-                            <!-- 
+                            <button
+                              @click="removeSubject(header.id, header.TeacherId)"
+                              class="btn btn-link-muted btn-sm"
+                              title="Remove this subject from class"
+                            >
+                              <i class="fas fa-times-circle"></i>
+                            </button>
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td
+                          :colspan="3 + subjectHeadsRearranged.length"
+                          class="text-muted bg-info"
+                        >
+                          <i class="fas fa-venus ico-tab-mini"></i>Male Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in male"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                          >
+                            <strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong>
+                          </a>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td
+                          class="v-align text-right"
+                          v-for="sb in subjectHeadsRearranged"
+                          v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"
+                        ></td>
+                        <td class="v-align text-right">
+                          <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
+                          <button
+                            @click="revalidateStudentSubjects(student.id)"
+                            v-if="viewedIn === 'admin'"
+                            class="btn btn-xs btn-comment"
+                            title="Revalidate Subjects"
+                          >
+                            <i class="fas fa-sync-alt"></i>
+                          </button>
+                          <button
+                            @click="printSingleStub(student.id)"
+                            class="btn btn-xs btn-comment"
+                            title="Print grade"
+                          >
+                            <i class="fas fa-print"></i>
+                          </button>
+                          <button
+                            @click="clearSubjects(student.id)"
+                            class="btn btn-xs btn-comment"
+                            style="margin-left: 8px !important"
+                            title="Remove all subjects"
+                          >
+                            <i class="fas fa-times text-danger"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          :colspan="3 + subjectHeadsRearranged.length"
+                          class="text-muted bg-warning"
+                        >
+                          <i class="fas fa-mars ico-tab-mini"></i>Female Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in female"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                          >
+                            <strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong>
+                          </a>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td
+                          class="v-align text-right"
+                          v-for="sb in subjectHeadsRearranged"
+                          v-html="getFinalGrade(student.id, sb.id, sb.TeacherId)"
+                        ></td>
+                        <td class="v-align text-right">
+                          <!-- <a title="Print grade" :href="baseURL + '/classes/print-single-grade/' + student.id + '/' + classId" class="btn btn-xs btn-comment"><i class="fas fa-print"></i></a> -->
+                          <button
+                            @click="revalidateStudentSubjects(student.id)"
+                            v-if="viewedIn === 'admin'"
+                            class="btn btn-xs btn-comment"
+                            title="Revalidate Subjects"
+                          >
+                            <i class="fas fa-sync-alt"></i>
+                          </button>
+                          <button
+                            @click="printSingleStub(student.id)"
+                            class="btn btn-xs btn-comment"
+                            title="Print grade"
+                          >
+                            <i class="fas fa-print"></i>
+                          </button>
+                          <button
+                            @click="clearSubjects(student.id)"
+                            class="btn btn-xs btn-comment"
+                            style="margin-left: 8px !important"
+                            title="Remove all subjects"
+                          >
+                            <i class="fas fa-times text-danger"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 
                                 ====================================================================================================================================
                                 OBSERVED VALUES 
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade" id="observed-content" role="tabpanel" aria-labelledby="observed-tab">
-                                <div class="row">
-                                    <!-- STUDENTS LIST -->
-                                    <div class="col-lg-12 pt-3">
-                                        <div class='btn-group float-right'>
-                                            <button
-                                            class='btn btn-sm' :class="olvInput==='DROPDOWN' ? 'btn-success' : 'btn-default'" @click="changeInputType('DROPDOWN')">
-                                                <i class="fas fa-chevron-circle-down ico-tab-mini"></i> Dropdown
-                                            </button>
-                                            <button
-                                            class='btn btn-sm' :class="olvInput==='INPUT' ? 'btn-success' : 'btn-default'" @click="changeInputType('INPUT')">
-                                                <i class="fas fa-text-width ico-tab-mini"></i>Input
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-4 table-responsive" style="height: 80vh; padding-top: 18px;">
-                                        <table class="table table-hover table-borderless">
-                                            <tbody>
-                                                <tr>
-                                                    <td colspan="2" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
-                                                </tr>
-                                                <tr v-for="(student, index) in male" :key="student.StudentSubjectId" @click="editObservedValues(student.id)">
-                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'" :title="student.id">
-                                                        {{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}
-                                                    </td>
-                                                    <td style="width: 20px;" :class="observedValuesActiveStudentId===student.id ? 'bg-success' : ''">
+              <div
+                class="tab-pane fade"
+                id="observed-content"
+                role="tabpanel"
+                aria-labelledby="observed-tab"
+              >
+                <div class="row">
+                  <!-- STUDENTS LIST -->
+                  <div class="col-lg-12 pt-3">
+                    <div class="btn-group float-right">
+                      <button
+                        class="btn btn-sm"
+                        :class="olvInput === 'DROPDOWN' ? 'btn-success' : 'btn-default'"
+                        @click="changeInputType('DROPDOWN')"
+                      >
+                        <i class="fas fa-chevron-circle-down ico-tab-mini"></i> Dropdown
+                      </button>
+                      <button
+                        class="btn btn-sm"
+                        :class="olvInput === 'INPUT' ? 'btn-success' : 'btn-default'"
+                        @click="changeInputType('INPUT')"
+                      >
+                        <i class="fas fa-text-width ico-tab-mini"></i>Input
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="col-lg-4 table-responsive"
+                    style="height: 80vh; padding-top: 18px"
+                  >
+                    <table class="table table-hover table-borderless">
+                      <tbody>
+                        <tr>
+                          <td colspan="2" class="text-muted bg-info">
+                            <i class="fas fa-venus ico-tab-mini"></i>Male Students
+                          </td>
+                        </tr>
+                        <tr
+                          v-for="(student, index) in male"
+                          :key="student.StudentSubjectId"
+                          @click="editObservedValues(student.id)"
+                        >
+                          <td
+                            class="v-align pointer"
+                            :class="
+                              observedValuesActiveStudentId === student.id
+                                ? 'bold bg-select'
+                                : 'normal'
+                            "
+                            :title="student.id"
+                          >
+                            {{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}
+                          </td>
+                          <td
+                            style="width: 20px"
+                            :class="
+                              observedValuesActiveStudentId === student.id
+                                ? 'bg-success'
+                                : ''
+                            "
+                          ></td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" class="text-muted bg-warning">
+                            <i class="fas fa-mars ico-tab-mini"></i>Female Students
+                          </td>
+                        </tr>
+                        <tr
+                          v-for="(student, index) in female"
+                          :key="student.StudentSubjectId"
+                          @click="editObservedValues(student.id)"
+                        >
+                          <td
+                            class="v-align pointer"
+                            :class="
+                              observedValuesActiveStudentId === student.id
+                                ? 'bold bg-select'
+                                : 'normal'
+                            "
+                            :title="student.id"
+                          >
+                            {{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}
+                          </td>
+                          <td
+                            style="width: 20px"
+                            :class="
+                              observedValuesActiveStudentId === student.id
+                                ? 'bg-success'
+                                : ''
+                            "
+                          ></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
 
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="2" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
-                                                </tr>
-                                                <tr v-for="(student, index) in female" :key="student.StudentSubjectId" @click="editObservedValues(student.id)">
-                                                    <td class="v-align pointer" :class="observedValuesActiveStudentId===student.id ? 'bold bg-select' : 'normal'" :title="student.id">
-                                                        {{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}
-                                                    </td>
-                                                    <td style="width: 20px;" :class="observedValuesActiveStudentId===student.id ? 'bg-success' : ''">
+                  <!-- UPDATE FORM -->
+                  <div
+                    class="col-lg-8 table-responsive p-2"
+                    v-if="!isNull(observedValuesActiveStudentId)"
+                  >
+                    <table class="table table-bordered table-hover">
+                      <thead>
+                        <tr>
+                          <th class="text-center" rowspan="2">Core Values</th>
+                          <th class="text-center" rowspan="2">Behavior Statements</th>
+                          <th class="text-center" colspan="4">Quarter</th>
+                        </tr>
+                        <tr>
+                          <th class="text-center">1</th>
+                          <th class="text-center">2</th>
+                          <th class="text-center">3</th>
+                          <th class="text-center">4</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="v-align" rowspan="2">1. Maka-Diyos</td>
+                          <td class="v-align">
+                            Expresses one’s spiritual beliefs while respecting the
+                            spiritual beliefs of others
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_1.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_1.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_1.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_1.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_1.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_1.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_1.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_1.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="v-align">
+                            Shows adherence to ethical principles by upholding truth
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_2.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_2, makadios_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_2.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_2.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_2, makadios_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_2.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_2.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_2, makadios_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_2.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makadios_2.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_2, makadios_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makadios_2.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
 
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                        <tr>
+                          <td class="v-align" rowspan="2">2. Makatao</td>
+                          <td class="v-align">
+                            Is sensitive to individual, social and cultural difference
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_1.FirstQuarter"
+                              @change="saveObservedValues(MAKATAO_1, makatao_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_1.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_1.SecondQuarter"
+                              @change="saveObservedValues(MAKATAO_1, makatao_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_1.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_1.ThirdQuarter"
+                              @change="saveObservedValues(MAKATAO_1, makatao_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_1.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_1.FourthQuarter"
+                              @change="saveObservedValues(MAKATAO_1, makatao_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_1.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="v-align">
+                            Demonstrates contributions towards solidarity
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_2.FirstQuarter"
+                              @change="saveObservedValues(MAKATAO_2, makatao_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_2.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_2.SecondQuarter"
+                              @change="saveObservedValues(MAKATAO_2, makatao_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_2.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_2.ThirdQuarter"
+                              @change="saveObservedValues(MAKATAO_2, makatao_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_2.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makatao_2.FourthQuarter"
+                              @change="saveObservedValues(MAKATAO_2, makatao_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makatao_2.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
 
-                                    <!-- UPDATE FORM -->
-                                    <div class="col-lg-8 table-responsive p-2" v-if="!isNull(observedValuesActiveStudentId)">
-                                        <table class="table table-bordered table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th class="text-center" rowspan="2">Core Values</th>
-                                                    <th class="text-center" rowspan="2">Behavior Statements</th>
-                                                    <th class="text-center" colspan="4">Quarter</th>
-                                                </tr>
-                                                <tr>
-                                                    <th class="text-center">1</th>
-                                                    <th class="text-center">2</th>
-                                                    <th class="text-center">3</th>
-                                                    <th class="text-center">4</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td class="v-align" rowspan="2">1. Maka-Diyos</td>
-                                                    <td class="v-align">Expresses one’s spiritual
-                                                        beliefs while respecting the
-                                                        spiritual beliefs of others</td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="v-align">Shows adherence to ethical
-                                                        principles by upholding
-                                                        truth</td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makadios_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_2, makadios_2)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makadios_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
+                        <tr>
+                          <td class="v-align">3. Maka kalikasan</td>
+                          <td class="v-align">
+                            Cares for the environment and utilizes resources wisely,
+                            judiciously, and economically
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makakalikasan_1.FirstQuarter"
+                              @change="
+                                saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)
+                              "
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makakalikasan_1.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makakalikasan_1.SecondQuarter"
+                              @change="
+                                saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)
+                              "
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makakalikasan_1.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makakalikasan_1.ThirdQuarter"
+                              @change="
+                                saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)
+                              "
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makakalikasan_1.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makakalikasan_1.FourthQuarter"
+                              @change="
+                                saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)
+                              "
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makakalikasan_1.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="v-align" rowspan="2">4. Makabansa</td>
+                          <td class="v-align">
+                            Demonstrates pride in being a Filipino; exercises the rights
+                            and responsibilities of a Filipino citizen
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_1.FirstQuarter"
+                              @change="saveObservedValues(MAKABANSA_1, makabansa_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_1.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_1.SecondQuarter"
+                              @change="saveObservedValues(MAKABANSA_1, makabansa_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_1.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_1.ThirdQuarter"
+                              @change="saveObservedValues(MAKABANSA_1, makabansa_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_1.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_1.FourthQuarter"
+                              @change="saveObservedValues(MAKABANSA_1, makabansa_1)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_1.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="v-align">
+                            Demonstrates appropriate behavior in carrying out activities
+                            in the school, community, and country
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_2.FirstQuarter"
+                              @change="saveObservedValues(MAKABANSA_2, makabansa_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_2.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_2.SecondQuarter"
+                              @change="saveObservedValues(MAKABANSA_2, makabansa_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_2.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_2.ThirdQuarter"
+                              @change="saveObservedValues(MAKABANSA_2, makabansa_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_2.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="makabansa_2.FourthQuarter"
+                              @change="saveObservedValues(MAKABANSA_2, makabansa_2)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              ">
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="makabansa_2.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="v-align">5. Industry</td>
+                          <td class="v-align">
+                            Demonstrates diligence and initiative in doing tasks in school
+                            and in the community
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="industry.FirstQuarter"
+                              @change="saveObservedValues(INDUSTRY, industry)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="industry.FirstQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="industry.SecondQuarter"
+                              @change="saveObservedValues(INDUSTRY, industry)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="industry.SecondQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="industry.ThirdQuarter"
+                              @change="saveObservedValues(INDUSTRY, industry)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="industry.ThirdQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              class="form-control form-control-sm table-select"
+                              v-model="industry.FourthQuarter"
+                              @change="saveObservedValues(INDUSTRY, industry)"
+                              v-if="olvInput === 'DROPDOWN'"
+                            >
+                              <option value="">-</option>
+                              <option value="AO">AO</option>
+                              <option value="SO">SO</option>
+                              <option value="RO">RO</option>
+                              <option value="NO">NO</option>
+                            </select>
+                            <input
+                              class="form-control form-control-sm"
+                              v-autowidth="{
+                                minWidth: '20px',
+                                maxWidth: '75%',
+                                comfortZone: '6ch',
+                              }"
+                              v-model="industry.FourthQuarter"
+                              @change="saveObservedValues(MAKADIOS_1, makadios_1)"
+                              v-if="olvInput === 'INPUT'"
+                            />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
 
-                                                <tr>
-                                                    <td class="v-align" rowspan="2">2. Makatao</td>
-                                                    <td class="v-align">Is sensitive to individual,
-                                                        social and cultural
-                                                        difference</td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FirstQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.SecondQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.ThirdQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_1.FourthQuarter" @change="saveObservedValues(MAKATAO_1, makatao_1)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="v-align">Demonstrates
-                                                        contributions towards
-                                                        solidarity</td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FirstQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.SecondQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.ThirdQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makatao_2.FourthQuarter" @change="saveObservedValues(MAKATAO_2, makatao_2)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makatao_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
-
-                                                <tr>
-                                                    <td class="v-align">3. Maka
-                                                        kalikasan</td>
-                                                    <td class="v-align">Cares for the environment
-                                                        and utilizes resources
-                                                        wisely, judiciously, and
-                                                        economically</td>
-                                                        <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FirstQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makakalikasan_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.SecondQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makakalikasan_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.ThirdQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makakalikasan_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makakalikasan_1.FourthQuarter" @change="saveObservedValues(MAKAKALIKASAN_1, makakalikasan_1)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makakalikasan_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-
-                                                    <td class="v-align" rowspan="2">4. Makabansa</td>
-                                                    <td class="v-align">Demonstrates pride in
-                                                        being a Filipino; exercises
-                                                        the rights and
-                                                        responsibilities of a Filipino
-                                                        citizen</td>
-                                                        <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FirstQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_1.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.SecondQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_1.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.ThirdQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_1.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_1.FourthQuarter" @change="saveObservedValues(MAKABANSA_1, makabansa_1)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_1.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="v-align">Demonstrates appropriate
-                                                        behavior in carrying out
-                                                        activities in the school,
-                                                        community, and country</td>
-                                                        <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FirstQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_2.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.SecondQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_2.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.ThirdQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">>
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_2.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="makabansa_2.FourthQuarter" @change="saveObservedValues(MAKABANSA_2, makabansa_2)" v-if="olvInput==='DROPDOWN'">">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="makabansa_2.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="v-align">5. Industry</td>
-                                                    <td class="v-align">Demonstrates diligence and initiative in doing tasks in school and in the community</td>
-                                                        <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.FirstQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="industry.FirstQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.SecondQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="industry.SecondQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.ThirdQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="industry.ThirdQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                    <td>
-                                                        <select class="form-control form-control-sm table-select" v-model="industry.FourthQuarter" @change="saveObservedValues(INDUSTRY, industry)" v-if="olvInput==='DROPDOWN'">
-                                                            <option value="">-</option>
-                                                            <option value="AO">AO</option>
-                                                            <option value="SO">SO</option>
-                                                            <option value="RO">RO</option>
-                                                            <option value="NO">NO</option>
-                                                        </select>
-                                                        <input class="form-control form-control-sm" v-autowidth="{
-                                                                minWidth: '20px',
-                                                                maxWidth: '75%',
-                                                                comfortZone: '6ch',
-                                                            }" v-model="industry.FourthQuarter" @change="saveObservedValues(MAKADIOS_1, makadios_1)" v-if="olvInput==='INPUT'">
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 
+              <!-- 
                                 ====================================================================================================================================
                                 PAYMENTS 
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade" id="payments-content" role="tabpanel" aria-labelledby="payments-tab">
-                                <div class="mt-2">
-                                    <a :href="baseURL + '/classes/print-class-payments/' + syId + '/' + classId + '/' + teacherId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
-                                </div>
-                                <div class="table-responsive mt-2">
-                                    <table class="table table-hover table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th class="text-center">Students</th>
-                                                <th class="text-center">Tuition<br>Payable</th>
-                                                <th class="text-center" v-for="pm in paymentMonths">{{ moment(pm.ForMonth).format('MMM YYYY') }}</th>
-                                                <th class="text-center">Remaining<br>Balance</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-info"><i class="fas fa-venus ico-tab-mini"></i>Male Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in male" :key="student.StudentSubjectId">
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
+              <div
+                class="tab-pane fade"
+                id="payments-content"
+                role="tabpanel"
+                aria-labelledby="payments-tab"
+              >
+                <div class="mt-2">
+                  <a
+                    :href="
+                      baseURL +
+                      '/classes/print-class-payments/' +
+                      syId +
+                      '/' +
+                      classId +
+                      '/' +
+                      teacherId
+                    "
+                    class="btn btn-link btn-link-muted"
+                    title="Print"
+                    ><i class="fas fa-print"></i
+                  ></a>
+                </div>
+                <div class="table-responsive mt-2">
+                  <table class="table table-hover table-bordered table-sm">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th class="text-center">Students</th>
+                        <th class="text-center">Tuition<br />Payable</th>
+                        <th class="text-center" v-for="pm in paymentMonths">
+                          {{ moment(pm.ForMonth).format("MMM YYYY") }}
+                        </th>
+                        <th class="text-center">Remaining<br />Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td
+                          :colspan="4 + paymentMonths.length"
+                          class="text-muted bg-info"
+                        >
+                          <i class="fas fa-venus ico-tab-mini"></i>Male Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in male"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <span
+                            ><i
+                              class="ico-tab-mini text-xs fas"
+                              :class="
+                                student.FromSchool === 'Private'
+                                  ? 'fa-user-lock text-primary'
+                                  : 'fa-user-check text-warning'
+                              "
+                              :title="
+                                student.FromSchool === 'Private'
+                                  ? 'From Private School'
+                                  : 'From Public School'
+                              "
+                            ></i
+                          ></span>
 
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
-                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    </a>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
-                                                <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td :colspan="(4 + (paymentMonths.length))" class="text-muted bg-warning"><i class="fas fa-mars ico-tab-mini"></i>Female Students</td>
-                                            </tr>
-                                            <tr v-for="(student, index) in female" :key="student.StudentSubjectId">
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <span><i class="ico-tab-mini text-xs fas" :class="student.FromSchool==='Private' ? 'fa-user-lock text-primary' : 'fa-user-check text-warning'" :title="student.FromSchool==='Private' ? 'From Private School' : 'From Public School'"></i></span>
-                                                    
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
-                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    </a>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="text-right v-align text-primary">{{ isNull(student.PayableData) ? '-' : toMoney(student.PayableData.AmountPayable) }}</td>
-                                                <td class="text-right v-align" v-for="pmd in paymentMonths" v-html="getPaymentData(pmd.ForMonth, student.id)"></td>
-                                                <td class="text-right v-align text-danger">{{ isNull(student.PayableData) ? '-' : toMoney(parseFloat(student.PayableData.Balance)) }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            <!-- 
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                          >
+                            <strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong>
+                          </a>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td class="text-right v-align text-primary">
+                          {{
+                            isNull(student.PayableData)
+                              ? "-"
+                              : toMoney(student.PayableData.AmountPayable)
+                          }}
+                        </td>
+                        <td
+                          class="text-right v-align"
+                          v-for="pmd in paymentMonths"
+                          v-html="getPaymentData(pmd.ForMonth, student.id)"
+                        ></td>
+                        <td class="text-right v-align text-danger">
+                          {{
+                            isNull(student.PayableData)
+                              ? "-"
+                              : toMoney(parseFloat(student.PayableData.Balance))
+                          }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          :colspan="4 + paymentMonths.length"
+                          class="text-muted bg-warning"
+                        >
+                          <i class="fas fa-mars ico-tab-mini"></i>Female Students
+                        </td>
+                      </tr>
+                      <tr
+                        v-for="(student, index) in female"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <span
+                            ><i
+                              class="ico-tab-mini text-xs fas"
+                              :class="
+                                student.FromSchool === 'Private'
+                                  ? 'fa-user-lock text-primary'
+                                  : 'fa-user-check text-warning'
+                              "
+                              :title="
+                                student.FromSchool === 'Private'
+                                  ? 'From Private School'
+                                  : 'From Public School'
+                              "
+                            ></i
+                          ></span>
+
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                          >
+                            <strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong>
+                          </a>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td class="text-right v-align text-primary">
+                          {{
+                            isNull(student.PayableData)
+                              ? "-"
+                              : toMoney(student.PayableData.AmountPayable)
+                          }}
+                        </td>
+                        <td
+                          class="text-right v-align"
+                          v-for="pmd in paymentMonths"
+                          v-html="getPaymentData(pmd.ForMonth, student.id)"
+                        ></td>
+                        <td class="text-right v-align text-danger">
+                          {{
+                            isNull(student.PayableData)
+                              ? "-"
+                              : toMoney(parseFloat(student.PayableData.Balance))
+                          }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 
                                 ====================================================================================================================================
                                 INACTIVE 
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade" id="inactive-content" role="tabpanel" aria-labelledby="inactive-tab">
-                                <div class="mt-2">
-                                    <a :href="baseURL + '/students/print-inactive-students/' + classId" class="btn btn-link btn-link-muted" title="Print"><i class="fas fa-print"></i></a>
-                                </div>
-                                <div class="table-responsive mt-2">
-                                    <table class="table table-hover table-bordered table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th>Student Name</th>
-                                                <th>LRN</th>
-                                                <th>Address</th>
-                                                <th>Gender</th>
-                                                <th>Status</th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(student, index) in inactive">
-                                                <td>{{ index+1 }}</td>
-                                                <td class="v-align"><a :href="baseURL + '/students/guest-view/' + student.id" target="_blank"><strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong></a></td>
-                                                <td class="v-align">{{ student.LRN }}</td>
-                                                <td class="v-align">{{ (isNull(student.Sitio) ? '' : student.Sitio) + ', ' + student.BarangaySpelled + ', ' + student.TownSpelled }}</td>
-                                                <td class="v-align">{{ student.Gender }}</td>
-                                                <td class="v-align">{{ student.Status }}</td>
-                                                <td class="text-right">
-                                                    <button title="Revert to Active" @click="updateStatus(student.id, null, `Re-active this student? You can always change this anytime.`)" class="btn btn-link-muted" :href="baseURL + '/students/edit-student/' + studentId"><i class="fas fa-sync-alt"></i></button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+              <div
+                class="tab-pane fade"
+                id="inactive-content"
+                role="tabpanel"
+                aria-labelledby="inactive-tab"
+              >
+                <div class="mt-2">
+                  <a
+                    :href="baseURL + '/students/print-inactive-students/' + classId"
+                    class="btn btn-link btn-link-muted"
+                    title="Print"
+                    ><i class="fas fa-print"></i
+                  ></a>
+                </div>
+                <div class="table-responsive mt-2">
+                  <table class="table table-hover table-bordered table-sm">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Student Name</th>
+                        <th>LRN</th>
+                        <th>Address</th>
+                        <th>Gender</th>
+                        <th>Status</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(student, index) in inactive">
+                        <td>{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <a
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                            target="_blank"
+                            ><strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong></a
+                          >
+                        </td>
+                        <td class="v-align">{{ student.LRN }}</td>
+                        <td class="v-align">
+                          {{
+                            (isNull(student.Sitio) ? "" : student.Sitio) +
+                            ", " +
+                            student.BarangaySpelled +
+                            ", " +
+                            student.TownSpelled
+                          }}
+                        </td>
+                        <td class="v-align">{{ student.Gender }}</td>
+                        <td class="v-align">{{ student.Status }}</td>
+                        <td class="text-right">
+                          <button
+                            title="Revert to Active"
+                            @click="
+                              updateStatus(
+                                student.id,
+                                null,
+                                `Re-active this student? You can always change this anytime.`
+                              )
+                            "
+                            class="btn btn-link-muted"
+                            :href="baseURL + '/students/edit-student/' + studentId"
+                          >
+                            <i class="fas fa-sync-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-                            
-                            <!-- 
+              <!-- 
                                 ====================================================================================================================================
                                 FLUSH PAYMENTS (JULIO LOPEZ USER ONLY)
                                 ====================================================================================================================================
                             -->
-                            <div class="tab-pane fade" id="flush-payments-content" role="tabpanel" aria-labelledby="flush-payments-tab" v-if="userId === '1' ? true : false">
-                                <div class="mt-2">
-                                    <button @click="flushToEnrollmentData()" class="btn btn-default btn-sm mr-1">Flush to Enrollment</button>
-                                    <button @click="flushToTuitionData()" class="btn btn-primary btn-sm">Flush to Tuitions</button>
-                                </div>
-                                <div class="table-responsive mt-2">
-                                    <table class="table table-hover table-sm table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 28px;"></th>
-                                                <th class="text-center">Students</th>
-                                                <th class="text-right">Total Miscellaneous Tuition Payments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-for="(student, index) in miscToTuitions" :key="student.StudentSubjectId">
-                                                <td class="v-align">{{ index+1 }}</td>
-                                                <td class="v-align">
-                                                    <a target="_blank" :href="baseURL + '/students/guest-view/' + student.id">
-                                                        <strong>{{ student.LastName + ', ' + student.FirstName + (isNull(student.MiddleName) ? '' : (' ' + student.MiddleName + ' ')) + (isNull(student.Suffix) ? '' : student.Suffix) }}</strong>
-                                                    </a>
-                                                    <span title="Enrollment payment not yet paid" class="badge bg-warning ico-tab-left-mini" v-if="student.EnrollmentStatus==='Pending Enrollment Payment' ? true : false">Pending</span>
-                                                </td>
-                                                <td class="v-align text-right">
-                                                    {{ student.TuitionMiscPayable }}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+              <div
+                class="tab-pane fade"
+                id="flush-payments-content"
+                role="tabpanel"
+                aria-labelledby="flush-payments-tab"
+                v-if="userId === '1' ? true : false"
+              >
+                <div class="mt-2">
+                  <button
+                    @click="flushToEnrollmentData()"
+                    class="btn btn-default btn-sm mr-1"
+                  >
+                    Flush to Enrollment
+                  </button>
+                  <button @click="flushToTuitionData()" class="btn btn-primary btn-sm">
+                    Flush to Tuitions
+                  </button>
                 </div>
+                <div class="table-responsive mt-2">
+                  <table class="table table-hover table-sm table-bordered">
+                    <thead>
+                      <tr>
+                        <th style="width: 28px"></th>
+                        <th class="text-center">Students</th>
+                        <th class="text-right">Total Miscellaneous Tuition Payments</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="(student, index) in miscToTuitions"
+                        :key="student.StudentSubjectId"
+                      >
+                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          <a
+                            target="_blank"
+                            :href="baseURL + '/students/guest-view/' + student.id"
+                          >
+                            <strong>{{
+                              student.LastName +
+                              ", " +
+                              student.FirstName +
+                              (isNull(student.MiddleName)
+                                ? ""
+                                : " " + student.MiddleName + " ") +
+                              (isNull(student.Suffix) ? "" : student.Suffix)
+                            }}</strong>
+                          </a>
+                          <span
+                            title="Enrollment payment not yet paid"
+                            class="badge bg-warning ico-tab-left-mini"
+                            v-if="
+                              student.EnrollmentStatus === 'Pending Enrollment Payment'
+                                ? true
+                                : false
+                            "
+                            >Pending</span
+                          >
+                        </td>
+                        <td class="v-align text-right">
+                          {{ student.TuitionMiscPayable }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- TRANSFER MODAL -->
-    <div ref="modalSelectionTransfer" class="modal fade" id="modal-selection-transfer" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Transfer Students To</span>
-                </div>
-                <div class="modal-body table-responsive">
-                    <div class="form-group">
-                        <label class="text-muted">Select Class</label>
-                        <select v-model="transferedClassSelect" class="form-control">
-                            <option v-for="c in classRepos" :value="c.id">{{ c.Year + '-' + c.Section + (!isNull(c.Strand) ? (' ' + c.Strand) : '') + (!isNull(c.Semester) ? (' (' + c.Semester + ' Sem)') : '') }}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-sm btn-primary" @click="saveBatchTransfer()"><i class="fas fa-check ico-tab-mini"></i>Transfer Selection</button>
-                </div>
-            </div>
+  <!-- TRANSFER MODAL -->
+  <div
+    ref="modalSelectionTransfer"
+    class="modal fade"
+    id="modal-selection-transfer"
+    aria-hidden="true"
+    style="display: none"
+  >
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>Transfer Students To</span>
         </div>
-    </div>
-
-    <!-- RANKINGS -->
-    <div ref="modalRankings" class="modal fade" id="modal-rankings" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <span>Class Ranking</span>
-                </div>
-                <div class="modal-body table-responsive">
-                    <h4>{{ activeRankTitle }}</h4>
-                    <button @click='printRanking()' class='btn btn-sm btn-default'><i class="fas fa-print ico-tab-mini"></i>Print</button>
-                    <table class="table table-hover table-sm table-bordered mt-2">
-                        <thead>
-                            <tr>
-                                <th class="text-center" rowspan="2">RANK</th>
-                                <th class="text-center" rowspan="2">Students</th>
-                                <th class="text-center" colspan="4">Average Grades</th>
-                                <th class="text-center" rowspan="2"  :class="activeRankGradeColor==='Average' ? 'bg-success' : ''">
-                                    Total Average<br>Grade
-                                    <br>
-                                    <button @click="sortRanking('Average')" class='btn btn-xs btn-default'>Rank</button>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th :class="activeRankGradeColor==='First' ? 'bg-success' : ''" class="text-center">
-                                    First
-                                    <br>
-                                    <button @click="sortRanking('First')" class='btn btn-xs btn-default'>Rank</button>
-                                </th>
-                                <th :class="activeRankGradeColor==='Second' ? 'bg-success' : ''" class="text-center">
-                                    Second
-                                    <br>
-                                    <button @click="sortRanking('Second')" class='btn btn-xs btn-default'>Rank</button>
-                                </th>
-                                <th :class="activeRankGradeColor==='Third' ? 'bg-success' : ''" class="text-center">
-                                    Third
-                                    <br>
-                                    <button @click="sortRanking('Third')" class='btn btn-xs btn-default'>Rank</button>
-                                </th>
-                                <th :class="activeRankGradeColor==='Fourth' ? 'bg-success' : ''" class="text-center">
-                                    Fourth
-                                    <br>
-                                    <button @click="sortRanking('Fourth')" class='btn btn-xs btn-default'>Rank</button>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(rank, index) in rankingData" :key="rank.id">
-                                <td>{{ index+1 }}</td>
-                                <td><strong>{{ rank.LastName + ', ' + rank.FirstName + (isNull(rank.MiddleName) ? '' : (' ' + rank.MiddleName + ' ')) + (isNull(rank.Suffix) ? '' : rank.Suffix) }}</strong></td>
-                                <td class='text-right' :class="activeRankGradeColor==='First' ? 'bg-success' : ''">{{ roundThree(rank.FirstGradingGrade) }}</td>
-                                <td class='text-right' :class="activeRankGradeColor==='Second' ? 'bg-success' : ''">{{ roundThree(rank.SecondGradingGrade) }}</td>
-                                <td class='text-right' :class="activeRankGradeColor==='Third' ? 'bg-success' : ''">{{ roundThree(rank.ThirdGradingGrade) }}</td>
-                                <td class='text-right' :class="activeRankGradeColor==='Fourth' ? 'bg-success' : ''">{{ roundThree(rank.FourthGradingGrade) }}</td>
-                                <td class='text-right' :class="activeRankGradeColor==='Average' ? 'bg-success' : ''">{{ roundThree(rank.AverageGrade) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="modal-body table-responsive">
+          <div class="form-group">
+            <label class="text-muted">Select Class</label>
+            <select v-model="transferedClassSelect" class="form-control">
+              <option v-for="c in classRepos" :value="c.id">
+                {{
+                  c.Year +
+                  "-" +
+                  c.Section +
+                  (!isNull(c.Strand) ? " " + c.Strand : "") +
+                  (!isNull(c.Semester) ? " (" + c.Semester + " Sem)" : "")
+                }}
+              </option>
+            </select>
+          </div>
         </div>
-    </div>
-
-    <!-- SHOW BIO ATTENDANCE -->
-    <div ref="modalShowBio" class="modal fade" id="modal-show-bio" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-body table-responsive">
-                    <span class="text">Attendance data of</span>
-                    <br>
-                    <h4>{{ studentSelected }}</h4>
-                    <span>for {{ moment(dateSelectedShown).format("MMMM DD, YYYY") }}</span>
-
-                    <table class="mt-2 table table-hover table-bordered table-sm">
-                        <tbody>
-                            <tr v-for="attData in selectedAttData">
-                                <td>{{ moment(attData.created_at).format("hh:mm A") }}</td>
-                                <td>{{ attData.PunchType }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="modal-footer justify-content-between">
+          <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            @click="saveBatchTransfer()"
+          >
+            <i class="fas fa-check ico-tab-mini"></i>Transfer Selection
+          </button>
         </div>
+      </div>
     </div>
+  </div>
+
+  <!-- RANKINGS -->
+  <div
+    ref="modalRankings"
+    class="modal fade"
+    id="modal-rankings"
+    aria-hidden="true"
+    style="display: none"
+  >
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <span>Class Ranking</span>
+        </div>
+        <div class="modal-body table-responsive">
+          <h4>{{ activeRankTitle }}</h4>
+          <button @click="printRanking()" class="btn btn-sm btn-default">
+            <i class="fas fa-print ico-tab-mini"></i>Print
+          </button>
+          <table class="table table-hover table-sm table-bordered mt-2">
+            <thead>
+              <tr>
+                <th class="text-center" rowspan="2">RANK</th>
+                <th class="text-center" rowspan="2">Students</th>
+                <th class="text-center" colspan="4">Average Grades</th>
+                <th
+                  class="text-center"
+                  rowspan="2"
+                  :class="activeRankGradeColor === 'Average' ? 'bg-success' : ''"
+                >
+                  Total Average<br />Grade
+                  <br />
+                  <button @click="sortRanking('Average')" class="btn btn-xs btn-default">
+                    Rank
+                  </button>
+                </th>
+              </tr>
+              <tr>
+                <th
+                  :class="activeRankGradeColor === 'First' ? 'bg-success' : ''"
+                  class="text-center"
+                >
+                  First
+                  <br />
+                  <button @click="sortRanking('First')" class="btn btn-xs btn-default">
+                    Rank
+                  </button>
+                </th>
+                <th
+                  :class="activeRankGradeColor === 'Second' ? 'bg-success' : ''"
+                  class="text-center"
+                >
+                  Second
+                  <br />
+                  <button @click="sortRanking('Second')" class="btn btn-xs btn-default">
+                    Rank
+                  </button>
+                </th>
+                <th
+                  :class="activeRankGradeColor === 'Third' ? 'bg-success' : ''"
+                  class="text-center"
+                >
+                  Third
+                  <br />
+                  <button @click="sortRanking('Third')" class="btn btn-xs btn-default">
+                    Rank
+                  </button>
+                </th>
+                <th
+                  :class="activeRankGradeColor === 'Fourth' ? 'bg-success' : ''"
+                  class="text-center"
+                >
+                  Fourth
+                  <br />
+                  <button @click="sortRanking('Fourth')" class="btn btn-xs btn-default">
+                    Rank
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(rank, index) in rankingData" :key="rank.id">
+                <td>{{ index + 1 }}</td>
+                <td>
+                  <strong>{{
+                    rank.LastName +
+                    ", " +
+                    rank.FirstName +
+                    (isNull(rank.MiddleName) ? "" : " " + rank.MiddleName + " ") +
+                    (isNull(rank.Suffix) ? "" : rank.Suffix)
+                  }}</strong>
+                </td>
+                <td
+                  class="text-right"
+                  :class="activeRankGradeColor === 'First' ? 'bg-success' : ''"
+                >
+                  {{ roundThree(rank.FirstGradingGrade) }}
+                </td>
+                <td
+                  class="text-right"
+                  :class="activeRankGradeColor === 'Second' ? 'bg-success' : ''"
+                >
+                  {{ roundThree(rank.SecondGradingGrade) }}
+                </td>
+                <td
+                  class="text-right"
+                  :class="activeRankGradeColor === 'Third' ? 'bg-success' : ''"
+                >
+                  {{ roundThree(rank.ThirdGradingGrade) }}
+                </td>
+                <td
+                  class="text-right"
+                  :class="activeRankGradeColor === 'Fourth' ? 'bg-success' : ''"
+                >
+                  {{ roundThree(rank.FourthGradingGrade) }}
+                </td>
+                <td
+                  class="text-right"
+                  :class="activeRankGradeColor === 'Average' ? 'bg-success' : ''"
+                >
+                  {{ roundThree(rank.AverageGrade) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOW BIO ATTENDANCE -->
+  <div
+    ref="modalShowBio"
+    class="modal fade"
+    id="modal-show-bio"
+    aria-hidden="true"
+    style="display: none"
+  >
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-body table-responsive">
+          <span class="text">Attendance data of</span>
+          <br />
+          <h4>{{ studentSelected }}</h4>
+          <span>for {{ moment(dateSelectedShown).format("MMMM DD, YYYY") }}</span>
+
+          <table class="mt-2 table table-hover table-bordered table-sm">
+            <tbody>
+              <tr v-for="attData in selectedAttData">
+                <td>{{ moment(attData.created_at).format("hh:mm A") }}</td>
+                <td>{{ attData.PunchType }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    ref="modalTeachers"
+    class="modal fade"
+    id="modal-teachers"
+    aria-hidden="true"
+    style="display: none"
+  >
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4>Change Adviser for {{ advisory.Year }} - {{ advisory.Section }}</h4>
+        </div>
+
+        <div class="modal-body">
+          <span class="text-muted" title="Adviser" v-if="!isNull(adviser)"
+            >Current Adviser: {{ adviser.FullName }}</span
+          >
+          <div class="form-group mt-4">
+            <label for="teacherSelect">Select New Adviser</label>
+            <select v-model="selectedTeacherId" id="teacherSelect" class="form-control">
+              <option disabled value="">Please select a teacher</option>
+              <option
+                v-for="teacher in teachersData"
+                :key="teacher.id"
+                :value="teacher.id"
+              >
+                {{ teacher.FullName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mt-3">
+            <h5>Available Teachers</h5>
+            <ul class="list-group">
+              <li v-for="teacher in teachers" :key="teacher.id" class="list-group-item">
+                {{ teacher.FullName }} - {{ teacher.Designation }} - {{ teacher.Status }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn btn-primary"
+            :disabled="!selectedTeacherId"
+            @click="changeAdviser"
+          >
+            Change Adviser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import axios from 'axios';
-import moment from 'moment';
-import FlatPickr from 'vue-flatpickr-component';
-import 'flatpickr/dist/flatpickr.css';
-import { directive as VueInputAutowidth } from "vue-input-autowidth"
-import Swal from 'sweetalert2';
-import { Bootstrap4Pagination } from 'laravel-vue-pagination'
-import { update } from 'lodash';
+import axios from "axios";
+import moment from "moment";
+import FlatPickr from "vue-flatpickr-component";
+import "flatpickr/dist/flatpickr.css";
+import { directive as VueInputAutowidth } from "vue-input-autowidth";
+import Swal from "sweetalert2";
+import { Bootstrap4Pagination } from "laravel-vue-pagination";
+import { update } from "lodash";
 
 export default {
-    directives: { autowidth: VueInputAutowidth },
-    components : {
-        FlatPickr,
-        Swal,
-        'pagination' : Bootstrap4Pagination,
+  directives: { autowidth: VueInputAutowidth },
+  components: {
+    FlatPickr,
+    Swal,
+    pagination: Bootstrap4Pagination,
+  },
+  data() {
+    return {
+      moment: moment,
+      baseURL: axios.defaults.baseURL,
+      filePath: axios.defaults.filePath,
+      imgPath: axios.defaults.imgsPath,
+      toast: Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+      }),
+      colorProfile: document
+        .querySelector("meta[name='color-profile']")
+        .getAttribute("content"),
+      tableInputTextColor: this.isNull(
+        document.querySelector("meta[name='color-profile']").getAttribute("content")
+      )
+        ? "text-dark"
+        : "text-white",
+      teacherId: document
+        .querySelector("meta[name='teacher-id']")
+        .getAttribute("content"),
+      syId: document.querySelector("meta[name='school-year-id']").getAttribute("content"),
+      classId: document.querySelector("meta[name='class-id']").getAttribute("content"),
+      token: document.querySelector("meta[name='csrf-token']").getAttribute("content"),
+      userId: document.querySelector("meta[name='user-id']").getAttribute("content"),
+      amInThreshold: document
+        .querySelector("meta[name='am-in-threshold']")
+        .getAttribute("content"),
+      pmOutThreshold: document
+        .querySelector("meta[name='pm-out-threshold']")
+        .getAttribute("content"),
+      viewedIn: document.querySelector("meta[name='viewed-in']").getAttribute("content"),
+      school: document.querySelector("meta[name='school']").getAttribute("content"),
+      olvInput: document.querySelector("meta[name='olv-input']").getAttribute("content"),
+      male: [],
+      female: [],
+      advisory: {},
+      syDetails: {},
+      adviser: {},
+      classRepo: {},
+      paymentMonths: [],
+      paymentData: [],
+      payablesProfile: [],
+      subjects: [],
+      subjectData: [],
+      attendanceMonth: moment().format("MM"),
+      attendanceYear: moment().format("YYYY"),
+      daysInAMonth: [],
+      barcodeAttendances: [],
+      loaderVisibility: false,
+      inactive: [],
+      classesInSy: [],
+      classSelect: "",
+      selectionMode: false,
+      selectionButtonIndicator: "text-gray",
+      selection: [],
+      transferedClassSelect: "",
+      classRepos: [],
+      miscToTuitions: [],
+      addSubjectEnabled: false,
+      subjectRepos: [],
+      addedSubjectId: "",
+      mainSubjects: [],
+      rankingData: [],
+      activeRankGradeColor: "Average",
+      activeRankTitle: "Total Average Grade Rankings",
+      dateSelectedShown: null,
+      studentSelected: null,
+      selectedAttData: [],
+      subjectHeadsRearranged: [],
+      homeroomSubjects: [],
+      checkEnrollableTo2ndSem: false,
+      viewOptionSelectedQ: "Final",
+      addStudentFormActive: false,
+      addStudentSearch: "",
+      studentResults: {},
+      observedValuesActiveStudentId: null,
+      observedValues: [],
+      MAKADIOS_1: "MAKADIOS_1",
+      MAKADIOS_2: "MAKADIOS_2",
+      MAKATAO_1: "MAKATAO_1",
+      MAKATAO_2: "MAKATAO_2",
+      MAKAKALIKASAN_1: "MAKAKALIKASAN_1",
+      MAKABANSA_1: "MAKABANSA_1",
+      MAKABANSA_2: "MAKABANSA_2",
+      INDUSTRY: "INDUSTRY",
+      makadios_1: {},
+      makadios_2: {},
+      makatao_1: {},
+      makatao_2: {},
+      makakalikasan_1: {},
+      makabansa_1: {},
+      makabansa_2: {},
+      industry: {},
+      teachersData: [],
+      selectedTeacherId: "",
+    };
+  },
+  methods: {
+    isNull(value) {
+      // Check for null or undefined
+      if (value === null || value === undefined) {
+        return true;
+      }
+
+      // Check for empty string
+      if (typeof value === "string" && value.trim() === "") {
+        return true;
+      }
+
+      // Check for empty array
+      if (Array.isArray(value) && value.length === 0) {
+        return true;
+      }
+
+      // Check for empty object
+      if (
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        Object.keys(value).length === 0
+      ) {
+        return true;
+      }
+
+      // Check for NaN
+      if (typeof value === "number" && isNaN(value)) {
+        return true;
+      }
+
+      // If none of the above, it's not null, empty, or undefined
+      return false;
     },
-    data() {
-        return {
-            moment : moment,
-            baseURL : axios.defaults.baseURL,
-            filePath : axios.defaults.filePath,
-            imgPath : axios.defaults.imgsPath,
-            toast : Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
-            }),
-            colorProfile : document.querySelector("meta[name='color-profile']").getAttribute('content'),
-            tableInputTextColor : this.isNull(document.querySelector("meta[name='color-profile']").getAttribute('content')) ? 'text-dark' : 'text-white',
-            teacherId : document.querySelector("meta[name='teacher-id']").getAttribute('content'),
-            syId : document.querySelector("meta[name='school-year-id']").getAttribute('content'),
-            classId : document.querySelector("meta[name='class-id']").getAttribute('content'),
-            token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
-            userId : document.querySelector("meta[name='user-id']").getAttribute('content'),
-            amInThreshold : document.querySelector("meta[name='am-in-threshold']").getAttribute('content'),
-            pmOutThreshold : document.querySelector("meta[name='pm-out-threshold']").getAttribute('content'),
-            viewedIn : document.querySelector("meta[name='viewed-in']").getAttribute('content'),
-            school : document.querySelector("meta[name='school']").getAttribute('content'),
-            olvInput : document.querySelector("meta[name='olv-input']").getAttribute('content'),
-            male : [],
-            female : [],
-            advisory : {},
-            syDetails : {},
-            adviser : {},
-            classRepo : {},
-            paymentMonths : [],
-            paymentData : [],
-            payablesProfile : [],
-            subjects : [],
-            subjectData : [],
-            attendanceMonth : moment().format('MM'),
-            attendanceYear : moment().format('YYYY'),
-            daysInAMonth : [],
-            barcodeAttendances : [],
-            loaderVisibility : false,
-            inactive : [],
-            classesInSy : [],
-            classSelect : '',
-            selectionMode : false,
-            selectionButtonIndicator : 'text-gray',
-            selection : [],
-            transferedClassSelect : '',
-            classRepos : [],
-            miscToTuitions : [],
-            addSubjectEnabled : false,
-            subjectRepos : [],
-            addedSubjectId : '',
-            mainSubjects : [],
-            rankingData : [],
-            activeRankGradeColor : 'Average',
-            activeRankTitle : 'Total Average Grade Rankings',
-            dateSelectedShown : null,
-            studentSelected : null,
-            selectedAttData : [],
-            subjectHeadsRearranged : [],
-            homeroomSubjects : [],
-            checkEnrollableTo2ndSem : false,
-            viewOptionSelectedQ: "Final",
-            addStudentFormActive : false,
-            addStudentSearch : '',
-            studentResults : {},
-            observedValuesActiveStudentId : null,
-            observedValues : [],
-            MAKADIOS_1 : 'MAKADIOS_1',
-            MAKADIOS_2 : 'MAKADIOS_2',
-            MAKATAO_1 : 'MAKATAO_1',
-            MAKATAO_2 : 'MAKATAO_2',
-            MAKAKALIKASAN_1 : 'MAKAKALIKASAN_1',
-            MAKABANSA_1 : 'MAKABANSA_1',
-            MAKABANSA_2 : 'MAKABANSA_2',
-            INDUSTRY : 'INDUSTRY',
-            makadios_1 : {},
-            makadios_2 : {},
-            makatao_1 : {},
-            makatao_2 : {},
-            makakalikasan_1 : {},
-            makabansa_1 : {},
-            makabansa_2 : {},
-            industry : {},
+    toMoney(value) {
+      return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      });
+    },
+    isNumber(value) {
+      return typeof value === "number";
+    },
+    round(value) {
+      return Math.round((value + Number.EPSILON) * 100) / 100;
+    },
+    roundThree(value) {
+      return Math.round((value + Number.EPSILON) * 1000) / 1000;
+    },
+    generateRandomString(length) {
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let result = "";
+
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters.charAt(randomIndex);
+      }
+
+      return result;
+    },
+    generateUniqueId() {
+      return moment().valueOf() + "-" + this.generateRandomString(32);
+    },
+    getAdvisoryData() {
+      this.loaderVisibility = true;
+      axios
+        .get(`${this.baseURL}/users/get-advisory-details`, {
+          params: {
+            TeacherId: this.teacherId,
+            SchoolYearId: this.syId,
+            ClassId: this.classId,
+          },
+        })
+        .then((response) => {
+          this.advisory = response.data.Class;
+          this.syDetails = response.data.SchoolYear;
+          this.male = response.data.Male;
+          this.female = response.data.Female;
+          this.inactive = response.data.Inactive;
+          this.adviser = response.data.Adviser;
+          this.classRepo = response.data.ClassRepo;
+
+          this.getClassPaymentDetails();
+          this.runCheckEnrollableTo2ndSem();
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting data!",
+          });
+          this.loaderVisibility = false;
+        });
+    },
+    getClassPaymentDetails() {
+      axios
+        .get(`${this.baseURL}/teachers/get-class-payment-details`, {
+          params: {
+            ClassId: this.classId,
+            SchoolYear: this.syDetails.SchoolYear,
+          },
+        })
+        .then((response) => {
+          this.paymentMonths = response.data.Months;
+          this.paymentData = response.data.PaymentData;
+          this.payablesProfile = response.data.PayableProfile;
+
+          // add payables profile to male and female array
+          if (!this.isNull(this.male)) {
+            for (let i = 0; i < this.male.length; i++) {
+              let dataFound = this.payablesProfile.find(
+                (obj) => obj.StudentId === this.male[i].id
+              );
+
+              if (!this.isNull(dataFound)) {
+                this.male[i].PayableData = dataFound;
+              } else {
+                this.male[i].PayableData = [];
+              }
+            }
+          }
+
+          if (!this.isNull(this.female)) {
+            for (let i = 0; i < this.female.length; i++) {
+              let dataFound = this.payablesProfile.find(
+                (obj) => obj.StudentId === this.female[i].id
+              );
+
+              if (!this.isNull(dataFound)) {
+                this.female[i].PayableData = dataFound;
+              } else {
+                this.female[i].PayableData = [];
+              }
+            }
+          }
+
+          this.loaderVisibility = false;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting payment data!",
+          });
+          this.loaderVisibility = false;
+        });
+    },
+    getPaymentData(month, studentId) {
+      let dataFound = this.paymentData.find(
+        (obj) => obj.ForMonth === month && obj.StudentId === studentId
+      );
+
+      if (studentId === "1723965783658") {
+        console.log(dataFound);
+      }
+
+      if (this.isNull(dataFound)) {
+        return `<span class="text-sm"><i class="fas fa-exclamation-circle text-gray"></i></span>`;
+      } else {
+        var bal = this.isNull(dataFound.Balance) ? 0 : parseFloat(dataFound.Balance);
+
+        if (bal > 0) {
+          if (this.isNull(dataFound.AmountPaid)) {
+            return (
+              `<span class="text-sm" title='Unpaid'><i class="fas fa-exclamation-circle text-gray ico-tab-mini"></i> Unpaid</span>` +
+              `<br><span class='text-sm text-muted'>Bal: ` +
+              bal +
+              `</span>`
+            );
+          } else {
+            return (
+              `<span class="text-sm ico-tab-mini" title='Partially paid'><i class="fas fa-check text-warning"></i></span>` +
+              `<strong>` +
+              (this.isNull(dataFound)
+                ? "-"
+                : this.isNull(dataFound.AmountPaid)
+                ? "-"
+                : this.toMoney(parseFloat(dataFound.AmountPaid))) +
+              `</strong>` +
+              `<br><span class='text-sm text-muted'>Bal: ` +
+              bal +
+              `</span>`
+            );
+          }
+        } else {
+          return (
+            `<span class="text-sm ico-tab-mini" title='Fully paid'><i class="fas fa-check-circle text-success"></i></span>` +
+            `<strong>` +
+            (this.isNull(dataFound)
+              ? "-"
+              : this.isNull(dataFound.AmountPaid)
+              ? "-"
+              : this.toMoney(parseFloat(dataFound.AmountPaid))) +
+            `</strong>` +
+            `<br><span class='text-sm text-muted'>Bal: ` +
+            bal +
+            `</span>`
+          );
         }
+      }
     },
-    methods : {
-        isNull (value) {
-            // Check for null or undefined
-            if (value === null || value === undefined) {
-                return true;
+    getSubjects() {
+      // GET SUBJECTS
+      this.subjects = [];
+      this.mainSubjects = [];
+      axios
+        .get(`${this.baseURL}/users/get-subjects-from-class`, {
+          params: {
+            ClassId: this.classId,
+          },
+        })
+        .then((response) => {
+          this.subjects = response.data;
+
+          this.mainSubjects = this.processedSubjects();
+
+          // GET SUBJECT GRADES AND DATA
+          this.getSubjectData();
+          this.getSubjectRepository();
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting subjects!",
+          });
+        });
+
+      // get homeroom subjects for inclusions
+      axios
+        .get(`${this.baseURL}/users/get-homeroom-subjects`)
+        .then((response) => {
+          this.homeroomSubjects = response.data;
+
+          var hmrmTmp = [];
+          for (let i = 0; i < this.homeroomSubjects.length; i++) {
+            hmrmTmp.push(this.homeroomSubjects[i].id);
+          }
+
+          this.homeroomSubjects = hmrmTmp;
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting homeroom subjects!",
+          });
+        });
+    },
+    getSubjectData() {
+      this.subjectData = [];
+      axios
+        .get(`${this.baseURL}/users/get-student-subjects-data-from-class`, {
+          params: {
+            ClassId: this.classId,
+          },
+        })
+        .then((response) => {
+          this.subjectData = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting subject data!",
+          });
+        });
+    },
+    processedSubjects() {
+      let headers = [];
+      let subHeaders = [];
+      let groupedSubjects = {};
+
+      this.subjectHeadsRearranged = [];
+
+      // Separate subjects with null ParentSubject and group by ParentSubject
+      this.subjects.forEach((subject) => {
+        if (subject.ParentSubject === null) {
+          headers.push({
+            id: subject.id,
+            Subject: subject.Subject,
+            TeacherId: subject.TeacherId,
+            FullName: subject.FullName,
+            rowspan: 2,
+            colspan: 1,
+            children: null,
+            hasMenu: true,
+          });
+
+          this.subjectHeadsRearranged.push({
+            id: subject.id,
+            Subject: subject.Subject,
+            TeacherId: subject.TeacherId,
+            FullName: subject.FullName,
+            rowspan: 2,
+            colspan: 1,
+            children: null,
+            hasMenu: true,
+          });
+        } else {
+          if (!groupedSubjects[subject.ParentSubject]) {
+            groupedSubjects[subject.ParentSubject] = [];
+          }
+          groupedSubjects[subject.ParentSubject].push(subject.Subject);
+
+          subHeaders.push({
+            id: subject.id,
+            Subject: subject.Subject,
+            TeacherId: subject.TeacherId,
+            FullName: subject.FullName,
+            rowspan: 1,
+            colspan: 1,
+            children: null,
+            hasMenu: true,
+          });
+        }
+      });
+
+      // Add grouped subjects with colspan
+      Object.keys(groupedSubjects).forEach((parent) => {
+        headers.push({
+          Subject: parent,
+          rowspan: 1,
+          colspan: groupedSubjects[parent].length,
+          children: groupedSubjects[parent],
+          hasMenu: false,
+        });
+      });
+      // merge arrays
+      Array.prototype.push.apply(this.subjectHeadsRearranged, subHeaders);
+
+      return { Headers: headers, SubHeaders: subHeaders };
+    },
+    getFinalGrade(studentId, subjectId, teacherid) {
+      let gradeData = this.subjectData.find(
+        (obj) =>
+          obj.StudentId === studentId &&
+          obj.SubjectId === subjectId &&
+          obj.TeacherId === teacherid
+      );
+
+      if (!this.isNull(gradeData)) {
+        // return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
+        var displayGrade = "";
+        if (this.viewOptionSelectedQ === "1st") {
+          displayGrade = gradeData.FirstGradingGrade;
+        } else if (this.viewOptionSelectedQ === "2nd") {
+          displayGrade = gradeData.SecondGradingGrade;
+        } else if (this.viewOptionSelectedQ === "3rd") {
+          displayGrade = gradeData.ThirdGradingGrade;
+        } else if (this.viewOptionSelectedQ === "4th") {
+          displayGrade = gradeData.FourthGradingGrade;
+        } else {
+          displayGrade = gradeData.AverageGrade;
+        }
+        return this.isNull(displayGrade) ? "-" : "<strong>" + displayGrade + "</strong>";
+      } else {
+        return `<i class='text-xs'>Not enrolled</i>`;
+      }
+    },
+    getDaysInMonth() {
+      const days = moment(this.attendanceYear + "-" + this.attendanceMonth).daysInMonth();
+
+      this.daysInAMonth = [];
+
+      for (let i = 0; i < days; i++) {
+        this.daysInAMonth.push(i + 1);
+      }
+    },
+    getBarcodeAttendances() {
+      axios
+        .get(`${this.baseURL}/barcode_attendances/get-barcode-attendance-per-class`, {
+          params: {
+            ClassId: this.classId,
+          },
+        })
+        .then((response) => {
+          this.barcodeAttendances = response.data;
+
+          this.loaderVisibility = false;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting barcode attendance!",
+          });
+        });
+    },
+    getAllAttendanceData() {
+      this.loaderVisibility = true;
+      this.getDaysInMonth();
+      this.getBarcodeAttendances();
+    },
+    fetchDailyAttendance(studentId, date) {
+      var att = this.barcodeAttendances.filter(
+        (obj) =>
+          moment(obj.created_at).format("YYYY-MM-D") === date &&
+          obj.StudentId === studentId
+      );
+
+      var timeIn = null;
+      var timeOut = null;
+
+      // fetch am first
+      // const inThreshold = moment(date + ' ' + this.amInThreshold).format('YYYY-MM-DD HH:mm')
+      const inThreshold = moment(date + " 11:59").format("YYYY-MM-DD HH:mm");
+
+      for (let i = 0; i < att.length; i++) {
+        const obj = att[i];
+
+        var inTime = obj.created_at;
+
+        if (!this.isNull(inTime)) {
+          var xTime = moment(inTime).format("YYYY-MM-DD HH:mm");
+
+          if (moment(xTime).isBefore(moment(inThreshold))) {
+            if (this.isNull(timeIn)) {
+              timeIn = xTime;
             }
+          }
+        }
+      }
 
-            // Check for empty string
-            if (typeof value === 'string' && value.trim() === '') {
-                return true;
+      // fetch pm out
+      // const outThreshold = moment(date + ' ' + this.pmOutThreshold).format('YYYY-MM-DD HH:mm')
+      const outThreshold = moment(date + " 13:00").format("YYYY-MM-DD HH:mm");
+
+      for (let i = 0; i < att.length; i++) {
+        const obj = att[i];
+
+        var outTime = obj.created_at;
+
+        if (!this.isNull(outTime)) {
+          var xTime = moment(outTime).format("YYYY-MM-DD HH:mm");
+
+          if (moment(xTime).isAfter(moment(outThreshold))) {
+            if (this.isNull(timeOut)) {
+              timeOut = xTime;
             }
+          }
+        }
+      }
 
-            // Check for empty array
-            if (Array.isArray(value) && value.length === 0) {
-                return true;
-            }
+      // validate time ins and outs
+      var returnData = "";
+      if (!this.isNull(timeIn)) {
+        const inStart = moment(date + " " + this.amInThreshold).format(
+          "YYYY-MM-DD HH:mm"
+        );
 
-            // Check for empty object
-            if (typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
-                return true;
-            }
+        // check if late
+        if (moment(timeIn).isBefore(moment(inStart))) {
+          returnData += `<span class='text-success' title='Morning In: ${moment(
+            timeIn
+          ).format("hh:mm A")}'><strong>✓</strong></span>`;
+        } else {
+          // late
+          returnData += `<span class='text-warning' title='Morning In (LATE): ${moment(
+            timeIn
+          ).format("hh:mm A")}'><strong>!!</strong></span>`;
+        }
+      } else {
+        returnData += `<span class='text-danger'>○</span>`;
+      }
 
-            // Check for NaN
-            if (typeof value === 'number' && isNaN(value)) {
-                return true;
-            }
+      if (!this.isNull(timeOut)) {
+        const outEnd = moment(date + " " + this.pmOutThreshold).format(
+          "YYYY-MM-DD HH:mm"
+        );
 
-            // If none of the above, it's not null, empty, or undefined
-            return false;
-        },
-        toMoney(value) {
-            return Number(parseFloat(value).toFixed(2)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
-        },
-        isNumber(value) {
-            return typeof value === 'number';
-        },        
-        round(value) {
-            return Math.round((value + Number.EPSILON) * 100) / 100;
-        },     
-        roundThree(value) {
-            return Math.round((value + Number.EPSILON) * 1000) / 1000;
-        },
-        generateRandomString(length) {
-            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            let result = '';
+        // check if early out
+        if (moment(timeOut).isAfter(moment(outEnd))) {
+          returnData += `<span class='text-success' title='Afternoon Out: ${moment(
+            timeOut
+          ).format("hh:mm A")}'><strong>✓</strong></span>`;
+        } else {
+          // early out
+          returnData += `<span class='text-warning' title=Afternoon Out (EARLY OUT): ${moment(
+            timeOut
+          ).format("hh:mm A")}'><strong>!!</strong></span>`;
+        }
+      } else {
+        returnData += `<span class='text-danger'>○</span>`;
+      }
 
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * characters.length);
-                result += characters.charAt(randomIndex);
-            }
-
-            return result;
-        },
-        generateUniqueId() {
-            return moment().valueOf() + "-" + this.generateRandomString(32);
-        },
-        getAdvisoryData() {
-            this.loaderVisibility = true
-            axios.get(`${ this.baseURL }/users/get-advisory-details`, {
-                params : {
-                    TeacherId : this.teacherId,
-                    SchoolYearId : this.syId,
-                    ClassId : this.classId
-                }
+      return returnData;
+    },
+    downloadSF2() {
+      if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+        window.location.href =
+          this.baseURL +
+          "/barcode_attendances/download-sf2-senior/" +
+          this.classId +
+          "/" +
+          this.attendanceMonth +
+          "/" +
+          this.attendanceYear;
+      } else {
+        window.location.href =
+          this.baseURL +
+          "/barcode_attendances/download-sf2-junior/" +
+          this.classId +
+          "/" +
+          this.attendanceMonth +
+          "/" +
+          this.attendanceYear;
+      }
+    },
+    revalidatePayments() {
+      axios
+        .get(`${this.baseURL}/transactions/repopulate-payables`, {
+          params: {
+            ClassId: this.classId,
+          },
+        })
+        .then((response) => {
+          this.toast.fire({
+            icon: "success",
+            text: "Payables repopulated!",
+          });
+          location.reload();
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error repopulating payables!",
+          });
+        });
+    },
+    revalidateSubjects() {
+      axios
+        .post(`${this.baseURL}/classes/revalidate-subjects`, {
+          _token: this.token,
+          ClassId: this.classId,
+        })
+        .then((response) => {
+          this.toast.fire({
+            icon: "success",
+            text: "Subjects repopulated!",
+          });
+          location.reload();
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error repopulating subjects!\n" + error.response,
+          });
+        });
+    },
+    updateStatus(id, status, message) {
+      Swal.fire({
+        title: "Update Status",
+        showCancelButton: true,
+        text: message,
+        confirmButtonText: "Proceed",
+        confirmButtonColor: "#3a9971",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .post(`${this.baseURL}/students/update-status`, {
+              _token: this.token,
+              id: id,
+              Status: status,
             })
-            .then(response => {
-                this.advisory = response.data.Class
-                this.syDetails = response.data.SchoolYear
-                this.male = response.data.Male
-                this.female = response.data.Female
-                this.inactive = response.data.Inactive
-                this.adviser = response.data.Adviser
-                this.classRepo = response.data.ClassRepo
-
-                this.getClassPaymentDetails()
-                this.runCheckEnrollableTo2ndSem()
+            .then((response) => {
+              this.toast.fire({
+                icon: "success",
+                text: "Student status updated!",
+              });
+              location.reload();
             })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting data!'
-                })
-                this.loaderVisibility = false
-            })
-        },
-        getClassPaymentDetails() {
-            axios.get(`${ this.baseURL }/teachers/get-class-payment-details`, {
-                params : {
-                    ClassId : this.classId,
-                    SchoolYear : this.syDetails.SchoolYear,
-                }
-            })
-            .then(response => {
-                this.paymentMonths = response.data.Months
-                this.paymentData = response.data.PaymentData
-                this.payablesProfile = response.data.PayableProfile
-
-                // add payables profile to male and female array
-                if (!this.isNull(this.male)) {
-                    for(let i=0; i<this.male.length; i++) {
-                        let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.male[i].id)
-
-                        if (!this.isNull(dataFound)) {
-                            this.male[i].PayableData = dataFound
-                        } else {
-                            this.male[i].PayableData = []
-                        }
-                    }
-                }
-
-                if (!this.isNull(this.female)) {
-                    for(let i=0; i<this.female.length; i++) {
-                        let dataFound = this.payablesProfile.find(obj => obj.StudentId === this.female[i].id)
-
-                        if (!this.isNull(dataFound)) {
-                            this.female[i].PayableData = dataFound
-                        } else {
-                            this.female[i].PayableData = []
-                        }
-                    }
-                }
-
-                this.loaderVisibility = false
-            })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting payment data!'
-                })
-                this.loaderVisibility = false
-            })
-        },
-        getPaymentData(month, studentId) {
-            let dataFound = this.paymentData.find(obj => obj.ForMonth === month && obj.StudentId === studentId)
-
-            if (studentId === '1723965783658') {
-                console.log(dataFound)
-            }
-
-            if (this.isNull(dataFound)) {
-                return `<span class="text-sm"><i class="fas fa-exclamation-circle text-gray"></i></span>`
-            } else {
-                var bal = (this.isNull(dataFound.Balance) ? 0 : parseFloat(dataFound.Balance))
-
-                if (bal > 0) {
-                    if (this.isNull(dataFound.AmountPaid)) {
-                        return `<span class="text-sm" title='Unpaid'><i class="fas fa-exclamation-circle text-gray ico-tab-mini"></i> Unpaid</span>` +
-                                `<br><span class='text-sm text-muted'>Bal: ` + bal + `</span>`
-                    } else {
-                        return `<span class="text-sm ico-tab-mini" title='Partially paid'><i class="fas fa-check text-warning"></i></span>` + 
-                            `<strong>` + (this.isNull(dataFound) ? '-' : (this.isNull(dataFound.AmountPaid) ? '-' : this.toMoney(parseFloat(dataFound.AmountPaid)))) + `</strong>` +
-                            `<br><span class='text-sm text-muted'>Bal: ` + bal + `</span>`
-                    }
-                } else {
-                    return `<span class="text-sm ico-tab-mini" title='Fully paid'><i class="fas fa-check-circle text-success"></i></span>` + 
-                        `<strong>` + (this.isNull(dataFound) ? '-' : (this.isNull(dataFound.AmountPaid) ? '-' : this.toMoney(parseFloat(dataFound.AmountPaid)))) + `</strong>` +
-                        `<br><span class='text-sm text-muted'>Bal: ` + bal + `</span>`
-                }
-            }
-        },
-        getSubjects() {
-            // GET SUBJECTS
-            this.subjects = []
-            this.mainSubjects = []
-            axios.get(`${ this.baseURL }/users/get-subjects-from-class`, {
-                params : {
-                    ClassId : this.classId
-                }
-            })
-            .then(response => {
-                this.subjects = response.data
-
-                this.mainSubjects = this.processedSubjects()
-
-                // GET SUBJECT GRADES AND DATA
-                this.getSubjectData()
-                this.getSubjectRepository()
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting subjects!'
-                })
-            })
-
-            // get homeroom subjects for inclusions
-            axios.get(`${ this.baseURL }/users/get-homeroom-subjects`)
-            .then(response => {
-                this.homeroomSubjects = response.data
-
-                var hmrmTmp = []
-                for (let i=0; i<this.homeroomSubjects.length; i++) {
-                    hmrmTmp.push(this.homeroomSubjects[i].id)
-                }
-
-                this.homeroomSubjects = hmrmTmp
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting homeroom subjects!'
-                })
-            })
-        },
-        getSubjectData() {
-            this.subjectData = []
-            axios.get(`${ this.baseURL }/users/get-student-subjects-data-from-class`, {
-                params : {
-                    ClassId : this.classId
-                }
-            })
-            .then(response => {
-                this.subjectData = response.data
-            })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting subject data!'
-                })
-            })
-        },
-        processedSubjects() {
-            let headers = [];
-            let subHeaders = []
-            let groupedSubjects = {};
-
-            this.subjectHeadsRearranged = []
-
-            // Separate subjects with null ParentSubject and group by ParentSubject
-            this.subjects.forEach(subject => {
-                if (subject.ParentSubject === null) {
-                    headers.push({
-                        id : subject.id,
-                        Subject: subject.Subject,
-                        TeacherId : subject.TeacherId,
-                        FullName : subject.FullName,
-                        rowspan: 2,
-                        colspan: 1,
-                        children : null,
-                        hasMenu : true,
-                    })
-
-                    this.subjectHeadsRearranged.push({
-                        id : subject.id,
-                        Subject: subject.Subject,
-                        TeacherId : subject.TeacherId,
-                        FullName : subject.FullName,
-                        rowspan: 2,
-                        colspan: 1,
-                        children : null,
-                        hasMenu : true,
-                    })
-                } else {
-                    if (!groupedSubjects[subject.ParentSubject]) {
-                        groupedSubjects[subject.ParentSubject] = [];
-                    }
-                    groupedSubjects[subject.ParentSubject].push(subject.Subject)
-
-                    subHeaders.push({
-                        id : subject.id,
-                        Subject: subject.Subject,
-                        TeacherId : subject.TeacherId,
-                        FullName : subject.FullName,
-                        rowspan: 1,
-                        colspan: 1,
-                        children : null,
-                        hasMenu : true,
-                    })
-                }
+            .catch((error) => {
+              console.log(error.response);
+              this.toast.fire({
+                icon: "error",
+                text: "Error updating student status!",
+              });
             });
-
-            // Add grouped subjects with colspan
-            Object.keys(groupedSubjects).forEach(parent => {
-                headers.push({
-                    Subject: parent,
-                    rowspan: 1,
-                    colspan: groupedSubjects[parent].length,
-                    children: groupedSubjects[parent],
-                    hasMenu : false,
+        }
+      });
+    },
+    removeFromClass(studentClassId) {
+      Swal.fire({
+        title: "Confirm Removal",
+        text:
+          "Removing this student from this class does not delete the student. If you wish to delete the student, you may go to the student account page. Proceed with caution.",
+        showCancelButton: true,
+        confirmButtonText: "Proceed Removal",
+        confirmButtonColor: "#e03822",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .delete(`${this.baseURL}/studentClasses/` + studentClassId, {
+              _token: this.token,
+              id: studentClassId,
+            })
+            .then((response) => {
+              this.toast.fire({
+                icon: "success",
+                text: "Student removed!",
+              });
+              location.reload();
+            })
+            .catch((error) => {
+              console.log(error.response);
+              this.toast.fire({
+                icon: "error",
+                text: "Error removing student!",
+              });
+            });
+        }
+      });
+    },
+    getClassesInSY() {
+      axios
+        .get(`${this.baseURL}/school_years/get-classes-in-sy`, {
+          params: {
+            SchoolYearId: this.syId,
+          },
+        })
+        .then((response) => {
+          this.classesInSy = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting classes inside school year!",
+          });
+        });
+    },
+    goToClass() {
+      window.location.href = `${this.baseURL}/classes/view-class/${this.teacherId}/${this.syId}/${this.classSelect}`;
+    },
+    markEsc(studentId, isEscScholar) {
+      axios
+        .post(`${this.baseURL}/students/mark-esc`, {
+          _token: this.token,
+          id: studentId,
+          ESCScholar: isEscScholar,
+        })
+        .then((response) => {
+          this.toast.fire({
+            icon: "success",
+            text: "Student marked " + isEscScholar + " for ESC Scholarship!",
+          });
+          location.reload();
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error tagging ESC Scholar!",
+          });
+        });
+    },
+    switchSelectionMode() {
+      if (this.selectionMode) {
+        this.selectionMode = false;
+        this.selectionButtonIndicator = "text-gray";
+      } else {
+        this.selectionMode = true;
+        this.selectionButtonIndicator = "text-success";
+      }
+    },
+    batchTransfer() {
+      if (this.selection.length < 1) {
+        this.toast.fire({
+          icon: "warning",
+          text: "Please select students first!",
+        });
+      } else {
+        let modalElement = this.$refs.modalSelectionTransfer;
+        $(modalElement).modal("show");
+      }
+    },
+    getClassesRepo() {
+      axios
+        .get(`${this.baseURL}/classes/get-classes-repos`)
+        .then((response) => {
+          this.classRepos = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting class repositories!",
+          });
+        });
+    },
+    saveBatchTransfer() {
+      Swal.fire({
+        title: "Confirm Transfer",
+        text:
+          "Transferring the selected students would transfer all their class data and subjects to the selected class, including the tuition fees. Proceed with caution.",
+        showCancelButton: true,
+        confirmButtonText: "Proceed Transfer",
+        confirmButtonColor: "#e03822",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .post(`${this.baseURL}/classes/batch-transfer`, {
+              _token: this.token,
+              Students: this.selection,
+              CurrentClassId: this.classId,
+              SchoolYearId: this.syId,
+              TransferedClassId: this.transferedClassSelect,
+            })
+            .then((response) => {
+              this.toast.fire({
+                icon: "success",
+                text: "Student transferred!",
+              });
+              location.reload();
+            })
+            .catch((error) => {
+              console.log(error.response);
+              this.toast.fire({
+                icon: "error",
+                text: "Error transferring students!",
+              });
+            });
+        }
+      });
+    },
+    markEscMultiple(option) {
+      if (this.selection.length < 1) {
+        this.toast.fire({
+          icon: "warning",
+          text: "Please select students first!",
+        });
+      } else {
+        Swal.fire({
+          title: "Confirmation",
+          text: `Marking ${option} to these student's ESC/VMS Scholarship will the current payable and payments for the account. Proceed with caution.`,
+          showCancelButton: true,
+          confirmButtonText: "Proceed Marking",
+          confirmButtonColor: "#e03822",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            axios
+              .post(`${this.baseURL}/classes/mark-esc-multiple`, {
+                _token: this.token,
+                Students: this.selection,
+                Option: option,
+              })
+              .then((response) => {
+                this.toast.fire({
+                  icon: "success",
+                  text: "Students marked!",
                 });
+                location.reload();
+              })
+              .catch((error) => {
+                console.log(error.response);
+                this.toast.fire({
+                  icon: "error",
+                  text: "Error marking students!",
+                });
+              });
+          }
+        });
+      }
+    },
+    markFromSchool(school) {
+      if (this.selection.length < 1) {
+        this.toast.fire({
+          icon: "warning",
+          text: "Please select students first!",
+        });
+      } else {
+        Swal.fire({
+          title: "Confirmation",
+          text: `Marking these students as from ${school} school will change their future payment data. It will not change the current payable since there might already be payments incured to the account.`,
+          showCancelButton: true,
+          confirmButtonText: "Proceed Marking",
+          confirmButtonColor: "#e03822",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            axios
+              .post(`${this.baseURL}/classes/mark-from-school-multiple`, {
+                _token: this.token,
+                Students: this.selection,
+                School: school,
+              })
+              .then((response) => {
+                this.toast.fire({
+                  icon: "success",
+                  text: "Students marked!",
+                });
+                location.reload();
+              })
+              .catch((error) => {
+                console.log(error.response);
+                this.toast.fire({
+                  icon: "error",
+                  text: "Error marking students!",
+                });
+              });
+          }
+        });
+      }
+    },
+    getMiscellaneousToTuitions() {
+      axios
+        .get(`${this.baseURL}/classes/get-miscellaneous-to-tuitions-data`, {
+          params: {
+            ClassId: this.classId,
+          },
+        })
+        .then((response) => {
+          this.miscToTuitions = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting miscellaneous tuitions data!",
+          });
+        });
+    },
+    flushToTuitionData() {
+      Swal.fire({
+        title: "Confirmation",
+        text: `Flushing the Tuition Fee payments from the Miscellaneous module will revalidate the Tuition Fee payables of the students. Continue with caution.`,
+        showCancelButton: true,
+        confirmButtonText: "Proceed Flushing",
+        confirmButtonColor: "#e03822",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .post(`${this.baseURL}/classes/flush-misc-to-tuitions`, {
+              _token: this.token,
+              ClassId: this.classId,
+            })
+            .then((response) => {
+              this.toast.fire({
+                icon: "success",
+                text: "Miscellaneous tuitions flushed to tuition fees!",
+              });
+              location.reload();
+            })
+            .catch((error) => {
+              console.log(error.response);
+              this.toast.fire({
+                icon: "error",
+                text: "Error flushing miscellaneous fees to tuition!",
+              });
             });
-            // merge arrays
-            Array.prototype.push.apply(this.subjectHeadsRearranged, subHeaders)
+        }
+      });
+    },
+    flushToEnrollmentData() {
+      Swal.fire({
+        title: "Confirmation",
+        text: `Flushing the Enrollment fees from the Miscellaneous module will revalidate the Tuition Fee payables of the students. Continue with caution.`,
+        showCancelButton: true,
+        confirmButtonText: "Proceed Flushing",
+        confirmButtonColor: "#e03822",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .post(`${this.baseURL}/classes/flush-misc-enrollment-to-tuitions`, {
+              _token: this.token,
+              ClassId: this.classId,
+            })
+            .then((response) => {
+              this.toast.fire({
+                icon: "success",
+                text: "Miscellaneous enrollment flushed to tuition fees!",
+              });
+              location.reload();
+            })
+            .catch((error) => {
+              console.log(error.response);
+              this.toast.fire({
+                icon: "error",
+                text: "Error flushing enrollment miscellaneous fees to tuition!",
+              });
+            });
+        }
+      });
+    },
+    removeSubject(subjectId, teacherId) {
+      Swal.fire({
+        title: "Subject Removal Confirmation",
+        text: `NOTE that removing this subject will also remove the student's grades. You cannot undo this. Proceed with caution.`,
+        showCancelButton: true,
+        confirmButtonText: "Proceed Removal",
+        confirmButtonColor: "#e03822",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .post(`${this.baseURL}/users/remove-student-subjects`, {
+              _token: this.token,
+              ClassId: this.classId,
+              TeacherId: teacherId,
+              SubjectId: subjectId,
+            })
+            .then((response) => {
+              this.toast.fire({
+                icon: "success",
+                text: "Subject removed!",
+              });
+              // this.subjects = this.subjects.filter(obj => obj.id !== subjectId)
+              // this.getSubjectRepository()
+              this.getSubjects();
+            })
+            .catch((error) => {
+              console.log(error.response);
+              this.toast.fire({
+                icon: "error",
+                text: "Error removing subject!",
+              });
+            });
+        }
+      });
+    },
+    getSubjectRepository() {
+      this.subjectRepos = [];
+      axios
+        .get(`${this.baseURL}/classes_repos/get-all-subject-repos`)
+        .then((response) => {
+          this.subjectRepos = response.data;
 
-            return { Headers : headers, SubHeaders : subHeaders }
-        },
-        getFinalGrade(studentId, subjectId, teacherid) {
-            let gradeData = this.subjectData.find(obj => obj.StudentId === studentId && obj.SubjectId === subjectId && obj.TeacherId === teacherid)
+          if (!this.isNull(this.subjectRepos)) {
+            this.subjectRepos = this.subjectRepos.filter(
+              (obj) => !this.subjects.some((excludeObj) => excludeObj.id === obj.id)
+            );
+          }
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting subject repositories!",
+          });
+        });
+    },
+    addSubject() {
+      if (!this.isNull(this.addedSubjectId)) {
+        axios
+          .post(`${this.baseURL}/classes/add-new-subject-to-class`, {
+            SubjectId: this.addedSubjectId,
+            ClassId: this.classId,
+            _token: this.token,
+          })
+          .then((response) => {
+            this.toast.fire({
+              icon: "success",
+              text: "Subject added to class!",
+            });
+            this.getSubjects();
+          })
+          .catch((error) => {
+            console.log(error.response);
+            this.toast.fire({
+              icon: "error",
+              text: "Error adding subject!",
+            });
+          });
+      }
+      this.addSubjectEnabled = false;
+      this.addedSubjectId = "";
+    },
+    printSingleStub(studentId) {
+      if (this.school === "HCA") {
+        if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+          window.location.href = `${this.baseURL}/classes/print-single-grade-hca-senior/${studentId}/${this.classId}`;
+        } else {
+          window.location.href = `${this.baseURL}/classes/print-single-grade-hca/${studentId}/${this.classId}`;
+        }
+      } else if (this.school === "SVI") {
+        this.printSingleGradeSVI(studentId);
+        // if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
+        //     window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
+        // } else {
+        //     window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }`
+        // }
+      }
+    },
+    printAllGradeStub() {
+      if (this.school === "HCA") {
+        if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+          window.location.href = `${this.baseURL}/classes/print-single-grade-all-hca-senior/${this.classId}`;
+        } else {
+          window.location.href = `${this.baseURL}/classes/print-single-grade-all-hca/${this.classId}`;
+        }
+      } else if (this.school === "SVI") {
+        this.printSingleGradeAllSVI();
+      }
+    },
+    stubConfig() {
+      window.location.href = `${this.baseURL}/classes/stub-config/${this.classId}`;
+    },
+    revalidateStudentSubjects(studentId) {
+      axios
+        .post(`${this.baseURL}/classes/revalidate-student-subjects`, {
+          StudentId: studentId,
+          SchoolYearId: this.syId,
+          ClassId: this.classId,
+          _token: this.token,
+        })
+        .then((response) => {
+          this.toast.fire({
+            icon: "success",
+            text: "Subjects added to student!",
+          });
+          this.getSubjects();
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error adding subjects to student!",
+          });
+        });
+    },
+    clearSubjects(studentId) {
+      Swal.fire({
+        title: "Subject Removal Confirmation",
+        text: `NOTE that removing this subject will also remove the student's grades. You cannot undo this. Proceed with caution.`,
+        showCancelButton: true,
+        confirmButtonText: "Proceed Removal",
+        confirmButtonColor: "#e03822",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          axios
+            .post(`${this.baseURL}/classes/clear-student-subjects`, {
+              StudentId: studentId,
+              ClassId: this.classId,
+              _token: this.token,
+            })
+            .then((response) => {
+              this.toast.fire({
+                icon: "success",
+                text: "Subjects removed from student!",
+              });
+              this.getSubjects();
+            })
+            .catch((error) => {
+              console.log(error.response);
+              this.toast.fire({
+                icon: "error",
+                text: "Error removing subjects from student!",
+              });
+            });
+        }
+      });
+    },
+    rankings() {
+      this.setupRankingData();
 
-            if (!this.isNull(gradeData)) {
-                // return this.isNull(gradeData.AverageGrade) ? '-' : (parseFloat(gradeData.AverageGrade) > 0 ? ('<strong>' + gradeData.AverageGrade + '</strong>') : '-')
-                var displayGrade = ""
-                if (this.viewOptionSelectedQ === '1st') {
-                    displayGrade = gradeData.FirstGradingGrade
-                } else if (this.viewOptionSelectedQ === '2nd') {
-                    displayGrade = gradeData.SecondGradingGrade
-                } else if (this.viewOptionSelectedQ === '3rd') {
-                    displayGrade = gradeData.ThirdGradingGrade
-                } else if (this.viewOptionSelectedQ === '4th') {
-                    displayGrade = gradeData.FourthGradingGrade
-                } else {
-                    displayGrade = gradeData.AverageGrade
-                }
-                return this.isNull(displayGrade) ? '-' : ('<strong>' + displayGrade + '</strong>')
-            } else {
-                return `<i class='text-xs'>Not enrolled</i>`
-            }
-        },
-        getDaysInMonth() {
-            const days = moment(this.attendanceYear + '-' + this.attendanceMonth).daysInMonth()
+      let modalElement = this.$refs.modalRankings;
+      $(modalElement).modal("show");
+    },
+    setupRankingData() {
+      this.rankingData = [];
+      this.rankingData = this.male.concat(this.female);
 
-            this.daysInAMonth = []
+      // insert grades
+      if (!this.isNull(this.rankingData)) {
+        var size = this.rankingData.length;
+        for (let i = 0; i < size; i++) {
+          this.rankingData[i]["FirstGradingGrade"] = round(
+            this.getTotalAverage(this.rankingData[i].id, "First")
+          );
+          this.rankingData[i]["SecondGradingGrade"] = round(
+            this.getTotalAverage(this.rankingData[i].id, "Second")
+          );
+          this.rankingData[i]["ThirdGradingGrade"] = round(
+            this.getTotalAverage(this.rankingData[i].id, "Third")
+          );
+          this.rankingData[i]["FourthGradingGrade"] = round(
+            this.getTotalAverage(this.rankingData[i].id, "Fourth")
+          );
+          this.rankingData[i]["AverageGrade"] = round(
+            this.getTotalAverage(this.rankingData[i].id, "Average")
+          );
+        }
+      }
 
-            for (let i=0; i<days; i++) {
-                this.daysInAMonth.push((i+1))
-            }
-        },
-        getBarcodeAttendances() {
-            axios.get(`${ this.baseURL }/barcode_attendances/get-barcode-attendance-per-class`, {
-                params : {
-                    ClassId : this.classId
-                }
-            })
-            .then(response => {
-                this.barcodeAttendances = response.data
+      this.sortRanking("Average");
+    },
+    getTotalAverage(studentId, grading) {
+      let gradeData = this.subjectData.filter(
+        (obj) =>
+          obj.StudentId === studentId && !this.homeroomSubjects.includes(obj.SubjectId)
+      );
 
-                this.loaderVisibility = false
-            })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting barcode attendance!'
-                })
-            })
-        },
-        getAllAttendanceData() {
-            this.loaderVisibility = true
-            this.getDaysInMonth()
-            this.getBarcodeAttendances()
-        },
-        fetchDailyAttendance(studentId, date) {
-            var att = this.barcodeAttendances.filter(obj => moment(obj.created_at).format('YYYY-MM-D') === date && obj.StudentId === studentId)
+      var average = 0;
+      var sum = 0;
+      if (!this.isNull(gradeData)) {
+        let size = gradeData.length;
 
-            var timeIn = null
-            var timeOut = null
+        for (let i = 0; i < size; i++) {
+          if (grading === "First") {
+            sum += this.isNull(gradeData[i].FirstGradingGrade)
+              ? 0
+              : parseFloat(gradeData[i].FirstGradingGrade);
+          } else if (grading === "Second") {
+            sum += this.isNull(gradeData[i].SecondGradingGrade)
+              ? 0
+              : parseFloat(gradeData[i].SecondGradingGrade);
+          } else if (grading === "Third") {
+            sum += this.isNull(gradeData[i].ThirdGradingGrade)
+              ? 0
+              : parseFloat(gradeData[i].ThirdGradingGrade);
+          } else if (grading === "Fourth") {
+            sum += this.isNull(gradeData[i].FourthGradingGrade)
+              ? 0
+              : parseFloat(gradeData[i].FourthGradingGrade);
+          } else {
+            sum += this.isNull(gradeData[i].AverageGrade)
+              ? 0
+              : parseFloat(gradeData[i].AverageGrade);
+          }
+        }
 
-            // fetch am first
-            // const inThreshold = moment(date + ' ' + this.amInThreshold).format('YYYY-MM-DD HH:mm')
-            const inThreshold = moment(date + ' 11:59').format('YYYY-MM-DD HH:mm')
+        if (sum > 0 && size > 0) {
+          average = sum / size;
+        } else {
+          average = 0;
+        }
 
-            for (let i=0; i<att.length; i++) {
-                const obj = att[i]
+        return average;
+      } else {
+        return 0;
+      }
+    },
+    sortRanking(grading) {
+      this.activeRankGradeColor = grading;
+      if (grading === "First") {
+        this.rankingData.sort((a, b) => b.FirstGradingGrade - a.FirstGradingGrade);
+        this.activeRankTitle = grading + " Grading Rankings";
+      } else if (grading === "Second") {
+        this.rankingData.sort((a, b) => b.SecondGradingGrade - a.SecondGradingGrade);
+        this.activeRankTitle = grading + " Grading Rankings";
+      } else if (grading === "Third") {
+        this.rankingData.sort((a, b) => b.ThirdGradingGrade - a.ThirdGradingGrade);
+        this.activeRankTitle = grading + " Grading Rankings";
+      } else if (grading === "Fourth") {
+        this.rankingData.sort((a, b) => b.FourthGradingGrade - a.FourthGradingGrade);
+        this.activeRankTitle = grading + " Grading Rankings";
+      } else {
+        this.rankingData.sort((a, b) => b.AverageGrade - a.AverageGrade);
+        this.activeRankTitle = "Total Average Grade Rankings";
+      }
+    },
+    printRanking() {
+      window.location.href = `${this.baseURL}/classes/print-ranking/${this.classId}/${this.activeRankGradeColor}/${this.teacherId}/${this.syId}`;
+    },
+    showAttendance(studentId, date, studentName) {
+      this.studentSelected = studentName;
+      this.dateSelectedShown = date;
+      this.selectedAttData = this.barcodeAttendances.filter(
+        (obj) =>
+          moment(obj.created_at).format("YYYY-MM-D") === date &&
+          obj.StudentId === studentId
+      );
 
-                var inTime = obj.created_at
-
-                if (!this.isNull(inTime)) {
-                    var xTime = moment(inTime).format('YYYY-MM-DD HH:mm')
-
-                    if (moment(xTime).isBefore(moment(inThreshold))) {
-                        if (this.isNull(timeIn)) {
-                            timeIn = xTime
-                        }
-                    }
-                }
-            }
-
-            // fetch pm out
-            // const outThreshold = moment(date + ' ' + this.pmOutThreshold).format('YYYY-MM-DD HH:mm')
-            const outThreshold = moment(date + ' 13:00').format('YYYY-MM-DD HH:mm')
-
-            for (let i=0; i<att.length; i++) {
-                const obj = att[i]
-
-                var outTime = obj.created_at
-
-                if (!this.isNull(outTime)) {
-                    var xTime = moment(outTime).format('YYYY-MM-DD HH:mm')
-
-                    if (moment(xTime).isAfter(moment(outThreshold))) {
-                        if (this.isNull(timeOut)) {
-                            timeOut = xTime
-                        }
-                    }
-                }
-            }
-
-            // validate time ins and outs
-            var returnData = ""
-            if (!this.isNull(timeIn)) {
-                const inStart = moment(date + ' ' + this.amInThreshold).format('YYYY-MM-DD HH:mm')
-
-                // check if late
-                if (moment(timeIn).isBefore(moment(inStart))) {
-                    returnData += `<span class='text-success' title='Morning In: ${ moment(timeIn).format('hh:mm A') }'><strong>✓</strong></span>`
-                } else {
-                    // late
-                    returnData += `<span class='text-warning' title='Morning In (LATE): ${ moment(timeIn).format('hh:mm A') }'><strong>!!</strong></span>`
-                }
-            } else {
-                returnData += `<span class='text-danger'>○</span>`;
-            }
-
-            if (!this.isNull(timeOut)) {
-                const outEnd = moment(date + ' ' + this.pmOutThreshold).format('YYYY-MM-DD HH:mm')
-
-                // check if early out
-                if (moment(timeOut).isAfter(moment(outEnd))) {
-                    returnData += `<span class='text-success' title='Afternoon Out: ${ moment(timeOut).format('hh:mm A') }'><strong>✓</strong></span>`
-                } else {
-                    // early out
-                    returnData += `<span class='text-warning' title=Afternoon Out (EARLY OUT): ${ moment(timeOut).format('hh:mm A') }'><strong>!!</strong></span>`
-                }
-                
-            } else {
-                returnData += `<span class='text-danger'>○</span>`;
-            }
-
-            return returnData
-        },
-        downloadSF2() {
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                window.location.href = this.baseURL + '/barcode_attendances/download-sf2-senior/' + this.classId + '/' + this.attendanceMonth + '/' + this.attendanceYear
-            } else {
-                window.location.href = this.baseURL + '/barcode_attendances/download-sf2-junior/' + this.classId + '/' + this.attendanceMonth + '/' + this.attendanceYear
-            }
-        },
-        revalidatePayments() {
-            axios.get(`${ this.baseURL }/transactions/repopulate-payables`, {
-                params : {
-                    ClassId : this.classId
-                }
-            })
-            .then(response => {
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Payables repopulated!'
-                })
-                location.reload()
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error repopulating payables!'
-                })
-            })
-        },
-        revalidateSubjects() {
-            axios.post(`${ this.baseURL }/classes/revalidate-subjects`, {
-                _token : this.token,
-                ClassId : this.classId
-            })
-            .then(response => {
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Subjects repopulated!'
-                })
-                location.reload()
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error repopulating subjects!\n' + error.response
-                })
-            })
-        },
-        updateStatus(id, status, message) {
-            Swal.fire({
-                title: "Update Status",
-                showCancelButton: true,
-                text : message,
-                confirmButtonText: "Proceed",
-                confirmButtonColor : '#3a9971'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post(`${ this.baseURL }/students/update-status`, {
-                        _token : this.token,
-                        id : id,
-                        Status : status
-                    })
-                    .then(response => {
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Student status updated!'
-                        })
-                        location.reload()
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        this.toast.fire({
-                            icon : 'error',
-                            text : 'Error updating student status!'
-                        })
-                    })
-                }
-            })            
-        },
-        removeFromClass(studentClassId) {
-            Swal.fire({
-                title: "Confirm Removal",
-                text : 'Removing this student from this class does not delete the student. If you wish to delete the student, you may go to the student account page. Proceed with caution.',
-                showCancelButton: true,
-                confirmButtonText: "Proceed Removal",
-                confirmButtonColor : '#e03822'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.delete(`${ this.baseURL }/studentClasses/` + studentClassId, {
-                        _token : this.token,
-                        id : studentClassId,
-                    })
-                    .then(response => {
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Student removed!'
-                        })
-                        location.reload()
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        this.toast.fire({
-                            icon : 'error',
-                            text : 'Error removing student!'
-                        })
-                    })
-                }
-            })
-        },
-        getClassesInSY() {
-            axios.get(`${ this.baseURL }/school_years/get-classes-in-sy`, {
-                params : {
-                    SchoolYearId : this.syId
-                }
-            })
-            .then(response => {
-                this.classesInSy = response.data
-            })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting classes inside school year!'
-                })
-            })
-        },
-        goToClass() {
-            window.location.href = `${ this.baseURL }/classes/view-class/${ this.teacherId }/${ this.syId }/${ this.classSelect }`
-        },
-        markEsc(studentId, isEscScholar) {
-            axios.post(`${ this.baseURL }/students/mark-esc`, {
-                _token : this.token,
-                id : studentId,
-                ESCScholar : isEscScholar
-            })
-            .then(response => {
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Student marked ' + isEscScholar + ' for ESC Scholarship!'
-                })
-                location.reload()
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error tagging ESC Scholar!'
-                })
-            })
-        },
-        switchSelectionMode() {
-            if (this.selectionMode) {
-                this.selectionMode = false
-                this.selectionButtonIndicator = 'text-gray'
-            } else {
-                this.selectionMode = true
-                this.selectionButtonIndicator = 'text-success'
-            }
-        },
-        batchTransfer() {
-            if (this.selection.length < 1) {
-                this.toast.fire({
-                    icon : 'warning',
-                    text : 'Please select students first!'
-                })
-            } else {
-                let modalElement = this.$refs.modalSelectionTransfer
-                $(modalElement).modal('show')
-            }
-        },
-        getClassesRepo() {
-            axios.get(`${ this.baseURL }/classes/get-classes-repos`)
-            .then(response => {
-                this.classRepos = response.data
-            })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting class repositories!'
-                })
-            })
-        },
-        saveBatchTransfer() {
-            Swal.fire({
-                title: "Confirm Transfer",
-                text : 'Transferring the selected students would transfer all their class data and subjects to the selected class, including the tuition fees. Proceed with caution.',
-                showCancelButton: true,
-                confirmButtonText: "Proceed Transfer",
-                confirmButtonColor : '#e03822'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post(`${ this.baseURL }/classes/batch-transfer`, {
-                        _token : this.token,
-                        Students : this.selection,
-                        CurrentClassId : this.classId,
-                        SchoolYearId : this.syId,
-                        TransferedClassId : this.transferedClassSelect,
-                    })
-                    .then(response => {
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Student transferred!'
-                        })
-                        location.reload()
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        this.toast.fire({
-                            icon : 'error',
-                            text : 'Error transferring students!'
-                        })
-                    })
-                }
-            })
-        },
-        markEscMultiple(option) {
-            if (this.selection.length < 1) {
-                this.toast.fire({
-                    icon : 'warning',
-                    text : 'Please select students first!'
-                })
-            } else {
-                Swal.fire({
-                    title: "Confirmation",
-                    text : `Marking ${ option } to these student's ESC/VMS Scholarship will the current payable and payments for the account. Proceed with caution.`,
-                    showCancelButton: true,
-                    confirmButtonText: "Proceed Marking",
-                    confirmButtonColor : '#e03822'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        axios.post(`${ this.baseURL }/classes/mark-esc-multiple`, {
-                            _token : this.token,
-                            Students : this.selection,
-                            Option : option
-                        })
-                        .then(response => {
-                            this.toast.fire({
-                                icon : 'success',
-                                text : 'Students marked!'
-                            })
-                            location.reload()
-                        })
-                        .catch(error => {
-                            console.log(error.response)
-                            this.toast.fire({
-                                icon : 'error',
-                                text : 'Error marking students!'
-                            })
-                        })
-                    }
-                })
-            }
-        },
-        markFromSchool(school) {
-            if (this.selection.length < 1) {
-                this.toast.fire({
-                    icon : 'warning',
-                    text : 'Please select students first!'
-                })
-            } else {
-                Swal.fire({
-                    title: "Confirmation",
-                    text : `Marking these students as from ${ school } school will change their future payment data. It will not change the current payable since there might already be payments incured to the account.`,
-                    showCancelButton: true,
-                    confirmButtonText: "Proceed Marking",
-                    confirmButtonColor : '#e03822'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        axios.post(`${ this.baseURL }/classes/mark-from-school-multiple`, {
-                            _token : this.token,
-                            Students : this.selection,
-                            School : school
-                        })
-                        .then(response => {
-                            this.toast.fire({
-                                icon : 'success',
-                                text : 'Students marked!'
-                            })
-                            location.reload()
-                        })
-                        .catch(error => {
-                            console.log(error.response)
-                            this.toast.fire({
-                                icon : 'error',
-                                text : 'Error marking students!'
-                            })
-                        })
-                    }
-                })
-            }
-        },
-        getMiscellaneousToTuitions() {
-            axios.get(`${ this.baseURL }/classes/get-miscellaneous-to-tuitions-data`, {
-                params : {
-                    ClassId : this.classId
-                }
-            })
-            .then(response => {
-                this.miscToTuitions = response.data
-            })
-            .catch(error => {
-                console.log(error)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting miscellaneous tuitions data!'
-                })
-            })
-        },
-        flushToTuitionData() {
-            Swal.fire({
-                title: "Confirmation",
-                text : `Flushing the Tuition Fee payments from the Miscellaneous module will revalidate the Tuition Fee payables of the students. Continue with caution.`,
-                showCancelButton: true,
-                confirmButtonText: "Proceed Flushing",
-                confirmButtonColor : '#e03822'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post(`${ this.baseURL }/classes/flush-misc-to-tuitions`, {
-                        _token : this.token,
-                        ClassId : this.classId,
-                    })
-                    .then(response => {
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Miscellaneous tuitions flushed to tuition fees!'
-                        })
-                        location.reload()
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        this.toast.fire({
-                            icon : 'error',
-                            text : 'Error flushing miscellaneous fees to tuition!'
-                        })
-                    })
-                }
-            })
-        },
-        flushToEnrollmentData() {
-            Swal.fire({
-                title: "Confirmation",
-                text : `Flushing the Enrollment fees from the Miscellaneous module will revalidate the Tuition Fee payables of the students. Continue with caution.`,
-                showCancelButton: true,
-                confirmButtonText: "Proceed Flushing",
-                confirmButtonColor : '#e03822'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post(`${ this.baseURL }/classes/flush-misc-enrollment-to-tuitions`, {
-                        _token : this.token,
-                        ClassId : this.classId,
-                    })
-                    .then(response => {
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Miscellaneous enrollment flushed to tuition fees!'
-                        })
-                        location.reload()
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        this.toast.fire({
-                            icon : 'error',
-                            text : 'Error flushing enrollment miscellaneous fees to tuition!'
-                        })
-                    })
-                }
-            })
-        },
-        removeSubject(subjectId, teacherId) {
-            Swal.fire({
-                title: "Subject Removal Confirmation",
-                text : `NOTE that removing this subject will also remove the student's grades. You cannot undo this. Proceed with caution.`,
-                showCancelButton: true,
-                confirmButtonText: "Proceed Removal",
-                confirmButtonColor : '#e03822'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post(`${ this.baseURL }/users/remove-student-subjects`, {
-                        _token : this.token,
-                        ClassId : this.classId,
-                        TeacherId : teacherId,
-                        SubjectId : subjectId,
-                    })
-                    .then(response => {
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Subject removed!'
-                        })
-                        // this.subjects = this.subjects.filter(obj => obj.id !== subjectId)
-                        // this.getSubjectRepository()
-                        this.getSubjects()
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        this.toast.fire({
-                            icon : 'error',
-                            text : 'Error removing subject!'
-                        })
-                    })
-                }
-            })
-        },
-        getSubjectRepository() {
-            this.subjectRepos = []
-            axios.get(`${ this.baseURL }/classes_repos/get-all-subject-repos`)
-            .then(response => {
-                this.subjectRepos = response.data
-
-                if (!this.isNull(this.subjectRepos)) {
-                    this.subjectRepos = this.subjectRepos.filter(obj => !this.subjects.some(excludeObj => excludeObj.id === obj.id))
-                }
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting subject repositories!'
-                })
-            })
-        },
-        addSubject() {
-            if (!this.isNull(this.addedSubjectId)) {
-                axios.post(`${ this.baseURL }/classes/add-new-subject-to-class`, {
-                    SubjectId : this.addedSubjectId,
-                    ClassId : this.classId,
-                    _token : this.token,
-                })
-                .then(response => {
-                    this.toast.fire({
-                        icon : 'success',
-                        text : 'Subject added to class!'
-                    })
-                    this.getSubjects()
-                })
-                .catch(error => {
-                    console.log(error.response)
-                    this.toast.fire({
-                        icon : 'error',
-                        text : 'Error adding subject!'
-                    })
-                })
-            }
-            this.addSubjectEnabled = false
-            this.addedSubjectId = ''
-        },
-        printSingleStub(studentId) {
-            if (this.school === 'HCA') {
-                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                    window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
-                } else {
-                    window.location.href = `${ this.baseURL }/classes/print-single-grade-hca/${ studentId }/${ this.classId }`
-                }
-            } else if (this.school === 'SVI') {
-                this.printSingleGradeSVI(studentId)
-                // if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                //     window.location.href = `${ this.baseURL }/classes/print-single-grade-hca-senior/${ studentId }/${ this.classId }`
-                // } else {
-                //     window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }`
-                // }
-            }
-        },
-        printAllGradeStub() {
-            if (this.school === 'HCA') {
-                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                    window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca-senior/${ this.classId }`
-                } else {
-                    window.location.href = `${ this.baseURL }/classes/print-single-grade-all-hca/${ this.classId }`
-                }
-            } else if (this.school === 'SVI') {
-                this.printSingleGradeAllSVI()
-            }
-            
-        },
-        stubConfig() {
-            window.location.href = `${ this.baseURL }/classes/stub-config/${ this.classId }`
-        },
-        revalidateStudentSubjects(studentId) {
-            axios.post(`${ this.baseURL }/classes/revalidate-student-subjects`, {
-                StudentId : studentId,
-                SchoolYearId : this.syId,
-                ClassId : this.classId,
-                _token : this.token,
-            })
-            .then(response => {
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Subjects added to student!'
-                })
-                this.getSubjects()
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error adding subjects to student!'
-                })
-            })
-        },
-        clearSubjects(studentId) {
-            Swal.fire({
-                title: "Subject Removal Confirmation",
-                text : `NOTE that removing this subject will also remove the student's grades. You cannot undo this. Proceed with caution.`,
-                showCancelButton: true,
-                confirmButtonText: "Proceed Removal",
-                confirmButtonColor : '#e03822'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    axios.post(`${ this.baseURL }/classes/clear-student-subjects`, {
-                        StudentId : studentId,
-                        ClassId : this.classId,
-                        _token : this.token,
-                    })
-                    .then(response => {
-                        this.toast.fire({
-                            icon : 'success',
-                            text : 'Subjects removed from student!'
-                        })
-                        this.getSubjects()
-                    })
-                    .catch(error => {
-                        console.log(error.response)
-                        this.toast.fire({
-                            icon : 'error',
-                            text : 'Error removing subjects from student!'
-                        })
-                    })
-                }
-            })
-        },
-        rankings() {
-            this.setupRankingData()
-
-            let modalElement = this.$refs.modalRankings
-            $(modalElement).modal('show')
-        },
-        setupRankingData() {
-            this.rankingData = []
-            this.rankingData = this.male.concat(this.female)
-
-            // insert grades
-            if (!this.isNull(this.rankingData)) {
-                var size = this.rankingData.length
-                for (let i=0; i<size; i++) {
-                    this.rankingData[i]['FirstGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "First"))
-                    this.rankingData[i]['SecondGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Second"))
-                    this.rankingData[i]['ThirdGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Third"))
-                    this.rankingData[i]['FourthGradingGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Fourth"))
-                    this.rankingData[i]['AverageGrade'] = round(this.getTotalAverage(this.rankingData[i].id, "Average"))
-                }
-            }
-
-            this.sortRanking('Average')
-        },
-        getTotalAverage(studentId, grading) {
-            let gradeData = this.subjectData.filter(obj => obj.StudentId === studentId && !this.homeroomSubjects.includes(obj.SubjectId))
-            
-            var average = 0
-            var sum = 0
-            if (!this.isNull(gradeData)) {
-                let size = gradeData.length
-
-                for (let i=0; i<size; i++) {
-                    if (grading === 'First') {
-                        sum += (this.isNull(gradeData[i].FirstGradingGrade) ? 0 : parseFloat(gradeData[i].FirstGradingGrade))
-                    } else if (grading === 'Second') {
-                        sum += (this.isNull(gradeData[i].SecondGradingGrade) ? 0 : parseFloat(gradeData[i].SecondGradingGrade))
-                    } else if (grading === 'Third') {
-                        sum += (this.isNull(gradeData[i].ThirdGradingGrade) ? 0 : parseFloat(gradeData[i].ThirdGradingGrade))
-                    } else if (grading === 'Fourth') {
-                        sum += (this.isNull(gradeData[i].FourthGradingGrade) ? 0 : parseFloat(gradeData[i].FourthGradingGrade))
-                    } else {
-                        sum += (this.isNull(gradeData[i].AverageGrade) ? 0 : parseFloat(gradeData[i].AverageGrade))
-                    }
-                }
-                
-                if (sum > 0 && size > 0) {
-                    average = sum / size
-                } else {
-                    average = 0
-                }
-
-                return average
-            } else {
-                return 0
-            }
-        },
-        sortRanking(grading) {
-            this.activeRankGradeColor = grading
-            if (grading === 'First') {
-                this.rankingData.sort((a, b) => b.FirstGradingGrade - a.FirstGradingGrade)
-                this.activeRankTitle = grading + ' Grading Rankings'
-            } else if (grading === 'Second') {
-                this.rankingData.sort((a, b) => b.SecondGradingGrade - a.SecondGradingGrade)
-                this.activeRankTitle = grading + ' Grading Rankings'
-            } else if (grading === 'Third') {
-                this.rankingData.sort((a, b) => b.ThirdGradingGrade - a.ThirdGradingGrade)
-                this.activeRankTitle = grading + ' Grading Rankings'
-            } else if (grading === 'Fourth') {
-                this.rankingData.sort((a, b) => b.FourthGradingGrade - a.FourthGradingGrade)
-                this.activeRankTitle = grading + ' Grading Rankings'
-            } else {
-                this.rankingData.sort((a, b) => b.AverageGrade - a.AverageGrade)
-                this.activeRankTitle = 'Total Average Grade Rankings'
-            }
-        },
-        printRanking() {
-            window.location.href = `${ this.baseURL }/classes/print-ranking/${ this.classId }/${ this.activeRankGradeColor }/${ this.teacherId }/${ this.syId }`
-        },
-        showAttendance(studentId, date, studentName) {
-            this.studentSelected = studentName
-            this.dateSelectedShown = date
-            this.selectedAttData = this.barcodeAttendances.filter(obj => moment(obj.created_at).format('YYYY-MM-D') === date && obj.StudentId === studentId)
-
-            let modalElement = this.$refs.modalShowBio
-            $(modalElement).modal('show')
-        },
-        printSingleGradeSVI(studentId) {
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                Swal.fire({
-                    title: 'Select Semester to Print',
-                    html: `
+      let modalElement = this.$refs.modalShowBio;
+      $(modalElement).modal("show");
+    },
+    printSingleGradeSVI(studentId) {
+      if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+        Swal.fire({
+          title: "Select Semester to Print",
+          html: `
                         <form id="radioForm" class='row'>
-                            <div class='col-lg-12'>                                
+                            <div class='col-lg-12'>
                                 <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
                             </div>
 
-                            <div class='col-lg-12'>  
+                            <div class='col-lg-12'>
                                 <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
                             </div>
 
-                            <div class='col-lg-12'>  
+                            <div class='col-lg-12'>
                                 <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="All"> All</label>
                             </div>
 
-                            <div class='col-lg-12'>  
+                            <div class='col-lg-12'>
                                 <div class='divider'></div>
                                 <label style='text-align: left; float: left;'><input class='ico-tab-mini' type="checkbox" name="averageGradePrint" value="Yes"> Also Print Average Grade</label>
                             </div>
                         </form>
                     `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit',
-                    preConfirm: () => {
-                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
-                        const averageGradePrint = document.querySelector('input[name="averageGradePrint"]:checked') ? 'Yes' : 'No';
+          showCancelButton: true,
+          confirmButtonText: "Submit",
+          preConfirm: () => {
+            const selectedOption = document.querySelector(
+              'input[name="gradingOption"]:checked'
+            );
+            const averageGradePrint = document.querySelector(
+              'input[name="averageGradePrint"]:checked'
+            )
+              ? "Yes"
+              : "No";
 
-                        if (!selectedOption) {
-                            Swal.showValidationMessage('You need to select an semester!');
-                            return null;
-                        }
-                        
-                        return {
-                            gradingOption: selectedOption.value,
-                            averageGradePrint: averageGradePrint
-                        };
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi-senior/${ studentId }/${ this.classId }/${result.value.gradingOption}/${result.value.averageGradePrint}`
-                    }
-                });
-            } else {
-                Swal.fire({
-                    title: 'Select a Grading Period to Print',
-                    html: `
+            if (!selectedOption) {
+              Swal.showValidationMessage("You need to select an semester!");
+              return null;
+            }
+
+            return {
+              gradingOption: selectedOption.value,
+              averageGradePrint: averageGradePrint,
+            };
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = `${this.baseURL}/classes/print-single-grade-svi-senior/${studentId}/${this.classId}/${result.value.gradingOption}/${result.value.averageGradePrint}`;
+          }
+        });
+      } else {
+        Swal.fire({
+          title: "Select a Grading Period to Print",
+          html: `
                         <form id="radioForm" class='row'>
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
                             </div>
                         </form>
                     `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit',
-                    preConfirm: () => {
-                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+          showCancelButton: true,
+          confirmButtonText: "Submit",
+          preConfirm: () => {
+            const selectedOption = document.querySelector(
+              'input[name="gradingOption"]:checked'
+            );
 
-                        if (!selectedOption) {
-                            Swal.showValidationMessage('You need to select an grading period!');
-                            return null;
-                        }
-                        
-                        return {
-                            gradingOption: selectedOption.value,
-                        };
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-svi/${ studentId }/${ this.classId }/${result.value.gradingOption}`
-                    }
-                });
+            if (!selectedOption) {
+              Swal.showValidationMessage("You need to select an grading period!");
+              return null;
             }
-        },
-        printSingleGradeAllSVI() {
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                Swal.fire({
-                    title: 'Select Semester to Print',
-                    html: `
+
+            return {
+              gradingOption: selectedOption.value,
+            };
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = `${this.baseURL}/classes/print-single-grade-svi/${studentId}/${this.classId}/${result.value.gradingOption}`;
+          }
+        });
+      }
+    },
+    printSingleGradeAllSVI() {
+      if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+        Swal.fire({
+          title: "Select Semester to Print",
+          html: `
                         <form id="radioForm" class='row'>
-                            <div class='col-lg-12'>                                
+                            <div class='col-lg-12'>
                                 <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
                             </div>
 
-                            <div class='col-lg-12'>  
+                            <div class='col-lg-12'>
                                 <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
                             </div>
 
-                            <div class='col-lg-12'>  
+                            <div class='col-lg-12'>
                                 <label style='text-align: left; float: left;'><input type="radio" name="gradingOption" value="All"> All</label>
                             </div>
 
-                            <div class='col-lg-12'>  
+                            <div class='col-lg-12'>
                                 <div class='divider'></div>
                                 <label style='text-align: left; float: left;'><input class='ico-tab-mini' type="checkbox" name="averageGradePrint" value="Yes"> Also Print Average Grade</label>
                             </div>
                         </form>
                     `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit',
-                    preConfirm: () => {
-                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
-                        const averageGradePrint = document.querySelector('input[name="averageGradePrint"]:checked') ? 'Yes' : 'No';
+          showCancelButton: true,
+          confirmButtonText: "Submit",
+          preConfirm: () => {
+            const selectedOption = document.querySelector(
+              'input[name="gradingOption"]:checked'
+            );
+            const averageGradePrint = document.querySelector(
+              'input[name="averageGradePrint"]:checked'
+            )
+              ? "Yes"
+              : "No";
 
-                        if (!selectedOption) {
-                            Swal.showValidationMessage('You need to select an semester!');
-                            return null;
-                        }
-                        
-                        return {
-                            gradingOption: selectedOption.value,
-                            averageGradePrint: averageGradePrint
-                        };
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi-senior/${ this.classId }/${result.value.gradingOption}/${result.value.averageGradePrint}`
-                    }
-                });
-            } else {
-                Swal.fire({
-                    title: 'Select a Grading Period to Print',
-                    html: `
+            if (!selectedOption) {
+              Swal.showValidationMessage("You need to select an semester!");
+              return null;
+            }
+
+            return {
+              gradingOption: selectedOption.value,
+              averageGradePrint: averageGradePrint,
+            };
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = `${this.baseURL}/classes/print-single-grade-all-svi-senior/${this.classId}/${result.value.gradingOption}/${result.value.averageGradePrint}`;
+          }
+        });
+      } else {
+        Swal.fire({
+          title: "Select a Grading Period to Print",
+          html: `
                         <form id="radioForm" class='row'>
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="First"> First</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Second"> Second</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Third"> Third</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Fourth"> Fourth</label><br>
                             </div>
 
-                            <div class='col-lg-12'> 
+                            <div class='col-lg-12'>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> All</label>
                             </div>
                         </form>
                     `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Submit',
-                    preConfirm: () => {
-                        const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
+          showCancelButton: true,
+          confirmButtonText: "Submit",
+          preConfirm: () => {
+            const selectedOption = document.querySelector(
+              'input[name="gradingOption"]:checked'
+            );
 
-                        if (!selectedOption) {
-                            Swal.showValidationMessage('You need to select an grading period!');
-                            return null;
-                        }
-
-                        return {
-                            gradingOption: selectedOption.value,
-                        };
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = `${ this.baseURL }/classes/print-single-grade-all-svi/${ this.classId }/${result.value.gradingOption}`
-                    }
-                });
+            if (!selectedOption) {
+              Swal.showValidationMessage("You need to select an grading period!");
+              return null;
             }
-            
-        },
-        printAllGrades() {
-            Swal.fire({
-                title: 'Select a Grading Period to Print',
-                html: `
+
+            return {
+              gradingOption: selectedOption.value,
+            };
+          },
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = `${this.baseURL}/classes/print-single-grade-all-svi/${this.classId}/${result.value.gradingOption}`;
+          }
+        });
+      }
+    },
+    printAllGrades() {
+      Swal.fire({
+        title: "Select a Grading Period to Print",
+        html: `
                     <form id="radioForm">
                         <label style='text-align: left;'><input type="radio" name="gradingOption" value="1st"> First</label><br>
                         <label style='text-align: left;'><input type="radio" name="gradingOption" value="2nd"> Second</label><br>
@@ -2677,435 +4816,502 @@ export default {
                         <label style='text-align: left;'><input type="radio" name="gradingOption" value="All"> General Average</label>
                     </form>
                 `,
-                showCancelButton: true,
-                confirmButtonText: 'Submit',
-                preConfirm: () => {
-                    const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
-                    if (!selectedOption) {
-                        Swal.showValidationMessage('You need to select an grading period!');
-                        return null;
-                    }
-                    return selectedOption.value;
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `${ this.baseURL }/classes/print-all-grades/${ this.classId }/${result.value}`
-                }
-                });
+        showCancelButton: true,
+        confirmButtonText: "Submit",
+        preConfirm: () => {
+          const selectedOption = document.querySelector(
+            'input[name="gradingOption"]:checked'
+          );
+          if (!selectedOption) {
+            Swal.showValidationMessage("You need to select an grading period!");
+            return null;
+          }
+          return selectedOption.value;
         },
-        runCheckEnrollableTo2ndSem() {
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                if (!this.isNull(this.advisory.Semester) && this.advisory.Semester === '1st') {
-                    this.checkEnrollableTo2ndSem = true
-                } else {
-                    this.checkEnrollableTo2ndSem = false
-                }
-            } else {
-                this.checkEnrollableTo2ndSem = false
-            }
-        },
-        enrollToSecondSem() {
-            if (this.selection.length < 1) {
-                this.toast.fire({
-                    icon : 'warning',
-                    text : 'Please select students first!'
-                })
-            } else {
-                Swal.fire({
-                    title: "Enrollment Confirmation",
-                    html : `<p class='text-left'>By enrolling these selected students to 2nd semester directly, you won't be able to collect any enrollment fees. Continue?</p>
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `${this.baseURL}/classes/print-all-grades/${this.classId}/${result.value}`;
+        }
+      });
+    },
+    runCheckEnrollableTo2ndSem() {
+      if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+        if (!this.isNull(this.advisory.Semester) && this.advisory.Semester === "1st") {
+          this.checkEnrollableTo2ndSem = true;
+        } else {
+          this.checkEnrollableTo2ndSem = false;
+        }
+      } else {
+        this.checkEnrollableTo2ndSem = false;
+      }
+    },
+    enrollToSecondSem() {
+      if (this.selection.length < 1) {
+        this.toast.fire({
+          icon: "warning",
+          text: "Please select students first!",
+        });
+      } else {
+        Swal.fire({
+          title: "Enrollment Confirmation",
+          html: `<p class='text-left'>By enrolling these selected students to 2nd semester directly, you won't be able to collect any enrollment fees. Continue?</p>
                             <br>
                             <p class='text-left'>Alternatively, if you wish to collect any enrollment fees, go to <strong>Enrollment</strong> menu.</p>`,
-                    showCancelButton: true,
-                    confirmButtonText: "Proceed 2nd Sem Enrollment",
-                    confirmButtonColor : '#e03822'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        axios.post(`${ this.baseURL }/classes/save-enroll-to-second-sem`, {
-                            _token : this.token,
-                            Students : this.selection,
-                            SourceClassId : this.classId
-                        })
-                        .then(response => {
-                            this.toast.fire({
-                                icon : 'success',
-                                text : 'Students enrolled to second semester!'
-                            })
-                            this.selectionMode = false
-                            this.selectionButtonIndicator = 'text-gray'
-                        })
-                        .catch(error => {
-                            console.log(error.response)
-                            this.toast.fire({
-                                icon : 'error',
-                                text : 'Error enrolling students to second semester!'
-                            })
-                            this.selectionMode = false
-                            this.selectionButtonIndicator = 'text-gray'
-                        })
-                    }
-                })
-            }
-        },
-        goToOtherSem(sem) {
-            if (sem === '1st') {
-                const classOther = this.classesInSy.find(obj => obj.Year === this.advisory.Year && obj.Section === this.advisory.Section && obj.Strand === this.advisory.Strand && obj.SchoolYearId === this.syId && obj.Semester === sem)
-                
-                if (this.isNull(classOther)) {
-                    this.toast.fire({
-                        icon : 'info',
-                        text : `No ${ sem } Semester recorded for this class yet!`
-                    })
-                } else {
-                    window.location.href = `${ this.baseURL }/classes/view-class/${ classOther.Adviser }/${ this.syId }/${ classOther.id }`
-                }
-            } else {
-                const classOther = this.classesInSy.find(obj => obj.Year === this.advisory.Year && obj.Section === this.advisory.Section && obj.Strand === this.advisory.Strand && obj.SchoolYearId === this.syId && obj.Semester === sem)
-                
-                if (this.isNull(classOther)) {
-                    Swal.fire({
-                        title: "No Second Sem",
-                        html : `No 2nd semester recorded. Do you want to create one?`,
-                        showCancelButton: true,
-                        confirmButtonText: "Yes, Please",
-                        confirmButtonColor : '#e03822'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            axios.post(`${ this.baseURL }/classes/create-new-sem`, {
-                                _token : this.token,
-                                SchoolYearId : this.syDetails.id,
-                                Year : this.advisory.Year,
-                                Section : this.advisory.Section,
-                                Adviser : this.advisory.Adviser,
-                                Strand : this.advisory.Strand,
-                                Sem : "2nd"
-                            })
-                            .then(response => {
-                                Swal.fire({
-                                    title : '2nd Semester Added!',
-                                    icon: 'success',
-                                    text : 'Do you wish to go to 2nd sem?',
-                                    showCancelButton: true,
-                                    confirmButtonText: "Yes",
-                                    confirmButtonColor : '#e03822'
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        window.location.href = `${ this.baseURL }/classes/view-class/${ this.advisory.Adviser }/${ this.syId }/${ response.data }`
-                                    }
-                                })
-                            })
-                            .catch(error => {
-                                console.log(error.response)
-                                this.toast.fire({
-                                    icon : 'error',
-                                    text : 'Error adding second sem'
-                                })
-                            })
-                        }
-                    })
-                } else {
-                    window.location.href = `${ this.baseURL }/classes/view-class/${ classOther.Adviser }/${ this.syId }/${ classOther.id }`
-                }
-            }
-        },
-        manageClass() {
-            if (this.isNull(this.classRepo)) {
+          showCancelButton: true,
+          confirmButtonText: "Proceed 2nd Sem Enrollment",
+          confirmButtonColor: "#e03822",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            axios
+              .post(`${this.baseURL}/classes/save-enroll-to-second-sem`, {
+                _token: this.token,
+                Students: this.selection,
+                SourceClassId: this.classId,
+              })
+              .then((response) => {
                 this.toast.fire({
-                    icon : 'info',
-                    text : 'Unable to manage class! Contact support for more!'
+                  icon: "success",
+                  text: "Students enrolled to second semester!",
+                });
+                this.selectionMode = false;
+                this.selectionButtonIndicator = "text-gray";
+              })
+              .catch((error) => {
+                console.log(error.response);
+                this.toast.fire({
+                  icon: "error",
+                  text: "Error enrolling students to second semester!",
+                });
+                this.selectionMode = false;
+                this.selectionButtonIndicator = "text-gray";
+              });
+          }
+        });
+      }
+    },
+    goToOtherSem(sem) {
+      if (sem === "1st") {
+        const classOther = this.classesInSy.find(
+          (obj) =>
+            obj.Year === this.advisory.Year &&
+            obj.Section === this.advisory.Section &&
+            obj.Strand === this.advisory.Strand &&
+            obj.SchoolYearId === this.syId &&
+            obj.Semester === sem
+        );
+
+        if (this.isNull(classOther)) {
+          this.toast.fire({
+            icon: "info",
+            text: `No ${sem} Semester recorded for this class yet!`,
+          });
+        } else {
+          window.location.href = `${this.baseURL}/classes/view-class/${classOther.Adviser}/${this.syId}/${classOther.id}`;
+        }
+      } else {
+        const classOther = this.classesInSy.find(
+          (obj) =>
+            obj.Year === this.advisory.Year &&
+            obj.Section === this.advisory.Section &&
+            obj.Strand === this.advisory.Strand &&
+            obj.SchoolYearId === this.syId &&
+            obj.Semester === sem
+        );
+
+        if (this.isNull(classOther)) {
+          Swal.fire({
+            title: "No Second Sem",
+            html: `No 2nd semester recorded. Do you want to create one?`,
+            showCancelButton: true,
+            confirmButtonText: "Yes, Please",
+            confirmButtonColor: "#e03822",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              axios
+                .post(`${this.baseURL}/classes/create-new-sem`, {
+                  _token: this.token,
+                  SchoolYearId: this.syDetails.id,
+                  Year: this.advisory.Year,
+                  Section: this.advisory.Section,
+                  Adviser: this.advisory.Adviser,
+                  Strand: this.advisory.Strand,
+                  Sem: "2nd",
                 })
-            } else {
-                window.location.href = `${ this.baseURL }/classesRepos/${ this.classRepo.id }`
+                .then((response) => {
+                  Swal.fire({
+                    title: "2nd Semester Added!",
+                    icon: "success",
+                    text: "Do you wish to go to 2nd sem?",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    confirmButtonColor: "#e03822",
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      window.location.href = `${this.baseURL}/classes/view-class/${this.advisory.Adviser}/${this.syId}/${response.data}`;
+                    }
+                  });
+                })
+                .catch((error) => {
+                  console.log(error.response);
+                  this.toast.fire({
+                    icon: "error",
+                    text: "Error adding second sem",
+                  });
+                });
             }
-        },
-        downloadSF10(studentId) {
-            if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                window.location.href = `${ this.baseURL }/classes/download-sf10/${ studentId }/${ this.classId }`
-            }
-        },
-        downloadSF10JHS(studentId) {
-            if (this.advisory.Year !== 'Grade 11' || this.advisory.Year !== 'Grade 12') {
-                window.location.href = `${ this.baseURL }/classes/download-sf10-jhs/${ studentId }/${ this.classId }`
-            }
-        },
-        selectViewOptionQ(quarter) {
-            this.viewOptionSelectedQ = quarter
-        },        
-        handleError(event) {
-            event.target.src = `${this.imgPath}prof-img.png`
-        },
-        showImageProfile(path) {
-            const url = path
-            Swal.fire({
-                html : `<img src="${ url }" style="width: 400px; height: 400px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="profile">`,
-                confirmButtonText: 'Close'
-            })
-        },
-        toggleAddStudentsForm() {
-            this.addStudentFormActive = this.addStudentFormActive ? false : true;
-        },
-        searchStudent(page = 1) {
-            axios.get(`${ this.baseURL }/students/search-students-paginated`, {
-                params : {
-                    page : page,
-                    SearchParams : this.addStudentSearch,
-                }
-            })
-            .then(response => {
-                this.studentResults = response.data
-            })
-            .catch(error => {
-                console.log(error.response)
-            })
-        },
-        printReportCard() {
-            if (this.school === 'HCA') {
-                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                    window.location.href = `${ this.baseURL }/classes/print-report-card-hca-senior-all/${ this.classId }/Yes`
-                } else {
-                    // select what to print, fron or back
-                    Swal.fire({
-                        title: 'Select Which Side to Print',
-                        html: `
+          });
+        } else {
+          window.location.href = `${this.baseURL}/classes/view-class/${classOther.Adviser}/${this.syId}/${classOther.id}`;
+        }
+      }
+    },
+    manageClass() {
+      if (this.isNull(this.classRepo)) {
+        this.toast.fire({
+          icon: "info",
+          text: "Unable to manage class! Contact support for more!",
+        });
+      } else {
+        window.location.href = `${this.baseURL}/classesRepos/${this.classRepo.id}`;
+      }
+    },
+    downloadSF10(studentId) {
+      if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+        window.location.href = `${this.baseURL}/classes/download-sf10/${studentId}/${this.classId}`;
+      }
+    },
+    downloadSF10JHS(studentId) {
+      if (this.advisory.Year !== "Grade 11" || this.advisory.Year !== "Grade 12") {
+        window.location.href = `${this.baseURL}/classes/download-sf10-jhs/${studentId}/${this.classId}`;
+      }
+    },
+    selectViewOptionQ(quarter) {
+      this.viewOptionSelectedQ = quarter;
+    },
+    handleError(event) {
+      event.target.src = `${this.imgPath}prof-img.png`;
+    },
+    showImageProfile(path) {
+      const url = path;
+      Swal.fire({
+        html: `<img src="${url}" style="width: 400px; height: 400px; object-fit: cover; margin-right: 25px;" class="img-circle" alt="profile">`,
+        confirmButtonText: "Close",
+      });
+    },
+    toggleAddStudentsForm() {
+      this.addStudentFormActive = this.addStudentFormActive ? false : true;
+    },
+    searchStudent(page = 1) {
+      axios
+        .get(`${this.baseURL}/students/search-students-paginated`, {
+          params: {
+            page: page,
+            SearchParams: this.addStudentSearch,
+          },
+        })
+        .then((response) => {
+          this.studentResults = response.data;
+        })
+        .catch((error) => {
+          console.log(error.response);
+        });
+    },
+    printReportCard() {
+      if (this.school === "HCA") {
+        if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+          window.location.href = `${this.baseURL}/classes/print-report-card-hca-senior-all/${this.classId}/Yes`;
+        } else {
+          // select what to print, fron or back
+          Swal.fire({
+            title: "Select Which Side to Print",
+            html: `
                             <form id="radioForm">
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Front"> Front</label><br>
                                 <label style='text-align: left;'><input type="radio" name="gradingOption" value="Back"> Back</label><br>
                             </form>
                         `,
-                        showCancelButton: true,
-                        confirmButtonText: 'Submit',
-                        preConfirm: () => {
-                            const selectedOption = document.querySelector('input[name="gradingOption"]:checked');
-                            if (!selectedOption) {
-                                Swal.showValidationMessage('You need to select which side to print!');
-                                return null;
-                            }
-                            return selectedOption.value;
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = `${ this.baseURL }/classes/print-report-card-hca-all/${ this.classId }/Yes/${result.value}`
-                        }
-                    });
-                }
-            } else if (this.school === 'SVI') {
-                if (this.advisory.Year === 'Grade 11' || this.advisory.Year === 'Grade 12') {
-                    window.location.href = `${ this.baseURL }/classes/print-report-card-svi-senior-all/${ this.classId }/Yes`
-                } else {
-                    window.location.href = `${ this.baseURL }/classes/print-report-card-svi-all/${ this.classId }/Yes`
-                }
+            showCancelButton: true,
+            confirmButtonText: "Submit",
+            preConfirm: () => {
+              const selectedOption = document.querySelector(
+                'input[name="gradingOption"]:checked'
+              );
+              if (!selectedOption) {
+                Swal.showValidationMessage("You need to select which side to print!");
+                return null;
+              }
+              return selectedOption.value;
+            },
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = `${this.baseURL}/classes/print-report-card-hca-all/${this.classId}/Yes/${result.value}`;
             }
-        },
-        editObservedValues(studentId) {
-            this.observedValuesActiveStudentId = studentId
-            this.getObservedValues()
-        },
-        getObservedValues() {
-            this.loaderVisibility = true
-
-            axios.get(`${ this.baseURL }/classes/get-observed-values`, {
-                params : {
-                    ClassId : this.classId,
-                    StudentId : this.observedValuesActiveStudentId
-                }
-            })
-            .then(response => {
-                this.observedValues = response.data
-
-                this.resetObservedValues()
-
-                if (!this.isNull(this.observedValues)) {
-                    this.makabansa_1 = this.findValue(this.MAKABANSA_1)
-                    this.makabansa_2 = this.findValue(this.MAKABANSA_2)
-                    this.makadios_1 = this.findValue(this.MAKADIOS_1)
-                    this.makadios_2 = this.findValue(this.MAKADIOS_2)
-                    this.makatao_1 = this.findValue(this.MAKATAO_1)
-                    this.makatao_2 = this.findValue(this.MAKATAO_2)
-                    this.makakalikasan_1 = this.findValue(this.MAKAKALIKASAN_1)
-                    this.industry = this.findValue(this.INDUSTRY)
-                } 
-
-                this.loaderVisibility = false
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error getting observed values!'
-                }) 
-                this.loaderVisibility = false
-            })
-        },
-        resetObservedValues() {
-            this.makabansa_1 = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.MAKABANSA_1,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-
-            this.makabansa_2 = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.MAKABANSA_2,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-            this.makadios_1 = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.MAKADIOS_1,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-            this.makadios_2 = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.MAKADIOS_2,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-            this.makatao_1 = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.MAKATAO_1,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-            this.makatao_2 = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.MAKATAO_2,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-            this.makakalikasan_1 = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.MAKAKALIKASAN_1,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-            this.industry = {
-                id : null,
-                StudentId : this.observedValuesActiveStudentId,
-                ClassId : this.classId,
-                ObservedValue : this.INDUSTRY,
-                FirstQuarter : null,
-                SecondQuarter : null,
-                ThirdQuarter : null,
-                FourthQuarter : null,
-            }
-        },
-        findValue(value) {
-            let val = this.observedValues.find(obj => obj.ObservedValue === value && obj.StudentId === this.observedValuesActiveStudentId)
-            
-            if (this.isNull(val)) {
-                return {
-                    id : null,
-                    StudentId : this.observedValuesActiveStudentId,
-                    ClassId : this.classId,
-                    ObservedValue : null,
-                    FirstQuarter : null,
-                    SecondQuarter : null,
-                    ThirdQuarter : null,
-                    FourthQuarter : null,
-                }
-            } else {
-                return val
-            }
-        },
-        saveObservedValues(oValueStatic, value) {
-            // console.log(value)
-            axios.post(`${ this.baseURL }/classes/save-observed-values`, {
-                ClassId : this.classId,
-                StudentId : this.observedValuesActiveStudentId,
-                Value : value,
-                ObservedValue : oValueStatic,
-                _token : this.token
-            })
-            .then(response => {
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Observed values saved!'
-                })
-                console.log(response.data)
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error saving observed values!'
-                }) 
-            })
-        },
-        updateStrand(strand) {
-            axios.post(`${ this.baseURL }/classes/update-strand`, {
-                _token : this.token,
-                ClassId : this.classId,
-                Strand : strand
-            })
-            .then(response => {
-                this.toast.fire({
-                    icon : 'success',
-                    text : 'Strand updated!'
-                })
-            })
-            .catch(error => {
-                console.log(error.response)
-                this.toast.fire({
-                    icon : 'error',
-                    text : 'Error updating strand!'
-                }) 
-            })
-            this.$refs.strand.blur();
-            location.reload()
-        },
-        changeInputType(type) {
-            this.olvInput = type
+          });
         }
-    },
-    created() {
-        
-    },
-    mounted() {
-        this.classSelect = this.classId
-
-        this.getAdvisoryData()
-        this.getSubjects()
-        
-        // attendance
-        // this.getAllAttendanceData()
-
-        this.getClassesInSY()
-        this.getClassesRepo()
-
-        if (this.userId === '1') {
-            this.getMiscellaneousToTuitions()
+      } else if (this.school === "SVI") {
+        if (this.advisory.Year === "Grade 11" || this.advisory.Year === "Grade 12") {
+          window.location.href = `${this.baseURL}/classes/print-report-card-svi-senior-all/${this.classId}/Yes`;
+        } else {
+          window.location.href = `${this.baseURL}/classes/print-report-card-svi-all/${this.classId}/Yes`;
         }
+      }
+    },
+    editObservedValues(studentId) {
+      this.observedValuesActiveStudentId = studentId;
+      this.getObservedValues();
+    },
+    getObservedValues() {
+      this.loaderVisibility = true;
+
+      axios
+        .get(`${this.baseURL}/classes/get-observed-values`, {
+          params: {
+            ClassId: this.classId,
+            StudentId: this.observedValuesActiveStudentId,
+          },
+        })
+        .then((response) => {
+          this.observedValues = response.data;
+
+          this.resetObservedValues();
+
+          if (!this.isNull(this.observedValues)) {
+            this.makabansa_1 = this.findValue(this.MAKABANSA_1);
+            this.makabansa_2 = this.findValue(this.MAKABANSA_2);
+            this.makadios_1 = this.findValue(this.MAKADIOS_1);
+            this.makadios_2 = this.findValue(this.MAKADIOS_2);
+            this.makatao_1 = this.findValue(this.MAKATAO_1);
+            this.makatao_2 = this.findValue(this.MAKATAO_2);
+            this.makakalikasan_1 = this.findValue(this.MAKAKALIKASAN_1);
+            this.industry = this.findValue(this.INDUSTRY);
+          }
+
+          this.loaderVisibility = false;
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting observed values!",
+          });
+          this.loaderVisibility = false;
+        });
+    },
+    resetObservedValues() {
+      this.makabansa_1 = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.MAKABANSA_1,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+
+      this.makabansa_2 = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.MAKABANSA_2,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+      this.makadios_1 = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.MAKADIOS_1,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+      this.makadios_2 = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.MAKADIOS_2,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+      this.makatao_1 = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.MAKATAO_1,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+      this.makatao_2 = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.MAKATAO_2,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+      this.makakalikasan_1 = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.MAKAKALIKASAN_1,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+      this.industry = {
+        id: null,
+        StudentId: this.observedValuesActiveStudentId,
+        ClassId: this.classId,
+        ObservedValue: this.INDUSTRY,
+        FirstQuarter: null,
+        SecondQuarter: null,
+        ThirdQuarter: null,
+        FourthQuarter: null,
+      };
+    },
+    findValue(value) {
+      let val = this.observedValues.find(
+        (obj) =>
+          obj.ObservedValue === value &&
+          obj.StudentId === this.observedValuesActiveStudentId
+      );
+
+      if (this.isNull(val)) {
+        return {
+          id: null,
+          StudentId: this.observedValuesActiveStudentId,
+          ClassId: this.classId,
+          ObservedValue: null,
+          FirstQuarter: null,
+          SecondQuarter: null,
+          ThirdQuarter: null,
+          FourthQuarter: null,
+        };
+      } else {
+        return val;
+      }
+    },
+    saveObservedValues(oValueStatic, value) {
+      // console.log(value)
+      axios
+        .post(`${this.baseURL}/classes/save-observed-values`, {
+          ClassId: this.classId,
+          StudentId: this.observedValuesActiveStudentId,
+          Value: value,
+          ObservedValue: oValueStatic,
+          _token: this.token,
+        })
+        .then((response) => {
+          this.toast.fire({
+            icon: "success",
+            text: "Observed values saved!",
+          });
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error saving observed values!",
+          });
+        });
+    },
+    updateStrand(strand) {
+      axios
+        .post(`${this.baseURL}/classes/update-strand`, {
+          _token: this.token,
+          ClassId: this.classId,
+          Strand: strand,
+        })
+        .then((response) => {
+          this.toast.fire({
+            icon: "success",
+            text: "Strand updated!",
+          });
+        })
+        .catch((error) => {
+          console.log(error.response);
+          this.toast.fire({
+            icon: "error",
+            text: "Error updating strand!",
+          });
+        });
+      this.$refs.strand.blur();
+      location.reload();
+    },
+    changeInputType(type) {
+      this.olvInput = type;
+    },
+    setupTeachersData() {
+      axios
+        .get(`${this.baseURL}/teachers/get-teachers`)
+        .then((response) => {
+          this.teachersData = response.data;
+        })
+        .catch((error) => {
+          this.toast.fire({
+            icon: "error",
+            text: "Error getting teachers!",
+          });
+        });
+    },
+    teachers() {
+      this.setupTeachersData();
+
+      let modalElement = this.$refs.modalTeachers;
+
+      $(modalElement).modal("show");
+    },
+
+    changeAdviser() {
+      axios
+        .post(`${this.baseURL}/classes/change-class-adviser`, {
+          ClassId: this.classId,
+          TeacherId: this.selectedTeacherId,
+        })
+        .then((response) => {
+          this.toast.fire({
+            icon: "success",
+            text: "Class adviser changed successfully!",
+          });
+
+          this.adviser = response.data;
+        })
+        .catch((error) => {
+          this.toast.fire({
+            icon: "error",
+            text: "Failed to change class adviser. Please try again.",
+          });
+        });
+    },
+  },
+  created() {},
+  mounted() {
+    this.classSelect = this.classId;
+
+    this.getAdvisoryData();
+    this.getSubjects();
+
+    // attendance
+    // this.getAllAttendanceData()
+
+    this.getClassesInSY();
+    this.getClassesRepo();
+
+    if (this.userId === "1") {
+      this.getMiscellaneousToTuitions();
     }
-}
-
+  },
+};
 </script>

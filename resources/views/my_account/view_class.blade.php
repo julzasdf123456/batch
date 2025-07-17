@@ -7,14 +7,14 @@
 <meta name="olv-input" content="{{ env('OLV_EDIT_MODE') }}">
 
 @section('content')
-<div id="app">
-    <view-class></view-class>
-</div>
-@vite('resources/js/app.js')
+    <div id="app">
+        <view-class></view-class>
+    </div>
+    @vite('resources/js/app.js')
 @endsection
 @push('page_scripts')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('body').addClass('sidebar-collapse')
             $('#page-title').html("<span class='text-muted'>Class View</span>")
         })
