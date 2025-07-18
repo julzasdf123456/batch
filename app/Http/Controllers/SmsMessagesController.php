@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\SmsMessages;
+use App\Models\SchoolYear;;
 use App\Models\Classes;
 use App\Models\Students;
 use Flash;
@@ -153,12 +154,16 @@ class SmsMessagesController extends AppBaseController
         $recipients = $request['Recipients'];
         $message = $request['Message'];
 
+        $latestSY = SchoolYear::orderByDesc('created_at')
+            ->first();
+
         if ($recipients != null) {
             foreach($recipients as $item) {
                 $class = Classes::where('Year', $item['Year'])
                     ->where('Section', $item['Section'])
                     ->where('Strand', $item['Strand'])
                     ->where('Semester', $item['Semester'])
+                    ->where('SchoolYearId', $latestSY != null ? $latestSY->id : '')
                     ->orderByDesc('created_at')
                     ->first();
 
