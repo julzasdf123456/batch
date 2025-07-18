@@ -31,12 +31,14 @@ class TeachersController extends AppBaseController
      */
     public function index(Request $request)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view teachers'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view teachers']))
+        {
             $teachers = $this->teachersRepository->paginate(30);
 
             return view('teachers.index')
                 ->with('teachers', $teachers);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -46,9 +48,11 @@ class TeachersController extends AppBaseController
      */
     public function create()
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'create teachers'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'create teachers']))
+        {
             return view('teachers.create');
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -72,11 +76,13 @@ class TeachersController extends AppBaseController
      */
     public function show($id)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view teachers'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view teachers']))
+        {
             return view('teachers.show', [
                 'id' => $id,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -86,17 +92,20 @@ class TeachersController extends AppBaseController
      */
     public function edit($id)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'edit teachers'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'edit teachers']))
+        {
             $teachers = $this->teachersRepository->find($id);
 
-            if (empty($teachers)) {
+            if (empty($teachers))
+            {
                 Flash::error('Teachers not found');
 
                 return redirect(route('teachers.index'));
             }
 
             return view('teachers.edit')->with('teachers', $teachers);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
@@ -108,7 +117,8 @@ class TeachersController extends AppBaseController
     {
         $teachers = $this->teachersRepository->find($id);
 
-        if (empty($teachers)) {
+        if (empty($teachers))
+        {
             Flash::error('Teachers not found');
 
             return redirect(route('teachers.index'));
@@ -128,10 +138,12 @@ class TeachersController extends AppBaseController
      */
     public function destroy($id)
     {
-        if (Auth::user()->hasAnyPermission(['god permission', 'delete teachers'])) {
+        if (Auth::user()->hasAnyPermission(['god permission', 'delete teachers']))
+        {
             $teachers = $this->teachersRepository->find($id);
 
-            if (empty($teachers)) {
+            if (empty($teachers))
+            {
                 Flash::error('Teachers not found');
 
                 return redirect(route('teachers.index'));
@@ -142,12 +154,14 @@ class TeachersController extends AppBaseController
             Flash::success('Teachers deleted successfully.');
 
             return redirect(route('teachers.index'));
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function getTeacherData(Request $request) {
+    public function getTeacherData(Request $request)
+    {
         $id = $request['id'];
 
         $teacher = Teachers::find($id);
@@ -164,7 +178,8 @@ class TeachersController extends AppBaseController
             ->orderByDesc('id')
             ->get();
 
-        foreach ($schoolYears as $item) {
+        foreach ($schoolYears as $item)
+        {
             $item->SubjectClasses = DB::table('StudentSubjects')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
@@ -200,7 +215,8 @@ class TeachersController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function getStudentsFromSubjectClass(Request $request) {
+    public function getStudentsFromSubjectClass(Request $request)
+    {
         $classId = $request['ClassId'];
         $teacherId = $request['TeacherId'];
         $subjectId = $request['SubjectId'];
@@ -222,7 +238,8 @@ class TeachersController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function getClassDetails(Request $request) {
+    public function getClassDetails(Request $request)
+    {
         $classId = $request['ClassId'];
         $teacherId = $request['TeacherId'];
         $subjectId = $request['SubjectId'];
@@ -261,7 +278,7 @@ class TeachersController extends AppBaseController
         $data['MaleStudents'] = DB::table('StudentSubjects')
             ->leftJoin('Students', 'StudentSubjects.StudentId', '=', 'Students.id')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
-            ->leftJoin('StudentClasses', function($join) {
+            ->leftJoin('StudentClasses', function ($join) {
                 $join->on('StudentClasses.ClassId', '=', 'StudentSubjects.ClassId')
                     ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
             })
@@ -282,7 +299,7 @@ class TeachersController extends AppBaseController
         $data['FemaleStudents'] = DB::table('StudentSubjects')
             ->leftJoin('Students', 'StudentSubjects.StudentId', '=', 'Students.id')
             ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
-            ->leftJoin('StudentClasses', function($join) {
+            ->leftJoin('StudentClasses', function ($join) {
                 $join->on('StudentClasses.ClassId', '=', 'StudentSubjects.ClassId')
                     ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
             })
@@ -303,7 +320,8 @@ class TeachersController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function updateGradeVisibility(Request $request) {
+    public function updateGradeVisibility(Request $request)
+    {
         $classId = $request['ClassId'];
         $teacherId = $request['TeacherId'];
         $subjectId = $request['SubjectId'];
@@ -317,15 +335,17 @@ class TeachersController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function getClassPaymentDetails(Request $request) {
+    public function getClassPaymentDetails(Request $request)
+    {
         $classId = $request['ClassId'];
         $schoolYear = $request['SchoolYear'];
 
         $class = Classes::find($classId);
         $sy = SchoolYear::where('SchoolYear', $schoolYear)->first();
         $data = [];
-        
-        if ($class != null && ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') && $class->Semester === '2nd' && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS' && env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE') {
+
+        if ($class != null && ($class->Year === 'Grade 11' | $class->Year === 'Grade 12') && $class->Semester === '2nd' && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS' && env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE')
+        {
             // get 1st sem class
             $classFirst = Classes::where('Year', $class->Year)
                 ->where('Section', $class->Section)
@@ -334,7 +354,8 @@ class TeachersController extends AppBaseController
                 ->where('SchoolYearId', $sy != null ? $sy->id : null)
                 ->first();
 
-            if ($classFirst != null) {
+            if ($classFirst != null)
+            {
                 $data['Months'] = DB::table('TuitionsBreakdown')
                     ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
                     ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classFirst->id . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classFirst->id . "')")
@@ -363,7 +384,8 @@ class TeachersController extends AppBaseController
                 $data['PayableProfile'] = DB::table('Payables')
                     ->whereRaw("SchoolYear='" . $schoolYear . "' AND ClassId='" . $classFirst->id . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classFirst->id . "')")
                     ->get();
-            } else {
+            } else
+            {
                 $data['Months'] = DB::table('TuitionsBreakdown')
                     ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
                     ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
@@ -393,7 +415,8 @@ class TeachersController extends AppBaseController
                     ->whereRaw("SchoolYear='" . $schoolYear . "' AND ClassId='" . $classId . "' AND Category='Tuition Fees' AND StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
                     ->get();
             }
-        } else {
+        } else
+        {
             $data['Months'] = DB::table('TuitionsBreakdown')
                 ->leftJoin('Payables', 'Payables.id', '=', 'TuitionsBreakdown.PayableId')
                 ->whereRaw("Payables.SchoolYear='" . $schoolYear . "' AND Payables.ClassId='" . $classId . "' AND Payables.Category='Tuition Fees' AND Payables.StudentId IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
@@ -427,11 +450,19 @@ class TeachersController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function printClassPaymentDetails($classId, $schoolYearId, $subjectId) {
+    public function printClassPaymentDetails($classId, $schoolYearId, $subjectId)
+    {
         return view('/my_account/print_class_payment_details', [
             'classId' => $classId,
             'schoolYearId' => $schoolYearId,
             'subjectId' => $subjectId,
         ]);
+    }
+
+    public function getTeachers()
+    {
+
+        $teachers = Teachers::all();
+        return response()->json($teachers, 200  );
     }
 }

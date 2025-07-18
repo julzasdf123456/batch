@@ -79,7 +79,8 @@ class TransactionsController extends AppBaseController
     {
         $transactions = $this->transactionsRepository->find($id);
 
-        if (empty($transactions)) {
+        if (empty($transactions))
+        {
             Flash::error('Transactions not found');
 
             return redirect(route('transactions.index'));
@@ -95,7 +96,8 @@ class TransactionsController extends AppBaseController
     {
         $transactions = $this->transactionsRepository->find($id);
 
-        if (empty($transactions)) {
+        if (empty($transactions))
+        {
             Flash::error('Transactions not found');
 
             return redirect(route('transactions.index'));
@@ -111,7 +113,8 @@ class TransactionsController extends AppBaseController
     {
         $transactions = $this->transactionsRepository->find($id);
 
-        if (empty($transactions)) {
+        if (empty($transactions))
+        {
             Flash::error('Transactions not found');
 
             return redirect(route('transactions.index'));
@@ -133,7 +136,8 @@ class TransactionsController extends AppBaseController
     {
         $transactions = $this->transactionsRepository->find($id);
 
-        if (empty($transactions)) {
+        if (empty($transactions))
+        {
             Flash::error('Transactions not found');
 
             return redirect(route('transactions.index'));
@@ -146,37 +150,45 @@ class TransactionsController extends AppBaseController
         return redirect(route('transactions.index'));
     }
 
-    public function enrollment(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'transact enrollment'])) {
+    public function enrollment(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact enrollment']))
+        {
             return view('/transactions/enrollment', [
 
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function getNextOR(Request $request) {
+    public function getNextOR(Request $request)
+    {
         $userId = $request['UserId'];
-        
+
         $transactions = Transactions::whereRaw("UserId IS NOT NULL AND UserId='" . $userId . "'")
             ->orderByDesc('created_at')
             ->orderByRaw("TRY_CAST(ORNumber AS INTEGER) DESC")
             ->first();
 
-        if ($transactions != null) {
+        if ($transactions != null)
+        {
             $orNumber = intval($transactions->ORNumber) + 1;
 
             return response()->json($orNumber, 200);
-        } else {
+        } else
+        {
             return response()->json(0, 200);
         }
     }
 
-    public function getEnrollmentQueue(Request $request) {
+    public function getEnrollmentQueue(Request $request)
+    {
         $params = $request['Search'];
 
-        if (isset($params)) {
+        if (isset($params))
+        {
             $data = DB::table('StudentClasses')
                 ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                 ->whereRaw("StudentClasses.Status='Pending Enrollment Payment' AND (Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
@@ -185,7 +197,8 @@ class TransactionsController extends AppBaseController
                 ->select('Students.*', 'StudentClasses.ClassId')
                 ->orderBy('Students.FirstName')
                 ->paginate(18);
-        } else {
+        } else
+        {
             $data = DB::table('StudentClasses')
                 ->leftJoin('Students', 'StudentClasses.StudentId', '=', 'Students.id')
                 ->whereRaw("StudentClasses.Status='Pending Enrollment Payment'")
@@ -197,15 +210,18 @@ class TransactionsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function getEnrollmentPayables(Request $request) {
+    public function getEnrollmentPayables(Request $request)
+    {
         $studentId = $request['StudentId'];
 
-        if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE') {
+        if (env("TUITION_PROPAGATION_PRESET") === 'STATIC_ENROLLMENT_FEE')
+        {
             $payables = Payables::where('StudentId', $studentId)
                 ->whereRaw("Balance > 0 AND Category='Enrollment'")
                 ->orderBy('created_at')
                 ->get();
-        } else {
+        } else
+        {
             $payables = Payables::where('StudentId', $studentId)
                 ->whereRaw("Balance > 0 AND Category='Tuition Fees'")
                 ->orderBy('created_at')
@@ -218,7 +234,8 @@ class TransactionsController extends AppBaseController
     /**
      * WITH SEM TUITION COMPUTATION
      */
-    public function transactEnrollment(Request $request) {
+    public function transactEnrollment(Request $request)
+    {
         $studentId = $request['StudentId'];
         $classId = $request['ClassId'];
         $cashAmount = $request['cashAmount'];
@@ -234,27 +251,32 @@ class TransactionsController extends AppBaseController
         $orNumber = $request['ORNumber'];
 
         $modeOfPayment = '';
-        if ($cashAmount != null) {
+        if ($cashAmount != null)
+        {
             $modeOfPayment .= 'Cash;';
         }
-        if ($checkAmount != null) {
+        if ($checkAmount != null)
+        {
             $modeOfPayment .= 'Check;';
         }
-        if ($digitalAmount != null) {
+        if ($digitalAmount != null)
+        {
             $modeOfPayment .= 'Digital;';
         }
 
         $student = Students::find($studentId);
         $class = null;
         $sy = null;
-        if ($student != null && $student->CurrentGradeLevel != null) {
+        if ($student != null && $student->CurrentGradeLevel != null)
+        {
             $class = Classes::find($student->CurrentGradeLevel);
         }
 
         // insert transactions
         $id = IDGenerator::generateIDandRandString();
 
-        if (env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+        if (env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE')
+        {
             /**
              * ============================================================================
              * FOR TUITION_PROPAGATION_PRESET="STATIC_ENROLLMENT_FEE"
@@ -262,7 +284,8 @@ class TransactionsController extends AppBaseController
              */
             // update payables
             $payableIds = '';
-            foreach($payables as $item) {
+            foreach ($payables as $item)
+            {
                 $payableIds .= $item['id'];
                 Payables::where('id', $item['id'])
                     ->update(['AmountPaid' => $item['AmountPayable'], 'Balance' => 0]);
@@ -286,7 +309,8 @@ class TransactionsController extends AppBaseController
             $transactions->save();
 
             // insert transaction details
-            foreach($payables as $item) {
+            foreach ($payables as $item)
+            {
                 $details = new TransactionDetails;
                 $details->id = IDGenerator::generateIDandRandString();
                 $details->TransactionsId = $id;
@@ -294,7 +318,8 @@ class TransactionsController extends AppBaseController
                 $details->Amount = $item['Balance'];
                 $details->save();
             }
-        } else {
+        } else
+        {
             /**
              * ============================================================================
              * FOR TUITION_PROPAGATION_PRESET="FLEXIBLE_ENROLLMENT_FEE"
@@ -302,7 +327,8 @@ class TransactionsController extends AppBaseController
              */
             $payable = Payables::find($payables['id']);
 
-            if ($payable != null) {
+            if ($payable != null)
+            {
                 // deduct payable
                 $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
                 $newAmntPaid = $payableAmntPaid + floatval($totalPayments);
@@ -335,26 +361,31 @@ class TransactionsController extends AppBaseController
                 $transactions->save();
 
                 // revalidate tuitions breakdown
-                if ($class != null) {
+                if ($class != null)
+                {
                     $sy = SchoolYear::find($class->SchoolYearId);
 
                     TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                     // create tuitions breakdown
-                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                    {
                         // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                         $monthsToPay = 5;
 
-                        for ($i=0; $i<$monthsToPay; $i++) {
+                        for ($i = 0; $i < $monthsToPay; $i++)
+                        {
                             $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                             $tuitionBreakdown = new TuitionsBreakdown;
                             $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                            
-                            if ($class->Semester != null && $class->Semester == '2nd') {
-                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                            } else {
+
+                            if ($class->Semester != null && $class->Semester == '2nd')
+                            {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                            } else
+                            {
                                 $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                             }
-                            
+
                             $tuitionBreakdown->PayableId = $payable->id;
 
                             $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
@@ -365,11 +396,13 @@ class TransactionsController extends AppBaseController
                             $tuitionBreakdown->Balance = $amntPayable;
                             $tuitionBreakdown->save();
                         }
-                    } else {
+                    } else
+                    {
                         // if not SHS and SHS enrollment for semestrals are continuos
                         $monthsToPay = 10;
 
-                        for ($i=0; $i<$monthsToPay; $i++) {
+                        for ($i = 0; $i < $monthsToPay; $i++)
+                        {
                             $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                             $tuitionBreakdown = new TuitionsBreakdown;
                             $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
@@ -397,11 +430,14 @@ class TransactionsController extends AppBaseController
 
         // send sms
         $student = Students::find($studentId);
-        if ($student != null) {
-            SmsMessages::createSmsWithStudentProvided($student, 
-                env("APP_COMPANY") . " System Notification\n\nENROLLMENT FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
-                2);
-        } 
+        if ($student != null)
+        {
+            SmsMessages::createSmsWithStudentProvided(
+                $student,
+                env("APP_COMPANY") . " System Notification\n\nENROLLMENT FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".",
+                2
+            );
+        }
 
         return response()->json($id, 200);
     }
@@ -409,17 +445,21 @@ class TransactionsController extends AppBaseController
     /**
      * PRINT HCA ENROLLMENT
      */
-    public function printEnrollment($transactionId) {
+    public function printEnrollment($transactionId)
+    {
         $transaction = Transactions::find($transactionId);
 
-        if ($transaction != null) {
+        if ($transaction != null)
+        {
             $student = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->whereRaw("Students.id='" . $transaction->StudentId . "'")
-                ->select('Students.*',
+                ->select(
+                    'Students.*',
                     'Towns.Town as TownSpelled',
-                    'Barangays.Barangay as BarangaySpelled')
+                    'Barangays.Barangay as BarangaySpelled'
+                )
                 ->first();
 
             $classes = Classes::find($student->CurrentGradeLevel);
@@ -432,25 +472,30 @@ class TransactionsController extends AppBaseController
                 'transactionDetails' => $transactionDetails,
                 'classes' => $classes,
             ]);
-        } else {
+        } else
+        {
             return abort('No transaction found!', 404);
         }
     }
-    
+
     /**
      * PRINT SVI ENROLLMENT
      */
-    public function printEnrollmentSvi($transactionId) {
+    public function printEnrollmentSvi($transactionId)
+    {
         $transaction = Transactions::find($transactionId);
 
-        if ($transaction != null) {
+        if ($transaction != null)
+        {
             $student = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->whereRaw("Students.id='" . $transaction->StudentId . "'")
-                ->select('Students.*',
+                ->select(
+                    'Students.*',
                     'Towns.Town as TownSpelled',
-                    'Barangays.Barangay as BarangaySpelled')
+                    'Barangays.Barangay as BarangaySpelled'
+                )
                 ->first();
 
             $classes = Classes::find($student->CurrentGradeLevel);
@@ -463,33 +508,42 @@ class TransactionsController extends AppBaseController
                 'transactionDetails' => $transactionDetails,
                 'classes' => $classes,
             ]);
-        } else {
+        } else
+        {
             return abort('No transaction found!', 404);
         }
     }
 
-    public function tuitions($studentId) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'transact tuitions'])) {
+    public function tuitions($studentId)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact tuitions']))
+        {
             return view('/transactions/tuitions', [
                 'studentId' => $studentId,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function tuitionsSearch(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'transact tuitions'])) {
+    public function tuitionsSearch(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact tuitions']))
+        {
             return view('/transactions/tuitions_search');
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
-    
-    public function getSearchStudent(Request $request) {
+
+    public function getSearchStudent(Request $request)
+    {
         $params = $request['Search'];
 
-        if (isset($params)) {
+        if (isset($params))
+        {
             $data = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
@@ -497,7 +551,8 @@ class TransactionsController extends AppBaseController
                 ->whereRaw("(Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
                     (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
                     (Students.FirstName + ' ' + Students.MiddleName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR Students.id LIKE '%" . $params . "%')")
-                ->select('Students.*',
+                ->select(
+                    'Students.*',
                     'Towns.Town AS TownSpelled',
                     'Barangays.Barangay AS BarangaySpelled',
                     'Classes.Year',
@@ -506,12 +561,14 @@ class TransactionsController extends AppBaseController
                 )
                 ->orderBy('Students.LastName')
                 ->paginate(13);
-        } else {
+        } else
+        {
             $data = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
-                ->select('Students.*',
+                ->select(
+                    'Students.*',
                     'Towns.Town AS TownSpelled',
                     'Barangays.Barangay AS BarangaySpelled',
                     'Classes.Year',
@@ -525,7 +582,8 @@ class TransactionsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function transactTuition(Request $request) {
+    public function transactTuition(Request $request)
+    {
         $payableId = $request['PayableId'];
         $studentId = $request['StudentId'];
         $cashAmount = $request['cashAmount'];
@@ -552,7 +610,8 @@ class TransactionsController extends AppBaseController
 
         // update tuition payable
         $payable = Payables::find($payableId);
-        if ($payable != null) {
+        if ($payable != null)
+        {
             $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
             $newAmntPaid = $payableAmntPaid + floatval($amountForTuition);
 
@@ -563,13 +622,16 @@ class TransactionsController extends AppBaseController
 
         // determine mode of payment
         $modeOfPayment = '';
-        if ($cashAmount != null) {
+        if ($cashAmount != null)
+        {
             $modeOfPayment .= 'Cash;';
         }
-        if ($checkAmount != null) {
+        if ($checkAmount != null)
+        {
             $modeOfPayment .= 'Check;';
         }
-        if ($digitalAmount != null) {
+        if ($digitalAmount != null)
+        {
             $modeOfPayment .= 'Digital;';
         }
 
@@ -595,31 +657,40 @@ class TransactionsController extends AppBaseController
         $transactions->save();
 
         // insert transaction details for tuition
-        if ($payable != null && $class != null) {
+        if ($payable != null && $class != null)
+        {
             // weight payable inclusions to transaction details
             $payableInclusions = PayableInclusions::where('PayableId', $payableId)->get();
-            if ($payableInclusions != null) {
+            if ($payableInclusions != null)
+            {
                 $amntTuitionDistribute = $amountForTuition != null && $amountForTuition > 0 ? floatval($amountForTuition) : 0;
                 $discnt = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
 
-                if ($amntTuitionDistribute > 0) {
-                    foreach($payableInclusions as $item) {
+                if ($amntTuitionDistribute > 0)
+                {
+                    foreach ($payableInclusions as $item)
+                    {
                         $amnt = $item->Amount != null ? floatval($item->Amount) : 0;
 
-                        if ($item->ItemName === 'Tuition Fee') {
-                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        if ($item->ItemName === 'Tuition Fee')
+                        {
+                            if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                            {
                                 $amnt = (($amnt / 2) - $discnt);
                                 $payableAmnt = $payable->Payable != null ? (($payable->Payable - $discnt)) : 0;
-                            } else {
+                            } else
+                            {
                                 $amnt = $amnt - $discnt;
                                 $payableAmnt = $payable->Payable != null ? ($payable->Payable - $discnt) : 0;
-                            } 
-                            
-                        } else {
+                            }
+
+                        } else
+                        {
                             $payableAmnt = $payable->AmountPayable != null ? $payable->AmountPayable : 0;
                         }
 
-                        if ($amnt > 0 && $payableAmnt > 0) {
+                        if ($amnt > 0 && $payableAmnt > 0)
+                        {
                             $percent = round(($amnt / $payableAmnt), 8);
                             $amountWeight = $amountForTuition * $percent;
 
@@ -627,15 +698,17 @@ class TransactionsController extends AppBaseController
                             $transactionDetails->id = IDGenerator::generateIDandRandString();
                             $transactionDetails->TransactionsId = $id;
                             $transactionDetails->Particulars = $item->ItemName;
-                            $transactionDetails->Amount = round($amountWeight, 1);                            
+                            $transactionDetails->Amount = round($amountWeight, 1);
                             $transactionDetails->save();
                         }
                     }
                 }
             }
-        } else {
+        } else
+        {
             // insert only transaction details
-            if ($amountForTuition != null && $amountForTuition > 0) {
+            if ($amountForTuition != null && $amountForTuition > 0)
+            {
                 $transactionDetails = new TransactionDetails;
                 $transactionDetails->id = IDGenerator::generateIDandRandString();
                 $transactionDetails->TransactionsId = $id;
@@ -648,15 +721,19 @@ class TransactionsController extends AppBaseController
         // update tuitions breakdown
         $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
         $payment = floatval($amountForTuition);
-        foreach($tBreakdown as $item) {
+        foreach ($tBreakdown as $item)
+        {
             $currentPayable = floatval($item->Balance);
-            if ($payment > 0) {
-                if ($payment >= $currentPayable) {
+            if ($payment > 0)
+            {
+                if ($payment >= $currentPayable)
+                {
                     $item->Balance = 0;
                     $item->AmountPaid = $item->AmountPayable;
-                    
+
                     $payment = $payment - $currentPayable;
-                } else {
+                } else
+                {
                     $item->Balance = $currentPayable - $payment;
                     $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -672,12 +749,14 @@ class TransactionsController extends AppBaseController
          * INSERT MISCELLANEOUS ITEMS IF THERE ARE ANY
          */
         // update first from miscellaneous selection
-        if ($additionalMiscellaneousItems != null && count($additionalMiscellaneousItems) > 0) {
-            foreach($additionalMiscellaneousItems as $item) {
+        if ($additionalMiscellaneousItems != null && count($additionalMiscellaneousItems) > 0)
+        {
+            foreach ($additionalMiscellaneousItems as $item)
+            {
                 $transactionDetails = new TransactionDetails;
                 $transactionDetails->id = IDGenerator::generateIDandRandString();
                 $transactionDetails->TransactionsId = $id;
-                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] . ')';
                 $transactionDetails->Amount = $item['TotalAmount'];
                 $transactionDetails->save();
             }
@@ -690,11 +769,14 @@ class TransactionsController extends AppBaseController
 
         // send sms
         $student = Students::find($studentId);
-        if ($student != null) {
-            SmsMessages::createSmsWithStudentProvided($student, 
-                env("APP_COMPANY") . " System Notification\n\nTUITION FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($paidAmount, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".", 
-                2);
-        }        
+        if ($student != null)
+        {
+            SmsMessages::createSmsWithStudentProvided(
+                $student,
+                env("APP_COMPANY") . " System Notification\n\nTUITION FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($paidAmount, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ".",
+                2
+            );
+        }
 
         return response()->json($id, 200);
     }
@@ -702,19 +784,23 @@ class TransactionsController extends AppBaseController
     /**
      * HCA PRINT TUITION
      */
-    public function printTuition($transactionId) {
+    public function printTuition($transactionId)
+    {
         $transaction = Transactions::find($transactionId);
-        
-        if ($transaction != null) {
+
+        if ($transaction != null)
+        {
             $transactionDetails = TransactionDetails::where('TransactionsId', $transactionId)->get();
             $student = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
-                    ->whereRaw("Students.id='" . $transaction->StudentId . "'")
-                    ->select('Students.*',
-                        'Towns.Town as TownSpelled',
-                        'Barangays.Barangay as BarangaySpelled')
-                    ->first();
+                ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                ->select(
+                    'Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled'
+                )
+                ->first();
 
             $classes = Classes::find($student->CurrentGradeLevel);
 
@@ -724,7 +810,8 @@ class TransactionsController extends AppBaseController
                 'transactionDetails' => $transactionDetails,
                 'classes' => $classes,
             ]);
-        } else {
+        } else
+        {
             return abort('No transaction found!', 404);
         }
     }
@@ -732,19 +819,23 @@ class TransactionsController extends AppBaseController
     /**
      * SVI PRINT TUITION
      */
-    public function printTuitionSvi($transactionId) {
+    public function printTuitionSvi($transactionId)
+    {
         $transaction = Transactions::find($transactionId);
-        
-        if ($transaction != null) {
+
+        if ($transaction != null)
+        {
             $transactionDetails = TransactionDetails::where('TransactionsId', $transactionId)->get();
             $student = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
-                    ->whereRaw("Students.id='" . $transaction->StudentId . "'")
-                    ->select('Students.*',
-                        'Towns.Town as TownSpelled',
-                        'Barangays.Barangay as BarangaySpelled')
-                    ->first();
+                ->whereRaw("Students.id='" . $transaction->StudentId . "'")
+                ->select(
+                    'Students.*',
+                    'Towns.Town as TownSpelled',
+                    'Barangays.Barangay as BarangaySpelled'
+                )
+                ->first();
 
             $classes = Classes::find($student->CurrentGradeLevel);
 
@@ -754,12 +845,14 @@ class TransactionsController extends AppBaseController
                 'transactionDetails' => $transactionDetails,
                 'classes' => $classes,
             ]);
-        } else {
+        } else
+        {
             return abort('No transaction found!', 404);
         }
     }
 
-    public function getTransactionsFromPayable(Request $request) {
+    public function getTransactionsFromPayable(Request $request)
+    {
         $payableId = $request['PayableId'];
 
         $data = [];
@@ -783,37 +876,45 @@ class TransactionsController extends AppBaseController
 
         $data['UpdateLogs'] = DB::table('PayableUpdateLogs')
             ->leftJoin('users', 'PayableUpdateLogs.UserId', '=', 'users.id')
-                ->where('PayableId', $payableId)
-                ->select('PayableUpdateLogs.*', 'users.name')
-                ->orderByDesc('created_at')
-                ->get();
+            ->where('PayableId', $payableId)
+            ->select('PayableUpdateLogs.*', 'users.name')
+            ->orderByDesc('created_at')
+            ->get();
 
         return response()->json($data, 200);
     }
 
-    public function miscellaneousSearch(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'transact miscellaneous'])) {
+    public function miscellaneousSearch(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact miscellaneous']))
+        {
             return view('/transactions/miscellaneous_search');
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function miscellaneous($studentId) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'transact miscellaneous'])) {
+    public function miscellaneous($studentId)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'transact miscellaneous']))
+        {
             return view('/transactions/miscellaneous', [
                 'studentId' => $studentId,
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function getMiscPayables(Request $request) {
+    public function getMiscPayables(Request $request)
+    {
         return response()->json(MiscellaneousPayables::orderBy('Payable')->get());
     }
 
-    public function transactMiscellaneous(Request $request) {
+    public function transactMiscellaneous(Request $request)
+    {
         $studentId = $request['StudentId'];
         $cashAmount = $request['cashAmount'];
         $checkNumber = $request['checkNumber'];
@@ -832,13 +933,16 @@ class TransactionsController extends AppBaseController
 
         // determine mode of payment
         $modeOfPayment = '';
-        if ($cashAmount != null) {
+        if ($cashAmount != null)
+        {
             $modeOfPayment .= 'Cash;';
         }
-        if ($checkAmount != null) {
+        if ($checkAmount != null)
+        {
             $modeOfPayment .= 'Check;';
         }
-        if ($digitalAmount != null) {
+        if ($digitalAmount != null)
+        {
             $modeOfPayment .= 'Digital;';
         }
 
@@ -861,23 +965,27 @@ class TransactionsController extends AppBaseController
 
         // insert transaction details
         $concat = "";
-        foreach($transactionDetails as $item) {
+        foreach ($transactionDetails as $item)
+        {
             $transactionDetails = new TransactionDetails;
             $transactionDetails->id = IDGenerator::generateIDandRandString();
             $transactionDetails->TransactionsId = $id;
-            if (str_contains($item['Payable'], 'Tuition Fee')) {
+            if (str_contains($item['Payable'], 'Tuition Fee'))
+            {
                 $transactionDetails->Particulars = $item['Payable'];
                 $transactionDetails->FlushedToTuition = 'Yes';
-            } else {
-                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')';
+            } else
+            {
+                $transactionDetails->Particulars = $item['Payable'] . ' (' . $item["Quantity"] . ' x P' . $item["Price"] . ')';
             }
             $transactionDetails->Amount = $item['TotalAmount'];
             $transactionDetails->save();
 
-            $concat .= "- " . $item['Payable'] . " (" . $item["Quantity"] . " x P" . $item["Price"] .")\n";
+            $concat .= "- " . $item['Payable'] . " (" . $item["Quantity"] . " x P" . $item["Price"] . ")\n";
 
             // insert to tuition if there is a tuition
-            if (str_contains($item['Payable'], 'Tuition Fee')) {
+            if (str_contains($item['Payable'], 'Tuition Fee'))
+            {
                 // continue saving transactions
                 $transactions->TuitionAmount = $item['TotalAmount'];
                 $transactions->PayablesId = $payableId;
@@ -887,10 +995,11 @@ class TransactionsController extends AppBaseController
                  */
                 $amountForTuition = $item['TotalAmount'];
                 $payable = Payables::find($payableId);
-                if ($payable != null) {
+                if ($payable != null)
+                {
                     $payableAmntPaid = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
                     $newAmntPaid = $payableAmntPaid + floatval($amountForTuition);
-                    
+
                     $payableBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                     $balance = $payableBalance - floatval($amountForTuition);
 
@@ -901,15 +1010,19 @@ class TransactionsController extends AppBaseController
                     // update tuitions breakdown
                     $tBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
                     $payment = floatval($amountForTuition);
-                    foreach($tBreakdown as $item) {
+                    foreach ($tBreakdown as $item)
+                    {
                         $currentPayable = floatval($item->Balance);
-                        if ($payment > 0) {
-                            if ($payment >= $currentPayable) {
+                        if ($payment > 0)
+                        {
+                            if ($payment >= $currentPayable)
+                            {
                                 $item->Balance = 0;
                                 $item->AmountPaid = $item->AmountPayable;
-                                
+
                                 $payment = $payment - $currentPayable;
-                            } else {
+                            } else
+                            {
                                 $item->Balance = $currentPayable - $payment;
                                 $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -931,31 +1044,40 @@ class TransactionsController extends AppBaseController
             ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
             ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
             ->whereRaw("Students.id='" . $studentId . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town as TownSpelled',
-                'Barangays.Barangay as BarangaySpelled')
+                'Barangays.Barangay as BarangaySpelled'
+            )
             ->first();
-        if ($student != null) {
-            SmsMessages::createSmsWithStudentProvided($student, 
-                env("APP_COMPANY") . " System Notification\n\MISCELLANEOUS FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ", with the following items: \n\n" . 
-                $concat, 
-                2);
-        } 
+        if ($student != null)
+        {
+            SmsMessages::createSmsWithStudentProvided(
+                $student,
+                env("APP_COMPANY") . " System Notification\n\MISCELLANEOUS FEE has been paid for " . $student->FirstName . " " . $student->LastName . " amounting to " . number_format($totalPayments, 2) . ", with transaction number " . $orNumber . ", at " . date('M d, Y h:i A') . ", with the following items: \n\n" .
+                $concat,
+                2
+            );
+        }
 
         return response()->json($id, 200);
     }
 
-    public function printMiscellaneous($transactionId) {
+    public function printMiscellaneous($transactionId)
+    {
         $transaction = Transactions::find($transactionId);
 
-        if ($transaction != null) {
+        if ($transaction != null)
+        {
             $student = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->whereRaw("Students.id='" . $transaction->StudentId . "'")
-                ->select('Students.*',
+                ->select(
+                    'Students.*',
                     'Towns.Town as TownSpelled',
-                    'Barangays.Barangay as BarangaySpelled')
+                    'Barangays.Barangay as BarangaySpelled'
+                )
                 ->first();
 
             $classes = Classes::find($student->CurrentGradeLevel);
@@ -968,12 +1090,14 @@ class TransactionsController extends AppBaseController
                 'transactionDetails' => $transactionDetails,
                 'classes' => $classes,
             ]);
-        } else {
+        } else
+        {
             return abort('No transaction found!', 404);
         }
     }
 
-    public function getTransactionHistory(Request $request) {
+    public function getTransactionHistory(Request $request)
+    {
         $studentId = $request['StudentId'];
 
         $data = DB::table('Transactions')
@@ -987,15 +1111,19 @@ class TransactionsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function myDcr(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view my dcr'])) {
+    public function myDcr(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view my dcr']))
+        {
             return view('/transactions/my_dcr');
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function fetchPayments(Request $request) {
+    public function fetchPayments(Request $request)
+    {
         $date = $request['Date'];
 
         $data['Payments'] = DB::table('Transactions')
@@ -1007,7 +1135,7 @@ class TransactionsController extends AppBaseController
                 'Students.LastName',
                 'Students.id AS StudentId'
             )
-            ->orderBy('Transactions.created_at')
+            ->orderBy('Transactions.created_at', 'DESC')
             ->get();
 
         $data['Cancelled'] = DB::table('Transactions')
@@ -1019,13 +1147,14 @@ class TransactionsController extends AppBaseController
                 'Students.LastName',
                 'Students.id AS StudentId'
             )
-            ->orderBy('Transactions.created_at')
+            ->orderBy('Transactions.created_at', 'DESC')
             ->get();
 
         return response()->json($data, 200);
     }
 
-    public function fetchPaymentsFromRange(Request $request) {
+    public function fetchPaymentsFromRange(Request $request)
+    {
         $from = $request['From'];
         $to = $request['To'];
         $userId = $request['UserId'];
@@ -1039,7 +1168,7 @@ class TransactionsController extends AppBaseController
                 'Students.LastName',
                 'Students.id AS StudentId'
             )
-            ->orderBy('Transactions.created_at')
+            ->orderBy('Transactions.created_at', 'DESC')
             ->get();
 
         $data['Cancelled'] = DB::table('Transactions')
@@ -1051,13 +1180,14 @@ class TransactionsController extends AppBaseController
                 'Students.LastName',
                 'Students.id AS StudentId'
             )
-            ->orderBy('Transactions.created_at')
+            ->orderBy('Transactions.created_at', 'DESC')
             ->get();
 
         return response()->json($data, 200);
     }
 
-    public function fetchTransactionDetails(Request $request) {
+    public function fetchTransactionDetails(Request $request)
+    {
         $transactionId = $request['TransactionId'];
 
         return response()->json(
@@ -1068,7 +1198,8 @@ class TransactionsController extends AppBaseController
         );
     }
 
-    public function fetchAllTransactionDetails(Request $request) {
+    public function fetchAllTransactionDetails(Request $request)
+    {
         $date = $request['Date'];
 
         $data = DB::table('TransactionDetails')
@@ -1087,17 +1218,19 @@ class TransactionsController extends AppBaseController
             ->orderBy('Transactions.ORNumber')
             ->orderBy('Transactions.created_at')
             ->get();
-            
+
         return response()->json($data, 200);
     }
 
-    public function printMyDcr($date) {
+    public function printMyDcr($date)
+    {
         return view('/transactions/print_my_dcr', [
             'date' => $date
         ]);
     }
 
-    public function printMyDcrAll($from, $to, $userId) {
+    public function printMyDcrAll($from, $to, $userId)
+    {
         return view('/transactions/print-all-dcr', [
             'from' => $from,
             'to' => $to,
@@ -1105,17 +1238,21 @@ class TransactionsController extends AppBaseController
         ]);
     }
 
-    public function allDcr(Request $request) {
-        if (Auth::user()->hasAnyPermission(['god permission', 'view all dcr'])) {
+    public function allDcr(Request $request)
+    {
+        if (Auth::user()->hasAnyPermission(['god permission', 'view all dcr']))
+        {
             return view('/transactions/all_dcr', [
 
             ]);
-        } else {
+        } else
+        {
             return redirect(route('errorMessages.error-with-back', ['Not Allowed', 'You are not allowed to access this module.', 403]));
         }
     }
 
-    public function cancelTransaction(Request $request) {
+    public function cancelTransaction(Request $request)
+    {
         $id = $request['id'];
         $reason = $request['Reason'];
 
@@ -1125,13 +1262,16 @@ class TransactionsController extends AppBaseController
         $transaction = Transactions::find($id);
 
         // remove from tuitions payable
-        if ($transaction != null && $transaction->PayablesId != null) {
+        if ($transaction != null && $transaction->PayablesId != null)
+        {
             $payable = Payables::find($transaction->PayablesId);
 
-            if ($payable != null) {
+            if ($payable != null)
+            {
                 $amount = $transaction->TuitionAmount != null ? floatval($transaction->TuitionAmount) : 0;
 
-                if ($amount > 0) {
+                if ($amount > 0)
+                {
                     // update payable amount
                     $payableAmountPaid = $payable->AmountPaid != null ? $payable->AmountPaid : 0;
                     $payableBalance = $payable->Balance != null ? $payable->Balance : 0;
@@ -1146,20 +1286,25 @@ class TransactionsController extends AppBaseController
                         ->orderByDesc('ForMonth')
                         ->get();
 
-                    if ($tuitionBreakdown != null) {
+                    if ($tuitionBreakdown != null)
+                    {
                         $pdAmount = $amount;
-                        foreach($tuitionBreakdown as $item) {
-                            if ($pdAmount > 0) {
+                        foreach ($tuitionBreakdown as $item)
+                        {
+                            if ($pdAmount > 0)
+                            {
                                 $tbPaidAmount = $item->AmountPaid != null ? floatval($item->AmountPaid) : 0;
                                 $tbBalance = $item->Balance != null ? floatval($item->Balance) : 0;
 
-                                if ($pdAmount >= $tbPaidAmount) {
+                                if ($pdAmount >= $tbPaidAmount)
+                                {
                                     $item->AmountPaid = null;
                                     $item->Balance = $item->AmountPayable;
                                     $item->save();
 
                                     $pdAmount = $pdAmount - $tbPaidAmount;
-                                } else {
+                                } else
+                                {
                                     $dif = $tbPaidAmount - $pdAmount;
 
                                     $item->AmountPaid = $dif;
@@ -1168,7 +1313,8 @@ class TransactionsController extends AppBaseController
 
                                     $pdAmount = 0;
                                 }
-                            } else {
+                            } else
+                            {
                                 break;
                             }
                         }
@@ -1180,7 +1326,8 @@ class TransactionsController extends AppBaseController
         return response()->json($id, 200);
     }
 
-    public function getCashiers(Request $request) {
+    public function getCashiers(Request $request)
+    {
         $data = DB::table('Transactions')
             ->leftJoin('users', 'Transactions.UserId', '=', 'users.id')
             ->select('name', 'users.id')
@@ -1190,8 +1337,9 @@ class TransactionsController extends AppBaseController
 
         return response()->json($data, 200);
     }
-    
-    public function fetchAdminPayments(Request $request) {
+
+    public function fetchAdminPayments(Request $request)
+    {
         $from = $request['From'];
         $to = $request['To'];
         $cashier = $request['Cashier'];
@@ -1205,7 +1353,7 @@ class TransactionsController extends AppBaseController
                 'Students.LastName',
                 'Students.id AS StudentId'
             )
-            ->orderBy('Transactions.created_at')
+            ->orderBy('Transactions.created_at', 'DESC')
             ->get();
 
         $data['Cancelled'] = DB::table('Transactions')
@@ -1217,13 +1365,14 @@ class TransactionsController extends AppBaseController
                 'Students.LastName',
                 'Students.id AS StudentId'
             )
-            ->orderBy('Transactions.created_at')
+            ->orderBy('Transactions.created_at', 'DESC')
             ->get();
 
         return response()->json($data, 200);
     }
 
-    public function fetchAllAdminTransactionDetails(Request $request) {
+    public function fetchAllAdminTransactionDetails(Request $request)
+    {
         $from = $request['From'];
         $to = $request['To'];
         $cashier = $request['Cashier'];
@@ -1244,14 +1393,15 @@ class TransactionsController extends AppBaseController
             ->orderBy('Transactions.ORNumber')
             ->orderBy('Transactions.created_at')
             ->get();
-            
+
         return response()->json($data, 200);
     }
 
     /**
      * WITH SEM TUITION COMPUTATION
      */
-    public function repopulatePayables(Request $request) {
+    public function repopulatePayables(Request $request)
+    {
         $classId = $request['ClassId'];
 
         $students = Students::whereRaw("id IN (SELECT StudentId FROM StudentClasses WHERE ClassId='" . $classId . "')")
@@ -1265,31 +1415,38 @@ class TransactionsController extends AppBaseController
         $vmsPublic = Scholarships::find(env('VMS_PUBLIC_SCHOLARSHIP_ID'));
         $vmsPrivate = Scholarships::find(env('VMS_PRIVATE_SCHOLARSHIP_ID'));
 
-        if ($class != null) {
+        if ($class != null)
+        {
             $semTail = "";
-            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+            if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+            {
                 $classRepo = ClassesRepo::where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->where('Strand', $class->Strand)
                     ->where('Semester', $class->Semester)
                     ->first();
 
-                if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE') {
+                if (env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK' && env('TUITION_PROPAGATION_PRESET') === 'STATIC_ENROLLMENT_FEE')
+                {
                     $semTail = ' ' . $class->Semester . ' Sem';
                 }
-            } else {
+            } else
+            {
                 $classRepo = ClassesRepo::where('Year', $class->Year)
                     ->where('Section', $class->Section)
                     ->first();
             }
 
             // loop students
-            foreach($students as $item) {
-                if ($classRepo != null) {
+            foreach ($students as $item)
+            {
+                if ($classRepo != null)
+                {
                     $tuitionInclusions = TuitionInclusions::where('ClassRepoId', $classRepo->id)
                         ->where('FromSchool', $item->FromSchool != null ? $item->FromSchool : 'Private')
                         ->get();
-                } else {
+                } else
+                {
                     $tuitionInclusions = [];
                 }
 
@@ -1298,18 +1455,21 @@ class TransactionsController extends AppBaseController
                  * PAYABLE INCLUSIONS
                  * ==========================
                  */
-                if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && $class->Semester === '2nd' && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS' && env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE') {
+                if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && $class->Semester === '2nd' && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'CONTINUOS' && env('TUITION_PROPAGATION_PRESET') === 'FLEXIBLE_ENROLLMENT_FEE')
+                {
                     // SKIP SECOND SEM CREATION OF PAYMENTS
                     $payable = Payables::where('StudentId', $item->id)
                         ->where('ClassId', $classId)
                         ->first();
 
-                    if ($payable != null) {
+                    if ($payable != null)
+                    {
                         $payable->delete();
                         PayableInclusions::where('PayableId', $payable->id)->delete();
                         TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                     }
-                } else {
+                } else
+                {
                     $payable = Payables::where('StudentId', $item->id)
                         ->where('ClassId', $classId)
                         ->delete();
@@ -1326,12 +1486,14 @@ class TransactionsController extends AppBaseController
                     $payable->SchoolYear = $sy->SchoolYear;
                     $payable->ClassId = $classId;
 
-                    if ($baseTuition != null) {
+                    if ($baseTuition != null)
+                    {
                         // copy base tuition fee if declared in classes
                         $payable->Payable = $baseTuition;
                         $payable->AmountPayable = $baseTuition;
                         $payable->Balance = $baseTuition;
-                    } else {
+                    } else
+                    {
                         // get tuition per subject if not declared in classes
                         $totalSubjectTuition = DB::table('SubjectClasses')
                             ->leftJoin('Subjects', 'SubjectClasses.SubjectId', '=', 'Subjects.id')
@@ -1341,11 +1503,13 @@ class TransactionsController extends AppBaseController
                             )
                             ->first();
 
-                        if ($totalSubjectTuition != null) {
+                        if ($totalSubjectTuition != null)
+                        {
                             $payable->Payable = $totalSubjectTuition->Total;
                             $payable->AmountPayable = $totalSubjectTuition->Total;
                             $payable->Balance = $totalSubjectTuition->Total;
-                        } else {
+                        } else
+                        {
                             $payable->Payable = 0.0;
                             $payable->AmountPayable = 0.0;
                             $payable->Balance = 0.0;
@@ -1358,18 +1522,21 @@ class TransactionsController extends AppBaseController
                      * ===========================================================
                      */
                     $discount = 0;
-                    if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12') {
+                    if ($class->Year == 'Grade 11' | $class->Year == 'Grade 12')
+                    {
                         // VMS
-                        if ($item->FromSchool == 'Private') {
+                        if ($item->FromSchool == 'Private')
+                        {
                             // PRIVATE
-                            if ($vmsPrivate != null && $item->ESCScholar === 'Yes') {
+                            if ($vmsPrivate != null && $item->ESCScholar === 'Yes')
+                            {
                                 // update payable
                                 $vmsAmount = $vmsPrivate->Amount != null ? (floatval($vmsPrivate->Amount)) : 0;
-                                
+
                                 $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                 $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                 $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-            
+
                                 $payable->AmountPayable = $pyblAmount - $vmsAmount;
                                 $payable->Balance = $pyblBalance - $vmsAmount;
                                 $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
@@ -1380,10 +1547,12 @@ class TransactionsController extends AppBaseController
                                     ->where('ScholarshipId', $vmsPrivate->id)
                                     ->first();
 
-                                if ($studScholarship != null) {
+                                if ($studScholarship != null)
+                                {
                                     $studScholarship->PayableId = $payableId;
                                     $studScholarship->save();
-                                } else {
+                                } else
+                                {
                                     $studScholarship = new StudentScholarships;
                                     $studScholarship->id = IDGenerator::generateIDandRandString();
                                     $studScholarship->PayableId = $payableId;
@@ -1398,16 +1567,18 @@ class TransactionsController extends AppBaseController
 
                                 $discount = $vmsPrivate->Amount != null ? floatval($vmsPrivate->Amount) : 0;
                             }
-                        } else {
+                        } else
+                        {
                             // PUBLIC
-                            if ($vmsPublic != null && $item->ESCScholar === 'Yes') {
+                            if ($vmsPublic != null && $item->ESCScholar === 'Yes')
+                            {
                                 // update payable
                                 $vmsAmount = $vmsPublic->Amount != null ? (floatval($vmsPublic->Amount)) : 0;
-                                
+
                                 $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                                 $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                                 $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-            
+
                                 $payable->AmountPayable = $pyblAmount - $vmsAmount;
                                 $payable->Balance = $pyblBalance - $vmsAmount;
                                 $payable->DiscountAmount = ($pyblDiscount + $vmsAmount) / 2;
@@ -1418,10 +1589,12 @@ class TransactionsController extends AppBaseController
                                     ->where('ScholarshipId', $vmsPublic->id)
                                     ->first();
 
-                                if ($studScholarship != null) {
+                                if ($studScholarship != null)
+                                {
                                     $studScholarship->PayableId = $payableId;
                                     $studScholarship->save();
-                                } else {
+                                } else
+                                {
                                     $studScholarship = new StudentScholarships;
                                     $studScholarship->id = IDGenerator::generateIDandRandString();
                                     $studScholarship->PayableId = $payableId;
@@ -1437,30 +1610,34 @@ class TransactionsController extends AppBaseController
                                 $discount = $vmsPublic->Amount != null ? floatval($vmsPublic->Amount) : 0;
                             }
                         }
-                    } else {
+                    } else
+                    {
                         // ESC
-                        if ($escScholarship != null && $item->ESCScholar === 'Yes') {
+                        if ($escScholarship != null && $item->ESCScholar === 'Yes')
+                        {
                             // update payable
                             $escAmount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
-                            
+
                             $pyblAmount = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
                             $pyblBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
                             $pyblDiscount = $payable->DiscountAmount != null ? floatval($payable->DiscountAmount) : 0;
-        
+
                             $payable->AmountPayable = $pyblAmount - $escAmount;
                             $payable->Balance = $pyblBalance - $escAmount;
                             $payable->DiscountAmount = $pyblDiscount + $escAmount;
-        
+
                             // insert esc scholarship
                             $studScholarship = StudentScholarships::where('StudentId', $item->id)
                                 ->where('SchoolYear', $sy->SchoolYear)
                                 ->where('ScholarshipId', $escScholarship->id)
                                 ->first();
-        
-                            if ($studScholarship != null) {
+
+                            if ($studScholarship != null)
+                            {
                                 $studScholarship->PayableId = $payableId;
                                 $studScholarship->save();
-                            } else {
+                            } else
+                            {
                                 $studScholarship = new StudentScholarships;
                                 $studScholarship->id = IDGenerator::generateIDandRandString();
                                 $studScholarship->PayableId = $payableId;
@@ -1472,7 +1649,7 @@ class TransactionsController extends AppBaseController
                                 $studScholarship->DeductMonthly = 'Yes';
                                 $studScholarship->save();
                             }
-        
+
                             $discount = $escScholarship->Amount != null ? floatval($escScholarship->Amount) : 0;
                         }
                     }
@@ -1481,7 +1658,8 @@ class TransactionsController extends AppBaseController
 
                     PayableInclusions::where('PayableId', $payableId)->delete();
                     // insert tuition inclusions to payable inclusions
-                    foreach($tuitionInclusions as $ti) {
+                    foreach ($tuitionInclusions as $ti)
+                    {
                         $pi = new PayableInclusions;
                         $pi->id = IDGenerator::generateIDandRandString();
                         $pi->ItemName = $ti->ItemName;
@@ -1498,10 +1676,12 @@ class TransactionsController extends AppBaseController
                     $payable = Payables::where('StudentId', $item->id)
                         ->where('ClassId', $classId)
                         ->first();
-                    if ($payable != null) {
+                    if ($payable != null)
+                    {
                         TuitionsBreakdown::where('PayableId', $payable->id)->delete();
                         // create tuitions breakdown
-                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                        if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                        {
                             // update payable, set to half per sem
                             $payable->Payable = $payable->Payable > 0 ? ($payable->Payable / 2) : 0;
                             $payable->AmountPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / 2) : 0;
@@ -1512,17 +1692,20 @@ class TransactionsController extends AppBaseController
                             // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                             $monthsToPay = 5;
 
-                            for ($i=0; $i<$monthsToPay; $i++) {
+                            for ($i = 0; $i < $monthsToPay; $i++)
+                            {
                                 $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                 $tuitionBreakdown = new TuitionsBreakdown;
                                 $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                                
-                                if ($class->Semester != null && $class->Semester == '2nd') {
-                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                                } else {
+
+                                if ($class->Semester != null && $class->Semester == '2nd')
+                                {
+                                    $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                                } else
+                                {
                                     $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                                 }
-                                
+
                                 $tuitionBreakdown->PayableId = $payable->id;
 
                                 $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
@@ -1535,13 +1718,15 @@ class TransactionsController extends AppBaseController
                                 $tuitionBreakdown->Balance = $amntPayable;
                                 $tuitionBreakdown->save();
                             }
-                        } else {
+                        } else
+                        {
                             $payable->DiscountAmount = $discount;
                             $payable->save();
 
                             $monthsToPay = 10;
 
-                            for ($i=0; $i<$monthsToPay; $i++) {
+                            for ($i = 0; $i < $monthsToPay; $i++)
+                            {
                                 $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                                 $tuitionBreakdown = new TuitionsBreakdown;
                                 $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
@@ -1567,13 +1752,15 @@ class TransactionsController extends AppBaseController
         return response()->json($class, 200);
     }
 
-    public function getPayableInclusions(Request $request) {
+    public function getPayableInclusions(Request $request)
+    {
         $payableId = $request['PayableId'];
 
         return response()->json(PayableInclusions::where('PayableId', $payableId)->get(), 200);
     }
 
-    public function updateORNumber(Request $request) {
+    public function updateORNumber(Request $request)
+    {
         $id = $request['id'];
         $newORNumber = $request['NewORNumber'];
 
@@ -1583,17 +1770,20 @@ class TransactionsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
-    public function removePayableInclusion(Request $request) {
+    public function removePayableInclusion(Request $request)
+    {
         $id = $request['id'];
 
         $inc = PayableInclusions::find($id);
 
-        if ($inc != null) {
+        if ($inc != null)
+        {
             $inc->delete();
 
             $payable = Payables::find($inc->PayableId);
 
-            if ($payable != null) {
+            if ($payable != null)
+            {
                 $student = Students::find($payable->StudentId);
                 $class = Classes::find($student != null && $student->CurrentGradeLevel != null ? $student->CurrentGradeLevel : '');
                 $paidAmount = $payable->AmountPaid != null ? floatval($payable->AmountPaid) : 0;
@@ -1602,37 +1792,42 @@ class TransactionsController extends AppBaseController
 
                 // update payable
                 $payablePayable = $payable->Payable != null ? floatval($payable->Payable) : 0;
-                $payableAmountPayable  = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
-                $payableBalance  = $payable->Balance != null ? floatval($payable->Balance) : 0;
+                $payableAmountPayable = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+                $payableBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
 
                 $payable->Payable = $payablePayable - $incAmount;
                 $payable->AmountPayable = $payableAmountPayable - $incAmount;
                 $payable->Balance = $payableBalance - $incAmount;
                 $payable->save();
 
-                if ($class != null) {
+                if ($class != null)
+                {
                     $sy = SchoolYear::find($class->SchoolYearId);
                     // update payable tuitions breakdown
                     TuitionsBreakdown::where('PayableId', $payable->id)
-                    ->delete();
+                        ->delete();
 
                     // recreate tuitions breakdown
                     $discount = floatval($payable->DiscountAmount);
-                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK') {
+                    if (($class->Year == 'Grade 11' | $class->Year == 'Grade 12') && env('SENIOR_HIGH_SEM_ENROLLMENT') === 'BREAK')
+                    {
                         // if grade 11 and grade 12, only 5 months should be added to the tuitions breakdown
                         $monthsToPay = 5;
 
-                        for ($i=0; $i<$monthsToPay; $i++) {
+                        for ($i = 0; $i < $monthsToPay; $i++)
+                        {
                             $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                             $tuitionBreakdown = new TuitionsBreakdown;
                             $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
-                            
-                            if ($class->Semester != null && $class->Semester == '2nd') {
-                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i+5) . ' months'));
-                            } else {
+
+                            if ($class->Semester != null && $class->Semester == '2nd')
+                            {
+                                $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i + 5) . ' months'));
+                            } else
+                            {
                                 $tuitionBreakdown->ForMonth = date('Y-m-01', strtotime($syStartDate . ' +' . ($i) . ' months'));
                             }
-                            
+
                             $tuitionBreakdown->PayableId = $payable->id;
 
                             $amntPayable = $payable->AmountPayable > 0 ? ($payable->AmountPayable / $monthsToPay) : 0;
@@ -1645,10 +1840,12 @@ class TransactionsController extends AppBaseController
                             $tuitionBreakdown->Discount = $dscntOriginal;
                             $tuitionBreakdown->save();
                         }
-                    } else {
+                    } else
+                    {
                         $monthsToPay = 10;
 
-                        for ($i=0; $i<$monthsToPay; $i++) {
+                        for ($i = 0; $i < $monthsToPay; $i++)
+                        {
                             $syStartDate = $sy->MonthStart != null ? $sy->MonthStart : date('Y-m-d');
                             $tuitionBreakdown = new TuitionsBreakdown;
                             $tuitionBreakdown->id = IDGenerator::generateIDandRandString();
@@ -1667,19 +1864,24 @@ class TransactionsController extends AppBaseController
                     }
 
                     // update tutions breakdown payments
-                    if ($paidAmount > 0) {
+                    if ($paidAmount > 0)
+                    {
                         // update tuitions breakdown
                         $tBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("Balance > 0")->orderBy('ForMonth')->get();
                         $payment = $paidAmount;
-                        foreach($tBreakdown as $item) {
+                        foreach ($tBreakdown as $item)
+                        {
                             $currentPayable = floatval($item->Balance);
-                            if ($payment > 0) {
-                                if ($payment >= $currentPayable) {
+                            if ($payment > 0)
+                            {
+                                if ($payment >= $currentPayable)
+                                {
                                     $item->Balance = 0;
                                     $item->AmountPaid = $item->AmountPayable;
-                                    
+
                                     $payment = $payment - $currentPayable;
-                                } else {
+                                } else
+                                {
                                     $item->Balance = $currentPayable - $payment;
                                     $item->AmountPaid = floatval($item->AmountPaid) + $payment;
 
@@ -1690,17 +1892,22 @@ class TransactionsController extends AppBaseController
                             }
                         }
                     }
-                } else {
+                } else
+                {
                     // update payable tuitions breakdown
-                    if ($inc->NotDeductedMonthly != "Yes") {
+                    if ($inc->NotDeductedMonthly != "Yes")
+                    {
                         $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payable->id)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
-                        if ($tuitionsBreakdown != null) {
+                        if ($tuitionsBreakdown != null)
+                        {
                             $count = count($tuitionsBreakdown);
 
-                            if ($count > 0) {
+                            if ($count > 0)
+                            {
                                 $amountDistributable = round(($incAmount / $count), 2);
-                            
-                                foreach($tuitionsBreakdown as $item) {
+
+                                foreach ($tuitionsBreakdown as $item)
+                                {
                                     $item->AmountPayable = floatval($item->AmountPayable) - $amountDistributable;
                                     $item->Balance = $item->AmountPayable;
                                     $item->save();
@@ -1714,8 +1921,9 @@ class TransactionsController extends AppBaseController
 
         return response()->json($inc, 200);
     }
-    
-    public function addPayableInclusion(Request $request) {
+
+    public function addPayableInclusion(Request $request)
+    {
         $itemName = $request['ItemName'];
         $itemAmount = $request['Amount'];
         $payableId = $request['PayableId'];
@@ -1732,13 +1940,14 @@ class TransactionsController extends AppBaseController
         // save payable
         $payable = Payables::find($payableId);
 
-        if ($payable != null) {
+        if ($payable != null)
+        {
             $incAmount = $itemAmount != null ? floatval($itemAmount) : 0;
 
             // update payable
             $payablePayable = $payable->Payable != null ? floatval($payable->Payable) : 0;
-            $payableAmountPayable  = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
-            $payableBalance  = $payable->Balance != null ? floatval($payable->Balance) : 0;
+            $payableAmountPayable = $payable->AmountPayable != null ? floatval($payable->AmountPayable) : 0;
+            $payableBalance = $payable->Balance != null ? floatval($payable->Balance) : 0;
 
             $payable->Payable = $payablePayable + $incAmount;
             $payable->AmountPayable = $payableAmountPayable + $incAmount;
@@ -1746,15 +1955,19 @@ class TransactionsController extends AppBaseController
             $payable->save();
 
             // update payable tuitions breakdown
-            if ($notDeductedMonthly != "Yes") {
+            if ($notDeductedMonthly != "Yes")
+            {
                 $tuitionsBreakdown = TuitionsBreakdown::where('PayableId', $payableId)->whereRaw("AmountPaid IS NULL OR AmountPaid = 0")->get();
-                if ($tuitionsBreakdown != null) {
+                if ($tuitionsBreakdown != null)
+                {
                     $count = count($tuitionsBreakdown);
 
-                    if ($count > 0) {
+                    if ($count > 0)
+                    {
                         $amountDistributable = round(($incAmount / $count), 2);
-                    
-                        foreach($tuitionsBreakdown as $item) {
+
+                        foreach ($tuitionsBreakdown as $item)
+                        {
                             $item->AmountPayable = floatval($item->AmountPayable) + $amountDistributable;
                             $item->Balance = $item->AmountPayable;
                             $item->save();
@@ -1762,7 +1975,7 @@ class TransactionsController extends AppBaseController
                     }
                 }
             }
-            
+
         }
 
         return response()->json('ok', 200);
@@ -1771,17 +1984,21 @@ class TransactionsController extends AppBaseController
     /**
      * SVI PRINT MISCELLANEOUS
      */
-    public function printMiscellaneousSvi($transactionId) {
+    public function printMiscellaneousSvi($transactionId)
+    {
         $transaction = Transactions::find($transactionId);
 
-        if ($transaction != null) {
+        if ($transaction != null)
+        {
             $student = DB::table('Students')
                 ->leftJoin('Towns', DB::raw("TRY_CAST(Students.Town AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Towns.id AS VARCHAR(100))"))
                 ->leftJoin('Barangays', DB::raw("TRY_CAST(Students.Barangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(Barangays.id AS VARCHAR(100))"))
                 ->whereRaw("Students.id='" . $transaction->StudentId . "'")
-                ->select('Students.*',
+                ->select(
+                    'Students.*',
                     'Towns.Town as TownSpelled',
-                    'Barangays.Barangay as BarangaySpelled')
+                    'Barangays.Barangay as BarangaySpelled'
+                )
                 ->first();
 
             $classes = Classes::find($student->CurrentGradeLevel);
@@ -1794,12 +2011,14 @@ class TransactionsController extends AppBaseController
                 'transactionDetails' => $transactionDetails,
                 'classes' => $classes,
             ]);
-        } else {
+        } else
+        {
             return abort('No transaction found!', 404);
         }
     }
 
-    public function printTuitionLedger($studentId, $syData) {
+    public function printTuitionLedger($studentId, $syData)
+    {
         $student = DB::table('Students')
             ->leftJoin('Towns', 'Students.Town', '=', 'Towns.id')
             ->leftJoin('Barangays', 'Students.Barangay', '=', 'Barangays.id')
@@ -1807,7 +2026,8 @@ class TransactionsController extends AppBaseController
             ->leftJoin(DB::raw("Barangays bp"), DB::raw("TRY_CAST(Students.PermanentBarangay AS VARCHAR(100))"), '=', DB::raw("TRY_CAST(bp.id AS VARCHAR(100))"))
             ->leftJoin('Classes', 'Students.CurrentGradeLevel', '=', 'Classes.id')
             ->whereRaw("Students.id='" . $studentId . "'")
-            ->select('Students.*',
+            ->select(
+                'Students.*',
                 'Towns.Town AS TownSpelled',
                 'Barangays.Barangay AS BarangaySpelled',
                 'tp.Town AS TownSpelledPermanent',
@@ -1826,7 +2046,8 @@ class TransactionsController extends AppBaseController
             ->orderByDesc('created_at')
             ->first();
 
-        if ($tuitionPayable != null) {
+        if ($tuitionPayable != null)
+        {
             $tuitionBreakdown = TuitionsBreakdown::where('PayableId', $tuitionPayable->id)
                 ->orderBy('ForMonth')
                 ->get();
@@ -1837,19 +2058,23 @@ class TransactionsController extends AppBaseController
                 'tuitionPayable' => $tuitionPayable,
                 'tuitionBreakdown' => $tuitionBreakdown,
             ]);
-        } else {
+        } else
+        {
             return abort(404, 'No payable found!');
         }
     }
 
-    public function oldOrEntry(Request $request) {
+    public function oldOrEntry(Request $request)
+    {
         return view('/transactions/old_or_entry');
     }
-    
-    public function searchOldEntryStudents(Request $request) {
+
+    public function searchOldEntryStudents(Request $request)
+    {
         $params = $request['Search'];
 
-        if (isset($params)) {
+        if (isset($params))
+        {
             $data = DB::table('Students')
                 ->whereRaw("(Students.FirstName LIKE '%" . $params . "%' OR Students.LastName LIKE '%" . $params . "%' OR Students.MiddleName LIKE '%" . $params . "%' OR 
                     (Students.FirstName + ' ' + Students.LastName) LIKE '%" . $params . "%' OR (Students.LastName + ', ' + Students.FirstName) LIKE '%" . $params . "%' OR 
@@ -1857,7 +2082,8 @@ class TransactionsController extends AppBaseController
                 ->select('Students.*')
                 ->orderBy('Students.FirstName')
                 ->paginate(18);
-        } else {
+        } else
+        {
             $data = DB::table('Students')
                 ->select('Students.*')
                 ->orderByDesc('Students.created_at')
@@ -1867,11 +2093,13 @@ class TransactionsController extends AppBaseController
         return response()->json($data, 200);
     }
 
-    public function otherPayments(Request $request) {
+    public function otherPayments(Request $request)
+    {
         return view('/transactions/other_payments');
     }
 
-    public function transactOtherPayments(Request $request) {
+    public function transactOtherPayments(Request $request)
+    {
         $payee = $request['Payee'];
         $payeeAddress = $request['PayeeAddress'];
         $cashAmount = $request['cashAmount'];
@@ -1889,13 +2117,16 @@ class TransactionsController extends AppBaseController
         $orDate = $request['ORDate'];
 
         $modeOfPayment = '';
-        if ($cashAmount != null) {
+        if ($cashAmount != null)
+        {
             $modeOfPayment .= 'Cash;';
         }
-        if ($checkAmount != null) {
+        if ($checkAmount != null)
+        {
             $modeOfPayment .= 'Check;';
         }
-        if ($digitalAmount != null) {
+        if ($digitalAmount != null)
+        {
             $modeOfPayment .= 'Digital;';
         }
 
@@ -1917,12 +2148,14 @@ class TransactionsController extends AppBaseController
         $transactions->PayeeAddress = $payeeAddress;
         $transactions->save();
 
-        foreach($transactionDetails as $item) {
-            if ($item['Payable'] != null && $item["TotalAmount"] != null) {
+        foreach ($transactionDetails as $item)
+        {
+            if ($item['Payable'] != null && $item["TotalAmount"] != null)
+            {
                 $transactionDetails = new TransactionDetails;
                 $transactionDetails->id = IDGenerator::generateIDandRandString();
                 $transactionDetails->TransactionsId = $id;
-                $transactionDetails->Particulars = $item['Payable'] /* . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')' */;
+                $transactionDetails->Particulars = $item['Payable'] /* . ' (' . $item["Quantity"] . ' x P' . $item["Price"] .')' */ ;
                 $transactionDetails->Amount = $item['TotalAmount'];
                 $transactionDetails->save();
             }
@@ -1930,8 +2163,9 @@ class TransactionsController extends AppBaseController
 
         return response()->json($id, 200);
     }
-    
-    public function printOtherPaymentsSvi($transactionId) {
+
+    public function printOtherPaymentsSvi($transactionId)
+    {
         $transaction = Transactions::find($transactionId);
 
         $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
@@ -1940,9 +2174,10 @@ class TransactionsController extends AppBaseController
             'transaction' => $transaction,
             'transactionDetails' => $transactionDetails,
         ]);
-    } 
+    }
 
-    public function fetchDetailedTransactionsPerStudent(Request $request) {
+    public function fetchDetailedTransactionsPerStudent(Request $request)
+    {
         $studentId = $request['StudentId'];
 
         $data = DB::table('TransactionDetails')
@@ -1959,11 +2194,12 @@ class TransactionsController extends AppBaseController
             )
             ->orderBy('Transactions.ORDate')
             ->get();
-            
+
         return response()->json($data, 200);
     }
 
-    public function getLatestTuitionFee(Request $request) {
+    public function getLatestTuitionFee(Request $request)
+    {
         $studentId = $request['StudentId'];
 
         $tuitionPayables = Payables::where('StudentId', $studentId)
@@ -1974,7 +2210,8 @@ class TransactionsController extends AppBaseController
         return response()->json($tuitionPayables, 200);
     }
 
-    public function getUnpaidTuitionFees(Request $request) {
+    public function getUnpaidTuitionFees(Request $request)
+    {
         $studentId = $request['StudentId'];
 
         $tuitionPayables = Payables::where('StudentId', $studentId)
@@ -1986,7 +2223,8 @@ class TransactionsController extends AppBaseController
         return response()->json($tuitionPayables, 200);
     }
 
-    public function getSelectedTuitionPayable(Request $request) {
+    public function getSelectedTuitionPayable(Request $request)
+    {
         $id = $request['id'];
 
         $tuitionPayables = Payables::find($id);
@@ -1994,11 +2232,13 @@ class TransactionsController extends AppBaseController
         return response()->json($tuitionPayables, 200);
     }
 
-    public function ledgerManagement(Request $request) {
+    public function ledgerManagement(Request $request)
+    {
         return view('/transactions/ledger_management');
     }
 
-    public function updatePayable(Request $request) {
+    public function updatePayable(Request $request)
+    {
         $id = $request['id'];
         $totalPayable = $request['TotalPayable'];
         $amountPaid = $request['PaidAmount'];
@@ -2006,7 +2246,8 @@ class TransactionsController extends AppBaseController
 
         $payable = Payables::find($id);
 
-        if ($payable != null) {
+        if ($payable != null)
+        {
             $ogPayable = $payable;
 
             $payable->AmountPayable = $totalPayable;
