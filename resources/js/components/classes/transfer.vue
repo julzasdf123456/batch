@@ -77,7 +77,7 @@
                                 <td class="text-muted v-align">Select Class/Strand: </td>
                                 <td class="v-align">
                                     <select class="form-control" v-model="classSelected" @change="getSubjectsInClass()">
-                                        <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ grade.Year + ' - ' + grade.Section + (isNull(grade.Strand) ? '' : (' (' + grade.Strand + (isNull(grade.Semester) ? '' : (' • ' + grade.Semester + ' Semester')) + ')')) }}</option>
+                                        <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ (isNull(grade.Year) ? '' : grade.Year) + ' - ' + grade.Section + (isNull(grade.Strand) ? '' : (' (' + grade.Strand + (isNull(grade.Semester) ? '' : (' • ' + grade.Semester + ' Semester')) + ')')) }}</option>
                                     </select>
                                 </td>
                             </tr>
