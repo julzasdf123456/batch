@@ -3515,7 +3515,7 @@ class ClassesController extends AppBaseController
                 'StudentClasses.id as StudentClassId'
             )
             ->orderBy('Students.LastName')
-            ->limit(4)
+            // ->limit(4)
             ->get();
 
         $arr = [];
