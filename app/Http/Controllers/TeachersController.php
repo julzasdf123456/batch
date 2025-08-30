@@ -282,7 +282,7 @@ class TeachersController extends AppBaseController
                 $join->on('StudentClasses.ClassId', '=', 'StudentSubjects.ClassId')
                     ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
             })
-            ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Male' AND Classes.SchoolYearId='" . $syId . "'")
+            ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Male'")
             ->whereRaw("Students.Status IS NULL")
             ->select(
                 'StudentSubjects.*',
@@ -303,7 +303,7 @@ class TeachersController extends AppBaseController
                 $join->on('StudentClasses.ClassId', '=', 'StudentSubjects.ClassId')
                     ->on('StudentClasses.StudentId', '=', 'StudentSubjects.StudentId');
             })
-            ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Female' AND Classes.SchoolYearId='" . $syId . "'")
+            ->whereRaw("StudentSubjects.TeacherId='" . $teacherId . "' AND StudentSubjects.ClassId='" . $classId . "' AND StudentSubjects.SubjectId='" . $subjectId . "' AND Gender='Female'")
             ->whereRaw("Students.Status IS NULL")
             ->select(
                 'StudentSubjects.*',
