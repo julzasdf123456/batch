@@ -627,6 +627,7 @@
                     $totalSubjectCount = 0;
 
                     $sSemData = $student->SecondSemGradeData;
+                    dd($sSemData);
                     $sSemData = json_decode($sSemData, true);
                     $secondSem = Classes::categorizeParentSubjects($sSemData);
                     $mainSubjects = $secondSem['MainSubjects'];

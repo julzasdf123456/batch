@@ -4212,7 +4212,7 @@ class ClassesController extends AppBaseController
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                     ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classFirstSem->id . "' AND Classes.Semester='1st'")
+                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classFirstSem->id . "' AND Classes.Semester='1st' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
                     ->select(
                         'StudentSubjects.*',
                         'Subjects.Subject',
@@ -4237,7 +4237,7 @@ class ClassesController extends AppBaseController
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                     ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classSecondSem->id . "' AND Classes.Semester='2nd'")
+                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classSecondSem->id . "' AND Classes.Semester='2nd' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
                     ->select(
                         'StudentSubjects.*',
                         'Subjects.Subject',
@@ -4312,7 +4312,7 @@ class ClassesController extends AppBaseController
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                 ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
+                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
                 ->select(
                     'StudentSubjects.*',
                     'Subjects.Subject',
@@ -4411,7 +4411,7 @@ class ClassesController extends AppBaseController
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                     ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classFirstSem->id . "' AND Classes.Semester='1st'")
+                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classFirstSem->id . "' AND Classes.Semester='1st' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
                     ->select(
                         'StudentSubjects.*',
                         'Subjects.Subject',
@@ -4437,7 +4437,7 @@ class ClassesController extends AppBaseController
                     ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                     ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                     ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classSecondSem->id . "' AND Classes.Semester='2nd'")
+                    ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classSecondSem->id . "' AND Classes.Semester='2nd' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
                     ->select(
                         'StudentSubjects.*',
                         'Subjects.Subject',
@@ -4513,7 +4513,7 @@ class ClassesController extends AppBaseController
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                 ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "'")
+                ->whereRaw("StudentSubjects.StudentId='" . $item->id . "' AND StudentSubjects.ClassId='" . $classId . "' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
                 ->select(
                     'StudentSubjects.*',
                     'Subjects.Subject',
