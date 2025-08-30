@@ -2874,13 +2874,23 @@ class ClassesController extends AppBaseController
 
         if ($classRepo != null)
         {
-            $subjectClasses = SubjectClasses::where('ClassRepoId', $classRepo->id)->get();
+            // $subjectClasses = SubjectClasses::where('ClassRepoId', $classRepo->id)->get();
+
+            $subjectClasses = DB::table('StudentSubjects')
+                ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
+                ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
+                ->whereRaw("StudentSubjects.ClassId='" . $classId . "' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
+                ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
+                ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
+                ->orderBy('StudentSubjects.Heirarchy')
+                ->orderBy('Subjects.ParentSubject')
+                ->get();
 
             if ($subjectClasses != null)
             {
                 foreach ($subjectClasses as $item)
                 {
-                    $subject = Subjects::find($item->SubjectId);
+                    $subject = Subjects::find($item->id);
 
                     if ($subject != null)
                     {
