@@ -183,7 +183,7 @@ class TeachersController extends AppBaseController
             $item->SubjectClasses = DB::table('StudentSubjects')
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                 ->leftJoin('Classes', 'StudentSubjects.ClassId', '=', 'Classes.id')
-                ->whereRaw("StudentSubjects.TeacherId='" . $id . "' AND Classes.SchoolYearId='" . $item->id . "'")
+                ->whereRaw("StudentSubjects.TeacherId='" . $id . "' AND Classes.SchoolYearId='" . $item->id . "' AND Subjects.id IS NOT NULL")
                 ->select(
                     'StudentSubjects.ClassId',
                     'Classes.Year',
