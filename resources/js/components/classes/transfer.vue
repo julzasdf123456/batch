@@ -34,7 +34,7 @@
             <div class="card shadow-none">
                 <div class="card-body table-responsive">
                     
-                    <h4 class="no-pads">{{ classData.Year }} - {{ classData.Section }}</h4>
+                    <h4 class="no-pads">{{ isNull(classData.Year) ? '' : classData.Year }} - {{ classData.Section }}</h4>
                     <p class="text-muted no-pads">{{ isNull(classData.Strand) ? '' : classData.Strand }} {{ isNull(classData.Semester) ? '' : (' • ' + classData.Semester + ' Sem') }}</p>
 
                     <div class="divider my-3"></div>
