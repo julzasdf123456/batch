@@ -407,7 +407,7 @@ class UsersController extends AppBaseController
         $data = DB::table('StudentSubjects')
             ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
             ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
-            ->whereRaw("StudentSubjects.ClassId='" . $classId . "'")
+            ->whereRaw("StudentSubjects.ClassId='" . $classId . "' AND Subjects.Subject IS NOT NULL AND Subjects.id IS NOT NULL")
             ->select('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
             ->groupBy('Subjects.Subject', 'Subjects.id', 'StudentSubjects.TeacherId', 'Teachers.FullName', 'Subjects.ParentSubject', 'StudentSubjects.Heirarchy')
             ->orderBy('StudentSubjects.Heirarchy')
