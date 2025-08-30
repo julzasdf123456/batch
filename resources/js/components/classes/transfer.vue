@@ -34,7 +34,7 @@
             <div class="card shadow-none">
                 <div class="card-body table-responsive">
                     
-                    <h4 class="no-pads">{{ isNull(classData.Year) ? '' : classData.Year }} - {{ classData.Section }}</h4>
+                    <h4 class="no-pads">{{ isNull(classData) ? '' : i(sNull(classData.Year) ? '' : classData.Year) }} - {{ classData.Section }}</h4>
                     <p class="text-muted no-pads">{{ isNull(classData.Strand) ? '' : classData.Strand }} {{ isNull(classData.Semester) ? '' : (' • ' + classData.Semester + ' Sem') }}</p>
 
                     <div class="divider my-3"></div>
@@ -77,7 +77,7 @@
                                 <td class="text-muted v-align">Select Class/Strand: </td>
                                 <td class="v-align">
                                     <select class="form-control" v-model="classSelected" @change="getSubjectsInClass()">
-                                        <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ (isNull(grade.Year) ? '' : grade.Year) + ' - ' + grade.Section + (isNull(grade.Strand) ? '' : (' (' + grade.Strand + (isNull(grade.Semester) ? '' : (' • ' + grade.Semester + ' Semester')) + ')')) }}</option>
+                                        <option v-for="grade in gradeLevels" :key="grade.id" :value="grade.id">{{ (isNull(grade) ? '' : (isNull(grade.Year) ? '' : grade.Year)) + ' - ' + grade.Section + (isNull(grade.Strand) ? '' : (' (' + grade.Strand + (isNull(grade.Semester) ? '' : (' • ' + grade.Semester + ' Semester')) + ')')) }}</option>
                                     </select>
                                 </td>
                             </tr>
