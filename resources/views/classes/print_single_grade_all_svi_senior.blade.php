@@ -775,7 +775,7 @@
                     <td><strong>TOTAL AVERAGE</strong></td>
                     @if ($gradingPeriod === 'First')
                         <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
-                        <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
+                        <td></td>
                         @if ($printFinalGrade != null && $printFinalGrade === 'Yes')
                             <td class="text-center">
                                 <strong>{{ $hasOverallInc ? '' : number_format($finalGrade) }}</strong>
