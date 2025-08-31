@@ -783,6 +783,7 @@
                         @else
                             <td class="text-center"></td>
                         @endif
+                        <td></td>
                     @elseif ($gradingPeriod === 'Second')
                         <td class="text-center"><strong>{{ number_format($averageThird) }}</strong></td>
                         <td class="text-center"><strong>{{ number_format($averageFourth) }}</strong></td>
@@ -793,6 +794,10 @@
                         @else
                             <td class="text-center"></td>
                         @endif
+
+                        <td class='text-center'>
+                            {{ $hasOverallInc ? '' : Subjects::checkPass($finalGrade) }}
+                        </td>
                     @elseif ($gradingPeriod === 'All')
                         <td class="text-center"><strong>{{ number_format($averageFirst) }}</strong></td>
                         <td class="text-center"><strong>{{ number_format($averageSecond) }}</strong></td>
@@ -805,11 +810,10 @@
                         @else
                             <td class="text-center"></td>
                         @endif
+                        <td class='text-center'>
+                            {{ $hasOverallInc ? '' : Subjects::checkPass($finalGrade) }}
+                        </td>
                     @endif
-
-                    <td class='text-center'>
-                        {{ $hasOverallInc ? '' : Subjects::checkPass($finalGrade) }}
-                    </td>
                     <td></td>
                 </tr>
             </tbody>
