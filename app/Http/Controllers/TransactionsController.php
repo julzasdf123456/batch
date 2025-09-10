@@ -839,7 +839,7 @@ class TransactionsController extends AppBaseController
 
             $classes = Classes::find($student->CurrentGradeLevel);
 
-            return view('/transactions/print_svi_tuition', [
+            return view('/transactions/print_svi_tuition_new', [
                 'transaction' => $transaction,
                 'student' => $student,
                 'transactionDetails' => $transactionDetails,
