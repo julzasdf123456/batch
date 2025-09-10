@@ -2170,7 +2170,7 @@ class TransactionsController extends AppBaseController
 
         $transactionDetails = TransactionDetails::where('TransactionsId', $transaction->id)->get();
 
-        return view('/transactions/print_svi_other_payments', [
+        return view('/transactions/print_svi_other_payments_new', [
             'transaction' => $transaction,
             'transactionDetails' => $transactionDetails,
         ]);

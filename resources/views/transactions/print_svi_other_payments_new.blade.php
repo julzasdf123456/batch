@@ -195,23 +195,39 @@
     @endphp
 
     <div class="full-w">
-        <p style='font-size: .95em !important; padding-top: 72px !important; padding-right: 20px !important;' class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
+        <p style='font-size: .95em !important; padding-top: 76px !important; padding-right: 20px !important;' class="text-right">{{ $transaction->ORDate != null ? date('m/d/Y', strtotime($transaction->ORDate)) : '' }}</p>
     
-        <p style='font-size: .95em !important; padding-top: 35px !important; padding-left: 112px !important; text-align: left !important;'>{{ strtoupper(Students::formatNameFormal($student)) }}</p>
+        <p style='font-size: .95em !important; padding-top: 35px !important; padding-left: 112px !important; text-align: left !important;'>{{ strtoupper($transaction->Payee) }}</p>
 
-        <p style='font-size: .95em !important; padding-top: 24px !important; padding-left: 112px !important; text-align: left !important;'>{{ ($student->BarangaySpelled != null ? ($student->BarangaySpelled . ', ') : '-') . ($student->TownSpelled != null ? ($student->TownSpelled) : '-') }}</p>  
-           
-        {{-- TUITION --}}
-        <p  style='font-size: .95em !important; padding-top: 30px !important; padding-right: 20px !important;' class="text-right">{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
-           
-        {{-- TOTAL --}}
-        <p  style='font-size: 1em !important; padding-top: 352px !important; padding-right: 20px !important;' class="text-right">{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
-             
-        {{-- CASHIER --}}
-        <p  style='font-size: .9em !important; padding-top: 70px !important; padding-right: 20px !important;' class="text-right">{{ strtoupper(env('CASHIER_NAME')) }}</p>
-             
+        <p style='font-size: .95em !important; padding-top: 24px !important; padding-left: 112px !important; text-align: left !important;'>{{ strtoupper($transaction->PayeeAddress != null ? $transaction->PayeeAddress : '--') }}</p>  
+        
+        {{-- BREAKDOWN  --}}
+        <p style='font-size: .95em !important; padding-top: 184px !important; padding-left: 30px !important; text-align: left !important;'>
+                    
+                </p>
+        @if ($transactionDetails != null)
+            @foreach ($transactionDetails as $item)
+                <div>
+                    <div class="seventy">
+                        <p style='font-size: .95em !important; padding-top: 8px !important; padding-left: 30px !important; text-align: left !important;'>
+                            {{ strtoupper($item->Particulars) }}
+                        </p>
+                    </div>
+                    <div class="thirty">
+                        <p style='font-size: .95em !important; padding-top: 8px !important; padding-right: 20px !important;' class="text-right">
+                            {{ is_numeric($item->Amount) ? number_format($item->Amount, 2) : $item->Amount }}
+                        </p>
+                    </div>
+                </div>
+            @endforeach
+        @endif
     </div>
 
+    {{-- TOTAL --}}
+    <p  style='font-size: 1em !important; position: absolute !important; bottom: 148px; right: 20px;'>{{ is_numeric($transaction->TotalAmountPaid) ? number_format($transaction->TotalAmountPaid, 2) : $transaction->TotalAmountPaid }}</p>
+
+    {{-- CASHIER --}}
+    <p  style='font-size: 1em !important; position: absolute !important; bottom: 65px; right: 20px;'>{{ strtoupper(env('CASHIER_NAME')) }}</p>
 {{-- AMOUNT IN WORDS --}}
             {{-- <p style='font-size: 1.2em !important; padding-top: 50px !important; padding-left: 52px !important; text-align: left !important;'>{{ $numToWords != null ? (strtoupper($numToWords)) : '-' }}</p> --}}
 </div>
