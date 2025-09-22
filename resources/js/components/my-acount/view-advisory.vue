@@ -2063,7 +2063,7 @@
                                                         <div
                                                             style="
                                                                 display: flex;
-                                                                width: 100%;
+                                                                width: 100%;ad
                                                                 flex-direction: row;
                                                                 justify-content: center;
                                                                 align-items: center;
@@ -2110,6 +2110,9 @@
                                                             </button>
 
                                                             <a
+                                                                v-if="
+                                                                    adviser.id === userId
+                                                                "
                                                                 :href="
                                                                     baseURL +
                                                                     '/users/view-class/' +
