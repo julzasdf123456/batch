@@ -324,6 +324,7 @@ export default {
             teacherId : document.querySelector("meta[name='teacher-id']").getAttribute('content'),
             syId : document.querySelector("meta[name='school-year-id']").getAttribute('content'),
             subjectId : document.querySelector("meta[name='subject-id']").getAttribute('content'),
+            source : document.querySelector("meta[name='source']").getAttribute('content'),
             token : document.querySelector("meta[name='csrf-token']").getAttribute('content'),
             classDetails : {},
             syDetails : {},

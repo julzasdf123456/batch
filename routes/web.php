@@ -55,7 +55,7 @@ Route::post('/users/update-password-admin', [UsersController::class, 'updatePass
 Route::get('/users/my-account-index/', [UsersController::class, 'myAccountIndex'])->name('users.my-account-index');
 Route::get('/users/my-classes/', [UsersController::class, 'myClasses'])->name('users.my-classes');
 Route::get('/users/my-advisory/', [UsersController::class, 'myAdvisory'])->name('users.my-advisory');
-Route::get('/users/view-class/{classId}/{syId}/{subjectId}', [UsersController::class, 'viewClass'])->name('users.view-class');
+Route::get('/users/view-class/{classId}/{syId}/{subjectId}/{source}', [UsersController::class, 'viewClass'])->name('users.view-class');
 Route::get('/users/get-advisory-data', [UsersController::class, 'getAdvisoryData'])->name('users.get-advisory-data');
 Route::get('/users/view-advisory/{adviserId}/{schoolyearid}/{classId}', [UsersController::class, 'viewAdvisory'])->name('users.view-advisory');
 Route::get('/users/get-advisory-details', [UsersController::class, 'getAdvisoryDetaills'])->name('users.get-advisory-details');

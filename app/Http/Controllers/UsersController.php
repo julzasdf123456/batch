@@ -14,6 +14,7 @@ use App\Models\StudentSubjects;
 use App\Models\Classes;
 use App\Models\ClassesRepo;
 use App\Models\SubjectClasses;
+use App\Models\Subjects;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -244,14 +245,23 @@ class UsersController extends AppBaseController
         }
     }
 
-    public function viewClass($classId, $syId, $subjectId)
+    public function viewClass($classId, $syId, $subjectId, $source)
     {
         if (Auth::user()->TeacherId != null)
         {
+            if ($source === 'ADMIN') {
+                $subject = Subjects::find($subjectId);
+                $teacherId = $subject != null ? $subject->Teacher : null;
+            } else {
+                $teacherId = Auth::user()->TeacherId;
+            }
+
             return view('/my_account/view_class', [
                 'classId' => $classId,
                 'syId' => $syId,
                 'subjectId' => $subjectId,
+                'source' => $source,
+                'teacherId' => $teacherId ?? null,
             ]);
         } else
         {

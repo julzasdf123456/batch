@@ -9,6 +9,8 @@
 
         <!-- classes list -->
         <div class="col-lg-12 mt-4">
+            <h4>Direct Subjects</h4>
+            <p class="text-muted text-sm">Subjects you are teaching in</p>
             <div class="row">
                 <div class="col-lg-3 col-md-6" v-for="c in classes" :key="c.id">
                     <div class="card shadow-none">
@@ -20,7 +22,7 @@
 
                             <br>
 
-                            <a :href="baseURL + '/users/view-class/' + c.ClassId + '/' + syId + '/' + c.id" class="btn btn-link text-muted float-right" title="View Class"><i class="fas fa-eye"></i></a>
+                            <a :href="baseURL + '/users/view-class/' + c.ClassId + '/' + syId + '/' + c.id + '/TEACHER'" class="btn btn-link text-muted float-right" title="View Class"><i class="fas fa-eye"></i></a>
                         </div>
                     </div>
                 </div>
