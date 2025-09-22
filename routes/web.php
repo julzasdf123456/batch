@@ -263,6 +263,7 @@ Route::get('/barcode_attendances/get-student-logs', [BarcodeAttendanceController
 Route::get('/barcode_attendances/get-barcode-attendance-per-class', [BarcodeAttendanceController::class, 'getBarcodeAttendancePerClass'])->name('barcodeAttendances.get-barcode-attendance-per-class');
 Route::get('/barcode_attendances/download-sf2-junior/{classId}/{month}/{year}', [BarcodeAttendanceController::class, 'downloadSF2Junior'])->name('barcodeAttendances.download-sf2-junior');
 Route::get('/barcode_attendances/download-sf2-senior/{classId}/{month}/{year}', [BarcodeAttendanceController::class, 'downloadSF2Senior'])->name('barcodeAttendances.download-sf2-senior');
+Route::post('/barcode_attendances/submit-class-attendance', [BarcodeAttendanceController::class, 'submitClassAttendance'])->name('barcodeAttendances.submit-class-attendance');
 Route::resource('barcodeAttendances', BarcodeAttendanceController::class);
 
 Route::get('/error_messages/not-allowed', [CatchController::class, 'notAllowed'])->name('errorMessages.not-allowed');

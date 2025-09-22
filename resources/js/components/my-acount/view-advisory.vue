@@ -331,6 +331,19 @@
                   >Active Students List</a
                 >
               </li>
+
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="attendance-check-tab"
+                  data-toggle="pill"
+                  href="#attendance-check-content"
+                  role="tab"
+                  aria-controls="attendance-check-content"
+                  aria-selected="false"
+                  >Attendance Check</a
+                >
+              </li>
               <li class="nav-item" @click="getAllAttendanceData()">
                 <a
                   class="nav-link"
@@ -536,7 +549,9 @@
                             ></label>
                           </div>
                         </td>
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <div style="display: inline-block; vertical-align: middle">
                             <img
@@ -609,7 +624,9 @@
                         <td class="v-align">
                           <strong>{{ student.MiddleName }}</strong>
                         </td>
-                        <td class="v-align">{{ student.LRN }}</td>
+                        <td class="v-align">
+                          {{ student.LRN }}
+                        </td>
                         <td class="v-align">
                           {{
                             (isNull(student.Sitio) ? "" : student.Sitio) +
@@ -806,7 +823,9 @@
                             ></label>
                           </div>
                         </td>
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <div style="display: inline-block; vertical-align: middle">
                             <img
@@ -879,7 +898,9 @@
                         <td class="v-align">
                           <strong>{{ student.MiddleName }}</strong>
                         </td>
-                        <td class="v-align">{{ student.LRN }}</td>
+                        <td class="v-align">
+                          {{ student.LRN }}
+                        </td>
                         <td class="v-align">
                           {{
                             (isNull(student.Sitio) ? "" : student.Sitio) +
@@ -1058,10 +1079,147 @@
               </div>
 
               <!-- 
-                                ====================================================================================================================================
-                                ATTENDANCE 
-                                ====================================================================================================================================
-                            -->
+                                    ====================================================================================================================================
+                                    ATTENDANCE CHECK
+                                    ====================================================================================================================================
+                                -->
+              <div
+                class="tab-pane fade row"
+                id="attendance-check-content"
+                role="tabpanel"
+                aria-labelledby="attendance-check-tab"
+              >
+                <div class="container">
+                  <div class="d-flex justify-content-end">
+                    <div class="row g-2 p-2 w-auto">
+                      <div class="col-12 col-md-auto">
+                        <label for="start-date" class="form-label">Start</label>
+                        <input
+                          type="datetime-local"
+                          id="start-date"
+                          v-model="date_start"
+                          class="form-control form-control-md"
+                          @change="updateDateRange"
+                        />
+                      </div>
+
+                      <div class="col-12 col-md-auto">
+                        <label for="end-date" class="form-label">End</label>
+                        <input
+                          type="datetime-local"
+                          id="end-date"
+                          v-model="date_end"
+                          class="form-control form-control-md"
+                          @change="updateDateRange"
+                        />
+                      </div>
+
+                      <div class="col-12 col-md-auto d-flex align-items-end">
+                        <button @click="handleSubmitAttendance()" class="btn btn-success">
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table
+                    class="table table-sm text-center align-middle w-100 table-borderless table-fixed"
+                  >
+                    <thead class="border-0" style="border: none">
+                      <tr>
+                        <th class="text-left bg-primary">
+                          <i class="fas fa-mars ico-tab-mini"></i>
+                          Male Students
+                        </th>
+                        <th v-for="day in dateRange" :key="'header-' + day">
+                          {{ day }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="student in male"
+                        :key="'male-' + student.id"
+                        class="border-bottom border-secondary"
+                      >
+                        <td class="text-left">
+                          {{ student.LastName }} {{ student.FirstName }}
+                          {{ student.MiddleName }}
+                        </td>
+                        <td
+                          v-for="day in dateRange"
+                          :key="'checkbox-' + student.id + '-' + day"
+                        >
+                          <input
+                            type="checkbox"
+                            class="checkbox-lg"
+                            :value="student.id"
+                            checked
+                            @change="(e) => handleSelectAbsentStudent(student.id, e, day)"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="table-responsive">
+                  <table
+                    class="table table-sm text-center align-middle w-100 table-borderless table-fixed"
+                  >
+                    <thead class="border-0" style="border: none">
+                      <tr>
+                        <th class="text-left bg-warning">
+                          <i class="fas fa-mars ico-tab-mini"></i>
+                          Female Students
+                        </th>
+                        <th v-for="day in dateRange" :key="'header-' + day">
+                          {{ day }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        v-for="student in female"
+                        :key="'female-' + student.id"
+                        class="border-bottom border-secondary"
+                      >
+                        <td class="text-left">
+                          {{ student.LastName }} {{ student.FirstName }}
+                          {{ student.MiddleName }}
+                        </td>
+                        <td
+                          v-for="day in dateRange"
+                          :key="'checkbox-' + student.id + '-' + day"
+                        >
+                          <input
+                            type="checkbox"
+                            class="checkbox-lg"
+                            :value="student.id"
+                            checked
+                            @change="(e) => handleSelectAbsentStudent(student.id, e, day)"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="col-12 col-md-auto d-flex justify-content-end">
+                    <button @click="handleSubmitAttendance()" class="btn btn-success">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 
+                                    ====================================================================================================================================
+                                    ATTENDANCE
+                                    ====================================================================================================================================
+                                -->
+
               <div
                 class="tab-pane fade"
                 id="attendance-content"
@@ -1077,14 +1235,16 @@
                       class="btn btn-default btn-sm"
                       @click="getAllAttendanceData()"
                     >
-                      View <i class="fas fa-check-circle ico-tab-left-mini"></i>
+                      View
+                      <i class="fas fa-check-circle ico-tab-left-mini"></i>
                     </button>
 
                     <button
                       class="btn btn-primary btn-sm ico-tab-left"
                       @click="downloadSF2()"
                     >
-                      Download SF2 <i class="fas fa-file-excel ico-tab-left-mini"></i>
+                      Download SF2
+                      <i class="fas fa-file-excel ico-tab-left-mini"></i>
                     </button>
                   </div>
 
@@ -1125,7 +1285,9 @@
                       <tr>
                         <th style="width: 28px"></th>
                         <th class="text-center">Students</th>
-                        <th class="text-center" v-for="d in daysInAMonth">{{ d }}</th>
+                        <th class="text-center" v-for="d in daysInAMonth">
+                          {{ d }}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1138,7 +1300,9 @@
                         v-for="(student, index) in male"
                         :key="student.StudentSubjectId"
                       >
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <a
                             target="_blank"
@@ -1203,7 +1367,9 @@
                         v-for="(student, index) in female"
                         :key="student.StudentSubjectId"
                       >
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <a
                             target="_blank"
@@ -1552,7 +1718,9 @@
                         v-for="(student, index) in male"
                         :key="student.StudentSubjectId"
                       >
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <a
                             target="_blank"
@@ -1623,7 +1791,9 @@
                         v-for="(student, index) in female"
                         :key="student.StudentSubjectId"
                       >
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <a
                             target="_blank"
@@ -1707,7 +1877,8 @@
                         :class="olvInput === 'DROPDOWN' ? 'btn-success' : 'btn-default'"
                         @click="changeInputType('DROPDOWN')"
                       >
-                        <i class="fas fa-chevron-circle-down ico-tab-mini"></i> Dropdown
+                        <i class="fas fa-chevron-circle-down ico-tab-mini"></i>
+                        Dropdown
                       </button>
                       <button
                         class="btn btn-sm"
@@ -2759,7 +2930,9 @@
                         v-for="(student, index) in male"
                         :key="student.StudentSubjectId"
                       >
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <span
                             ><i
@@ -2834,7 +3007,9 @@
                         v-for="(student, index) in female"
                         :key="student.StudentSubjectId"
                       >
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <span
                             ><i
@@ -2952,7 +3127,9 @@
                             }}</strong></a
                           >
                         </td>
-                        <td class="v-align">{{ student.LRN }}</td>
+                        <td class="v-align">
+                          {{ student.LRN }}
+                        </td>
                         <td class="v-align">
                           {{
                             (isNull(student.Sitio) ? "" : student.Sitio) +
@@ -2962,8 +3139,12 @@
                             student.TownSpelled
                           }}
                         </td>
-                        <td class="v-align">{{ student.Gender }}</td>
-                        <td class="v-align">{{ student.Status }}</td>
+                        <td class="v-align">
+                          {{ student.Gender }}
+                        </td>
+                        <td class="v-align">
+                          {{ student.Status }}
+                        </td>
                         <td class="text-right">
                           <button
                             title="Revert to Active"
@@ -3023,7 +3204,9 @@
                         v-for="(student, index) in miscToTuitions"
                         :key="student.StudentSubjectId"
                       >
-                        <td class="v-align">{{ index + 1 }}</td>
+                        <td class="v-align">
+                          {{ index + 1 }}
+                        </td>
                         <td class="v-align">
                           <a
                             target="_blank"
@@ -3255,7 +3438,9 @@
           <table class="mt-2 table table-hover table-bordered table-sm">
             <tbody>
               <tr v-for="attData in selectedAttData">
-                <td>{{ moment(attData.created_at).format("hh:mm A") }}</td>
+                <td>
+                  {{ moment(attData.created_at).format("hh:mm A") }}
+                </td>
                 <td>{{ attData.PunchType }}</td>
               </tr>
             </tbody>
@@ -3275,7 +3460,10 @@
     <div class="modal-dialog modal-md">
       <div class="modal-content">
         <div class="modal-header">
-          <h4>Change Adviser for {{ advisory.Year }} - {{ advisory.Section }}</h4>
+          <h4>
+            Change Adviser for {{ advisory.Year }} -
+            {{ advisory.Section }}
+          </h4>
         </div>
 
         <div class="modal-body">
@@ -3338,6 +3526,15 @@ export default {
     pagination: Bootstrap4Pagination,
   },
   data() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const hh = String(today.getHours()).padStart(2, "0");
+    const min = String(today.getMinutes()).padStart(2, "0");
+
+    const formattedToday = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+
     return {
       moment: moment,
       baseURL: axios.defaults.baseURL,
@@ -3435,6 +3632,10 @@ export default {
       industry: {},
       teachersData: [],
       selectedTeacherId: "",
+      selectedAbsentStudent: {},
+      date_start: "",
+      date_end: "",
+      dateRange: [],
     };
   },
   methods: {
@@ -5300,8 +5501,83 @@ export default {
           });
         });
     },
+
+    handleSelectAbsentStudent(id, event, day) {
+      console.log("ID:", id); // Log ID to see its value
+      console.log("Checked:", event.target.checked); // Log checked status
+
+      // Initialize selectedAbsentStudent as an object if not already
+      if (
+        typeof this.selectedAbsentStudent !== "object" ||
+        this.selectedAbsentStudent === null
+      ) {
+        this.selectedAbsentStudent = {};
+      }
+
+      // Initialize the array for the specific day if it doesn't exist
+      if (!Array.isArray(this.selectedAbsentStudent[day])) {
+        this.selectedAbsentStudent[day] = [];
+      }
+
+      const isChecked = event.target.checked;
+      const index = this.selectedAbsentStudent[day].indexOf(id);
+
+      if (isChecked) {
+        // Remove the student ID if it exists
+        if (index !== -1) {
+          this.selectedAbsentStudent[day].splice(index, 1);
+        }
+      } else {
+        // Add the student ID if not already present
+        if (index === -1) {
+          this.selectedAbsentStudent[day].push(id);
+        }
+      }
+
+      console.log(this.selectedAbsentStudent);
+    },
+    handleSubmitAttendance() {
+      axios
+        .post("/barcode_attendances/submit-class-attendance", {
+          classId: this.classId,
+          students: this.selectedAbsentStudent,
+          date_start: this.date_start,
+          date_end: this.date_end,
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+        .finally(() => {});
+    },
+    updateDateRange() {
+      if (this.date_start && this.date_end) {
+        const startDate = new Date(this.date_start);
+        const endDate = new Date(this.date_end);
+        this.dateRange = this.generateDateRange(startDate, endDate);
+      }
+    },
+
+    generateDateRange(start, end) {
+      const dates = [];
+      const currentDate = new Date(start);
+
+      while (currentDate <= end) {
+        const formattedDate = currentDate.toISOString().split("T")[0]; // 'YYYY-MM-DD'
+        dates.push(formattedDate);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return dates;
+    },
+
+    formatDate(date) {
+      const options = { year: "numeric", month: "short", day: "numeric" };
+      return date.toLocaleDateString("en-US", options);
+    },
   },
+
   created() {},
+
   mounted() {
     this.classSelect = this.classId;
 
@@ -5320,3 +5596,14 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.checkbox-lg {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.table-fixed {
+  table-layout: fixed;
+}
+</style>

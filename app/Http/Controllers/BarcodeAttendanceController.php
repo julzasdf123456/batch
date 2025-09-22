@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateBarcodeAttendanceRequest;
 use App\Http\Requests\UpdateBarcodeAttendanceRequest;
 use App\Http\Controllers\AppBaseController;
+use App\Models\StudentClasses;
 use App\Repositories\BarcodeAttendanceRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -56,108 +59,108 @@ class BarcodeAttendanceController extends AppBaseController
     /**
      * Store a newly created BarcodeAttendance in storage.
      */
-    public function store(CreateBarcodeAttendanceRequest $request)
-    {
-        date_default_timezone_set('Asia/Manila');
+        public function store(CreateBarcodeAttendanceRequest $request)
+        {
+            date_default_timezone_set('Asia/Manila');
 
-        $input = $request->all();
+            $input = $request->all();
 
-        // $to = date('Y-m-d H:i:s');
-        // $from = date('Y-m-d H:i:s', strtotime($to . " -5 hours"));
+            // $to = date('Y-m-d H:i:s');
+            // $from = date('Y-m-d H:i:s', strtotime($to . " -5 hours"));
 
-        // configure punch type
-        $currentDate = date('Y-m-d');
-        $morningThresholdTime = '11:59';
-        $afternoonThresholdTime = '12:00';
-        $morningInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $morningThresholdTime));
-        $afternoonInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $afternoonThresholdTime));
+            // configure punch type
+            $currentDate = date('Y-m-d');
+            $morningThresholdTime = '11:59';
+            $afternoonThresholdTime = '12:00';
+            $morningInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $morningThresholdTime));
+            $afternoonInThreshold = date('Y-m-d H:i:s', strtotime($currentDate . ' ' . $afternoonThresholdTime));
 
-        if (strtotime($morningInThreshold) < strtotime(date('Y-m-d H:i:s'))) {
-            $input['PunchType'] = 'OUT';
+            if (strtotime($morningInThreshold) < strtotime(date('Y-m-d H:i:s'))) {
+                $input['PunchType'] = 'OUT';
 
-            $to = date('Y-m-d H:i:s', strtotime($currentDate . ' 21:00'));
-            $from = date('Y-m-d H:i:s', strtotime($afternoonInThreshold));
-        } else {
-            $input['PunchType'] = 'IN';
-
-            $to = date('Y-m-d H:i:s', strtotime($morningInThreshold));
-            $from = date('Y-m-d H:i:s', strtotime($currentDate . ' 04:00'));
-        }
-
-        if ($input['Type'] === 'Teacher') {
-            /**
-             * TEACHERS
-             */
-            $bCodeCheck = DB::table('BarcodeAttendance')
-                ->whereRaw("StudentId='" . $input['StudentId'] . "' AND BarcodeId='Teacher' AND (created_at BETWEEN '" . $from . "' AND '" . $to . "') AND PunchType='" . $input['PunchType'] . "'")
-                ->first();
-
-            if ($bCodeCheck != null) {
-                // return response()->json('Teacher already logged ' . ($input['PunchType'] != null && $input['PunchType']==='IN' ? 'OUT' : 'IN'), 400);
-                return response()->json('Teacher already logged ' . $input['PunchType'], 400);
+                $to = date('Y-m-d H:i:s', strtotime($currentDate . ' 21:00'));
+                $from = date('Y-m-d H:i:s', strtotime($afternoonInThreshold));
             } else {
-                $input['BarcodeId'] = $input['Type'];
+                $input['PunchType'] = 'IN';
 
-                $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
-
-                // save sms for sending
-                if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
-                    //get student
-                    $teacher = Teachers::find($input['StudentId']);
-
-                    if ($teacher != null) {
-                        SmsMessages::create([
-                            'id' => IDGenerator::generateIDandRandString(),
-                            'ContactNumber' => $input['ContactNumber'],
-                            'Message' => env("APP_COMPANY") . " System Notification\n\n" .
-                                $teacher->FullName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
-                            'AIFacilitator' => 'Reeve',
-                            'Source' => 'batch.ID',
-                            'Priority' => 1,
-                        ]);
-                    }
-                }
-
-                return response()->json($barcodeAttendance, 200);
+                $to = date('Y-m-d H:i:s', strtotime($morningInThreshold));
+                $from = date('Y-m-d H:i:s', strtotime($currentDate . ' 04:00'));
             }
-        } else {
-            /**
-             * STUDENTS
-             */
-            $bCodeCheck = DB::table('BarcodeAttendance')
-                ->whereRaw("StudentId='" . $input['StudentId'] . "' AND BarcodeId IS NULL AND (created_at BETWEEN '" . $from . "' AND '" . $to . "') AND PunchType='" . $input['PunchType'] . "'")
-                ->first();
 
-            if ($bCodeCheck != null) {
-                // return response()->json('Student already logged ' . ($input['PunchType'] != null && $input['PunchType']==='IN' ? 'OUT' : 'IN'), 400);
-                return response()->json('Student already logged ' . $input['PunchType'], 400);
-            } else {
-                $input['BarcodeId'] = null;
+            if ($input['Type'] === 'Teacher') {
+                /**
+                 * TEACHERS
+                 */
+                $bCodeCheck = DB::table('BarcodeAttendance')
+                    ->whereRaw("StudentId='" . $input['StudentId'] . "' AND BarcodeId='Teacher' AND (created_at BETWEEN '" . $from . "' AND '" . $to . "') AND PunchType='" . $input['PunchType'] . "'")
+                    ->first();
 
-                $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
+                if ($bCodeCheck != null) {
+                    // return response()->json('Teacher already logged ' . ($input['PunchType'] != null && $input['PunchType']==='IN' ? 'OUT' : 'IN'), 400);
+                    return response()->json('Teacher already logged ' . $input['PunchType'], 400);
+                } else {
+                    $input['BarcodeId'] = $input['Type'];
 
-                // save sms for sending
-                if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
-                    //get student
-                    $student = Students::find($input['StudentId']);
+                    $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
 
-                    if ($student != null) {
-                        SmsMessages::create([
-                            'id' => IDGenerator::generateIDandRandString(),
-                            'ContactNumber' => $input['ContactNumber'],
-                            'Message' => env("APP_COMPANY") . " System Notification\n\n" .
-                                $student->FirstName . " " . $student->LastName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
-                            'AIFacilitator' => 'Reeve',
-                            'Source' => 'batch.ID',
-                            'Priority' => 1,
-                        ]);
+                    // save sms for sending
+                    if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
+                        //get student
+                        $teacher = Teachers::find($input['StudentId']);
+
+                        if ($teacher != null) {
+                            SmsMessages::create([
+                                'id' => IDGenerator::generateIDandRandString(),
+                                'ContactNumber' => $input['ContactNumber'],
+                                'Message' => env("APP_COMPANY") . " System Notification\n\n" .
+                                    $teacher->FullName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
+                                'AIFacilitator' => 'Reeve',
+                                'Source' => 'batch.ID',
+                                'Priority' => 1,
+                            ]);
+                        }
                     }
-                }
 
-                return response()->json($barcodeAttendance, 200);
+                    return response()->json($barcodeAttendance, 200);
+                }
+            } else {
+                /**
+                 * STUDENTS
+                 */
+                $bCodeCheck = DB::table('BarcodeAttendance')
+                    ->whereRaw("StudentId='" . $input['StudentId'] . "' AND BarcodeId IS NULL AND (created_at BETWEEN '" . $from . "' AND '" . $to . "') AND PunchType='" . $input['PunchType'] . "'")
+                    ->first();
+
+                if ($bCodeCheck != null) {
+                    // return response()->json('Student already logged ' . ($input['PunchType'] != null && $input['PunchType']==='IN' ? 'OUT' : 'IN'), 400);
+                    return response()->json('Student already logged ' . $input['PunchType'], 400);
+                } else {
+                    $input['BarcodeId'] = null;
+
+                    $barcodeAttendance = $this->barcodeAttendanceRepository->create($input);
+
+                    // save sms for sending
+                    if (isset($input['ContactNumber']) && $input['ContactNumber'] != null && strlen($input['ContactNumber']) >= 10) {
+                        //get student
+                        $student = Students::find($input['StudentId']);
+
+                        if ($student != null) {
+                            SmsMessages::create([
+                                'id' => IDGenerator::generateIDandRandString(),
+                                'ContactNumber' => $input['ContactNumber'],
+                                'Message' => env("APP_COMPANY") . " System Notification\n\n" .
+                                    $student->FirstName . " " . $student->LastName . " has logged " . $input['PunchType'] . " of/to the campus at " . date('D, M d, Y h:i A'),
+                                'AIFacilitator' => 'Reeve',
+                                'Source' => 'batch.ID',
+                                'Priority' => 1,
+                            ]);
+                        }
+                    }
+
+                    return response()->json($barcodeAttendance, 200);
+                }
             }
         }
-    }
 
     /**
      * Display the specified BarcodeAttendance.
@@ -1099,5 +1102,97 @@ class BarcodeAttendanceController extends AppBaseController
 
         return response()->download(public_path('generated/sf2/SF2_Senior.xls'));
     }
-}
 
+
+
+    public function submitClassAttendance(Request $request)
+    {
+        date_default_timezone_set('Asia/Manila');
+
+        DB::beginTransaction();
+
+        try
+        {
+            $attendanceData = [];
+
+            $class_id = $request['classId'];
+            $date_start = $request['date_start'];
+            $date_end = $request['date_end'];
+            $absent_students_by_date = $request['students'];
+
+            $startDate = Carbon::parse($date_start);
+            $endDate = Carbon::parse($date_end);
+            $startTime = $startDate->format('H:i:s');
+
+         
+            $allStudentIds = StudentClasses::where('ClassId', $class_id)
+                ->pluck('StudentId')
+                ->toArray();
+
+            $currentDate = $startDate->copy()->startOfDay();
+
+            while ($currentDate <= $endDate)
+            {
+                $dateKey = $currentDate->toDateString();
+                $absentIds = $absent_students_by_date[$dateKey] ?? [];
+
+               
+                $presentStudentIds = array_values(array_diff($allStudentIds, $absentIds));
+
+                foreach ($presentStudentIds as $studentId)
+                {
+                    $timestamp = now()->timestamp;
+                    $randomString = Str::random(32);
+                    $barcodeInId = "{$timestamp}-{$randomString}01";
+                    $barcodeOutId = "{$timestamp}-{$randomString}02";
+
+                    $baseData = [
+                        'StudentId' => $studentId,
+                        'SmsSent' => 'SENT',
+                        'ContactNumber' => '09075181814',
+                        'created_at' => Carbon::parse("{$dateKey} {$startTime}"),
+                        'updated_at' => now(),
+                    ];
+
+                 
+                    $attendanceData[] = array_merge($baseData, [
+                        'PunchType' => 'IN',
+                        'id' => $barcodeInId,
+                    ]);
+
+                
+                    $attendanceData[] = array_merge($baseData, [
+                        'PunchType' => 'OUT',
+                        'id' => $barcodeOutId,
+                    ]);
+                }
+
+                $currentDate->addDay();
+            }
+
+            if (!empty($attendanceData))
+            {
+                BarcodeAttendance::insert($attendanceData);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Class attendance has been submitted successfully.',
+            ]);
+        } catch (\Exception $e)
+        {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while submitting the attendance.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+}
