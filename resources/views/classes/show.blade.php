@@ -2,6 +2,7 @@
 
 <meta name="teacher-id" content="{{ $adviser }}">
 <meta name="school-year-id" content="{{ $schoolYearId }}">
+<meta name="user-teacher-id" content="{{ Auth::user()->TeacherId }}">
 <meta name="class-id" content="{{ $classId }}">
 <meta name="am-in-threshold" content="{{ env('STUDENT_IN_AM_THRESHOLD') }}">
 <meta name="pm-out-threshold" content="{{ env('STUDENT_OUT_PM_THRESHOLD') }}">
