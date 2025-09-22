@@ -2063,7 +2063,7 @@
                                                         <div
                                                             style="
                                                                 display: flex;
-                                                                width: 100%;ad
+                                                                width: 100%;
                                                                 flex-direction: row;
                                                                 justify-content: center;
                                                                 align-items: center;
@@ -2111,7 +2111,7 @@
 
                                                             <a
                                                                 v-if="
-                                                                    adviser.id === userId
+                                                                    adviser.id === userTeacherId
                                                                 "
                                                                 :href="
                                                                     baseURL +
@@ -2210,7 +2210,7 @@
 
                                                         <a
                                                             v-if="
-                                                                adviser.id === userId
+                                                                adviser.id === userTeacherId
                                                             "
                                                             :href="
                                                                 baseURL +
@@ -5595,6 +5595,9 @@ export default {
                 .getAttribute("content"),
             userId: document
                 .querySelector("meta[name='user-id']")
+                .getAttribute("content"),
+            userTeacherId: document
+                .querySelector("meta[name='user-teacher-id']")
                 .getAttribute("content"),
             amInThreshold: document
                 .querySelector("meta[name='am-in-threshold']")

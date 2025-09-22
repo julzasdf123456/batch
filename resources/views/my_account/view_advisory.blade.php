@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 <meta name="teacher-id" content="{{ $adviser }}">
+<meta name="user-teacher-id" content="{{ Auth::user()->TeacherId }}">
 <meta name="school-year-id" content="{{ $schoolYearId }}">
 <meta name="class-id" content="{{ $classId }}">
 <meta name="am-in-threshold" content="{{ env('STUDENT_IN_AM_THRESHOLD') }}">
