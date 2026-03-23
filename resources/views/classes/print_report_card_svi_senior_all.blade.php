@@ -26,6 +26,7 @@
                             <td></td>
                             <td class="text-center">June</td>
                             <td class="text-center">July</td>
+                            <td class="text-center">August</td>
                             <td class="text-center">Sept</td>
                             <td class="text-center">Oct</td>
                             <td class="text-center">Nov</td>
