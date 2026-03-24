@@ -24,6 +24,7 @@
                     <tbody>
                         <tr>
                             <td></td>
+                            <td class="baskerville text-center">Jun</td>
                             <td class="baskerville text-center">Jul</td>
                             <td class="baskerville text-center">Aug</td>
                             <td class="baskerville text-center">Sept</td>
@@ -33,7 +34,6 @@
                             <td class="baskerville text-center">Jan</td>
                             <td class="baskerville text-center">Feb</td>
                             <td class="baskerville text-center">Mar</td>
-                            <td class="baskerville text-center">Apr</td>
                             <td class="baskerville text-center">Total</td>
                         </tr>
                         <tr>

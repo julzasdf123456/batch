@@ -718,6 +718,7 @@
                         <tbody>
                             <tr>
                                 <td></td>
+                                <td class="text-center">Ju</td>
                                 <td class="text-center">Jul</td>
                                 <td class="text-center">Aug</td>
                                 <td class="text-center">Sept</td>
@@ -727,7 +728,6 @@
                                 <td class="text-center">Jan</td>
                                 <td class="text-center">Feb</td>
                                 <td class="text-center">Mar</td>
-                                <td class="text-center">Apr</td>
                                 <td class="text-center">Total</td>
                             </tr>
                             <tr>
