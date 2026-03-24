@@ -87,7 +87,7 @@ class Classes extends Model
                     'Subjects.ParentSubject',
                     'Teachers.FullName',
                 )
-                ->orderBy('Subjects.Heirarchy')
+                ->orderBy('StudentSubjects.Heirarchy')
                 ->get();
             
             $fsRowStart = 31;
