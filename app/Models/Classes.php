@@ -80,13 +80,14 @@ class Classes extends Model
                 ->leftJoin('Subjects', 'StudentSubjects.SubjectId', '=', 'Subjects.id')
                 ->leftJoin('Teachers', 'Subjects.Teacher', '=', 'Teachers.id')
                 ->whereRaw("StudentSubjects.StudentId='" . $student->id . "' AND StudentSubjects.ClassId='" . $class->id . "'")
+                ->whereNotNull('Subjects.id')
                 ->select(
                     'StudentSubjects.*',
                     'Subjects.Subject',
                     'Subjects.ParentSubject',
                     'Teachers.FullName',
                 )
-                ->orderBy('Heirarchy')
+                ->orderBy('Subjects.Heirarchy')
                 ->get();
             
             $fsRowStart = 31;
