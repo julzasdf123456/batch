@@ -92,7 +92,7 @@ class Classes extends Model
             $fsRowStart = 31;
             $fsRowOGStart = 31; // for averaging, get original starting row
             foreach($currentSubjects as $fs) {
-                $worksheet->setCellValue('A' . $fsRowStart, $fs->ParentSubject);
+                $worksheet->setCellValue('A' . $fsRowStart, $fs->ParentSubject != null ? $fs->ParentSubject : $fs->Subject);
                 $worksheet->setCellValue('I' . $fsRowStart, $fs->Subject);
                 $worksheet->setCellValue('AT' . $fsRowStart, $fs->FirstGradingGrade != null ? round(floatval($fs->FirstGradingGrade)) : '');
                 $worksheet->setCellValue('AY' . $fsRowStart, $fs->SecondGradingGrade != null ? round(floatval($fs->SecondGradingGrade)) : '');
