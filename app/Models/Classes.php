@@ -111,6 +111,8 @@ class Classes extends Model
             $worksheet->setCellValue('A53', strtoupper($adviser != null ? $adviser->FullName : ''));
             $worksheet->setCellValue('Y53', strtoupper(env('PRINCIPAL_NAME')));
             $worksheet->setCellValue('AZ53', strtoupper(date('m/d/Y')));
+
+            $fsRowStart = 0;
         } elseif ($class != null && $class->Semester === '2nd') {
             /**
              * ================================================
@@ -170,6 +172,8 @@ class Classes extends Model
             $worksheet->setCellValue('A99', strtoupper($adviser != null ? $adviser->FullName : ''));
             $worksheet->setCellValue('Y99', strtoupper(env('PRINCIPAL_NAME')));
             $worksheet->setCellValue('AZ99', strtoupper(date('m/d/Y')));
+            
+            $fsRowStart = 0;
         }
     }
 

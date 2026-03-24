@@ -718,7 +718,7 @@
                         <tbody>
                             <tr>
                                 <td></td>
-                                <td class="text-center">Ju</td>
+                                <td class="text-center">Jun</td>
                                 <td class="text-center">Jul</td>
                                 <td class="text-center">Aug</td>
                                 <td class="text-center">Sept</td>
