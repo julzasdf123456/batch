@@ -26,7 +26,7 @@
                     <img style="width: 60px; height: 60px; object-fit: cover;" src="{{ URL::asset('imgs/deped-logo.svg'); }}" alt="">
 
                     <div class="column h-center v-center">
-                        <h2 class="oswald text-center" style="font-weight: bold; font-size: 1.4em; padding: 0; margin: 0;">HOLY CROSS ACADEMY OF TUBIGON, INC.</h2>
+                        <h2 class="oswald text-center" style="font-weight: bold; font-size: 1.4em; padding: 0; margin: 0;">{{ env('APP_COMPANY') }}</h2>
                         <h2 style="font-size: .94em; padding: 0; margin: 0;">Tubigon, Bohol</h2>
                         <h2 style="font-size: .94em; padding: 0; margin: 0;">(Member: BACS-I)</h2>
                     </div>
